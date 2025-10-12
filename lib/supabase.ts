@@ -18,7 +18,7 @@ export function getSupabaseBrowserClient() {
       browserClientInstance = createClient<Database>(supabaseUrl, supabaseAnonKey, {
         auth: {
           persistSession: true,
-          storageKey: "vendaflow-auth",
+          storageKey: "vendoflow-auth",
           autoRefreshToken: true,
           detectSessionInUrl: true,
           flowType: "implicit",

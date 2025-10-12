@@ -52,10 +52,10 @@ export async function GET() {
         sql_query: `
           INSERT INTO settings (key, value, description, created_at, updated_at)
           VALUES 
-          ('store_name', 'VendaFlow POS', 'Store name setting', NOW(), NOW()),
+          ('store_name', 'VendoFlow POS', 'Store name setting', NOW(), NOW()),
           ('store_address', '123 Main Street, City, Country', 'Store address setting', NOW(), NOW()),
           ('store_phone', 'Phone: +1 234 567 890', 'Store phone setting', NOW(), NOW()),
-          ('store_email', 'Email: info@vendaflow.com', 'Store email setting', NOW(), NOW())
+          ('store_email', 'Email: info@vendoflow.com', 'Store email setting', NOW(), NOW())
           ON CONFLICT (key) DO NOTHING;
         `,
       })
@@ -83,17 +83,7 @@ export async function GET() {
     try {
       const { error: alterTableError } = await supabase.rpc("execute_sql", {
         sql_query: `
-          DO $$
-          BEGIN
-            IF NOT EXISTS (
-              SELECT FROM information_schema.columns 
-              WHERE table_schema = 'public' 
-              AND table_name = 'sales' 
-              AND column_name = 'customer_name'
-            ) THEN
-              ALTER TABLE sales ADD COLUMN customer_name TEXT;
-            END IF;
-          END $$;
+          DO $$ BEGIN IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'sales' AND column_name = 'customer_name') THEN ALTER TABLE sales ADD COLUMN customer_name TEXT; END IF; END $$;
         `,
       })
 

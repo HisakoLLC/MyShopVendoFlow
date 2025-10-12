@@ -13,10 +13,10 @@ import { getStoreSettings, updateStoreSetting, type StoreInfo } from "@/lib/acti
 
 export function StoreSettings() {
   const [storeInfo, setStoreInfo] = useState<StoreInfo>({
-    name: "VendaFlow POS",
+    name: "VendoFlow POS",
     address: "123 Main Street, City, Country",
     phone: "Phone: +1 234 567 890",
-    email: "Email: info@vendaflow.com",
+    email: "Email: info@vendoflow.com",
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)

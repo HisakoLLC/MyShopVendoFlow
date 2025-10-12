@@ -24,7 +24,7 @@ export function Logo({ iconOnly = false, className = "" }: LogoProps) {
           <path d="M16 10a4 4 0 0 1-8 0" />
         </svg>
       </div>
-      {!iconOnly && <span className="text-xl font-bold">VendaFlow</span>}
+      {!iconOnly && <span className="text-xl font-bold">VendoFlow</span>}
     </Link>
   )
 }

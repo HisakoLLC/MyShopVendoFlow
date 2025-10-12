@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
@@ -24,6 +24,10 @@ export default function SignupPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const { signUp } = useAuth()
   const router = useRouter()
+
+  useEffect(() => {
+    document.title = "Sign Up | VendoFlow"
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

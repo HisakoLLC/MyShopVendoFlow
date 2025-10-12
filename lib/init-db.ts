@@ -65,7 +65,7 @@ export async function initializeDatabase() {
     const defaultSettings = [
       {
         key: "store_name",
-        value: "VendaFlow POS",
+        value: "VendoFlow POS",
         description: "Store name setting",
       },
       {
@@ -80,7 +80,7 @@ export async function initializeDatabase() {
       },
       {
         key: "store_email",
-        value: "Email: info@vendaflow.com",
+        value: "Email: info@vendoflow.com",
         description: "Store email setting",
       },
     ]

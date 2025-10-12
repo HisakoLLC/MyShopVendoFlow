@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
@@ -20,6 +20,10 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const { resetPassword } = useAuth()
+
+  useEffect(() => {
+    document.title = "Reset Password | VendoFlow"
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

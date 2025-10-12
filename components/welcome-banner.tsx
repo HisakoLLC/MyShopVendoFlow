@@ -22,7 +22,7 @@ export function WelcomeBanner() {
               <ShoppingBag className="h-10 w-10 text-[#8AE234]" />
             </div>
             <div className="space-y-1 text-center md:text-left">
-              <h3 className="font-bold text-xl">Welcome to VendaFlow – Simple. Fast. Modern.</h3>
+              <h3 className="font-bold text-xl">Welcome to VendoFlow – Simple. Fast. Modern.</h3>
               <p className="text-[#1A1A1A]/80 text-sm">
                 Manage sales, inventory, and payments — all in one fast, reliable platform built for modern retailers.
               </p>
