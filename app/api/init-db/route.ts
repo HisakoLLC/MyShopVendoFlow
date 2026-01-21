@@ -2,6 +2,11 @@ import { NextResponse } from "next/server"
 import { getSupabaseServerClient } from "@/lib/supabase"
 
 export async function GET() {
+  // DB schema mutation should never be publicly callable in production.
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Not found" }, { status: 404 })
+  }
+
   try {
     console.log("API: Starting database initialization...")
     const supabase = getSupabaseServerClient()
@@ -14,7 +19,7 @@ export async function GET() {
     // 1. Create settings table if it doesn't exist
     console.log("API: Creating settings table if it doesn't exist...")
     try {
-      const { error: createTableError } = await supabase.rpc("execute_sql", {
+      const { error: createTableError } = await (supabase.rpc as any)("execute_sql", {
         sql_query: `
           CREATE TABLE IF NOT EXISTS settings (
             id SERIAL PRIMARY KEY,
@@ -48,7 +53,7 @@ export async function GET() {
     // 2. Insert default settings directly with SQL to avoid permission issues
     console.log("API: Inserting default settings...")
     try {
-      const { error: insertError } = await supabase.rpc("execute_sql", {
+      const { error: insertError } = await (supabase.rpc as any)("execute_sql", {
         sql_query: `
           INSERT INTO settings (key, value, description, created_at, updated_at)
           VALUES 
@@ -81,7 +86,7 @@ export async function GET() {
     // 3. Add customer_name column to sales table if it doesn't exist
     console.log("API: Adding customer_name column to sales table if needed...")
     try {
-      const { error: alterTableError } = await supabase.rpc("execute_sql", {
+      const { error: alterTableError } = await (supabase.rpc as any)("execute_sql", {
         sql_query: `
           DO $$ BEGIN IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'sales' AND column_name = 'customer_name') THEN ALTER TABLE sales ADD COLUMN customer_name TEXT; END IF; END $$;
         `,

@@ -1,16 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createClient } from "@supabase/supabase-js"
-
-// Use service role key for admin operations
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-})
+import { getSupabaseServerClient } from "@/lib/supabase"
 
 export async function GET(request: NextRequest) {
   try {
+    const supabase = getSupabaseServerClient()
+    if (!supabase) {
+      return NextResponse.json({ error: "Failed to initialize database client" }, { status: 500 })
+    }
+
     const { searchParams } = new URL(request.url)
     const page = Number.parseInt(searchParams.get("page") || "1")
     const limit = Number.parseInt(searchParams.get("limit") || "10")
@@ -72,6 +69,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = getSupabaseServerClient()
+    if (!supabase) {
+      return NextResponse.json({ error: "Failed to initialize database client" }, { status: 500 })
+    }
+
     const body = await request.json()
     const { title, category, amount, payment_method, expense_date, notes, attachment_url, recorded_by } = body
 
@@ -123,30 +125,20 @@ export async function POST(request: NextRequest) {
       recorded_by: recorded_by?.trim() || "Admin",
     }
 
-    console.log("Creating expense with data:", expenseData)
-
-    const { data, error } = await supabase.from("expenses").insert([expenseData]).select().single()
+    // Cast to any because the expenses table is not yet declared in the generated Database types.
+    const { data, error } = await (supabase.from("expenses") as any).insert([expenseData]).select().single()
 
     if (error) {
       console.error("Supabase error creating expense:", error)
-      return NextResponse.json(
-        {
-          error: "Failed to create expense",
-          details: error.message,
-          data: expenseData,
-        },
-        { status: 500 },
-      )
+      return NextResponse.json({ error: "Failed to create expense" }, { status: 500 })
     }
 
-    console.log("Successfully created expense:", data)
     return NextResponse.json(data, { status: 201 })
   } catch (error) {
     console.error("Error in expenses POST:", error)
     return NextResponse.json(
       {
         error: "Internal server error",
-        details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },
     )
