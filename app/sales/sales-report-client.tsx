@@ -169,7 +169,7 @@ export function SalesReportClient({
         }, {} as Record<string, number>)
 
         // Calculate total units sold (sum of all quantities)
-        const totalUnits = (lineItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
+        const totalUnits = (lineItems || []).reduce((sum: number, item: { sale_id: string | null; quantity: number | null }) => sum + (item.quantity || 0), 0)
         setTotalUnitsSold(totalUnits)
         setItemsPerSale(itemsMap)
       } else {
