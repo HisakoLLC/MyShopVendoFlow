@@ -70,7 +70,7 @@ export function VariantSelector({
         }
 
         // Fetch inventory levels for these variants at the current store
-        const variantIds = variantsData.map((v) => v.variant_id)
+        const variantIds = variantsData.map((v: { variant_id: string; size: string; color: string; price: number | null; sku: string }) => v.variant_id)
         const { data: inventoryData, error: inventoryError } = await supabase
           .from("inventory_levels")
           .select("variant_id, quantity_on_hand")
