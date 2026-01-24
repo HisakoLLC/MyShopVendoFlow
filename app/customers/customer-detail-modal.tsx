@@ -85,7 +85,7 @@ export function CustomerDetailModal({
           .select("store_id")
           .eq("account_id", accountId)
 
-        const storeIds = (stores || []).map((s) => s.store_id)
+        const storeIds = (stores || []).map((s: { store_id: string }) => s.store_id)
         if (storeIds.length === 0) {
           setIsLoadingHistory(false)
           return
