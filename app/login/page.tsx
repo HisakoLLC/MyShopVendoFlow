@@ -15,7 +15,17 @@ import { Checkbox } from "@/components/ui/checkbox"
 
 export default function LoginPage() {
   const router = useRouter()
-  const supabase = React.useMemo(() => createClient(), [])
+  const [supabaseError, setSupabaseError] = React.useState<string | null>(null)
+  const supabase = React.useMemo(() => {
+    try {
+      return createClient()
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to initialize Supabase client"
+      setSupabaseError(errorMessage)
+      // Return a mock client that will fail gracefully
+      return null as any
+    }
+  }, [])
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
   const [rememberMe, setRememberMe] = React.useState(false)
@@ -24,6 +34,12 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (supabaseError || !supabase) {
+      toast.error(supabaseError || "Supabase client not initialized. Please check your environment variables.")
+      return
+    }
+    
     setIsLoading(true)
 
     try {
@@ -97,6 +113,16 @@ export default function LoginPage() {
             Sign in to your account
           </p>
         </div>
+
+        {supabaseError && (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/40 dark:bg-red-950/30">
+            <p className="text-sm font-semibold text-red-900 dark:text-red-100">Configuration Error</p>
+            <p className="mt-1 text-xs text-red-800 dark:text-red-200">{supabaseError}</p>
+            <p className="mt-2 text-xs text-red-700 dark:text-red-300">
+              Please ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set in your Vercel project settings.
+            </p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

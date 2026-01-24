@@ -43,18 +43,27 @@ export default function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {process.env.NODE_ENV === "development" && (
-            <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-900">
-              <p className="text-xs font-mono text-zinc-600 dark:text-zinc-400">
-                {error.message || "Unknown error"}
+          {/* Show error details in both dev and production for debugging */}
+          <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-900">
+            <p className="text-xs font-mono text-zinc-600 dark:text-zinc-400 break-words">
+              {error.message || "Unknown error"}
+            </p>
+            {error.digest && (
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
+                Error ID: {error.digest}
               </p>
-              {error.digest && (
-                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
-                  Error ID: {error.digest}
-                </p>
-              )}
-            </div>
-          )}
+            )}
+            {error.stack && process.env.NODE_ENV === "development" && (
+              <details className="mt-2">
+                <summary className="text-xs text-zinc-500 dark:text-zinc-500 cursor-pointer">
+                  Stack trace
+                </summary>
+                <pre className="mt-1 text-xs font-mono text-zinc-600 dark:text-zinc-400 overflow-auto max-h-40">
+                  {error.stack}
+                </pre>
+              </details>
+            )}
+          </div>
 
           <div className="flex gap-2">
             <Button onClick={reset} variant="outline" className="flex-1">
