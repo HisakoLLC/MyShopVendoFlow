@@ -85,7 +85,7 @@ async function fetchInventoryData(): Promise<FetchResult> {
   }
 
   // Fetch inventory levels for all variants
-  const variantIds = (variants ?? []).map((v) => v.variant_id)
+  const variantIds = (variants ?? []).map((v: { variant_id: string }) => v.variant_id)
   if (variantIds.length === 0) {
     return { stores: stores ?? [], inventory: [] }
   }
