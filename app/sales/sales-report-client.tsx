@@ -161,7 +161,7 @@ export function SalesReportClient({
           .select("sale_id, quantity")
           .in("sale_id", saleIds)
 
-        const itemsMap = (lineItems || []).reduce((acc, item) => {
+        const itemsMap = (lineItems || []).reduce((acc: Record<string, number>, item: { sale_id: string | null; quantity: number | null }) => {
           if (item.sale_id) {
             acc[item.sale_id] = (acc[item.sale_id] || 0) + 1 // Count of line items
           }
