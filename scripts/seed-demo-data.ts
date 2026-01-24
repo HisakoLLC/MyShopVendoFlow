@@ -534,6 +534,11 @@ async function seedSales(
     let subtotal = 0
     const lineItems = []
     for (const { variant, quantity } of selectedVariants) {
+      // Skip if style_id is missing
+      if (!variant.style_id) {
+        continue
+      }
+
       // Find style for base price
       const { data: style } = await supabase
         .from("product_styles")
