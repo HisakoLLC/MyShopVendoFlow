@@ -154,7 +154,7 @@ export function SalesReportClient({
       setSales(salesData || [])
 
       // Get line items count and quantities
-      const saleIds = (salesData || []).map((s) => s.sale_id)
+      const saleIds = (salesData || []).map((s: { sale_id: string }) => s.sale_id)
       if (saleIds.length > 0) {
         const { data: lineItems } = await supabase
           .from("sale_line_items")
