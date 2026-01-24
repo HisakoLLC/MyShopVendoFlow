@@ -11,8 +11,6 @@ const nextConfig = {
   },
   // Enable React strict mode in production
   reactStrictMode: true,
-  // Optimize for production
-  swcMinify: true,
   // Security headers
   async headers() {
     return [
