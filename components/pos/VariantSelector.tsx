@@ -84,14 +84,14 @@ export function VariantSelector({
 
         // Create a map of variant_id to stock quantity
         const stockMap = new Map<string, number>()
-        ;(inventoryData || []).forEach((item) => {
+        ;(inventoryData || []).forEach((item: { variant_id: string | null; quantity_on_hand: number | null }) => {
           if (item.variant_id) {
             stockMap.set(item.variant_id, item.quantity_on_hand ?? 0)
           }
         })
 
         // Combine variants with stock data
-        const variantsWithStock: VariantWithStock[] = variantsData.map((variant) => ({
+        const variantsWithStock: VariantWithStock[] = variantsData.map((variant: { variant_id: string; size: string; color: string; price: number | null; sku: string }) => ({
           variant_id: variant.variant_id,
           size: variant.size,
           color: variant.color,
@@ -121,12 +121,12 @@ export function VariantSelector({
     }
 
     // Get unique sizes and colors
-    const uniqueSizes = [...new Set(variants.map((v) => v.size))].sort()
-    const uniqueColors = [...new Set(variants.map((v) => v.color))].sort()
+    const uniqueSizes = [...new Set(variants.map((v: VariantWithStock) => v.size))].sort()
+    const uniqueColors = [...new Set(variants.map((v: VariantWithStock) => v.color))].sort()
 
     // Create a map for quick lookup
     const variantMap = new Map<string, VariantWithStock>()
-    variants.forEach((v) => {
+    variants.forEach((v: VariantWithStock) => {
       variantMap.set(`${v.size}-${v.color}`, v)
     })
 
