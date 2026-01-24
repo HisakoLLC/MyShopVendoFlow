@@ -225,7 +225,7 @@ async function DashboardContent() {
       salesChartData = Object.entries(grouped)
         .map(([date, revenue]) => ({
           date: new Date(date).toLocaleDateString("en-KE", { month: "short", day: "numeric" }),
-          revenue,
+          revenue: revenue as number,
         }))
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     }
@@ -240,7 +240,7 @@ async function DashboardContent() {
     .gte("sale_date", sevenDaysAgoStr)
     .lte("sale_date", todayStr)
 
-  const saleIdsInRange = (salesInRange || []).map((s) => s.sale_id)
+  const saleIdsInRange = (salesInRange || []).map((s: { sale_id: string }) => s.sale_id)
 
   // Then get line items for those sales
   const { data: topSellersData, error: topSellersError } = saleIdsInRange.length
@@ -255,7 +255,7 @@ async function DashboardContent() {
   // Aggregate top sellers by style
   const topSellersMap = new Map<string, { name: string; revenue: number }>()
   if (topSellersData) {
-    topSellersData.forEach((item) => {
+    topSellersData.forEach((item: { line_total: number | null; product_variants: { product_styles: { style_id: string; name: string } | null } | null }) => {
       const style = item.product_variants?.product_styles as any
       if (style?.style_id && style?.name) {
         const current = topSellersMap.get(style.style_id) || { name: style.name, revenue: 0 }
@@ -278,7 +278,7 @@ async function DashboardContent() {
     .limit(10)
 
   // Get line items count for recent sales
-  const recentSaleIds = (recentSales || []).map((s) => s.sale_id)
+  const recentSaleIds = (recentSales || []).map((s: { sale_id: string }) => s.sale_id)
   let recentLineItems: Array<{ sale_id: string | null }> | null = null
   if (recentSaleIds.length > 0) {
     const result = await supabase

@@ -40,7 +40,7 @@ async function IntelligenceContent() {
     .select("variant_id, product_styles!inner(account_id)")
     .eq("product_styles.account_id", accountId)
 
-  const variantIds = (accountVariants || []).map((v) => v.variant_id)
+  const variantIds = (accountVariants || []).map((v: { variant_id: string }) => v.variant_id)
 
   // Fetch variant metrics for these variants
   const { data: variantMetrics, error: metricsError } = variantIds.length
@@ -71,7 +71,7 @@ async function IntelligenceContent() {
   }
 
   // Aggregate inventory by variant
-  const inventoryByVariant = (inventoryLevels || []).reduce((acc, item) => {
+  const inventoryByVariant = (inventoryLevels || []).reduce((acc: Record<string, number>, item: { variant_id: string; quantity_on_hand: number | null }) => {
     if (item.variant_id) {
       acc[item.variant_id] = (acc[item.variant_id] || 0) + (item.quantity_on_hand || 0)
     }
