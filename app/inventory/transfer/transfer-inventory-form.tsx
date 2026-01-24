@@ -197,8 +197,8 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
         .in("store_id", [watchedFromStore, watchedToStore])
 
       if (!error && inventory) {
-        const fromInventory = inventory.find((inv) => inv.store_id === watchedFromStore)
-        const toInventory = inventory.find((inv) => inv.store_id === watchedToStore)
+        const fromInventory = inventory.find((inv: { store_id: string | null; quantity_on_hand: number | null }) => inv.store_id === watchedFromStore)
+        const toInventory = inventory.find((inv: { store_id: string | null; quantity_on_hand: number | null }) => inv.store_id === watchedToStore)
         setFromStock(fromInventory?.quantity_on_hand || 0)
         setToStock(toInventory?.quantity_on_hand || 0)
       } else {
