@@ -77,15 +77,21 @@ async function SalesReportContent() {
 
   // Get line items count and quantities for each sale
   const saleIds = (initialSales || []).map((s) => s.sale_id)
-  const { data: lineItems } = saleIds.length
-    ? await supabase
-        .from("sale_line_items")
-        .select("sale_id, quantity")
-        .in("sale_id", saleIds)
-    : { data: [], error: null }
+  let lineItems: Array<{ sale_id: string | null; quantity: number | null }> | null = null
+  if (saleIds.length > 0) {
+    const result = await supabase
+      .from("sale_line_items")
+      .select("sale_id, quantity")
+      .in("sale_id", saleIds)
+    lineItems = result.data
+  } else {
+    lineItems = []
+  }
 
   const itemsPerSale = (lineItems || []).reduce((acc, item) => {
-    acc[item.sale_id] = (acc[item.sale_id] || 0) + 1
+    if (item.sale_id) {
+      acc[item.sale_id] = (acc[item.sale_id] || 0) + 1
+    }
     return acc
   }, {} as Record<string, number>)
 
