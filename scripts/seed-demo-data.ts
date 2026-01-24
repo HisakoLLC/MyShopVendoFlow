@@ -79,7 +79,7 @@ type ProductStyle = {
 
 type Variant = {
   variant_id: string
-  style_id: string
+  style_id: string | null
   size: string
   color: string
   sku: string
