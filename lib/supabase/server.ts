@@ -7,9 +7,25 @@ export async function createServerSupabaseClient() {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error(
-      'Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your Vercel project settings.'
-    )
+    // During build time, Next.js analyzes code even for dynamic pages
+    // Return a mock client that will fail gracefully at runtime
+    // This prevents build failures while still showing errors at runtime
+    const mockError = { message: 'Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your Vercel project settings.' }
+    return {
+      auth: {
+        getUser: () => Promise.resolve({ data: { user: null }, error: mockError }),
+      },
+      from: () => ({
+        select: () => ({ 
+          eq: () => ({ 
+            single: () => Promise.resolve({ data: null, error: mockError }),
+            order: () => ({ data: [], error: mockError }),
+          }),
+          in: () => ({ eq: () => ({ data: [], error: mockError }) }),
+        }),
+      }),
+      rpc: () => Promise.resolve({ data: null, error: mockError }),
+    } as any
   }
 
   const cookieStore = await cookies()

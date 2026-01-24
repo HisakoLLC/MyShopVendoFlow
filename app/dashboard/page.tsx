@@ -2,6 +2,8 @@ import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
+
+export const dynamic = "force-dynamic"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts"
@@ -31,7 +33,13 @@ function LoadingState() {
 }
 
 async function DashboardContent() {
-  const supabase = await createServerSupabaseClient()
+  let supabase
+  try {
+    supabase = await createServerSupabaseClient()
+  } catch (error) {
+    console.error("Error initializing Supabase client:", error)
+    redirect("/login")
+  }
 
   const {
     data: { user },
@@ -85,7 +93,7 @@ async function DashboardContent() {
     throw new Error(`Failed to load stores: ${storesError.message}`)
   }
 
-  const storeIds = stores?.map((s) => s.store_id) || []
+  const storeIds = stores?.map((s: { store_id: string }) => s.store_id) || []
 
   // If no stores exist, show a helpful message
   if (storeIds.length === 0) {
@@ -151,12 +159,12 @@ async function DashboardContent() {
     .lt("sales.sale_date", todayStr)
 
   // Calculate today's metrics
-  const todayRevenue = (todaySales || []).reduce((sum, s) => sum + (s.grand_total || 0), 0)
+  const todayRevenue = (todaySales || []).reduce((sum: number, s: { grand_total: number | null }) => sum + (s.grand_total || 0), 0)
   const todayTransactions = (todaySales || []).length
-  const todayUnitsSold = (todayLineItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
+  const todayUnitsSold = (todayLineItems || []).reduce((sum: number, item: { quantity: number | null }) => sum + (item.quantity || 0), 0)
 
   // Calculate yesterday's metrics
-  const yesterdayRevenue = (yesterdaySales || []).reduce((sum, s) => sum + (s.grand_total || 0), 0)
+  const yesterdayRevenue = (yesterdaySales || []).reduce((sum: number, s: { grand_total: number | null }) => sum + (s.grand_total || 0), 0)
   const yesterdayTransactions = (yesterdaySales || []).length
 
   // Calculate revenue change
@@ -190,9 +198,9 @@ async function DashboardContent() {
   // If daily_sales_metrics doesn't have data, aggregate from sales
   let salesChartData: Array<{ date: string; revenue: number }> = []
   if (dailyMetrics && dailyMetrics.length > 0) {
-    salesChartData = dailyMetrics.map((m) => ({
+    salesChartData = dailyMetrics.map((m: { date: string; total_revenue: number | null }): { date: string; revenue: number } => ({
       date: new Date(m.date).toLocaleDateString("en-KE", { month: "short", day: "numeric" }),
-      revenue: m.total_revenue || 0,
+      revenue: m.total_revenue ?? 0,
     }))
   } else {
     // Aggregate from sales table
@@ -205,7 +213,7 @@ async function DashboardContent() {
 
     if (!salesDataError && salesData) {
       // Group by date
-      const grouped = salesData.reduce((acc, sale) => {
+      const grouped = salesData.reduce((acc: Record<string, number>, sale: { sale_date: string | null; grand_total: number | null }) => {
         const date = sale.sale_date?.split("T")[0] || ""
         if (!acc[date]) {
           acc[date] = 0
@@ -283,7 +291,7 @@ async function DashboardContent() {
   }
 
   // Count items per sale
-  const itemsPerSale = (recentLineItems || []).reduce((acc, item) => {
+  const itemsPerSale = (recentLineItems || []).reduce((acc: Record<string, number>, item: { sale_id: string | null }) => {
     if (item.sale_id) {
       acc[item.sale_id] = (acc[item.sale_id] || 0) + 1
     }
