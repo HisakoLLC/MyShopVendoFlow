@@ -75,7 +75,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
 
         // Get unique style_ids from variants
         const variantStyleIds = [
-          ...new Set((variantsBySku || []).map((v) => v.style_id).filter(Boolean)),
+          ...new Set((variantsBySku || []).map((v: { style_id: string | null }) => v.style_id).filter(Boolean)),
         ] as string[]
 
         // Fetch product_styles for variant matches
