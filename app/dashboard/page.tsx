@@ -271,16 +271,22 @@ async function DashboardContent() {
 
   // Get line items count for recent sales
   const recentSaleIds = (recentSales || []).map((s) => s.sale_id)
-  const { data: recentLineItems } = recentSaleIds.length
-    ? await supabase
-        .from("sale_line_items")
-        .select("sale_id")
-        .in("sale_id", recentSaleIds)
-    : { data: [], error: null }
+  let recentLineItems: Array<{ sale_id: string | null }> | null = null
+  if (recentSaleIds.length > 0) {
+    const result = await supabase
+      .from("sale_line_items")
+      .select("sale_id")
+      .in("sale_id", recentSaleIds)
+    recentLineItems = result.data
+  } else {
+    recentLineItems = []
+  }
 
   // Count items per sale
   const itemsPerSale = (recentLineItems || []).reduce((acc, item) => {
-    acc[item.sale_id] = (acc[item.sale_id] || 0) + 1
+    if (item.sale_id) {
+      acc[item.sale_id] = (acc[item.sale_id] || 0) + 1
+    }
     return acc
   }, {} as Record<string, number>)
 

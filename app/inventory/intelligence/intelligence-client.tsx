@@ -30,9 +30,9 @@ interface VariantMetric {
     size: string
     color: string
     sku: string
-    price: number
+    price: number | null
     cost: number | null
-    style_id: string
+    style_id: string | null
     product_styles: {
       name: string
       image_url: string | null

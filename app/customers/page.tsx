@@ -43,7 +43,7 @@ async function fetchCustomers(): Promise<Customer[]> {
       "customer_id, first_name, last_name, email, phone, is_vip, total_spend, transaction_count, first_purchase_date, last_purchase_date, notes"
     )
     .eq("account_id", accountId)
-    .order("last_purchase_date", { ascending: false, nullsLast: true })
+    .order("last_purchase_date", { ascending: false, nullsFirst: false })
 
   if (customersError) {
     throw new Error(customersError.message)

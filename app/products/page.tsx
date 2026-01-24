@@ -114,7 +114,7 @@ function ErrorState({ message }: { message: string }) {
     <div className="mx-auto w-full max-w-6xl px-4 py-10">
       <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-100">
         <div className="text-base font-semibold">Couldn’t load products</div>
-        <div className="mt-1 text-sm opacity-90">{props.message}</div>
+        <div className="mt-1 text-sm opacity-90">{message}</div>
         <div className="mt-4">
           <Link
             href="/dashboard"
@@ -174,6 +174,7 @@ async function ProductsPageContent() {
           action={{
             label: "Add New Style",
             href: "/products/new",
+            onClick: () => {},
           }}
         />
       </div>

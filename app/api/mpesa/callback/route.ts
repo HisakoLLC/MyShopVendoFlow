@@ -122,6 +122,11 @@ export async function POST(request: NextRequest) {
 
           if (!lineItemsError && lineItems) {
             for (const item of lineItems) {
+              // Skip if variant_id or store_id is missing
+              if (!item.variant_id || !sale.store_id) {
+                continue
+              }
+
               const { data: inventory, error: invError } = await supabase
                 .from("inventory_levels")
                 .select("inventory_id, quantity_on_hand")
@@ -132,7 +137,7 @@ export async function POST(request: NextRequest) {
               if (!invError && inventory) {
                 const newQuantity = Math.max(
                   0,
-                  (inventory.quantity_on_hand || 0) - item.quantity
+                  (inventory.quantity_on_hand || 0) - (item.quantity || 0)
                 )
                 await supabase
                   .from("inventory_levels")
