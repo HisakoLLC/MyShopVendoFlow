@@ -85,7 +85,7 @@ export function StoreFormModal({ open, onClose, onSuccess, store }: StoreFormMod
     defaultValues: {
       name: store?.name || "",
       address: store?.address || "",
-      tax_rate: store?.tax_rate?.toString() || "",
+      tax_rate: store?.tax_rate ?? undefined,
       timezone: store?.timezone || "",
       active: store?.active ?? true,
     },
@@ -98,7 +98,7 @@ export function StoreFormModal({ open, onClose, onSuccess, store }: StoreFormMod
       form.reset({
         name: store.name,
         address: store.address || "",
-        tax_rate: store.tax_rate?.toString() || "",
+        tax_rate: store.tax_rate ?? undefined,
         timezone: store.timezone || "",
         active: store.active ?? true,
       })
@@ -106,7 +106,7 @@ export function StoreFormModal({ open, onClose, onSuccess, store }: StoreFormMod
       form.reset({
         name: "",
         address: "",
-        tax_rate: "",
+        tax_rate: undefined,
         timezone: "",
         active: true,
       })
@@ -121,7 +121,7 @@ export function StoreFormModal({ open, onClose, onSuccess, store }: StoreFormMod
           store_id: store.store_id,
           name: values.name,
           address: values.address || undefined,
-          tax_rate: values.tax_rate ? parseFloat(values.tax_rate.toString()) : undefined,
+          tax_rate: values.tax_rate,
           timezone: values.timezone || undefined,
           active: values.active,
         }
@@ -131,7 +131,7 @@ export function StoreFormModal({ open, onClose, onSuccess, store }: StoreFormMod
         const data: CreateStoreData = {
           name: values.name,
           address: values.address || undefined,
-          tax_rate: values.tax_rate ? parseFloat(values.tax_rate.toString()) : undefined,
+          tax_rate: values.tax_rate,
           timezone: values.timezone || undefined,
           active: values.active,
         }
