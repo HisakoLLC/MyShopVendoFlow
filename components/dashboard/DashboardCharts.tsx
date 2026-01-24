@@ -37,12 +37,12 @@ export function DashboardCharts({ salesData }: DashboardChartsProps) {
             border: "1px solid rgb(228 228 231)",
             borderRadius: "0.5rem",
           }}
-          formatter={(value: number) => [
+          formatter={(value: number | undefined) => [
             new Intl.NumberFormat("en-KE", {
               style: "currency",
               currency: "KES",
               maximumFractionDigits: 0,
-            }).format(value),
+            }).format(value || 0),
             "Revenue",
           ]}
         />

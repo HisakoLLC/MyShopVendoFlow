@@ -104,7 +104,7 @@ export class MpesaClient {
         this.accessToken = data.access_token
         this.tokenExpiry = Date.now() + 55 * 60 * 1000
 
-        return this.accessToken
+        return data.access_token
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error))
         // Exponential backoff: 1s, 2s, 4s

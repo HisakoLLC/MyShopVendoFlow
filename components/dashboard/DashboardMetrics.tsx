@@ -47,12 +47,12 @@ export function DashboardMetrics({ topSellers }: DashboardMetricsProps) {
             border: "1px solid rgb(228 228 231)",
             borderRadius: "0.5rem",
           }}
-          formatter={(value: number, name: string, props: any) => [
+          formatter={(value: number | undefined, name: string | undefined, props: any) => [
             new Intl.NumberFormat("en-KE", {
               style: "currency",
               currency: "KES",
               maximumFractionDigits: 0,
-            }).format(value),
+            }).format(value || 0),
             props.payload.fullName || "Revenue",
           ]}
         />
