@@ -2,14 +2,23 @@ import { redirect } from "next/navigation"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 
 export default async function HomePage() {
-  const supabase = await createServerSupabaseClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    const supabase = await createServerSupabaseClient()
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
 
-  if (user) {
-    redirect("/products")
-  } else {
+    // If there's an error or no user, redirect to login
+    if (error || !user) {
+      redirect("/login")
+    } else {
+      redirect("/products")
+    }
+  } catch (error) {
+    // If Supabase client creation fails (e.g., missing env vars), redirect to login
+    // The login page will show appropriate error messages
+    console.error("Error initializing Supabase client:", error)
     redirect("/login")
   }
 }
