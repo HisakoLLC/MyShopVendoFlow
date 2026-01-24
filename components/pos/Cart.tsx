@@ -1,0 +1,212 @@
+"use client"
+
+import * as React from "react"
+import { useCart } from "@/lib/cart-context"
+import { Button } from "@/components/ui/button"
+import { CheckoutModal } from "./CheckoutModal"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+
+interface CartProps {
+  defaultStoreId: string | null
+}
+
+export function Cart({ defaultStoreId }: CartProps) {
+  const { cart, removeFromCart, clearCart, subtotal, taxAmount, total } = useCart()
+  const [showCheckout, setShowCheckout] = React.useState(false)
+  const [showClearConfirm, setShowClearConfirm] = React.useState(false)
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
+      maximumFractionDigits: 0,
+    }).format(price)
+  }
+
+  const handleClearCart = () => {
+    clearCart()
+    setShowClearConfirm(false)
+  }
+
+  return (
+    <>
+      <div className="flex h-full flex-col">
+        {/* Cart Header */}
+        <div className="border-b border-zinc-200 p-4 dark:border-zinc-800">
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+            Cart ({cart.length} {cart.length === 1 ? "item" : "items"})
+          </h2>
+        </div>
+
+        {/* Cart Items List */}
+        <div className="flex-1 overflow-y-auto p-4">
+          {cart.length === 0 ? (
+            <div className="flex h-full flex-col items-center justify-center text-center">
+              <svg
+                className="mb-4 h-16 w-16 text-zinc-400 dark:text-zinc-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                />
+              </svg>
+              <p className="mb-1 text-lg font-medium text-zinc-700 dark:text-zinc-300">
+                Cart is empty
+              </p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                Start adding products to create a sale
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {cart.map((item) => (
+                <div
+                  key={item.cartItemId}
+                  className="group relative rounded-lg border border-zinc-200 bg-white p-3 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+                >
+                  {/* Remove Button */}
+                  <button
+                    onClick={() => removeFromCart(item.cartItemId)}
+                    className="absolute right-2 top-2 rounded p-1 text-zinc-400 opacity-0 transition-opacity hover:text-red-600 group-hover:opacity-100 dark:text-zinc-500 dark:hover:text-red-500"
+                    aria-label="Remove item"
+                  >
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+
+                  {/* Item Details */}
+                  <div className="pr-8">
+                    <h3 className="font-medium text-zinc-900 dark:text-zinc-100">
+                      {item.styleName}
+                    </h3>
+                    <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
+                      {item.size} / {item.color}
+                    </p>
+                    <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+                      SKU: {item.sku}
+                    </p>
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                        Qty: {item.quantity}
+                      </span>
+                      <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                        {formatPrice(item.price * item.quantity)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Footer - Sticky Bottom */}
+        {cart.length > 0 && (
+          <div className="border-t border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="space-y-2">
+              {/* Subtotal */}
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-600 dark:text-zinc-400">Subtotal</span>
+                <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                  {formatPrice(subtotal)}
+                </span>
+              </div>
+
+              {/* Tax */}
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-600 dark:text-zinc-400">Tax (16%)</span>
+                <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                  {formatPrice(taxAmount)}
+                </span>
+              </div>
+
+              {/* Total */}
+              <div className="border-t border-zinc-200 pt-2 dark:border-zinc-800">
+                <div className="flex justify-between">
+                  <span className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                    Total
+                  </span>
+                  <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                    {formatPrice(total)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Checkout Button */}
+              <Button
+                className="mt-4 w-full"
+                size="lg"
+                onClick={() => setShowCheckout(true)}
+                disabled={cart.length === 0}
+              >
+                Checkout
+              </Button>
+
+              {/* Clear Cart Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => setShowClearConfirm(true)}
+                disabled={cart.length === 0}
+              >
+                Clear Cart
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Checkout Modal */}
+      {showCheckout && (
+        <CheckoutModal
+          storeId={defaultStoreId}
+          onClose={() => setShowCheckout(false)}
+        />
+      )}
+
+      {/* Clear Cart Confirmation Dialog */}
+      <AlertDialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear Cart?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove all items from the cart? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleClearCart} className="bg-red-600 hover:bg-red-700">
+              Clear Cart
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  )
+}

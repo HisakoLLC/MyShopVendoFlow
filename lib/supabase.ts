@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js"
-import type { Database } from "@/lib/database.types"
+import type { Database } from "../types/database.ts"
 
 // Create a singleton client for the browser
 let browserClientInstance: ReturnType<typeof createClient<Database>> | null = null
@@ -21,7 +21,8 @@ export function getSupabaseBrowserClient() {
           storageKey: "vendoflow-auth",
           autoRefreshToken: true,
           detectSessionInUrl: true,
-          flowType: "implicit",
+          // Prefer PKCE for browser auth flows.
+          flowType: "pkce",
         },
       })
     } catch (error) {
@@ -35,7 +36,12 @@ export function getSupabaseBrowserClient() {
 // Create a server client with the service role key
 // This should ONLY be used in server components or server actions
 export function getSupabaseServerClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  if (typeof window !== "undefined") {
+    console.error("getSupabaseServerClient was called in the browser")
+    return null
+  }
+
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!supabaseUrl || !supabaseServiceKey) {
