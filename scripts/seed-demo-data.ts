@@ -71,7 +71,7 @@ type Supplier = {
 type ProductStyle = {
   style_id: string
   name: string
-  category_id: string
+  category_id: string | null
   season_id: string | null
   base_price: number
   cost: number
