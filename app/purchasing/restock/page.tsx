@@ -68,7 +68,7 @@ async function fetchRestockSuggestions(): Promise<RestockSuggestion[]> {
     throw new Error(variantsError.message)
   }
 
-  const variantIds = (accountVariants || []).map((v) => v.variant_id)
+  const variantIds = (accountVariants || []).map((v: { variant_id: string }) => v.variant_id)
   if (variantIds.length === 0) {
     return []
   }
