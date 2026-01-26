@@ -120,7 +120,7 @@ async function fetchInventoryData(): Promise<FetchResult> {
 
     const storeInventories = (stores ?? []).map((store: { store_id: string; name: string }) => {
       const level = (inventoryLevels ?? []).find(
-        (il) => il.variant_id === variant.variant_id && il.store_id === store.store_id
+        (il: { variant_id: string; store_id: string; quantity_on_hand: number | null; quantity_reserved: number | null }) => il.variant_id === variant.variant_id && il.store_id === store.store_id
       )
 
       return {
