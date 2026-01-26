@@ -61,7 +61,7 @@ async function SalesReportContent() {
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
   sevenDaysAgo.setHours(0, 0, 0, 0)
 
-  const storeIds = stores?.map((s) => s.store_id) || []
+  const storeIds = stores?.map((s: { store_id: string }) => s.store_id) || []
 
   // Fetch initial sales data (last 7 days)
   const { data: initialSales, error: salesError } = await supabase
