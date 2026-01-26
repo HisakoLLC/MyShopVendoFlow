@@ -198,7 +198,7 @@ export async function createProductVariants(
   }
 
   if (existingVariants && existingVariants.length > 0) {
-    const existingSkus = existingVariants.map((v) => v.sku).join(", ")
+    const existingSkus = existingVariants.map((v: { sku: string }) => v.sku).join(", ")
     throw new Error(`SKU(s) already exist: ${existingSkus}. Please use unique SKUs.`)
   }
 
@@ -213,14 +213,14 @@ export async function createProductVariants(
   }
 
   const existingSet = new Set(
-    (existingCombos ?? []).map((c) => `${c.size}-${c.color}`.toLowerCase())
+    (existingCombos ?? []).map((c: { size: string; color: string }) => `${c.size}-${c.color}`.toLowerCase())
   )
   const duplicates = validatedVariants.filter((v) =>
     existingSet.has(`${v.size}-${v.color}`.toLowerCase())
   )
 
   if (duplicates.length > 0) {
-    const dupList = duplicates.map((d) => `${d.size}/${d.color}`).join(", ")
+    const dupList = duplicates.map((d: { size: string; color: string }) => `${d.size}/${d.color}`).join(", ")
     throw new Error(`Size/color combinations already exist: ${dupList}`)
   }
 
