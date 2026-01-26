@@ -328,7 +328,7 @@ export async function receiveInventory(data: ReceiveInventoryData) {
 
   // Update po_line_items.quantity_received
   for (const receiveItem of itemsToReceive) {
-    const lineItem = lineItems.find((li) => li.line_item_id === receiveItem.line_item_id)!
+    const lineItem = lineItems.find((li: { line_item_id: string; variant_id: string | null; quantity_ordered: number; quantity_received: number | null }) => li.line_item_id === receiveItem.line_item_id)!
     const newQtyReceived = (lineItem.quantity_received || 0) + receiveItem.quantity
 
     const { error: updateError } = await supabase
@@ -343,7 +343,7 @@ export async function receiveInventory(data: ReceiveInventoryData) {
 
   // Update inventory_levels
   for (const receiveItem of itemsToReceive) {
-    const lineItem = lineItems.find((li) => li.line_item_id === receiveItem.line_item_id)!
+    const lineItem = lineItems.find((li: { line_item_id: string; variant_id: string | null; quantity_ordered: number; quantity_received: number | null }) => li.line_item_id === receiveItem.line_item_id)!
     if (!lineItem.variant_id) continue
 
     // Get current inventory level
