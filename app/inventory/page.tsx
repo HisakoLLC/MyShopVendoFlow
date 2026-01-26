@@ -102,7 +102,7 @@ async function fetchInventoryData(): Promise<FetchResult> {
   // Group inventory by variant and store
   const inventoryMap = new Map<string, InventoryData>()
 
-  ;(variants ?? []).forEach((variant) => {
+  ;(variants ?? []).forEach((variant: { variant_id: string }) => {
     const style = variant.product_styles as unknown as StyleRow
     const key = variant.variant_id
 
