@@ -158,7 +158,7 @@ async function fetchRestockSuggestions(): Promise<RestockSuggestion[]> {
         restock_urgency_score: metric.restock_urgency_score || 0,
       }
     })
-    .filter((s): s is RestockSuggestion => s !== null)
+    .filter((s: RestockSuggestion | null): s is RestockSuggestion => s !== null)
 
   return suggestions
 }
