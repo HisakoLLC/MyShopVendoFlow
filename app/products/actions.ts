@@ -244,6 +244,6 @@ export async function createProductVariants(
 
   revalidatePath(`/products/${styleId}`)
   revalidatePath("/products")
-  return { count: data.length, variant_ids: data.map((v) => v.variant_id) }
+  return { count: data.length, variant_ids: data.map((v: { variant_id: string }) => v.variant_id) }
 }
 
