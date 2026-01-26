@@ -104,7 +104,7 @@ async function fetchTransfers(): Promise<Transfer[]> {
 
   // Fetch store names separately
   const allStoreIds = new Set<string>()
-  ;(transfers || []).forEach((t) => {
+  ;(transfers || []).forEach((t: { from_store_id: string | null; to_store_id: string | null }) => {
     if (t.from_store_id) allStoreIds.add(t.from_store_id)
     if (t.to_store_id) allStoreIds.add(t.to_store_id)
   })
@@ -115,12 +115,12 @@ async function fetchTransfers(): Promise<Transfer[]> {
     .in("store_id", Array.from(allStoreIds))
 
   const storeMap = new Map<string, string>()
-  ;(storeNames || []).forEach((store) => {
+  ;(storeNames || []).forEach((store: { store_id: string; name: string }) => {
     storeMap.set(store.store_id, store.name)
   })
 
   // Transform the data to include store names
-  return (transfers || []).map((transfer) => {
+  return (transfers || []).map((transfer: { from_store_id: string | null; to_store_id: string | null; [key: string]: any }) => {
     return {
       ...transfer,
       stores_from: transfer.from_store_id
