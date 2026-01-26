@@ -83,7 +83,7 @@ async function fetchProductsData(): Promise<FetchResult> {
       throw handleSupabaseError(stylesError)
     }
 
-    const nonArchived = (styles ?? []).filter((s) => !s.archived)
+    const nonArchived = (styles ?? []).filter((s: { archived: boolean | null }) => !s.archived)
 
     return {
       categories: (categories ?? []) as Array<Pick<CategoryRow, "category_id" | "name">>,
