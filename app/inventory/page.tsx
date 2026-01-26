@@ -102,11 +102,23 @@ async function fetchInventoryData(): Promise<FetchResult> {
   // Group inventory by variant and store
   const inventoryMap = new Map<string, InventoryData>()
 
-  ;(variants ?? []).forEach((variant: { variant_id: string }) => {
+  ;(variants ?? []).forEach((variant: { 
+    variant_id: string
+    style_id: string | null
+    size: string
+    color: string
+    sku: string
+    product_styles: {
+      style_id: string
+      name: string
+      image_url: string | null
+      account_id: string
+    } | null
+  }) => {
     const style = variant.product_styles as unknown as StyleRow
     const key = variant.variant_id
 
-    const storeInventories = (stores ?? []).map((store) => {
+    const storeInventories = (stores ?? []).map((store: { store_id: string; name: string }) => {
       const level = (inventoryLevels ?? []).find(
         (il) => il.variant_id === variant.variant_id && il.store_id === store.store_id
       )
