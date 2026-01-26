@@ -406,7 +406,7 @@ export async function receiveInventory(data: ReceiveInventoryData) {
 
   if (!allLineItemsError && allLineItems) {
     const allFullyReceived = allLineItems.every(
-      (item) => (item.quantity_received || 0) >= item.quantity_ordered
+      (item: { quantity_ordered: number; quantity_received: number | null }) => (item.quantity_received || 0) >= item.quantity_ordered
     )
 
     // Update PO status
