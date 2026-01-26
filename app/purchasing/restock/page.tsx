@@ -117,7 +117,7 @@ async function fetchRestockSuggestions(): Promise<RestockSuggestion[]> {
   }
 
   // Aggregate inventory by variant
-  const inventoryByVariant = (inventoryLevels || []).reduce((acc, item) => {
+  const inventoryByVariant = (inventoryLevels || []).reduce((acc: Record<string, number>, item: { variant_id: string | null; quantity_on_hand: number | null }) => {
     if (item.variant_id) {
       acc[item.variant_id] = (acc[item.variant_id] || 0) + (item.quantity_on_hand || 0)
     }
