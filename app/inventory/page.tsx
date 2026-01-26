@@ -132,7 +132,7 @@ async function fetchInventoryData(): Promise<FetchResult> {
     })
 
     const totalStock = storeInventories.reduce(
-      (sum, s) => sum + (s.quantity_on_hand ?? 0),
+      (sum: number, s: { quantity_on_hand: number | null }) => sum + (s.quantity_on_hand ?? 0),
       0
     )
 
