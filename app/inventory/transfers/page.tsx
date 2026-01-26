@@ -65,7 +65,7 @@ async function fetchTransfers(): Promise<Transfer[]> {
     throw new Error(storesError.message)
   }
 
-  const storeIds = (stores || []).map((s) => s.store_id)
+  const storeIds = (stores || []).map((s: { store_id: string }) => s.store_id)
   if (storeIds.length === 0) {
     return []
   }
