@@ -126,7 +126,7 @@ async function fetchRestockSuggestions(): Promise<RestockSuggestion[]> {
 
   // Transform data into restock suggestions
   const suggestions: RestockSuggestion[] = (variantMetrics || [])
-    .map((metric) => {
+    .map((metric: VariantMetricRow) => {
       const variant = metric.product_variants
       if (!variant || !variant.product_styles) {
         return null
