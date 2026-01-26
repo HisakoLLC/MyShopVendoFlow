@@ -302,7 +302,7 @@ export async function receiveInventory(data: ReceiveInventoryData) {
 
   // Validate quantities
   for (const receiveItem of itemsToReceive) {
-    const lineItem = lineItems.find((li) => li.line_item_id === receiveItem.line_item_id)
+    const lineItem = lineItems.find((li: { line_item_id: string; variant_id: string | null; quantity_ordered: number; quantity_received: number | null }) => li.line_item_id === receiveItem.line_item_id)
     if (!lineItem) {
       throw new Error(`Line item ${receiveItem.line_item_id} not found.`)
     }
@@ -319,7 +319,7 @@ export async function receiveInventory(data: ReceiveInventoryData) {
 
   // Prepare data for inventory_receipts
   const receiptLineItems = itemsToReceive.map((item) => {
-    const lineItem = lineItems.find((li) => li.line_item_id === item.line_item_id)!
+    const lineItem = lineItems.find((li: { line_item_id: string; variant_id: string | null; quantity_ordered: number; quantity_received: number | null }) => li.line_item_id === item.line_item_id)!
     return {
       variant_id: lineItem.variant_id,
       quantity: item.quantity,
