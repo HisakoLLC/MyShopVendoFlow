@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { ensureAccountForCurrentUser } from "@/app/onboarding/actions"
 
 export const dynamic = "force-dynamic"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -93,7 +94,16 @@ async function DashboardContent() {
     try {
       const res = await supabase.rpc("get_account_id")
       accountId = res.data ?? null
+      // If no account (e.g. trigger not installed or old user), create one automatically
       if (res.error || !accountId) {
+        const ensured = await ensureAccountForCurrentUser()
+        if (ensured.success) {
+          accountId = ensured.accountId
+        } else {
+          redirect("/onboarding?redirect=/dashboard")
+        }
+      }
+      if (!accountId) {
         redirect("/onboarding?redirect=/dashboard")
       }
     } catch (rpcErr: unknown) {
@@ -102,7 +112,7 @@ async function DashboardContent() {
         throw rpcErr
       }
       console.error("get_account_id failed:", rpcErr)
-      return <DashboardErrorCard description="Account lookup failed. Run sql/FIX_ALL_RLS_ISSUES.sql in Supabase and try again." />
+      return <DashboardErrorCard description="Account lookup failed. Run sql/AUTO_CREATE_ACCOUNT_ON_SIGNUP.sql or sql/FIX_ALL_RLS_ISSUES.sql in Supabase and try again." />
     }
 
     // Get all stores for this account

@@ -53,6 +53,18 @@ export async function createAccountAfterSignup(
     }
   )
 
+  // If user already has an account (e.g. DB trigger already created one), return it
+  const { data: existing } = await supabase
+    .from("account_members")
+    .select("account_id")
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle()
+  if (existing?.account_id) {
+    revalidatePath("/")
+    return { account_id: existing.account_id }
+  }
+
   // Create account
   const accountId = uuidv4()
   console.log("Creating account:", { accountId, businessName, ownerEmail, userId })
