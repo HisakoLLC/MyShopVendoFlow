@@ -119,7 +119,7 @@ export default function LoginPage() {
             <p className="text-sm font-semibold text-red-900 dark:text-red-100">Configuration Error</p>
             <p className="mt-1 text-xs text-red-800 dark:text-red-200">{supabaseError}</p>
             <p className="mt-2 text-xs text-red-700 dark:text-red-300">
-              Please ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set in your Vercel project settings.
+              In Vercel: Settings → Environment Variables, add <strong>NEXT_PUBLIC_SUPABASE_URL</strong> and <strong>NEXT_PUBLIC_SUPABASE_ANON_KEY</strong> (use the same values as your Supabase project URL and anon key). Redeploy after saving.
             </p>
           </div>
         )}

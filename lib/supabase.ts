@@ -1,13 +1,14 @@
 import { createClient } from "@supabase/supabase-js"
 import type { Database } from "../types/database.ts"
+import { getSupabaseUrl, getSupabaseAnonKey } from "./supabase/env"
 
 // Create a singleton client for the browser
 let browserClientInstance: ReturnType<typeof createClient<Database>> | null = null
 
 export function getSupabaseBrowserClient() {
   if (!browserClientInstance && typeof window !== "undefined") {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const supabaseUrl = getSupabaseUrl()
+    const supabaseAnonKey = getSupabaseAnonKey()
 
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error("Missing Supabase environment variables for browser client")
@@ -41,7 +42,7 @@ export function getSupabaseServerClient() {
     return null
   }
 
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseUrl = getSupabaseUrl()
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!supabaseUrl || !supabaseServiceKey) {

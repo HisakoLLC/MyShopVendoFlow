@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { createClient } from "@supabase/supabase-js"
+import { getSupabaseUrl } from "@/lib/supabase/env"
 import { z } from "zod"
 import { createHash } from "crypto"
 
@@ -137,7 +138,8 @@ export async function createStaff(data: CreateStaffData) {
     throw new Error("Service role key not configured. Cannot create staff user.")
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseUrl = getSupabaseUrl()
+  if (!supabaseUrl) throw new Error("Supabase URL not configured.")
   const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
@@ -274,8 +276,8 @@ export async function updateStaff(data: UpdateStaffData) {
 
   if (!staffUserError && staffUser) {
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
-    if (serviceRoleKey) {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const supabaseUrl = getSupabaseUrl()
+    if (serviceRoleKey && supabaseUrl) {
       const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
         auth: {
           autoRefreshToken: false,

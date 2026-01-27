@@ -3,6 +3,7 @@
 import { createClient } from "@supabase/supabase-js"
 import { v4 as uuidv4 } from "uuid"
 import { revalidatePath } from "next/cache"
+import { getSupabaseUrl } from "@/lib/supabase/env"
 
 export async function createAccountAfterSignup(
   userId: string,
@@ -13,8 +14,8 @@ export async function createAccountAfterSignup(
   // This bypasses RLS since the session might not be fully established yet
   // This is safe because we're creating the account for the user who just signed up
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  
+  const supabaseUrl = getSupabaseUrl()
+
   if (!serviceRoleKey) {
     console.error("Service role key missing. Checked:", {
       SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -27,7 +28,7 @@ export async function createAccountAfterSignup(
 
   if (!supabaseUrl) {
     throw new Error(
-      "Supabase URL not configured. Please set NEXT_PUBLIC_SUPABASE_URL in your .env.local file."
+      "Supabase URL not configured. Set NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SUPABASE_URL in your env (e.g. Vercel Environment Variables)."
     )
   }
 

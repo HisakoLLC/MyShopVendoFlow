@@ -1,16 +1,17 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { Database } from '@/types/database'
+import { getSupabaseUrl, getSupabaseAnonKey } from './env'
 
 export async function createServerSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const supabaseUrl = getSupabaseUrl()
+  const supabaseAnonKey = getSupabaseAnonKey()
 
   if (!supabaseUrl || !supabaseAnonKey) {
     // During build time, Next.js analyzes code even for dynamic pages
     // Return a mock client that will fail gracefully at runtime
     // This prevents build failures while still showing errors at runtime
-    const mockError = { message: 'Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your Vercel project settings.' }
+    const mockError = { message: 'Missing Supabase env. In Vercel add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY (or SUPABASE_SUPABASE_URL and SUPABASE_ANON_KEY). Redeploy after saving.' }
     return {
       auth: {
         getUser: () => Promise.resolve({ data: { user: null }, error: mockError }),
