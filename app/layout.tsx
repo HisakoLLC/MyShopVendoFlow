@@ -3,6 +3,7 @@ import "./globals.css"
 import { Toaster } from "sonner"
 import { OfflineBanner } from "@/components/OfflineBanner"
 import { AppShell } from "@/components/AppShell"
+import { ThemeProvider } from "@/components/ThemeProvider"
 
 export const metadata: Metadata = {
   title: "VendoFlow - Fashion Boutique POS",
@@ -17,9 +18,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
-        <OfflineBanner />
-        <AppShell>{children}</AppShell>
-        <Toaster richColors position="top-right" />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <OfflineBanner />
+          <AppShell>{children}</AppShell>
+          <Toaster richColors position="top-right" />
+        </ThemeProvider>
       </body>
     </html>
   )
