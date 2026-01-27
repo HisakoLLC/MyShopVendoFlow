@@ -16,8 +16,9 @@ import { v4 as uuidv4 } from "uuid"
 export async function ensureAccountForCurrentUser(): Promise<
   { success: true; accountId: string } | { success: false; error: string }
 > {
-  const supabase = await createServerSupabaseClient()
-  const {
+  try {
+    const supabase = await createServerSupabaseClient()
+    const {
     data: { user },
     error: userError,
   } = await supabase.auth.getUser()
@@ -109,4 +110,8 @@ export async function ensureAccountForCurrentUser(): Promise<
   }
 
   return { success: true, accountId }
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e)
+    return { success: false, error: message }
+  }
 }
