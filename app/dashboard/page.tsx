@@ -32,6 +32,48 @@ function LoadingState() {
   )
 }
 
+function DashboardErrorCard({
+  title = "Something went wrong",
+  description = "The dashboard could not load. This often happens right after onboarding when the database still needs permission setup for the dashboard tables.",
+  showSqlHint = true,
+}: {
+  title?: string
+  description?: string
+  showSqlHint?: boolean
+}) {
+  return (
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <Card className="max-w-md">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-amber-600" />
+            {title}
+          </CardTitle>
+          <CardDescription>{description}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {showSqlHint && (
+            <div className="rounded-lg bg-zinc-100 p-4 text-sm dark:bg-zinc-900">
+              <p className="font-medium mb-2">To fix permission errors:</p>
+              <ol className="list-decimal list-inside space-y-1 text-zinc-600 dark:text-zinc-400">
+                <li>Open Supabase Dashboard → SQL Editor</li>
+                <li>Run <code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">sql/FIX_DASHBOARD_ACCESS.sql</code></li>
+                <li>Click &quot;Try again&quot; below</li>
+              </ol>
+            </div>
+          )}
+          <div className="flex gap-2">
+            <RetryButton />
+            <Button variant="outline" asChild>
+              <Link href="/">Go home</Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
 async function DashboardContent() {
   let supabase
   try {
@@ -41,57 +83,39 @@ async function DashboardContent() {
     redirect("/login")
   }
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
+  try {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
 
-  if (userError || !user) {
-    redirect("/login")
-  }
+    if (userError || !user) {
+      redirect("/login")
+    }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
-  if (accountIdError || !accountId) {
-    redirect("/onboarding?redirect=/dashboard")
-  }
+    const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+    if (accountIdError || !accountId) {
+      redirect("/onboarding?redirect=/dashboard")
+    }
 
-  // Get all stores for this account
-  const { data: stores, error: storesError } = await supabase
+    // Get all stores for this account
+    const { data: stores, error: storesError } = await supabase
     .from("stores")
     .select("store_id")
     .eq("account_id", accountId)
 
-  // Handle RLS/permission errors gracefully
-  if (storesError) {
-    // If it's a permission error, show helpful message
-    if (storesError.message.includes("permission denied") || storesError.code === "42501") {
-      return (
-        <div className="flex min-h-screen items-center justify-center p-4">
-          <Card className="max-w-md">
-            <CardHeader>
-              <CardTitle>Database Configuration Required</CardTitle>
-              <CardDescription>
-                Row Level Security (RLS) policies need to be set up for the stores table.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="rounded-lg bg-zinc-100 p-4 text-sm dark:bg-zinc-900">
-                <p className="font-medium mb-2">To fix this:</p>
-                <ol className="list-decimal list-inside space-y-1 text-zinc-600 dark:text-zinc-400">
-                  <li>Open your Supabase SQL Editor</li>
-                  <li>Run the RLS setup script from <code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">SETUP_ALL_RLS.sql</code> or <code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">FIX_STORES_RLS.sql</code></li>
-                  <li>Refresh this page</li>
-                </ol>
-              </div>
-              <RetryButton />
-            </CardContent>
-          </Card>
-        </div>
-      )
+    // Handle RLS/permission errors gracefully
+    if (storesError) {
+      if (storesError.message.includes("permission denied") || storesError.code === "42501") {
+        return (
+          <DashboardErrorCard
+            title="Database configuration required"
+            description="RLS policies need to be set up for the stores table. Run sql/FIX_ALL_RLS_ISSUES.sql or sql/FIX_DASHBOARD_ACCESS.sql in Supabase SQL Editor."
+          />
+        )
+      }
+      throw new Error(`Failed to load stores: ${storesError.message}`)
     }
-    // For other errors, still throw
-    throw new Error(`Failed to load stores: ${storesError.message}`)
-  }
 
   const storeIds = stores?.map((s: { store_id: string }) => s.store_id) || []
 
@@ -499,6 +523,13 @@ async function DashboardContent() {
       </div>
     </div>
   )
+  } catch (err) {
+    if (err && typeof err === "object" && (err as { digest?: string }).digest?.includes?.("NEXT_REDIRECT")) {
+      throw err
+    }
+    console.error("Dashboard error:", err)
+    return <DashboardErrorCard />
+  }
 }
 
 export default function DashboardPage() {

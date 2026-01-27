@@ -16,6 +16,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.account_members TO authenti
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.account_members TO service_role;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.stores TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.stores TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.categories TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.categories TO service_role;
 
 -- ============================================================================
 -- STEP 1: ACCOUNTS TABLE - Allow account creation during signup
@@ -166,6 +168,43 @@ TO authenticated
 USING (account_id IN (SELECT account_id FROM get_user_account_ids()));
 
 -- ============================================================================
+-- STEP 3b: CATEGORIES TABLE - Allow category creation during onboarding
+-- ============================================================================
+
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view categories for their account" ON categories;
+DROP POLICY IF EXISTS "Users can create categories for their account" ON categories;
+DROP POLICY IF EXISTS "Users can update categories for their account" ON categories;
+DROP POLICY IF EXISTS "Users can delete categories for their account" ON categories;
+DROP POLICY IF EXISTS "Tenant isolation for categories" ON categories;
+
+CREATE POLICY "Users can view categories for their account"
+ON categories
+FOR SELECT
+TO authenticated
+USING (account_id IN (SELECT account_id FROM get_user_account_ids()));
+
+CREATE POLICY "Users can create categories for their account"
+ON categories
+FOR INSERT
+TO authenticated
+WITH CHECK (account_id IN (SELECT account_id FROM get_user_account_ids()));
+
+CREATE POLICY "Users can update categories for their account"
+ON categories
+FOR UPDATE
+TO authenticated
+USING (account_id IN (SELECT account_id FROM get_user_account_ids()))
+WITH CHECK (account_id IN (SELECT account_id FROM get_user_account_ids()));
+
+CREATE POLICY "Users can delete categories for their account"
+ON categories
+FOR DELETE
+TO authenticated
+USING (account_id IN (SELECT account_id FROM get_user_account_ids()));
+
+-- ============================================================================
 -- STEP 4: VERIFY POLICIES
 -- ============================================================================
 
@@ -175,7 +214,7 @@ SELECT
     p.policyname,
     p.cmd
 FROM pg_policies p
-WHERE p.tablename IN ('accounts', 'account_members', 'stores')
+WHERE p.tablename IN ('accounts', 'account_members', 'stores', 'categories')
 ORDER BY p.tablename, p.policyname;
 
 -- ============================================================================
