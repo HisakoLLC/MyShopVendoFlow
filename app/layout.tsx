@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import "./globals.css"
 import { Toaster } from "sonner"
 import { OfflineBanner } from "@/components/OfflineBanner"
+import { AppShell } from "@/components/AppShell"
 
 export const metadata: Metadata = {
   title: "VendoFlow - Fashion Boutique POS",
@@ -17,7 +18,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
         <OfflineBanner />
-        {children}
+        <AppShell>{children}</AppShell>
         <Toaster richColors position="top-right" />
       </body>
     </html>

@@ -76,9 +76,6 @@ function DashboardErrorCard({
           <div className="flex gap-2">
             <RetryButton />
             <Button variant="outline" asChild>
-              <Link href="/api/dashboard-check">Check connection</Link>
-            </Button>
-            <Button variant="outline" asChild>
               <Link href="/">Go home</Link>
             </Button>
           </div>
