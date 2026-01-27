@@ -296,7 +296,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const supabase = React.useMemo(() => createClient(), [])
 
   React.useEffect(() => {
-    void supabase.auth.getUser().then((res) => setUser(res.data.user ?? null))
+    void supabase.auth.getUser().then((res: { data: { user: User | null } }) =>
+      setUser(res.data.user ?? null)
+    )
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
