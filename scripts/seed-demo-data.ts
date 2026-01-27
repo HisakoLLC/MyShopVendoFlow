@@ -677,9 +677,9 @@ async function calculateDemoMetrics(
       .eq("variant_id", variant.variant_id)
       .gte("sales.sale_date", ninetyDaysAgo.toISOString())
 
-    const sold30d = sales30d?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0
-    const sold60d = sales60d?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0
-    const sold90d = sales90d?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0
+    const sold30d = sales30d?.reduce((sum: number, item: { quantity: number | null }) => sum + (item.quantity || 0), 0) || 0
+    const sold60d = sales60d?.reduce((sum: number, item: { quantity: number | null }) => sum + (item.quantity || 0), 0) || 0
+    const sold90d = sales90d?.reduce((sum: number, item: { quantity: number | null }) => sum + (item.quantity || 0), 0) || 0
 
     // Calculate sell-through rates (simplified: units_sold / (current_stock + units_sold))
     const totalStock30d = currentStock + sold30d
