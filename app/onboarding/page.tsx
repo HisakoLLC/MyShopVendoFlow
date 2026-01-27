@@ -111,11 +111,16 @@ function OnboardingContent() {
         return
       }
 
+      const taxRateNum = taxRate
+        ? Math.min(100, Math.max(0, parseFloat(taxRate) || 0))
+        : 16
+      const taxRateRounded = Math.round(taxRateNum * 100) / 100
+
       const { error } = await supabase.from("stores").insert({
         account_id: accountId,
         name: storeName.trim(),
         address: storeAddress.trim() || null,
-        tax_rate: taxRate ? parseFloat(taxRate) : 16.0,
+        tax_rate: taxRateRounded,
         active: true,
       })
 
