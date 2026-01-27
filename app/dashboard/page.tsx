@@ -84,18 +84,25 @@ async function DashboardContent() {
   }
 
   try {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
-
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) {
       redirect("/login")
     }
 
-    const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
-    if (accountIdError || !accountId) {
-      redirect("/onboarding?redirect=/dashboard")
+    let accountId: string | null = null
+    try {
+      const res = await supabase.rpc("get_account_id")
+      accountId = res.data ?? null
+      if (res.error || !accountId) {
+        redirect("/onboarding?redirect=/dashboard")
+      }
+    } catch (rpcErr: unknown) {
+      const d = rpcErr && typeof rpcErr === "object" && (rpcErr as { digest?: string }).digest
+      if (typeof d === "string" && d.includes("NEXT_REDIRECT")) {
+        throw rpcErr
+      }
+      console.error("get_account_id failed:", rpcErr)
+      return <DashboardErrorCard description="Account lookup failed. Run sql/FIX_ALL_RLS_ISSUES.sql in Supabase and try again." />
     }
 
     // Get all stores for this account
@@ -104,17 +111,14 @@ async function DashboardContent() {
     .select("store_id")
     .eq("account_id", accountId)
 
-    // Handle RLS/permission errors gracefully
+    // Handle RLS/permission errors gracefully - never throw so Next.js doesn't show generic error
     if (storesError) {
-      if (storesError.message.includes("permission denied") || storesError.code === "42501") {
-        return (
-          <DashboardErrorCard
-            title="Database configuration required"
-            description="RLS policies need to be set up for the stores table. Run sql/FIX_ALL_RLS_ISSUES.sql or sql/FIX_DASHBOARD_ACCESS.sql in Supabase SQL Editor."
-          />
-        )
-      }
-      throw new Error(`Failed to load stores: ${storesError.message}`)
+      return (
+        <DashboardErrorCard
+          title="Database configuration required"
+          description="Stores could not be loaded. Run sql/FIX_ALL_RLS_ISSUES.sql in Supabase SQL Editor, then run sql/FIX_DASHBOARD_ACCESS.sql for dashboard tables."
+        />
+      )
     }
 
   const storeIds = stores?.map((s: { store_id: string }) => s.store_id) || []
@@ -152,49 +156,56 @@ async function DashboardContent() {
   const todayStr = today.toISOString().split("T")[0]
   const yesterdayStr = yesterday.toISOString().split("T")[0]
 
-  // Fetch today's metrics
-  const { data: todaySales, error: todayError } = await supabase
-    .from("sales")
-    .select("grand_total, sale_id, sale_date")
-    .in("store_id", storeIds)
-    .gte("sale_date", todayStr)
-    .lt("sale_date", new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString().split("T")[0])
+  // Fetch today's and yesterday's metrics - wrap in try so permission errors don't crash the page
+  let todayRevenue = 0
+  let todayTransactions = 0
+  let todayUnitsSold = 0
+  let yesterdayRevenue = 0
+  let yesterdayTransactions = 0
+  let revenueChange = 0
+  let transactionChange = 0
 
-  const { data: todayLineItems, error: todayLineItemsError } = await supabase
-    .from("sale_line_items")
-    .select("quantity, sale_id, sales!inner(store_id, sale_date)")
-    .in("sales.store_id", storeIds)
-    .gte("sales.sale_date", todayStr)
-    .lt("sales.sale_date", new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString().split("T")[0])
+  try {
+    const tomorrowStr = new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+    const { data: todaySales } = await supabase
+      .from("sales")
+      .select("grand_total, sale_id, sale_date")
+      .in("store_id", storeIds)
+      .gte("sale_date", todayStr)
+      .lt("sale_date", tomorrowStr)
 
-  // Fetch yesterday's metrics
-  const { data: yesterdaySales, error: yesterdayError } = await supabase
-    .from("sales")
-    .select("grand_total, sale_id")
-    .in("store_id", storeIds)
-    .gte("sale_date", yesterdayStr)
-    .lt("sale_date", todayStr)
+    const { data: todayLineItems } = await supabase
+      .from("sale_line_items")
+      .select("quantity, sale_id, sales!inner(store_id, sale_date)")
+      .in("sales.store_id", storeIds)
+      .gte("sales.sale_date", todayStr)
+      .lt("sales.sale_date", tomorrowStr)
 
-  const { data: yesterdayLineItems, error: yesterdayLineItemsError } = await supabase
-    .from("sale_line_items")
-    .select("quantity, sale_id, sales!inner(store_id, sale_date)")
-    .in("sales.store_id", storeIds)
-    .gte("sales.sale_date", yesterdayStr)
-    .lt("sales.sale_date", todayStr)
+    const { data: yesterdaySales } = await supabase
+      .from("sales")
+      .select("grand_total, sale_id")
+      .in("store_id", storeIds)
+      .gte("sale_date", yesterdayStr)
+      .lt("sale_date", todayStr)
 
-  // Calculate today's metrics
-  const todayRevenue = (todaySales || []).reduce((sum: number, s: { grand_total: number | null }) => sum + (s.grand_total || 0), 0)
-  const todayTransactions = (todaySales || []).length
-  const todayUnitsSold = (todayLineItems || []).reduce((sum: number, item: { quantity: number | null }) => sum + (item.quantity || 0), 0)
+    const { data: yesterdayLineItems } = await supabase
+      .from("sale_line_items")
+      .select("quantity, sale_id, sales!inner(store_id, sale_date)")
+      .in("sales.store_id", storeIds)
+      .gte("sales.sale_date", yesterdayStr)
+      .lt("sales.sale_date", todayStr)
 
-  // Calculate yesterday's metrics
-  const yesterdayRevenue = (yesterdaySales || []).reduce((sum: number, s: { grand_total: number | null }) => sum + (s.grand_total || 0), 0)
-  const yesterdayTransactions = (yesterdaySales || []).length
-
-  // Calculate revenue change
-  const revenueChange =
-    yesterdayRevenue > 0 ? ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100 : 0
-  const transactionChange = yesterdayTransactions > 0 ? todayTransactions - yesterdayTransactions : 0
+    todayRevenue = (todaySales || []).reduce((sum: number, s: { grand_total: number | null }) => sum + (s.grand_total || 0), 0)
+    todayTransactions = (todaySales || []).length
+    todayUnitsSold = (todayLineItems || []).reduce((sum: number, item: { quantity: number | null }) => sum + (item.quantity || 0), 0)
+    yesterdayRevenue = (yesterdaySales || []).reduce((sum: number, s: { grand_total: number | null }) => sum + (s.grand_total || 0), 0)
+    yesterdayTransactions = (yesterdaySales || []).length
+    revenueChange =
+      yesterdayRevenue > 0 ? ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100 : 0
+    transactionChange = yesterdayTransactions > 0 ? todayTransactions - yesterdayTransactions : 0
+  } catch {
+    // sales/sale_line_items permission or RLS failure; show zeros and friendly card hint below
+  }
 
   // Fetch low stock count (variants with days_of_inventory < 7) - non-fatal
   let lowStockCount = 0
@@ -345,20 +356,6 @@ async function DashboardContent() {
     if (!dateStr) return "N/A"
     const date = new Date(dateStr)
     return date.toLocaleTimeString("en-KE", { hour: "2-digit", minute: "2-digit" })
-  }
-
-  // Handle errors - log but continue with partial data
-  if (todayError) {
-    console.error("Error fetching today's sales:", todayError)
-  }
-  if (todayLineItemsError) {
-    console.error("Error fetching today's line items:", todayLineItemsError)
-  }
-  if (yesterdayError) {
-    console.error("Error fetching yesterday's sales:", yesterdayError)
-  }
-  if (yesterdayLineItemsError) {
-    console.error("Error fetching yesterday's line items:", yesterdayLineItemsError)
   }
 
   return (
@@ -534,12 +531,17 @@ async function DashboardContent() {
       </div>
     </div>
   )
-  } catch (err) {
-    if (err && typeof err === "object" && (err as { digest?: string }).digest?.includes?.("NEXT_REDIRECT")) {
+  } catch (err: unknown) {
+    const digest = err && typeof err === "object" && (err as { digest?: string }).digest
+    if (typeof digest === "string" && digest.includes("NEXT_REDIRECT")) {
       throw err
     }
     console.error("Dashboard error:", err)
-    return <DashboardErrorCard />
+    return (
+      <DashboardErrorCard
+        description="The dashboard could not load. In Supabase SQL Editor run sql/FIX_ALL_RLS_ISSUES.sql then sql/FIX_DASHBOARD_ACCESS.sql and try again."
+      />
+    )
   }
 }
 
