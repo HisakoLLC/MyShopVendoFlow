@@ -196,131 +196,142 @@ async function DashboardContent() {
     yesterdayRevenue > 0 ? ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100 : 0
   const transactionChange = yesterdayTransactions > 0 ? todayTransactions - yesterdayTransactions : 0
 
-  // Fetch low stock count (variants with days_of_inventory < 7)
-  const { data: lowStockVariants, error: lowStockError } = await supabase
-    .from("variant_metrics")
-    .select("variant_id, days_of_inventory")
-    .lt("days_of_inventory", 7)
-    .not("days_of_inventory", "is", null)
-
-  const lowStockCount = (lowStockVariants || []).length
+  // Fetch low stock count (variants with days_of_inventory < 7) - non-fatal
+  let lowStockCount = 0
+  try {
+    const { data: lowStockVariants } = await supabase
+      .from("variant_metrics")
+      .select("variant_id, days_of_inventory")
+      .lt("days_of_inventory", 7)
+      .not("days_of_inventory", "is", null)
+    lowStockCount = (lowStockVariants || []).length
+  } catch {
+    // variant_metrics may be missing or restricted; show 0
+  }
 
   // Fetch last 7 days sales data
   const sevenDaysAgo = new Date(today)
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
   const sevenDaysAgoStr = sevenDaysAgo.toISOString().split("T")[0]
 
-  // Try to use daily_sales_metrics first, fallback to aggregating sales
-  const { data: dailyMetrics, error: dailyMetricsError } = await supabase
-    .from("daily_sales_metrics")
-    .select("date, total_revenue")
-    .in("store_id", storeIds)
-    .gte("date", sevenDaysAgoStr)
-    .lte("date", todayStr)
-    .order("date", { ascending: true })
-
-  // If daily_sales_metrics doesn't have data, aggregate from sales
+  // Try to use daily_sales_metrics first, fallback to aggregating sales - non-fatal
   let salesChartData: Array<{ date: string; revenue: number }> = []
-  if (dailyMetrics && dailyMetrics.length > 0) {
-    salesChartData = dailyMetrics.map((m: { date: string; total_revenue: number | null }): { date: string; revenue: number } => ({
-      date: new Date(m.date).toLocaleDateString("en-KE", { month: "short", day: "numeric" }),
-      revenue: m.total_revenue ?? 0,
-    }))
-  } else {
-    // Aggregate from sales table
-    const { data: salesData, error: salesDataError } = await supabase
+  try {
+    const { data: dailyMetrics } = await supabase
+      .from("daily_sales_metrics")
+      .select("date, total_revenue")
+      .in("store_id", storeIds)
+      .gte("date", sevenDaysAgoStr)
+      .lte("date", todayStr)
+      .order("date", { ascending: true })
+
+    if (dailyMetrics && dailyMetrics.length > 0) {
+      salesChartData = dailyMetrics.map((m: { date: string; total_revenue: number | null }): { date: string; revenue: number } => ({
+        date: new Date(m.date).toLocaleDateString("en-KE", { month: "short", day: "numeric" }),
+        revenue: m.total_revenue ?? 0,
+      }))
+    } else {
+      const { data: salesData, error: salesDataError } = await supabase
+        .from("sales")
+        .select("sale_date, grand_total")
+        .in("store_id", storeIds)
+        .gte("sale_date", sevenDaysAgoStr)
+        .lte("sale_date", todayStr)
+
+      if (!salesDataError && salesData) {
+        const grouped = salesData.reduce((acc: Record<string, number>, sale: { sale_date: string | null; grand_total: number | null }) => {
+          const date = sale.sale_date?.split("T")[0] || ""
+          if (!acc[date]) {
+            acc[date] = 0
+          }
+          acc[date] += sale.grand_total || 0
+          return acc
+        }, {} as Record<string, number>)
+
+        salesChartData = Object.entries(grouped)
+          .map(([date, revenue]) => ({
+            date: new Date(date).toLocaleDateString("en-KE", { month: "short", day: "numeric" }),
+            revenue: revenue as number,
+          }))
+          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      }
+    }
+  } catch {
+    // daily_sales_metrics or sales aggregate may fail; keep empty chart
+  }
+
+  // Fetch top sellers (last 7 days) - non-fatal (needs product_styles/product_variants)
+  let topSellers: Array<{ name: string; revenue: number }> = []
+  try {
+    const { data: salesInRange } = await supabase
       .from("sales")
-      .select("sale_date, grand_total")
+      .select("sale_id")
       .in("store_id", storeIds)
       .gte("sale_date", sevenDaysAgoStr)
       .lte("sale_date", todayStr)
 
-    if (!salesDataError && salesData) {
-      // Group by date
-      const grouped = salesData.reduce((acc: Record<string, number>, sale: { sale_date: string | null; grand_total: number | null }) => {
-        const date = sale.sale_date?.split("T")[0] || ""
-        if (!acc[date]) {
-          acc[date] = 0
+    const saleIdsInRange = (salesInRange || []).map((s: { sale_id: string }) => s.sale_id)
+
+    const { data: topSellersData } = saleIdsInRange.length
+      ? await supabase
+          .from("sale_line_items")
+          .select(
+            "line_total, variant_id, product_variants!inner(style_id, product_styles!inner(style_id, name))"
+          )
+          .in("sale_id", saleIdsInRange)
+      : { data: [] }
+
+    const topSellersMap = new Map<string, { name: string; revenue: number }>()
+    if (topSellersData) {
+      topSellersData.forEach((item: { line_total: number | null; product_variants: { product_styles: { style_id: string; name: string } | null } | null }) => {
+        const style = item.product_variants?.product_styles as { style_id?: string; name?: string } | null
+        if (style?.style_id && style?.name) {
+          const current = topSellersMap.get(style.style_id) || { name: style.name, revenue: 0 }
+          current.revenue += item.line_total || 0
+          topSellersMap.set(style.style_id, current)
         }
-        acc[date] += sale.grand_total || 0
-        return acc
-      }, {} as Record<string, number>)
-
-      salesChartData = Object.entries(grouped)
-        .map(([date, revenue]) => ({
-          date: new Date(date).toLocaleDateString("en-KE", { month: "short", day: "numeric" }),
-          revenue: revenue as number,
-        }))
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      })
     }
+
+    topSellers = Array.from(topSellersMap.values())
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5)
+  } catch {
+    // product_styles/product_variants permissions or missing tables; show empty list
   }
 
-  // Fetch top sellers (last 7 days) - aggregate from sale_line_items
-  // First get sales in the date range
-  const { data: salesInRange, error: salesInRangeError } = await supabase
-    .from("sales")
-    .select("sale_id")
-    .in("store_id", storeIds)
-    .gte("sale_date", sevenDaysAgoStr)
-    .lte("sale_date", todayStr)
+  // Fetch recent sales - non-fatal
+  let recentSales: Array<{ sale_id: string; receipt_number: string | null; grand_total: number | null; payment_method: string | null; sale_date: string | null; store_id: string | null }> = []
+  let itemsPerSale: Record<string, number> = {}
+  try {
+    const { data: recentSalesData } = await supabase
+      .from("sales")
+      .select("sale_id, receipt_number, grand_total, payment_method, sale_date, store_id")
+      .in("store_id", storeIds)
+      .order("sale_date", { ascending: false })
+      .limit(10)
 
-  const saleIdsInRange = (salesInRange || []).map((s: { sale_id: string }) => s.sale_id)
+    recentSales = recentSalesData || []
 
-  // Then get line items for those sales
-  const { data: topSellersData, error: topSellersError } = saleIdsInRange.length
-    ? await supabase
+    const recentSaleIds = recentSales.map((s: { sale_id: string }) => s.sale_id)
+    let recentLineItems: Array<{ sale_id: string | null }> | null = []
+    if (recentSaleIds.length > 0) {
+      const result = await supabase
         .from("sale_line_items")
-        .select(
-          "line_total, variant_id, product_variants!inner(style_id, product_styles!inner(style_id, name))"
-        )
-        .in("sale_id", saleIdsInRange)
-    : { data: [], error: null }
-
-  // Aggregate top sellers by style
-  const topSellersMap = new Map<string, { name: string; revenue: number }>()
-  if (topSellersData) {
-    topSellersData.forEach((item: { line_total: number | null; product_variants: { product_styles: { style_id: string; name: string } | null } | null }) => {
-      const style = item.product_variants?.product_styles as any
-      if (style?.style_id && style?.name) {
-        const current = topSellersMap.get(style.style_id) || { name: style.name, revenue: 0 }
-        current.revenue += item.line_total || 0
-        topSellersMap.set(style.style_id, current)
-      }
-    })
-  }
-
-  const topSellers = Array.from(topSellersMap.values())
-    .sort((a, b) => b.revenue - a.revenue)
-    .slice(0, 5)
-
-  // Fetch recent sales
-  const { data: recentSales, error: recentSalesError } = await supabase
-    .from("sales")
-    .select("sale_id, receipt_number, grand_total, payment_method, sale_date, store_id")
-    .in("store_id", storeIds)
-    .order("sale_date", { ascending: false })
-    .limit(10)
-
-  // Get line items count for recent sales
-  const recentSaleIds = (recentSales || []).map((s: { sale_id: string }) => s.sale_id)
-  let recentLineItems: Array<{ sale_id: string | null }> | null = null
-  if (recentSaleIds.length > 0) {
-    const result = await supabase
-      .from("sale_line_items")
-      .select("sale_id")
-      .in("sale_id", recentSaleIds)
-    recentLineItems = result.data
-  } else {
-    recentLineItems = []
-  }
-
-  // Count items per sale
-  const itemsPerSale = (recentLineItems || []).reduce((acc: Record<string, number>, item: { sale_id: string | null }) => {
-    if (item.sale_id) {
-      acc[item.sale_id] = (acc[item.sale_id] || 0) + 1
+        .select("sale_id")
+        .in("sale_id", recentSaleIds)
+      recentLineItems = result.data
     }
-    return acc
-  }, {} as Record<string, number>)
+
+    itemsPerSale = (recentLineItems || []).reduce((acc: Record<string, number>, item: { sale_id: string | null }) => {
+      if (item.sale_id) {
+        acc[item.sale_id] = (acc[item.sale_id] || 0) + 1
+      }
+      return acc
+    }, {} as Record<string, number>)
+  } catch {
+    // recent sales or line items may fail; show empty list
+  }
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-KE", {

@@ -127,3 +127,28 @@ BEGIN
     ));
   END IF;
 END $$;
+
+-- ============================================================================
+-- 6. PRODUCT_STYLES + PRODUCT_VARIANTS (dashboard top sellers & variant_metrics)
+-- ============================================================================
+GRANT SELECT ON TABLE public.product_styles TO authenticated;
+GRANT SELECT ON TABLE public.product_styles TO service_role;
+GRANT SELECT ON TABLE public.product_variants TO authenticated;
+GRANT SELECT ON TABLE public.product_variants TO service_role;
+
+ALTER TABLE product_styles ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view product styles for their account" ON product_styles;
+CREATE POLICY "Users can view product styles for their account"
+ON product_styles FOR SELECT TO authenticated
+USING (account_id IN (SELECT account_id FROM get_user_account_ids()));
+
+ALTER TABLE product_variants ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view product variants for their account" ON product_variants;
+CREATE POLICY "Users can view product variants for their account"
+ON product_variants FOR SELECT TO authenticated
+USING (
+  style_id IN (
+    SELECT style_id FROM product_styles
+    WHERE account_id IN (SELECT account_id FROM get_user_account_ids())
+  )
+);
