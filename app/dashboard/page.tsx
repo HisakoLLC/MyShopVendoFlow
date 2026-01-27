@@ -35,11 +35,13 @@ function LoadingState() {
 
 function DashboardErrorCard({
   title = "Something went wrong",
-  description = "The dashboard could not load. This often happens right after onboarding when the database still needs permission setup for the dashboard tables.",
+  description = "The dashboard could not load. This often happens when the database still needs permission setup for your account and dashboard tables.",
+  detail,
   showSqlHint = true,
 }: {
   title?: string
   description?: string
+  detail?: string
   showSqlHint?: boolean
 }) {
   return (
@@ -51,20 +53,31 @@ function DashboardErrorCard({
             {title}
           </CardTitle>
           <CardDescription>{description}</CardDescription>
+          {detail && (
+            <p className="text-xs font-mono text-zinc-500 dark:text-zinc-400 mt-2 break-all">
+              {detail}
+            </p>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           {showSqlHint && (
             <div className="rounded-lg bg-zinc-100 p-4 text-sm dark:bg-zinc-900">
-              <p className="font-medium mb-2">To fix permission errors:</p>
+              <p className="font-medium mb-2">Fix it in Supabase (run in SQL Editor in this order):</p>
               <ol className="list-decimal list-inside space-y-1 text-zinc-600 dark:text-zinc-400">
-                <li>Open Supabase Dashboard → SQL Editor</li>
-                <li>Run <code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">sql/FIX_DASHBOARD_ACCESS.sql</code></li>
-                <li>Click &quot;Try again&quot; below</li>
+                <li><code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">sql/AUTO_CREATE_ACCOUNT_ON_SIGNUP.sql</code></li>
+                <li><code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">sql/FIX_ALL_RLS_ISSUES.sql</code></li>
+                <li><code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">sql/FIX_DASHBOARD_ACCESS.sql</code></li>
               </ol>
+              <p className="mt-2 text-xs text-zinc-500">
+                Confirm your app uses the <strong>same Supabase project</strong> where you ran the SQL (check Vercel env: NEXT_PUBLIC_SUPABASE_URL).
+              </p>
             </div>
           )}
           <div className="flex gap-2">
             <RetryButton />
+            <Button variant="outline" asChild>
+              <Link href="/api/dashboard-check">Check connection</Link>
+            </Button>
             <Button variant="outline" asChild>
               <Link href="/">Go home</Link>
             </Button>
@@ -111,8 +124,14 @@ async function DashboardContent() {
       if (typeof d === "string" && d.includes("NEXT_REDIRECT")) {
         throw rpcErr
       }
+      const msg = rpcErr instanceof Error ? rpcErr.message : String(rpcErr)
       console.error("get_account_id failed:", rpcErr)
-      return <DashboardErrorCard description="Account lookup failed. Run sql/AUTO_CREATE_ACCOUNT_ON_SIGNUP.sql or sql/FIX_ALL_RLS_ISSUES.sql in Supabase and try again." />
+      return (
+        <DashboardErrorCard
+          description="Account lookup failed. Run the SQL files in Supabase (same project as your app)."
+          detail={msg}
+        />
+      )
     }
 
     // Get all stores for this account
@@ -126,7 +145,8 @@ async function DashboardContent() {
       return (
         <DashboardErrorCard
           title="Database configuration required"
-          description="Stores could not be loaded. Run sql/FIX_ALL_RLS_ISSUES.sql in Supabase SQL Editor, then run sql/FIX_DASHBOARD_ACCESS.sql for dashboard tables."
+          description="Stores could not be loaded. Run the SQL files in Supabase (same project as your app)."
+          detail={storesError.message}
         />
       )
     }

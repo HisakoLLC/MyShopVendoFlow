@@ -58,12 +58,20 @@ export default function DashboardError({ error, reset }: DashboardErrorProps) {
               Then click &quot;Try again&quot; below.
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={reset} variant="outline" className="flex-1">
+          {error.message && (
+            <p className="text-xs font-mono text-zinc-500 dark:text-zinc-400 break-all">
+              {error.message}
+            </p>
+          )}
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={reset} variant="outline">
               <RefreshCw className="mr-2 h-4 w-4" />
               Try again
             </Button>
-            <Button asChild className="flex-1">
+            <Button variant="outline" asChild>
+              <Link href="/api/dashboard-check">Check connection</Link>
+            </Button>
+            <Button asChild>
               <Link href="/">
                 <Home className="mr-2 h-4 w-4" />
                 Go home
