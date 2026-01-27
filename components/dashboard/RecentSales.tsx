@@ -12,8 +12,8 @@ import {
 
 interface Sale {
   sale_id: string
-  receipt_number: string
-  grand_total: number
+  receipt_number: string | null
+  grand_total: number | null
   payment_method: string | null
   sale_date: string | null
 }
@@ -60,11 +60,11 @@ export function RecentSales({
                   href={`/sales/${sale.sale_id}`}
                   className="text-zinc-900 hover:underline dark:text-zinc-100"
                 >
-                  {sale.receipt_number}
+                  {sale.receipt_number ?? "—"}
                 </Link>
               </TableCell>
               <TableCell>{itemsPerSale[sale.sale_id] || 0} items</TableCell>
-              <TableCell className="font-medium">{formatPrice(sale.grand_total)}</TableCell>
+              <TableCell className="font-medium">{formatPrice(sale.grand_total ?? 0)}</TableCell>
               <TableCell>
                 <span className="capitalize">{sale.payment_method || "N/A"}</span>
               </TableCell>
