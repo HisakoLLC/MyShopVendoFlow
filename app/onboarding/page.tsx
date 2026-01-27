@@ -7,6 +7,7 @@ import { toast, Toaster } from "sonner"
 import { Check, Plus, X } from "lucide-react"
 
 import { createClient } from "@/lib/supabase/client"
+import { ensureAccountForCurrentUser } from "./actions"
 
 export const dynamic = "force-dynamic"
 import { Button } from "@/components/ui/button"
@@ -96,7 +97,15 @@ function OnboardingContent() {
         return
       }
 
-      const { data: accountId } = await supabase.rpc("get_account_id")
+      let accountId: string | null = (await supabase.rpc("get_account_id")).data ?? null
+      if (!accountId) {
+        const ensured = await ensureAccountForCurrentUser()
+        if (ensured.success) accountId = ensured.accountId
+        else {
+          toast.error(ensured.error || "Account not found")
+          return
+        }
+      }
       if (!accountId) {
         toast.error("Account not found")
         return
@@ -138,7 +147,15 @@ function OnboardingContent() {
         return
       }
 
-      const { data: accountId } = await supabase.rpc("get_account_id")
+      let accountId: string | null = (await supabase.rpc("get_account_id")).data ?? null
+      if (!accountId) {
+        const ensured = await ensureAccountForCurrentUser()
+        if (ensured.success) accountId = ensured.accountId
+        else {
+          toast.error(ensured.error || "Account not found")
+          return
+        }
+      }
       if (!accountId) {
         toast.error("Account not found")
         return
@@ -182,7 +199,15 @@ function OnboardingContent() {
         return
       }
 
-      const { data: accountId } = await supabase.rpc("get_account_id")
+      let accountId: string | null = (await supabase.rpc("get_account_id")).data ?? null
+      if (!accountId) {
+        const ensured = await ensureAccountForCurrentUser()
+        if (ensured.success) accountId = ensured.accountId
+        else {
+          toast.error(ensured.error || "Account not found")
+          return
+        }
+      }
       if (!accountId) {
         toast.error("Account not found")
         return

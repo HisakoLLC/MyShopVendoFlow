@@ -87,46 +87,40 @@ export default function SignupPage() {
         return
       }
 
-      // Step 2 & 3: Create account and link user (server action)
-      // The session should be available after signUp, but we'll handle both cases
-      if (!authData.session) {
-        // If no session (email confirmation required), wait a moment for cookies to propagate
-        await new Promise((resolve) => setTimeout(resolve, 500))
-        
-        // Try to get the session
-        const { data: { session } } = await supabase.auth.getSession()
-        if (!session) {
-          // If email confirmation is required, inform the user
-          toast.info("Please check your email to confirm your account before continuing.")
-          setIsLoading(false)
-          return
-        }
-      }
-      
-      // Now call the server action - session should be established
+      // Always create account + account_members (uses service role, does not require session).
+      // This way when email confirmation is required, the account exists after they confirm and log in.
       console.log("Calling createAccountAfterSignup with:", { userId: authData.user.id, businessName, email })
       try {
         const result = await createAccountAfterSignup(authData.user.id, businessName, email)
-        
         if (!result?.account_id) {
           throw new Error("Account creation returned no account ID")
         }
-        
-        toast.success("Account created successfully! Redirecting to onboarding...")
-        setTimeout(() => {
-          router.push("/onboarding")
-          router.refresh()
-        }, 1500)
       } catch (accountError) {
-        // Account creation failed - show detailed error
         console.error("Account creation error:", accountError)
-        const errorMessage = accountError instanceof Error 
-          ? accountError.message 
+        const errorMessage = accountError instanceof Error
+          ? accountError.message
           : "Failed to create account. Please check your environment variables and try again."
         toast.error(errorMessage)
         setIsLoading(false)
         return
       }
+
+      // If no session (e.g. email confirmation required), do not redirect; account is already created.
+      if (!authData.session) {
+        await new Promise((resolve) => setTimeout(resolve, 500))
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) {
+          toast.info("Please check your email to confirm your account. After confirming, log in and you’ll be taken to setup.")
+          setIsLoading(false)
+          return
+        }
+      }
+
+      toast.success("Account created successfully! Redirecting to onboarding...")
+      setTimeout(() => {
+        router.push("/onboarding")
+        router.refresh()
+      }, 1500)
     } catch (err) {
       console.error("Signup error:", err)
       toast.error(err instanceof Error ? err.message : "Failed to create account")
