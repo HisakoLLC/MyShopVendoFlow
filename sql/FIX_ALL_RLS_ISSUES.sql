@@ -1,6 +1,21 @@
 -- COMPREHENSIVE FIX FOR ALL RLS ISSUES
 -- Run this entire script to fix permission denied errors
 -- This will reset and properly configure all RLS policies
+--
+-- IMPORTANT: RLS policies only restrict access; the authenticated role must
+-- have table-level GRANTs first. If you get 42501 even with policies, run this
+-- script (it now includes GRANTs).
+
+-- ============================================================================
+-- STEP 0: TABLE-LEVEL GRANTS (required for authenticated to use the tables)
+-- ============================================================================
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.accounts TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.accounts TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.account_members TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.account_members TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.stores TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.stores TO service_role;
 
 -- ============================================================================
 -- STEP 1: ACCOUNTS TABLE - Allow account creation during signup
@@ -156,12 +171,12 @@ USING (account_id IN (SELECT account_id FROM get_user_account_ids()));
 
 SELECT 
     'Policies created' as status,
-    tablename,
-    COUNT(*) as policy_count
-FROM pg_policies
-WHERE tablename IN ('accounts', 'account_members', 'stores')
-GROUP BY tablename
-ORDER BY tablename;
+    p.tablename,
+    p.policyname,
+    p.cmd
+FROM pg_policies p
+WHERE p.tablename IN ('accounts', 'account_members', 'stores')
+ORDER BY p.tablename, p.policyname;
 
 -- ============================================================================
 -- STEP 5: TEST QUERIES (Run these separately to verify)

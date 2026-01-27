@@ -56,7 +56,7 @@ export async function createAccountAfterSignup(
   // Create account
   const accountId = uuidv4()
   console.log("Creating account:", { accountId, businessName, ownerEmail, userId })
-  
+
   const { data: accountData, error: accountError } = await supabase
     .from("accounts")
     .insert({
@@ -71,7 +71,24 @@ export async function createAccountAfterSignup(
 
   if (accountError) {
     console.error("Account creation error:", accountError)
-    throw new Error(`Failed to create account: ${accountError.message}. Code: ${accountError.code}`)
+    const code = (accountError as { code?: string }).code
+    const permissionDenied = code === "42501" || String(accountError.message).toLowerCase().includes("permission denied")
+
+    if (permissionDenied) {
+      const errorMsg = `Permission denied creating account (Code: ${code}). This usually means RLS policies are missing or misconfigured. 
+
+To fix this:
+1. Go to Supabase Dashboard → SQL Editor
+2. Run the SQL script from: sql/FIX_ALL_RLS_ISSUES.sql
+   (This will create the necessary RLS policies for accounts and account_members tables)
+3. Also verify SUPABASE_SERVICE_ROLE_KEY is set correctly in your .env.local file
+4. Restart your dev server after making changes
+
+If the issue persists, check that your service role key is the full key from Supabase Dashboard → Settings → API → service_role (NOT the anon key).`
+      console.error(errorMsg)
+      throw new Error(errorMsg)
+    }
+    throw new Error(`Failed to create account: ${accountError.message}. Code: ${code ?? "unknown"}`)
   }
 
   if (!accountData) {
@@ -97,9 +114,22 @@ export async function createAccountAfterSignup(
 
   if (memberError) {
     console.error("Account member creation error:", memberError)
-    // Cleanup: delete account
     await supabase.from("accounts").delete().eq("account_id", accountId)
-    throw new Error(`Failed to link user to account: ${memberError.message}. Code: ${memberError.code}`)
+    const code = (memberError as { code?: string }).code
+    const permissionDenied = code === "42501" || String(memberError.message).toLowerCase().includes("permission denied")
+    if (permissionDenied) {
+      const errorMsg = `Permission denied linking account (Code: ${code}). This usually means RLS policies are missing or misconfigured.
+
+To fix this:
+1. Go to Supabase Dashboard → SQL Editor  
+2. Run the SQL script from: sql/FIX_ALL_RLS_ISSUES.sql
+   (This will create the necessary RLS policies for account_members table)
+3. Also verify SUPABASE_SERVICE_ROLE_KEY is set correctly in your .env.local file
+4. Restart your dev server after making changes`
+      console.error(errorMsg)
+      throw new Error(errorMsg)
+    }
+    throw new Error(`Failed to link user to account: ${memberError.message}. Code: ${code ?? "unknown"}`)
   }
 
   if (!memberData) {
