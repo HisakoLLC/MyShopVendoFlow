@@ -21,15 +21,24 @@ interface Sale {
 interface RecentSalesProps {
   sales: Sale[]
   itemsPerSale: Record<string, number>
-  formatPrice: (price: number) => string
-  formatTime: (dateStr: string | null) => string
+}
+
+function formatPrice(price: number) {
+  return new Intl.NumberFormat("en-KE", {
+    style: "currency",
+    currency: "KES",
+    maximumFractionDigits: 0,
+  }).format(price)
+}
+
+function formatTime(dateStr: string | null) {
+  if (!dateStr) return "N/A"
+  return new Date(dateStr).toLocaleTimeString("en-KE", { hour: "2-digit", minute: "2-digit" })
 }
 
 export function RecentSales({
   sales,
   itemsPerSale,
-  formatPrice,
-  formatTime,
 }: RecentSalesProps) {
   if (sales.length === 0) {
     return (

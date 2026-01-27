@@ -553,8 +553,6 @@ async function DashboardContent() {
             <RecentSales
               sales={recentSales || []}
               itemsPerSale={itemsPerSale}
-              formatPrice={formatPrice}
-              formatTime={formatTime}
             />
           </CardContent>
         </Card>
