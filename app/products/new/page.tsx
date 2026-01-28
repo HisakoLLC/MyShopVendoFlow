@@ -61,8 +61,14 @@ async function fetchCreateStyleOptions(): Promise<FetchResult> {
     return { ok: false, error: seasonsError.message }
   }
 
-  const catList = (categories ?? []).map((c) => ({ category_id: c.category_id, name: c.name ?? "" }))
-  const seasonList = (seasons ?? []).map((s) => ({ season_id: s.season_id, name: s.name ?? "" }))
+  const catList = (categories ?? []).map((c: Pick<CategoryRow, "category_id" | "name">) => ({
+    category_id: c.category_id,
+    name: c.name ?? "",
+  }))
+  const seasonList = (seasons ?? []).map((s: Pick<SeasonRow, "season_id" | "name">) => ({
+    season_id: s.season_id,
+    name: s.name ?? "",
+  }))
 
   return {
     ok: true,
