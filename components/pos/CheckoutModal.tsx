@@ -99,6 +99,27 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
     }).format(price)
   }
 
+  // Resolve cashier_id: sales.cashier_id must reference staff.staff_id, not auth user id
+  const getCashierIdForCurrentUser = async (): Promise<string | null> => {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+    if (userError || !user?.email) return null
+    const { data: accountId } = await supabase.rpc("get_account_id")
+    const aid = Array.isArray(accountId) ? accountId[0] : accountId
+    if (!aid) return null
+    const { data: staffRow } = await supabase
+      .from("staff")
+      .select("staff_id")
+      .eq("account_id", aid)
+      .ilike("email", user.email.trim())
+      .eq("active", true)
+      .limit(1)
+      .maybeSingle()
+    return staffRow?.staff_id ?? null
+  }
+
   const generateReceiptNumber = async (storeId: string): Promise<string> => {
     const today = new Date()
     const dateStr = today.toISOString().split("T")[0].replace(/-/g, "")
@@ -207,6 +228,8 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
         throw new Error("User not authenticated")
       }
 
+      const cashierId = await getCashierIdForCurrentUser()
+
       // Generate receipt number
       const receiptNum = await generateReceiptNumber(storeId)
       setReceiptNumber(receiptNum)
@@ -216,7 +239,7 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
         .from("sales")
         .insert({
           store_id: storeId,
-          cashier_id: user.id,
+          cashier_id: cashierId,
           customer_id: selectedCustomer,
           subtotal: subtotal,
           tax_total: taxAmount,
@@ -462,6 +485,8 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
         throw new Error("User not authenticated")
       }
 
+      const cashierId = await getCashierIdForCurrentUser()
+
       // Generate receipt number
       const receiptNum = await generateReceiptNumber(storeId)
       setReceiptNumber(receiptNum)
@@ -471,7 +496,7 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
         .from("sales")
         .insert({
           store_id: storeId,
-          cashier_id: user.id,
+          cashier_id: cashierId,
           customer_id: selectedCustomer,
           subtotal: subtotal,
           tax_total: taxAmount,
