@@ -4,7 +4,7 @@ import * as React from "react"
 import { Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast, Toaster } from "sonner"
-import { Check, Plus, X } from "lucide-react"
+import { Check, Plus, X, Sparkles } from "lucide-react"
 
 import { createClient } from "@/lib/supabase/client"
 import { ensureAccountForCurrentUser } from "./actions"
@@ -65,8 +65,9 @@ function OnboardingContent() {
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get("redirect") || "/dashboard"
   const supabase = React.useMemo(() => createClient(), [])
-  const [step, setStep] = React.useState(1)
+  const [step, setStep] = React.useState(0)
   const [isLoading, setIsLoading] = React.useState(false)
+  const [demoLoading, setDemoLoading] = React.useState(false)
 
   // Step 1: Store
   const [storeName, setStoreName] = React.useState("")
@@ -235,15 +236,37 @@ function OnboardingContent() {
         throw new Error(error.message)
       }
 
-      toast.success("You're all set! Welcome to VendoFlow 🎉")
-      setTimeout(() => {
-        router.push(redirectTo)
-        router.refresh()
-      }, 2000)
+      toast.success("Plan set! One more step — choose how you'd like to get started.")
+      setStep(4)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to set plan")
+    } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleLoadDemoData = async () => {
+    setDemoLoading(true)
+    try {
+      const res = await fetch("/api/seed-demo", { method: "POST" })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        toast.error(data.error || "Failed to load demo data")
+        return
+      }
+      toast.success("Demo data loaded! Taking you to the dashboard…")
+      router.push(redirectTo)
+      router.refresh()
+    } catch {
+      toast.error("Failed to load demo data")
+    } finally {
+      setDemoLoading(false)
+    }
+  }
+
+  const handleGoToDashboard = () => {
+    router.push(redirectTo)
+    router.refresh()
   }
 
   const toggleCategory = (category: string) => {
@@ -270,28 +293,50 @@ function OnboardingContent() {
       <Toaster richColors position="top-right" />
       <div className="w-full max-w-2xl space-y-8">
         {/* Progress Indicator */}
-        <div className="flex items-center justify-center gap-2">
-          {[1, 2, 3].map((s) => (
-            <React.Fragment key={s}>
-              <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
-                  step >= s
-                    ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
-                    : "border-zinc-300 text-zinc-400 dark:border-zinc-700 dark:text-zinc-600"
-                }`}
-              >
-                {s}
-              </div>
-              {s < 3 && (
+        {step < 4 && (
+          <div className="flex items-center justify-center gap-2">
+            {[0, 1, 2, 3].map((s) => (
+              <React.Fragment key={s}>
                 <div
-                  className={`h-1 w-16 ${
-                    step > s ? "bg-zinc-900 dark:bg-zinc-100" : "bg-zinc-300 dark:bg-zinc-700"
+                  className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
+                    step >= s
+                      ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
+                      : "border-zinc-300 text-zinc-400 dark:border-zinc-700 dark:text-zinc-600"
                   }`}
-                />
-              )}
-            </React.Fragment>
-          ))}
-        </div>
+                >
+                  {s + 1}
+                </div>
+                {s < 3 && (
+                  <div
+                    className={`h-1 w-16 ${
+                      step > s ? "bg-zinc-900 dark:bg-zinc-100" : "bg-zinc-300 dark:bg-zinc-700"
+                    }`}
+                  />
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        )}
+
+        {/* Step 0: Welcome */}
+        {step === 0 && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-8 w-8 text-amber-500" />
+                <CardTitle className="text-2xl">Welcome to VendoFlow</CardTitle>
+              </div>
+              <CardDescription className="text-base">
+                Your all-in-one POS and inventory for small retail. We’ll guide you through creating your first store, adding categories, and choosing a plan. You can load sample data anytime to explore the app.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={() => setStep(1)} className="w-full" size="lg">
+                Get started
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Step 1: Create Store */}
         {step === 1 && (
@@ -340,9 +385,14 @@ function OnboardingContent() {
                   Default: 16% VAT (Kenya standard)
                 </p>
               </div>
-              <Button onClick={handleStep1} className="w-full" disabled={isLoading}>
-                {isLoading ? "Creating..." : "Next"}
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setStep(0)} disabled={isLoading}>
+                  Back
+                </Button>
+                <Button onClick={handleStep1} className="flex-1" disabled={isLoading}>
+                  {isLoading ? "Creating..." : "Next"}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -421,6 +471,37 @@ function OnboardingContent() {
                   {isLoading ? "Creating..." : "Next"}
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Step 4: Success — Load demo or go to dashboard */}
+        {step === 4 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-2xl">You're all set! 🎉</CardTitle>
+              <CardDescription className="text-base">
+                Welcome to VendoFlow. Load sample products, customers, and sales to explore the app, or go straight to your dashboard and add your own data.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button
+                onClick={handleLoadDemoData}
+                className="w-full"
+                size="lg"
+                disabled={demoLoading}
+              >
+                {demoLoading ? "Loading demo data…" : "Load demo data"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleGoToDashboard}
+                className="w-full"
+                size="lg"
+                disabled={demoLoading}
+              >
+                Go to Dashboard
+              </Button>
             </CardContent>
           </Card>
         )}

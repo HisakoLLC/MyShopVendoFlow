@@ -11,6 +11,7 @@ import { DashboardCharts } from "@/components/dashboard/DashboardCharts"
 import { DashboardMetrics } from "@/components/dashboard/DashboardMetrics"
 import { RecentSales } from "@/components/dashboard/RecentSales"
 import { RetryButton } from "@/components/dashboard/RetryButton"
+import { WelcomeDemoBanner } from "@/components/dashboard/WelcomeDemoBanner"
 import {
   TrendingUp,
   TrendingDown,
@@ -397,6 +398,9 @@ async function DashboardContent() {
             </p>
           </div>
         </div>
+
+        {/* Welcome / Load demo data for new users */}
+        <WelcomeDemoBanner show={recentSales.length === 0} />
 
         {/* Hero Stats */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
