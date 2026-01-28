@@ -16,7 +16,11 @@ type FetchOptionsResult = {
   seasons: Array<Pick<SeasonRow, "season_id" | "name">>
 }
 
-async function fetchCreateStyleOptions(): Promise<FetchOptionsResult> {
+type FetchResult =
+  | { ok: true; data: FetchOptionsResult }
+  | { ok: false; error: string; redirect?: boolean }
+
+async function fetchCreateStyleOptions(): Promise<FetchResult> {
   const supabase = await createServerSupabaseClient()
 
   const {
@@ -25,38 +29,47 @@ async function fetchCreateStyleOptions(): Promise<FetchOptionsResult> {
   } = await supabase.auth.getUser()
 
   if (userError || !user) {
-    throw new Error("You must be signed in to create a style.")
+    return { ok: false, error: "You must be signed in to create a style." }
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
-  if (accountIdError || !accountId) {
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = Array.isArray(accountIdRaw) ? accountIdRaw[0] ?? null : accountIdRaw
+  if (accountIdError || accountId == null || accountId === "") {
     redirect("/onboarding")
   }
+
+  const accountIdStr = typeof accountId === "string" ? accountId : String(accountId)
 
   const [{ data: categories, error: categoriesError }, { data: seasons, error: seasonsError }] =
     await Promise.all([
       supabase
         .from("categories")
         .select("category_id,name")
-        .eq("account_id", accountId)
+        .eq("account_id", accountIdStr)
         .order("name", { ascending: true }),
       supabase
         .from("seasons")
         .select("season_id,name")
-        .eq("account_id", accountId)
+        .eq("account_id", accountIdStr)
         .order("name", { ascending: true }),
     ])
 
   if (categoriesError) {
-    throw new Error(categoriesError.message)
+    return { ok: false, error: categoriesError.message }
   }
   if (seasonsError) {
-    throw new Error(seasonsError.message)
+    return { ok: false, error: seasonsError.message }
   }
 
+  const catList = (categories ?? []).map((c) => ({ category_id: c.category_id, name: c.name ?? "" }))
+  const seasonList = (seasons ?? []).map((s) => ({ season_id: s.season_id, name: s.name ?? "" }))
+
   return {
-    categories: (categories ?? []) as Array<Pick<CategoryRow, "category_id" | "name">>,
-    seasons: (seasons ?? []) as Array<Pick<SeasonRow, "season_id" | "name">>,
+    ok: true,
+    data: {
+      categories: catList as Array<Pick<CategoryRow, "category_id" | "name">>,
+      seasons: seasonList as Array<Pick<SeasonRow, "season_id" | "name">>,
+    },
   }
 }
 
@@ -89,13 +102,23 @@ function ErrorState({ message }: { message: string }) {
 }
 
 async function CreateStylePageContent() {
-  let options: FetchOptionsResult
+  let result: FetchResult
   try {
-    options = await fetchCreateStyleOptions()
+    result = await fetchCreateStyleOptions()
   } catch (err) {
+    if (err != null && typeof err === "object" && "digest" in err) {
+      const digest = String((err as { digest?: string }).digest ?? "")
+      if (digest.includes("NEXT_REDIRECT")) throw err
+    }
     const message = err instanceof Error ? err.message : "Unable to load form options."
     return <ErrorState message={message} />
   }
+
+  if (!result.ok) {
+    return <ErrorState message={result.error} />
+  }
+
+  const { categories, seasons } = result.data
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6">
@@ -118,7 +141,7 @@ async function CreateStylePageContent() {
         </div>
       </div>
 
-      <CreateStyleForm categories={options.categories} seasons={options.seasons} />
+      <CreateStyleForm categories={categories} seasons={seasons} />
     </div>
   )
 }
