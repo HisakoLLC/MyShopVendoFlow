@@ -509,6 +509,10 @@ async function seedSales(
 
   const cashierId = accountMember?.user_id || "00000000-0000-0000-0000-000000000000"
 
+  if (variants.length === 0) {
+    return
+  }
+
   for (let i = 0; i < 30; i++) {
     // More recent dates are more likely (exponential distribution)
     const daysAgo = Math.pow(Math.random(), 1.5) * 90 // Bias towards recent
@@ -523,9 +527,10 @@ async function seedSales(
 
     // 2-4 line items per sale
     const numItems = randomInt(2, 4)
-    const selectedVariants = []
+    const selectedVariants: { variant: Variant; quantity: number }[] = []
     for (let j = 0; j < numItems; j++) {
       const variant = randomChoice(variants)
+      if (!variant) continue
       const quantity = randomInt(1, 3)
       selectedVariants.push({ variant, quantity })
     }
@@ -534,10 +539,7 @@ async function seedSales(
     let subtotal = 0
     const lineItems = []
     for (const { variant, quantity } of selectedVariants) {
-      // Skip if style_id is missing
-      if (!variant.style_id) {
-        continue
-      }
+      if (!variant?.style_id) continue
 
       // Find style for base price
       const { data: style } = await supabase
@@ -558,6 +560,8 @@ async function seedSales(
         line_total: lineTotal,
       })
     }
+
+    if (lineItems.length === 0) continue
 
     const taxTotal = subtotal * 0.16
     const grandTotal = subtotal + taxTotal
