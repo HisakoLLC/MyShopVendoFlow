@@ -149,9 +149,13 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
           return
         }
       }
-      if (paymentMethod === "cash" && (!amountTendered || parseFloat(amountTendered) < total)) {
-        toast.error(`Amount tendered must be at least ${formatPrice(total)}`)
-        return
+      if (paymentMethod === "cash") {
+        const tendered = parseFloat(amountTendered)
+        const minTendered = Math.round(total)
+        if (!amountTendered || isNaN(tendered) || tendered < minTendered) {
+          toast.error(`Amount tendered must be at least ${formatPrice(total)}`)
+          return
+        }
       }
       setCurrentStep(2)
     } else if (currentStep === 2) {
