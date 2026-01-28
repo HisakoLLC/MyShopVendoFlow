@@ -3,6 +3,20 @@ import { redirect } from "next/navigation"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { SalesReportClient } from "./sales-report-client"
 
+type SaleRow = {
+  sale_id: string
+  receipt_number: string | null
+  sale_date: string | null
+  grand_total: number | null
+  payment_method: string | null
+  store_id: string | null
+  cashier_id: string | null
+  customer_id: string | null
+  stores: { name: string } | null
+  staff: { first_name: string | null; last_name: string | null } | null
+  customers: { first_name: string | null; last_name: string | null; phone: string | null } | null
+}
+
 function LoadingState() {
   return (
     <div className="flex h-screen items-center justify-center">
@@ -64,7 +78,7 @@ async function SalesReportContent() {
 
   const storeIds = stores?.map((s: { store_id: string }) => s.store_id) || []
 
-  let initialSales: Awaited<ReturnType<typeof supabase.from<"sales">.select>>["data"] = []
+  let initialSales: SaleRow[] = []
   if (storeIds.length > 0) {
     const result = await supabase
       .from("sales")
