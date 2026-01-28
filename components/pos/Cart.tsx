@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Minus, Plus } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
+import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { CheckoutModal } from "./CheckoutModal"
 import {
@@ -24,6 +25,49 @@ export function Cart({ defaultStoreId }: CartProps) {
   const { cart, removeFromCart, clearCart, updateQuantity, subtotal, taxAmount, total } = useCart()
   const [showCheckout, setShowCheckout] = React.useState(false)
   const [showClearConfirm, setShowClearConfirm] = React.useState(false)
+  const [stockByVariant, setStockByVariant] = React.useState<Record<string, number>>({})
+
+  const supabase = React.useMemo(() => createClient(), [])
+
+  // Fetch available stock for each variant in the cart at the current store
+  React.useEffect(() => {
+    if (!defaultStoreId || cart.length === 0) {
+      setStockByVariant({})
+      return
+    }
+    const variantIds = [...new Set(cart.map((i) => i.variantId))]
+    ;(async () => {
+      const { data, error } = await supabase
+        .from("inventory_levels")
+        .select("variant_id, quantity_on_hand")
+        .eq("store_id", defaultStoreId)
+        .in("variant_id", variantIds)
+
+      if (error) {
+        setStockByVariant({})
+        return
+      }
+      const map: Record<string, number> = {}
+      for (const row of data ?? []) {
+        const id = row.variant_id
+        const qty = row.quantity_on_hand ?? 0
+        map[id] = (map[id] ?? 0) + qty
+      }
+      setStockByVariant(map)
+    })()
+    })()
+  }, [defaultStoreId, supabase, cart])
+
+  // When stock data loads, clamp any cart quantity that exceeds available
+  React.useEffect(() => {
+    if (!defaultStoreId || Object.keys(stockByVariant).length === 0) return
+    cart.forEach((item) => {
+      const available = stockByVariant[item.variantId] ?? 0
+      if (item.quantity > available) {
+        updateQuantity(item.cartItemId, available)
+      }
+    })
+  }, [defaultStoreId, stockByVariant, cart, updateQuantity])
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-KE", {
@@ -111,35 +155,51 @@ export function Cart({ defaultStoreId }: CartProps) {
                     <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
                       SKU: {item.sku}
                     </p>
-                    <div className="mt-2 flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 shrink-0 rounded-r-none text-zinc-600 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-700"
-                          onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
-                          aria-label="Decrease quantity"
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                        <span className="min-w-[2rem] text-center text-sm font-medium tabular-nums text-zinc-900 dark:text-zinc-100">
-                          {item.quantity}
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 shrink-0 rounded-r-none text-zinc-600 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                            onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                            aria-label="Decrease quantity"
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                          <span className="min-w-[2rem] text-center text-sm font-medium tabular-nums text-zinc-900 dark:text-zinc-100">
+                            {item.quantity}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 shrink-0 rounded-l-none text-zinc-600 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                            onClick={() => {
+                              const available = defaultStoreId
+                                ? (stockByVariant[item.variantId] ?? 0)
+                                : Infinity
+                              updateQuantity(item.cartItemId, Math.min(item.quantity + 1, available))
+                            }}
+                            disabled={
+                              !!defaultStoreId &&
+                              item.quantity >= (stockByVariant[item.variantId] ?? 0)
+                            }
+                            aria-label="Increase quantity"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 shrink-0">
+                          {formatPrice(item.price * item.quantity)}
                         </span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 shrink-0 rounded-l-none text-zinc-600 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-700"
-                          onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
-                          aria-label="Increase quantity"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
                       </div>
-                      <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 shrink-0">
-                        {formatPrice(item.price * item.quantity)}
-                      </span>
+                      {defaultStoreId && stockByVariant[item.variantId] != null && (
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                          Max in stock: {stockByVariant[item.variantId]}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>

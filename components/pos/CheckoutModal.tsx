@@ -16,6 +16,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Receipt } from "./Receipt"
 import { toast } from "sonner"
 import { mpesaClient } from "@/lib/mpesa/client"
+import { ensureStaffForCurrentUser } from "@/app/pos/actions"
 
 interface CheckoutModalProps {
   storeId: string | null
@@ -228,7 +229,8 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
         throw new Error("User not authenticated")
       }
 
-      const cashierId = await getCashierIdForCurrentUser()
+      let cashierId = await getCashierIdForCurrentUser()
+      if (!cashierId) cashierId = await ensureStaffForCurrentUser()
 
       // Generate receipt number
       const receiptNum = await generateReceiptNumber(storeId)
@@ -485,7 +487,8 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
         throw new Error("User not authenticated")
       }
 
-      const cashierId = await getCashierIdForCurrentUser()
+      let cashierId = await getCashierIdForCurrentUser()
+      if (!cashierId) cashierId = await ensureStaffForCurrentUser()
 
       // Generate receipt number
       const receiptNum = await generateReceiptNumber(storeId)

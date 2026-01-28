@@ -100,6 +100,101 @@ export async function createProductStyle(formData: z.infer<typeof createStyleSer
   return { style_id: data.style_id }
 }
 
+export async function updateProductStyle(
+  styleId: string,
+  formData: z.infer<typeof createStyleServerSchema>
+) {
+  const supabase = await createServerSupabaseClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    throw new Error("You must be signed in to update a style.")
+  }
+
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = Array.isArray(accountIdRaw) ? accountIdRaw[0] ?? null : accountIdRaw
+  if (accountIdError || accountId == null || accountId === "") {
+    throw new Error("Unable to resolve account.")
+  }
+
+  const parsed = createStyleServerSchema.safeParse(formData)
+  if (!parsed.success) {
+    throw new Error(parsed.error.errors[0]?.message ?? "Validation failed.")
+  }
+
+  const { data: validated } = parsed
+
+  if (validated.cost >= validated.base_price) {
+    throw new Error("Cost must be less than Base Price.")
+  }
+
+  const { data: category, error: categoryError } = await supabase
+    .from("categories")
+    .select("category_id")
+    .eq("category_id", validated.category_id)
+    .eq("account_id", accountId)
+    .single()
+
+  if (categoryError || !category) {
+    throw new Error("Invalid category selected.")
+  }
+
+  if (validated.season_id) {
+    const { data: season, error: seasonError } = await supabase
+      .from("seasons")
+      .select("season_id")
+      .eq("season_id", validated.season_id)
+      .eq("account_id", accountId)
+      .single()
+
+    if (seasonError || !season) {
+      throw new Error("Invalid season selected.")
+    }
+  }
+
+  const { data: style, error: styleError } = await supabase
+    .from("product_styles")
+    .select("style_id")
+    .eq("style_id", styleId)
+    .eq("account_id", accountId)
+    .single()
+
+  if (styleError || !style) {
+    throw new Error("Style not found or access denied.")
+  }
+
+  const updatePayload: Record<string, unknown> = {
+    name: validated.name,
+    category_id: validated.category_id,
+    season_id: validated.season_id ?? null,
+    description: validated.description ?? null,
+    base_price: validated.base_price,
+    cost: validated.cost,
+  }
+  if (validated.image_url && validated.image_url.length > 0) {
+    updatePayload.image_url = validated.image_url
+  }
+
+  const { error: updateError } = await supabase
+    .from("product_styles")
+    .update(updatePayload)
+    .eq("style_id", styleId)
+    .eq("account_id", accountId)
+
+  if (updateError) {
+    throw new Error(updateError.message)
+  }
+
+  revalidatePath("/products")
+  revalidatePath(`/products/${styleId}`)
+  revalidatePath(`/products/${styleId}/edit`)
+  return { style_id: styleId }
+}
+
 export async function archiveProductStyle(styleId: string) {
   const supabase = await createServerSupabaseClient()
 
