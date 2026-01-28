@@ -13,7 +13,7 @@ const createStyleServerSchema = z.object({
   description: z.string().max(500).trim().nullable().optional(),
   base_price: z.number().min(0.01, "Base price must be greater than 0.").max(999999999),
   cost: z.number().min(0.01, "Cost must be greater than 0.").max(999999999),
-  image_url: z.string().url().optional(),
+  image_url: z.string().min(1).optional(),
 })
 
 export async function createProductStyle(formData: z.infer<typeof createStyleServerSchema>) {
@@ -28,8 +28,9 @@ export async function createProductStyle(formData: z.infer<typeof createStyleSer
     throw new Error("You must be signed in to create a style.")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
-  if (accountIdError || !accountId) {
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = Array.isArray(accountIdRaw) ? accountIdRaw[0] ?? null : accountIdRaw
+  if (accountIdError || accountId == null || accountId === "") {
     throw new Error("Unable to resolve account.")
   }
 
@@ -72,8 +73,9 @@ export async function createProductStyle(formData: z.infer<typeof createStyleSer
     }
   }
 
+  const accountIdStr = typeof accountId === "string" ? accountId : String(accountId)
   const payload = {
-    account_id: accountId,
+    account_id: accountIdStr,
     name: validated.name,
     category_id: validated.category_id,
     season_id: validated.season_id ?? null,
