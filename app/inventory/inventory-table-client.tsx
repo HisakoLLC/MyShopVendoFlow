@@ -2,7 +2,9 @@
 
 import * as React from "react"
 import Image from "next/image"
-import { Download, Search, AlertTriangle } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Download, Search, AlertTriangle, Pencil } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,6 +24,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { InventoryAdjustmentModal } from "@/components/inventory/InventoryAdjustmentModal"
+import { VariantCellEditor } from "@/components/products/VariantCellEditor"
+import { updateProductVariant } from "@/app/products/actions"
 
 type Store = {
   store_id: string
@@ -36,6 +40,8 @@ type InventoryItem = {
   size: string
   color: string
   sku: string
+  price: number
+  cost: number
   stores: Array<{
     store_id: string
     store_name: string
@@ -68,6 +74,7 @@ function getRowBgColor(totalStock: number, hasNegative: boolean): string {
 }
 
 export function InventoryTableClient({ stores, inventory }: InventoryTableClientProps) {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = React.useState("")
   const [selectedStore, setSelectedStore] = React.useState<string>("all")
   const [stockStatus, setStockStatus] = React.useState<StockStatus>("all")
@@ -84,6 +91,15 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
       name: string
     }
     currentStock: number
+  } | null>(null)
+  const [editingVariant, setEditingVariant] = React.useState<{
+    variant_id: string
+    style_name: string
+    size: string
+    color: string
+    sku: string
+    price: number
+    cost: number
   } | null>(null)
 
   const filtered = React.useMemo(() => {
@@ -331,8 +347,31 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
           onClose={() => setAdjustingVariant(null)}
           onSuccess={() => {
             setAdjustingVariant(null)
-            window.location.reload()
+            router.refresh()
           }}
+        />
+      )}
+
+      {/* Edit variant (price/cost/SKU) modal */}
+      {editingVariant && (
+        <VariantCellEditor
+          open={true}
+          size={editingVariant.size}
+          color={editingVariant.color}
+          defaultSku={editingVariant.sku}
+          defaultPrice={editingVariant.price}
+          defaultCost={editingVariant.cost}
+          onSave={async (data) => {
+            try {
+              await updateProductVariant(editingVariant.variant_id, data)
+              toast.success("Variant updated.")
+              setEditingVariant(null)
+              router.refresh()
+            } catch (e) {
+              toast.error(e instanceof Error ? e.message : "Failed to update variant.")
+            }
+          }}
+          onCancel={() => setEditingVariant(null)}
         />
       )}
     </>

@@ -249,3 +249,90 @@ export async function createProductVariants(
   return { count: data.length, variant_ids: data.map((v: { variant_id: string }) => v.variant_id) }
 }
 
+const variantUpdateSchema = z
+  .object({
+    sku: z
+      .string()
+      .min(1, "SKU is required.")
+      .regex(/^[A-Z0-9-]+$/, "SKU must contain only uppercase letters, numbers, and hyphens."),
+    price: z.number().min(0.01, "Price must be greater than 0."),
+    cost: z.number().min(0.01, "Cost must be greater than 0."),
+  })
+  .refine((data) => data.cost < data.price, {
+    message: "Cost must be less than Price.",
+    path: ["cost"],
+  })
+
+export async function updateProductVariant(
+  variantId: string,
+  data: z.infer<typeof variantUpdateSchema>
+) {
+  const supabase = await createServerSupabaseClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    throw new Error("You must be signed in to update a variant.")
+  }
+
+  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  if (accountIdError || !accountId) {
+    throw new Error("Unable to resolve account.")
+  }
+
+  const parsed = variantUpdateSchema.safeParse(data)
+  if (!parsed.success) {
+    throw new Error(parsed.error.errors[0]?.message ?? "Validation failed.")
+  }
+
+  const { sku, price, cost } = parsed.data
+
+  // Verify variant belongs to account (via style)
+  const { data: variant, error: variantError } = await supabase
+    .from("product_variants")
+    .select("variant_id, style_id, sku, product_styles!inner(account_id)")
+    .eq("variant_id", variantId)
+    .single()
+
+  if (variantError || !variant) {
+    throw new Error("Variant not found or access denied.")
+  }
+
+  const style = variant.product_styles as { account_id: string } | null
+  if (!style || style.account_id !== accountId) {
+    throw new Error("Variant not found or access denied.")
+  }
+
+  // If SKU is changing, ensure it doesn't conflict with another variant (excluding this one)
+  const { data: existingBySku, error: skuError } = await supabase
+    .from("product_variants")
+    .select("variant_id")
+    .eq("sku", sku)
+    .neq("variant_id", variantId)
+    .limit(1)
+
+  if (skuError) {
+    throw new Error("Error checking SKU.")
+  }
+  if (existingBySku && existingBySku.length > 0) {
+    throw new Error(`SKU "${sku}" is already used by another variant.`)
+  }
+
+  const { error: updateError } = await supabase
+    .from("product_variants")
+    .update({ sku, price, cost })
+    .eq("variant_id", variantId)
+
+  if (updateError) {
+    throw new Error(updateError.message)
+  }
+
+  revalidatePath("/inventory")
+  revalidatePath("/products")
+  revalidatePath(`/products/${variant.style_id}`)
+  return { success: true }
+}
+

@@ -53,7 +53,8 @@ async function fetchRestockSuggestions(): Promise<RestockSuggestion[]> {
     redirect("/login")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = Array.isArray(accountIdRaw) ? accountIdRaw[0] : accountIdRaw
   if (accountIdError || !accountId) {
     redirect("/onboarding?redirect=/purchasing/restock")
   }

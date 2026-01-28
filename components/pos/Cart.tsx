@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Minus, Plus } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
 import { Button } from "@/components/ui/button"
 import { CheckoutModal } from "./CheckoutModal"
@@ -20,7 +21,7 @@ interface CartProps {
 }
 
 export function Cart({ defaultStoreId }: CartProps) {
-  const { cart, removeFromCart, clearCart, subtotal, taxAmount, total } = useCart()
+  const { cart, removeFromCart, clearCart, updateQuantity, subtotal, taxAmount, total } = useCart()
   const [showCheckout, setShowCheckout] = React.useState(false)
   const [showClearConfirm, setShowClearConfirm] = React.useState(false)
 
@@ -110,11 +111,33 @@ export function Cart({ defaultStoreId }: CartProps) {
                     <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
                       SKU: {item.sku}
                     </p>
-                    <div className="mt-2 flex items-center justify-between">
-                      <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                        Qty: {item.quantity}
-                      </span>
-                      <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 shrink-0 rounded-r-none text-zinc-600 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                          onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                          aria-label="Decrease quantity"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="min-w-[2rem] text-center text-sm font-medium tabular-nums text-zinc-900 dark:text-zinc-100">
+                          {item.quantity}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 shrink-0 rounded-l-none text-zinc-600 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                          onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
+                          aria-label="Increase quantity"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 shrink-0">
                         {formatPrice(item.price * item.quantity)}
                       </span>
                     </div>

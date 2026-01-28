@@ -18,6 +18,8 @@ type InventoryData = {
   size: string
   color: string
   sku: string
+  price: number
+  cost: number
   stores: Array<{
     store_id: string
     store_name: string
@@ -70,6 +72,8 @@ async function fetchInventoryData(): Promise<FetchResult> {
       size,
       color,
       sku,
+      price,
+      cost,
       product_styles!inner (
         style_id,
         name,
@@ -108,6 +112,8 @@ async function fetchInventoryData(): Promise<FetchResult> {
     size: string
     color: string
     sku: string
+    price: number | null
+    cost: number | null
     product_styles: {
       style_id: string
       name: string
@@ -144,6 +150,8 @@ async function fetchInventoryData(): Promise<FetchResult> {
       size: variant.size,
       color: variant.color,
       sku: variant.sku,
+      price: variant.price ?? 0,
+      cost: variant.cost ?? 0,
       stores: storeInventories,
       total_stock: totalStock,
     })

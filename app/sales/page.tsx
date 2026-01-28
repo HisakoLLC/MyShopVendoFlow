@@ -26,7 +26,8 @@ async function SalesReportContent() {
     redirect("/login")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = Array.isArray(accountIdRaw) ? accountIdRaw[0] : accountIdRaw
   if (accountIdError || !accountId) {
     redirect("/onboarding?redirect=/sales")
   }
@@ -54,29 +55,35 @@ async function SalesReportContent() {
     console.error("Error loading staff:", staffError)
   }
 
-  // Default: Last 7 days
-  const today = new Date()
-  today.setHours(23, 59, 59, 999)
-  const sevenDaysAgo = new Date(today)
+  // Default: last 7 days as a rolling window (so "today" sales are always included)
+  const now = new Date()
+  const sevenDaysAgo = new Date(now)
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-  sevenDaysAgo.setHours(0, 0, 0, 0)
+  const fromStr = sevenDaysAgo.toISOString()
+  const toStr = now.toISOString()
 
   const storeIds = stores?.map((s: { store_id: string }) => s.store_id) || []
 
-  // Fetch initial sales data (last 7 days)
-  const { data: initialSales, error: salesError } = await supabase
-    .from("sales")
-    .select(
-      "sale_id, receipt_number, sale_date, grand_total, payment_method, store_id, cashier_id, customer_id, stores(name), staff(first_name, last_name), customers(first_name, last_name, phone)"
-    )
-    .in("store_id", storeIds)
-    .gte("sale_date", `${sevenDaysAgo.toISOString().split("T")[0]}T00:00:00.000Z`)
-    .lte("sale_date", `${today.toISOString().split("T")[0]}T23:59:59.999Z`)
-    .order("sale_date", { ascending: false })
-    .limit(100)
+  let initialSales: Awaited<ReturnType<typeof supabase.from<"sales">.select>>["data"] = []
+  if (storeIds.length > 0) {
+    const result = await supabase
+      .from("sales")
+      .select(
+        "sale_id, receipt_number, sale_date, grand_total, payment_method, store_id, cashier_id, customer_id, stores(name), staff(first_name, last_name), customers(first_name, last_name, phone)"
+      )
+      .in("store_id", storeIds)
+      .gte("sale_date", fromStr)
+      .lte("sale_date", toStr)
+      .order("sale_date", { ascending: false })
+      .limit(100)
+    initialSales = result.data ?? []
+    if (result.error) {
+      console.error("Sales fetch error:", result.error)
+    }
+  }
 
   // Get line items count and quantities for each sale
-  const saleIds = (initialSales || []).map((s: { sale_id: string }) => s.sale_id)
+  const saleIds = initialSales.map((s: { sale_id: string }) => s.sale_id)
   let lineItems: Array<{ sale_id: string | null; quantity: number | null }> | null = null
   if (saleIds.length > 0) {
     const result = await supabase
@@ -99,14 +106,14 @@ async function SalesReportContent() {
 
   return (
     <SalesReportClient
-      initialSales={initialSales || []}
+      initialSales={initialSales}
       itemsPerSale={itemsPerSale}
       initialTotalUnits={initialTotalUnits}
       stores={stores || []}
       staff={staff || []}
       defaultDateRange={{
         from: sevenDaysAgo.toISOString().split("T")[0],
-        to: today.toISOString().split("T")[0],
+        to: now.toISOString().split("T")[0],
       }}
     />
   )
