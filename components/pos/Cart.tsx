@@ -55,7 +55,6 @@ export function Cart({ defaultStoreId }: CartProps) {
       }
       setStockByVariant(map)
     })()
-    })()
   }, [defaultStoreId, supabase, cart])
 
   // When stock data loads, clamp any cart quantity that exceeds available
