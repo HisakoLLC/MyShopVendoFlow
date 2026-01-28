@@ -53,6 +53,18 @@ export default function DashboardError({ error, reset }: DashboardErrorProps) {
                 </code>{" "}
                 — sales, dashboard tables
               </li>
+              <li>
+                <code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">
+                  sql/FIX_PRODUCTS_PAGE_ACCESS.sql
+                </code>{" "}
+                — products, seasons
+              </li>
+              <li>
+                <code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">
+                  sql/FIX_INVENTORY_AND_SETTINGS_ACCESS.sql
+                </code>{" "}
+                — inventory, restock, settings
+              </li>
             </ol>
             <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
               Then click &quot;Try again&quot; below.

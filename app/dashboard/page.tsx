@@ -68,6 +68,8 @@ function DashboardErrorCard({
                 <li><code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">sql/AUTO_CREATE_ACCOUNT_ON_SIGNUP.sql</code></li>
                 <li><code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">sql/FIX_ALL_RLS_ISSUES.sql</code></li>
                 <li><code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">sql/FIX_DASHBOARD_ACCESS.sql</code></li>
+                <li><code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">sql/FIX_PRODUCTS_PAGE_ACCESS.sql</code></li>
+                <li><code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">sql/FIX_INVENTORY_AND_SETTINGS_ACCESS.sql</code></li>
               </ol>
               <p className="mt-2 text-xs text-zinc-500">
                 Confirm your app uses the <strong>same Supabase project</strong> where you ran the SQL (check Vercel env: NEXT_PUBLIC_SUPABASE_URL).

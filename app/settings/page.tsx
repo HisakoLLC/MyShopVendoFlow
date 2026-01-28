@@ -77,15 +77,14 @@ async function fetchSettingsData(): Promise<{
     throw new Error(storesError.message)
   }
 
-  // Fetch business_settings (may not exist yet)
+  // Fetch business_settings (may not exist yet or permission not yet granted)
   const { data: businessSettings, error: settingsError } = await supabase
     .from("business_settings")
     .select("logo_url, business_address, business_phone, tax_id, logo_on_receipt, receipt_header, receipt_footer, return_policy")
     .eq("account_id", accountId)
     .single()
 
-  // It's okay if settings don't exist yet
-  const settings = settingsError && settingsError.code === "PGRST116" ? null : businessSettings
+  const settings = settingsError ? null : businessSettings ?? null
 
   return {
     account: account as Account,
