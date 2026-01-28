@@ -20,9 +20,9 @@ import { Download, ChevronLeft, ChevronRight } from "lucide-react"
 
 interface Sale {
   sale_id: string
-  receipt_number: string
+  receipt_number: string | null
   sale_date: string | null
-  grand_total: number
+  grand_total: number | null
   payment_method: string | null
   store_id: string | null
   cashier_id: string | null
@@ -251,14 +251,14 @@ export function SalesReportClient({
 
     const rows = sales.map((sale) => [
       formatDateTime(sale.sale_date),
-      sale.receipt_number,
+      sale.receipt_number ?? "",
       sale.stores?.name || "N/A",
       sale.staff
         ? `${sale.staff.first_name || ""} ${sale.staff.last_name || ""}`.trim() || "N/A"
         : "N/A",
       String(itemsPerSale[sale.sale_id] || 0),
       sale.payment_method || "N/A",
-      String(sale.grand_total),
+      String(sale.grand_total ?? ""),
     ])
 
     const csvContent = [headers, ...rows]
@@ -478,7 +478,7 @@ export function SalesReportClient({
                           <TableCell className="font-medium">
                             {formatDateTime(sale.sale_date)}
                           </TableCell>
-                          <TableCell>{sale.receipt_number}</TableCell>
+                          <TableCell>{sale.receipt_number ?? "—"}</TableCell>
                           <TableCell>{sale.stores?.name || "N/A"}</TableCell>
                           <TableCell>
                             {sale.staff
@@ -491,7 +491,7 @@ export function SalesReportClient({
                             <span className="capitalize">{sale.payment_method || "N/A"}</span>
                           </TableCell>
                           <TableCell className="text-right font-medium">
-                            {formatPrice(sale.grand_total)}
+                            {formatPrice(sale.grand_total ?? 0)}
                           </TableCell>
                         </TableRow>
                       ))}

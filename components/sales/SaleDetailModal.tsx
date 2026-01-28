@@ -21,9 +21,9 @@ import { Printer, RotateCcw } from "lucide-react"
 
 interface Sale {
   sale_id: string
-  receipt_number: string
+  receipt_number: string | null
   sale_date: string | null
-  grand_total: number
+  grand_total: number | null
   payment_method: string | null
   store_id: string | null
   cashier_id: string | null
@@ -61,7 +61,7 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
   const [saleDetails, setSaleDetails] = React.useState<{
     subtotal: number
     tax_total: number | null
-    grand_total: number
+    grand_total: number | null
   } | null>(null)
   const [showReceipt, setShowReceipt] = React.useState(false)
   const supabase = React.useMemo(() => createClient(), [])
@@ -145,7 +145,7 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Receipt ${sale.receipt_number}</title>
+          <title>Receipt ${sale.receipt_number ?? ""}</title>
           <style>
             body { font-family: Arial, sans-serif; padding: 20px; max-width: 400px; margin: 0 auto; }
             .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
@@ -164,7 +164,7 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
             <p>Thank you for your purchase!</p>
           </div>
           <div class="info">
-            <p><strong>Receipt #:</strong> ${sale.receipt_number}</p>
+            <p><strong>Receipt #:</strong> ${sale.receipt_number ?? "—"}</p>
             <p><strong>Date:</strong> ${formatDateTime(sale.sale_date)}</p>
             <p><strong>Payment:</strong> ${(sale.payment_method || "N/A").toUpperCase()}</p>
           </div>
@@ -195,7 +195,7 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
             ` : ""}
             <div class="total-row" style="font-weight: bold; font-size: 16px;">
               <span>Total:</span>
-              <span>${formatPrice(saleDetails.grand_total)}</span>
+              <span>${formatPrice(saleDetails.grand_total ?? 0)}</span>
             </div>
           </div>
           <div class="footer">
@@ -225,7 +225,7 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Sale Details - {sale.receipt_number}</DialogTitle>
+          <DialogTitle>Sale Details - {sale.receipt_number ?? "—"}</DialogTitle>
         </DialogHeader>
 
         {isLoading ? (
@@ -332,7 +332,7 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
                   )}
                   <div className="flex justify-between border-t border-zinc-200 pt-2 dark:border-zinc-800">
                     <span className="font-semibold">Total</span>
-                    <span className="text-lg font-bold">{formatPrice(saleDetails.grand_total)}</span>
+                    <span className="text-lg font-bold">{formatPrice(saleDetails.grand_total ?? 0)}</span>
                   </div>
                 </div>
               </div>
