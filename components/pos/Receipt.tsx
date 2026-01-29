@@ -41,6 +41,7 @@ export function Receipt({
   logoUrl,
   receiptHeader,
   receiptFooter,
+  returnPolicy,
   currency = "KES",
   taxInclusive = false,
   taxRatePercent = 16,
