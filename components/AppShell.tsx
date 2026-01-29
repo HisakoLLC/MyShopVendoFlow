@@ -43,7 +43,7 @@ const navItems = [
   { href: "/sales", label: "Sales", icon: Receipt },
   { href: "/products", label: "Products", icon: Package },
   { href: "/inventory", label: "Inventory", icon: Boxes },
-  { href: "/purchasing/restock", label: "Purchasing", icon: Truck },
+  { href: "/purchasing", label: "Purchasing", icon: Truck },
   { href: "/customers", label: "Customers", icon: Users },
   { href: "/settings", label: "Settings", icon: Settings },
 ]
@@ -262,7 +262,7 @@ function Sidebar({
           const isActive =
             pathname === href ||
             (href !== "/dashboard" && pathname.startsWith(href)) ||
-            (href === "/purchasing/restock" && pathname.startsWith("/purchasing"))
+            (href === "/purchasing" && pathname.startsWith("/purchasing"))
           return (
             <Link
               key={href}
