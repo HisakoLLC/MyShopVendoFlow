@@ -81,6 +81,7 @@ async function fetchPOForPrint(poId: string) {
   return {
     po: po as PurchaseOrder,
     lineItems: (lineItems || []) as POLineItem[],
+    currency,
   }
 }
 
