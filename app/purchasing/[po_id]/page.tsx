@@ -111,7 +111,7 @@ export default async function PODetailPage({
   params: Promise<{ po_id: string }>
 }) {
   const { po_id } = await params
-  let data: { po: PurchaseOrder; lineItems: POLineItem[] }
+  let data: { po: PurchaseOrder; lineItems: POLineItem[]; currency: string }
   try {
     data = await fetchPO(po_id)
   } catch (err) {
