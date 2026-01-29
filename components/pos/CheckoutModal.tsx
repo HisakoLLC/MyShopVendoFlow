@@ -299,15 +299,17 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
         }
       }
 
-      // Success!
+      // Success! Capture receipt data before clearing cart so the receipt shows correct items and totals
+      setReceiptSnapshot({
+        cart: [...cart],
+        subtotal: displaySubtotal,
+        taxAmount: displayTax,
+        total: displayTotal,
+      })
+      setReceiptNumber(receiptNum)
       clearCart()
       setShowReceipt(true)
       setIsProcessing(false)
-
-      // Auto-close after 3 seconds
-      setTimeout(() => {
-        onClose()
-      }, 3000)
     } catch (error) {
       console.error("Error completing sale:", error)
       toast.error("Sale completed but there was an error updating inventory/customer stats")
@@ -450,11 +452,6 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
       })
       clearCart()
       setShowReceipt(true)
-
-      // Auto-close after 3 seconds or when user clicks Done
-      setTimeout(() => {
-        onClose()
-      }, 3000)
     } catch (error) {
       console.error("Checkout error:", error)
       toast.error(error instanceof Error ? error.message : "Failed to process sale")
