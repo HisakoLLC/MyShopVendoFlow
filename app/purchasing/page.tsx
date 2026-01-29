@@ -6,6 +6,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { Package, Plus, FileText, Truck } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { formatCurrency } from "@/lib/format-currency"
 
 export const dynamic = "force-dynamic"
 
@@ -18,7 +19,10 @@ type POListItem = {
   suppliers: { name: string } | null
 }
 
-async function fetchPOList(): Promise<POListItem[]> {
+async function fetchPurchasingData(): Promise<{
+  list: POListItem[]
+  currency: string
+}> {
   const supabase = await createServerSupabaseClient()
   const {
     data: { user },
@@ -33,6 +37,13 @@ async function fetchPOList(): Promise<POListItem[]> {
       ? (accountIdRaw as { account_id: string }).account_id
       : accountIdRaw
   if (accountIdError || !accountId) redirect("/onboarding")
+
+  const { data: bs } = await supabase
+    .from("business_settings")
+    .select("currency")
+    .eq("account_id", accountId)
+    .single()
+  const currency = (bs as { currency?: string } | null)?.currency ?? "KES"
 
   const { data: rows, error } = await supabase
     .from("purchase_orders")
@@ -51,7 +62,7 @@ async function fetchPOList(): Promise<POListItem[]> {
     .order("po_number", { ascending: false })
 
   if (error) throw new Error(error.message)
-  return (rows || []) as POListItem[]
+  return { list: (rows || []) as POListItem[], currency }
 }
 
 function statusLabel(status: string | null): string {
@@ -250,7 +261,7 @@ async function PurchasingContent() {
                         </span>
                       </td>
                       <td className="px-6 py-3 text-right font-medium text-zinc-900 dark:text-zinc-100">
-                        ${(po.total_cost ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                        {formatCurrency(po.total_cost ?? 0, currency, { maximumFractionDigits: 2 })}
                       </td>
                       <td className="px-6 py-3 text-right">
                         <div className="flex justify-end gap-2">

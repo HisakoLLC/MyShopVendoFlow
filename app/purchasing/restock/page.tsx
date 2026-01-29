@@ -258,8 +258,16 @@ function ErrorState({ message }: { message: string }) {
 
 async function RestockSuggestionsContent() {
   let suggestions: RestockSuggestion[]
+  let currency = "KES"
   try {
     suggestions = await fetchRestockSuggestions()
+    const supabase = await createServerSupabaseClient()
+    const { data: accountIdRaw } = await supabase.rpc("get_account_id")
+    const accountId = Array.isArray(accountIdRaw) ? accountIdRaw[0] : accountIdRaw
+    if (accountId) {
+      const { data: bs } = await supabase.from("business_settings").select("currency").eq("account_id", accountId).single()
+      currency = (bs as { currency?: string } | null)?.currency ?? "KES"
+    }
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unable to load restock suggestions."
     return <ErrorState message={message} />
@@ -283,7 +291,7 @@ async function RestockSuggestionsContent() {
         </p>
       </div>
 
-      <RestockSuggestionsClient suggestions={suggestions} />
+      <RestockSuggestionsClient suggestions={suggestions} currency={currency} />
     </div>
   )
 }

@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { formatCurrency as formatCurrencyLib } from "@/lib/format-currency"
 
 type RestockSuggestion = {
   variant_id: string
@@ -36,6 +37,7 @@ type RestockSuggestion = {
 
 type RestockSuggestionsClientProps = {
   suggestions: RestockSuggestion[]
+  currency?: string
 }
 
 type SelectedItem = {
@@ -53,14 +55,9 @@ function getUrgencyColor(daysRemaining: number): string {
   return ""
 }
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount)
-}
-
-export function RestockSuggestionsClient({ suggestions }: RestockSuggestionsClientProps) {
+export function RestockSuggestionsClient({ suggestions, currency = "KES" }: RestockSuggestionsClientProps) {
+  const formatCurrency = (amount: number) =>
+    formatCurrencyLib(amount, currency, { maximumFractionDigits: 2 })
   const router = useRouter()
   const [selectedVariants, setSelectedVariants] = React.useState<Set<string>>(new Set())
   const [quantities, setQuantities] = React.useState<Record<string, number>>(() => {

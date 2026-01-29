@@ -32,6 +32,8 @@ type BusinessSettings = {
   receipt_header: string | null
   receipt_footer: string | null
   return_policy: string | null
+  currency: string | null
+  tax_inclusive: boolean | null
 }
 
 async function fetchSettingsData(): Promise<{
@@ -81,7 +83,7 @@ async function fetchSettingsData(): Promise<{
   // Fetch business_settings (may not exist yet or permission not yet granted)
   const { data: businessSettings, error: settingsError } = await supabase
     .from("business_settings")
-    .select("logo_url, business_address, business_phone, tax_id, logo_on_receipt, receipt_header, receipt_footer, return_policy")
+    .select("logo_url, business_address, business_phone, tax_id, logo_on_receipt, receipt_header, receipt_footer, return_policy, currency, tax_inclusive")
     .eq("account_id", accountId)
     .single()
 

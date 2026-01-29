@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { formatCurrency } from "@/lib/format-currency"
 
 type POLineItem = {
   line_item_id: string
@@ -149,10 +150,10 @@ export function PrintPOClient({
                       {item.quantity_ordered}
                     </td>
                     <td className="py-3 pr-4 text-right text-zinc-900">
-                      ${item.unit_cost.toFixed(2)}
+                      {formatCurrency(item.unit_cost, currency, { maximumFractionDigits: 2 })}
                     </td>
                     <td className="py-3 text-right font-medium text-zinc-900">
-                      ${item.line_total.toFixed(2)}
+                      {formatCurrency(item.line_total, currency, { maximumFractionDigits: 2 })}
                     </td>
                   </tr>
                 )

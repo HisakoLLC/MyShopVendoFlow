@@ -6,6 +6,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { Package, Printer } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { formatCurrency } from "@/lib/format-currency"
 
 export const dynamic = "force-dynamic"
 
@@ -84,6 +85,7 @@ async function fetchPO(poId: string) {
   return {
     po: po as PurchaseOrder,
     lineItems: (lineItems || []) as POLineItem[],
+    currency,
   }
 }
 
@@ -120,7 +122,7 @@ export default async function PODetailPage({
     )
   }
 
-  const { po, lineItems } = data
+  const { po, lineItems, currency } = data
   const statusLabel =
     po.status === "received"
       ? "Received"
@@ -264,10 +266,10 @@ export default async function PODetailPage({
                       {received}
                     </td>
                     <td className="px-6 py-3 text-right text-zinc-600 dark:text-zinc-400">
-                      ${item.unit_cost.toFixed(2)}
+                      {formatCurrency(item.unit_cost, currency, { maximumFractionDigits: 2 })}
                     </td>
                     <td className="px-6 py-3 text-right font-medium text-zinc-900 dark:text-zinc-100">
-                      ${item.line_total.toFixed(2)}
+                      {formatCurrency(item.line_total, currency, { maximumFractionDigits: 2 })}
                     </td>
                   </tr>
                 )

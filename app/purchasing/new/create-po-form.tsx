@@ -38,6 +38,7 @@ import {
 import { SupplierQuickAddModal } from "@/components/purchasing/SupplierQuickAddModal"
 import { createPurchaseOrder, type CreatePOData } from "@/app/purchasing/actions"
 import { createClient } from "@/lib/supabase/client"
+import { formatCurrency } from "@/lib/format-currency"
 
 type Supplier = {
   supplier_id: string
@@ -110,6 +111,20 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
   const [productResults, setProductResults] = React.useState<Record<number, ProductStyle[]>>({})
   const [variantOptions, setVariantOptions] = React.useState<Record<number, Variant[]>>({})
   const [isSearching, setIsSearching] = React.useState<Record<number, boolean>>({})
+  const [currency, setCurrency] = React.useState<string>("KES")
+
+  React.useEffect(() => {
+    let cancelled = false
+    supabase.rpc("get_account_id").then(({ data: accountId }) => {
+      if (cancelled) return
+      const aid = Array.isArray(accountId) ? accountId[0] : accountId
+      if (!aid) return
+      supabase.from("business_settings").select("currency").eq("account_id", aid).single().then(({ data }) => {
+        if (!cancelled && (data as { currency?: string } | null)?.currency) setCurrency((data as { currency: string }).currency)
+      })
+    })
+    return () => { cancelled = true }
+  }, [supabase])
 
   // Set default dates
   const today = new Date().toISOString().split("T")[0]
@@ -646,7 +661,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                             </TableCell>
                             <TableCell className="text-right">
                               <span className="font-medium">
-                                ${lineTotal.toFixed(2)}
+                                {formatCurrency(lineTotal, currency, { maximumFractionDigits: 2 })}
                               </span>
                             </TableCell>
                             <TableCell>
@@ -685,7 +700,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                   <div className="flex justify-between text-sm">
                     <span className="text-zinc-600 dark:text-zinc-400">Total Cost</span>
                     <span className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                      ${totalCost.toFixed(2)}
+                      {formatCurrency(totalCost, currency, { maximumFractionDigits: 2 })}
                     </span>
                   </div>
                   <div className="pt-4 space-y-2">

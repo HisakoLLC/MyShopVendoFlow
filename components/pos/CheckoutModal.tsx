@@ -16,6 +16,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Receipt } from "./Receipt"
 import { toast } from "sonner"
 import { ensureStaffForCurrentUser } from "@/app/pos/actions"
+import { formatCurrency } from "@/lib/format-currency"
 
 interface CheckoutModalProps {
   storeId: string | null
@@ -24,6 +25,15 @@ interface CheckoutModalProps {
 
 type PaymentMethod = "cash" | "mpesa" | "card"
 type Step = 1 | 2 | 3
+
+type ReceiptSettings = {
+  logoUrl: string | null
+  receiptHeader: string | null
+  receiptFooter: string | null
+  currency: string
+  taxInclusive: boolean
+  taxRatePercent: number
+}
 
 export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
   const { cart, subtotal, taxAmount, total, clearCart } = useCart()
@@ -39,17 +49,62 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
   const [isProcessing, setIsProcessing] = React.useState(false)
   const [receiptNumber, setReceiptNumber] = React.useState<string | null>(null)
   const [showReceipt, setShowReceipt] = React.useState(false)
+  const [receiptSettings, setReceiptSettings] = React.useState<ReceiptSettings>({
+    logoUrl: null,
+    receiptHeader: null,
+    receiptFooter: null,
+    currency: "KES",
+    taxInclusive: false,
+    taxRatePercent: 16,
+  })
 
   const supabase = React.useMemo(() => createClient(), [])
 
-  // Calculate change for cash payments
+  // Fetch business_settings and store tax_rate for receipt and sale calculation
+  React.useEffect(() => {
+    if (!storeId) return
+    let cancelled = false
+    async function load() {
+      const { data: accountId } = await supabase.rpc("get_account_id")
+      const aid = Array.isArray(accountId) ? accountId[0] : accountId
+      if (!aid) return
+      const [settingsRes, storeRes] = await Promise.all([
+        supabase.from("business_settings").select("logo_url, logo_on_receipt, receipt_header, receipt_footer, currency, tax_inclusive").eq("account_id", aid).single(),
+        supabase.from("stores").select("tax_rate").eq("store_id", storeId).single(),
+      ])
+      if (cancelled) return
+      const taxRate = (storeRes.data as { tax_rate: number | null } | null)?.tax_rate ?? 16
+      const bs = settingsRes.data as { logo_url?: string | null; logo_on_receipt?: boolean | null; receipt_header?: string | null; receipt_footer?: string | null; currency?: string | null; tax_inclusive?: boolean | null } | null
+      setReceiptSettings({
+        logoUrl: bs?.logo_on_receipt && bs?.logo_url ? bs.logo_url : null,
+        receiptHeader: bs?.receipt_header ?? null,
+        receiptFooter: bs?.receipt_footer ?? null,
+        currency: bs?.currency ?? "KES",
+        taxInclusive: bs?.tax_inclusive ?? false,
+        taxRatePercent: taxRate,
+      })
+    }
+    load()
+    return () => { cancelled = true }
+  }, [storeId, supabase])
+
+  const { displaySubtotal, displayTax, displayTotal } = React.useMemo(() => {
+    const { taxInclusive, taxRatePercent } = receiptSettings
+    if (taxInclusive) {
+      const tot = subtotal
+      const subEx = tot / (1 + taxRatePercent / 100)
+      return { displaySubtotal: subEx, displayTax: tot - subEx, displayTotal: tot }
+    }
+    return { displaySubtotal: subtotal, displayTax: taxAmount, displayTotal: total }
+  }, [subtotal, taxAmount, total, receiptSettings.taxInclusive, receiptSettings.taxRatePercent])
+
   const change = React.useMemo(() => {
     if (paymentMethod === "cash" && amountTendered) {
       const tendered = parseFloat(amountTendered)
-      return tendered >= total ? tendered - total : 0
+      return tendered >= displayTotal ? tendered - displayTotal : 0
     }
     return 0
-  }, [paymentMethod, amountTendered, total])
+  }, [paymentMethod, amountTendered, displayTotal])
 
   // Search customers as user types
   React.useEffect(() => {
@@ -84,13 +139,8 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
     return () => clearTimeout(timeoutId)
   }, [customerSearch, supabase])
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-KE", {
-      style: "currency",
-      currency: "KES",
-      maximumFractionDigits: 0,
-    }).format(price)
-  }
+  const formatPrice = (price: number) =>
+    formatCurrency(price, receiptSettings.currency, { maximumFractionDigits: 0 })
 
   // Resolve cashier_id: sales.cashier_id must reference staff.staff_id, not auth user id
   const getCashierIdForCurrentUser = async (): Promise<string | null> => {
@@ -170,7 +220,7 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
         const tendered = parseFloat(amountTendered)
         const minTendered = Math.round(total)
         if (!amountTendered || isNaN(tendered) || tendered < minTendered) {
-          toast.error(`Amount tendered must be at least ${formatPrice(total)}`)
+          toast.error(`Amount tendered must be at least ${formatPrice(displayTotal)}`)
           return
         }
       }
@@ -289,16 +339,16 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
           ? `M-Pesa Confirmation: ${mpesaConfirmationCode.trim()}${mpesaPhoneNumber.trim() ? ` (Phone: ${mpesaPhoneNumber.trim()})` : ""}`
           : null
 
-      // Create sale record
+      // Create sale record (use display values for tax_inclusive correctness)
       const { data: sale, error: saleError } = await supabase
         .from("sales")
         .insert({
           store_id: storeId,
           cashier_id: cashierId,
           customer_id: selectedCustomer,
-          subtotal: subtotal,
-          tax_total: taxAmount,
-          grand_total: total,
+          subtotal: displaySubtotal,
+          tax_total: displayTax,
+          grand_total: displayTotal,
           payment_method: paymentMethod,
           receipt_number: receiptNum,
           notes: saleNotes,
@@ -312,15 +362,19 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
         throw new Error(saleError?.message || "Failed to create sale")
       }
 
-      // Create sale line items
-      const lineItems = cart.map((item) => ({
-        sale_id: sale.sale_id,
-        variant_id: item.variantId,
-        quantity: item.quantity,
-        unit_price: item.price,
-        tax_amount: (item.price * item.quantity * 0.16) / 1.16, // Tax amount for this line
-        line_total: item.price * item.quantity,
-      }))
+      const rate = receiptSettings.taxRatePercent / 100
+      const lineItems = cart.map((item) => {
+        const lineTotal = item.price * item.quantity
+        const lineTax = receiptSettings.taxInclusive ? lineTotal - lineTotal / (1 + rate) : lineTotal * rate
+        return {
+          sale_id: sale.sale_id,
+          variant_id: item.variantId,
+          quantity: item.quantity,
+          unit_price: item.price,
+          tax_amount: lineTax,
+          line_total: lineTotal,
+        }
+      })
 
       const { error: lineItemsError } = await supabase
         .from("sale_line_items")
@@ -417,11 +471,17 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
               <Receipt
                 receiptNumber={receiptNumber}
                 cart={cart}
-                subtotal={subtotal}
-                taxAmount={taxAmount}
-                total={total}
+                subtotal={displaySubtotal}
+                taxAmount={displayTax}
+                total={displayTotal}
                 paymentMethod={paymentMethod}
                 storeId={storeId}
+                logoUrl={receiptSettings.logoUrl}
+                receiptHeader={receiptSettings.receiptHeader}
+                receiptFooter={receiptSettings.receiptFooter}
+                currency={receiptSettings.currency}
+                taxInclusive={receiptSettings.taxInclusive}
+                taxRatePercent={receiptSettings.taxRatePercent}
               />
             </div>
             <div className="flex gap-2">
@@ -656,16 +716,16 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
               <div className="mt-4 space-y-1 border-t border-zinc-200 pt-3 dark:border-zinc-800">
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-600 dark:text-zinc-400">Subtotal</span>
-                  <span className="text-zinc-900 dark:text-zinc-100">{formatPrice(subtotal)}</span>
+                  <span className="text-zinc-900 dark:text-zinc-100">{formatPrice(displaySubtotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-600 dark:text-zinc-400">Tax</span>
-                  <span className="text-zinc-900 dark:text-zinc-100">{formatPrice(taxAmount)}</span>
+                  <span className="text-zinc-900 dark:text-zinc-100">{formatPrice(displayTax)}</span>
                 </div>
                 <div className="flex justify-between border-t border-zinc-200 pt-2 dark:border-zinc-800">
                   <span className="font-semibold text-zinc-900 dark:text-zinc-100">Total</span>
                   <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
-                    {formatPrice(total)}
+                    {formatPrice(displayTotal)}
                   </span>
                 </div>
               </div>

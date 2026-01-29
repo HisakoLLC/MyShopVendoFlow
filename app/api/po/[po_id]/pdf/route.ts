@@ -31,6 +31,9 @@ export async function GET(
     return new Response("Account not found", { status: 403 })
   }
 
+  const { data: bs } = await supabase.from("business_settings").select("currency").eq("account_id", accountId).single()
+  const currency = (bs as { currency?: string } | null)?.currency ?? "KES"
+
   const { data: po, error: poError } = await supabase
     .from("purchase_orders")
     .select(
@@ -162,13 +165,10 @@ export async function GET(
   doc.line(20, y, pageW - 20, y)
   y += 6
   doc.setFont("helvetica", "bold")
-  doc.text(
-    "Total:",
-    colX[3],
-    y
-  )
   const total = (po as { total_cost: number | null }).total_cost ?? 0
-  doc.text(`$${total.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, colX[4], y)
+  const currSym = currency === "USD" ? "$" : currency === "KES" ? "Ksh " : `${currency} `
+  doc.text("Total:", colX[3], y)
+  doc.text(`${currSym}${total.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, colX[4], y)
   y += 16
 
   // Signature / stamp area

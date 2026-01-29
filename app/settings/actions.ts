@@ -17,6 +17,8 @@ const receiptSettingsSchema = z.object({
   receipt_header: z.string().max(500).optional(),
   receipt_footer: z.string().max(500).optional(),
   return_policy: z.string().max(1000).optional(),
+  currency: z.string().min(1).max(10).optional(),
+  tax_inclusive: z.boolean().optional(),
 })
 
 const taxRateSchema = z.object({
@@ -227,6 +229,8 @@ export async function updateReceiptSettings(data: ReceiptSettingsData & { logo_u
     receipt_header: parsed.data.receipt_header?.trim() || null,
     receipt_footer: parsed.data.receipt_footer?.trim() || null,
     return_policy: parsed.data.return_policy?.trim() || null,
+    currency: parsed.data.currency?.trim() || "KES",
+    tax_inclusive: parsed.data.tax_inclusive ?? false,
   }
 
   if (data.logo_url) {

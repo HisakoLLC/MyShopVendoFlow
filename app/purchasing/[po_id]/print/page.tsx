@@ -39,6 +39,9 @@ async function fetchPOForPrint(poId: string) {
   const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
   if (accountIdError || !accountId) redirect("/onboarding")
 
+  const { data: bs } = await supabase.from("business_settings").select("currency").eq("account_id", accountId).single()
+  const currency = (bs as { currency?: string } | null)?.currency ?? "KES"
+
   const { data: po, error: poError } = await supabase
     .from("purchase_orders")
     .select(
@@ -87,7 +90,7 @@ export default async function PrintPOPage({
   params: Promise<{ po_id: string }>
 }) {
   const { po_id } = await params
-  let data: { po: PurchaseOrder; lineItems: POLineItem[] }
+  let data: { po: PurchaseOrder; lineItems: POLineItem[]; currency: string }
   try {
     data = await fetchPOForPrint(po_id)
   } catch {
@@ -118,6 +121,7 @@ export default async function PrintPOPage({
         poId={po_id}
         po={data.po}
         lineItems={data.lineItems}
+        currency={data.currency}
       />
     </>
   )

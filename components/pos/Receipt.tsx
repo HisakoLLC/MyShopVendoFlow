@@ -1,8 +1,10 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { CartItem } from "@/lib/cart-context"
 import { createClient } from "@/lib/supabase/client"
+import { formatCurrency } from "@/lib/format-currency"
 
 interface ReceiptProps {
   receiptNumber: string
@@ -12,6 +14,18 @@ interface ReceiptProps {
   total: number
   paymentMethod: string
   storeId: string | null
+  /** When true, show logo at top (from settings) */
+  logoUrl?: string | null
+  /** Custom header line (e.g. "Thank you for your purchase!") */
+  receiptHeader?: string | null
+  /** Custom footer lines (e.g. "Thank you for shopping with us!") */
+  receiptFooter?: string | null
+  /** Currency code for amounts (e.g. KES, USD) */
+  currency?: string
+  /** When true, prices are inclusive of tax; receipt shows breakdown */
+  taxInclusive?: boolean
+  /** Tax rate as percentage (e.g. 16) for display */
+  taxRatePercent?: number
 }
 
 export function Receipt({
@@ -22,6 +36,12 @@ export function Receipt({
   total,
   paymentMethod,
   storeId,
+  logoUrl,
+  receiptHeader,
+  receiptFooter,
+  currency = "KES",
+  taxInclusive = false,
+  taxRatePercent = 16,
 }: ReceiptProps) {
   const [storeName, setStoreName] = React.useState<string>("Store")
   const supabase = React.useMemo(() => createClient(), [])
@@ -44,13 +64,8 @@ export function Receipt({
     fetchStoreName()
   }, [storeId, supabase])
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-KE", {
-      style: "currency",
-      currency: "KES",
-      maximumFractionDigits: 0,
-    }).format(price)
-  }
+  const formatPrice = (price: number) =>
+    formatCurrency(price, currency, { maximumFractionDigits: 0 })
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("en-KE", {
@@ -62,12 +77,33 @@ export function Receipt({
     }).format(date)
   }
 
+  const displaySubtotal = taxInclusive ? total / (1 + taxRatePercent / 100) : subtotal
+  const displayTax = taxInclusive ? total - displaySubtotal : taxAmount
+  const displayTotal = total
+
   return (
     <div className="mx-auto max-w-md bg-white p-6 print:p-4" id="receipt">
+      {/* Logo - when enabled in settings */}
+      {logoUrl && (
+        <div className="mb-4 flex justify-center border-b border-zinc-200 pb-4">
+          <div className="relative h-20 w-40">
+            <Image
+              src={logoUrl}
+              alt="Store logo"
+              fill
+              className="object-contain object-center"
+              unoptimized
+            />
+          </div>
+        </div>
+      )}
+
       {/* Receipt Header */}
-      <div className="mb-4 border-b-2 border-zinc-900 pb-4 text-center">
+      <div className={`border-b-2 border-zinc-900 pb-4 text-center ${logoUrl ? "" : "mb-4"}`}>
         <h1 className="text-2xl font-bold text-zinc-900">{storeName}</h1>
-        <p className="mt-1 text-sm text-zinc-600">Thank you for your purchase!</p>
+        <p className="mt-1 text-sm text-zinc-600">
+          {receiptHeader?.trim() || "Thank you for your purchase!"}
+        </p>
       </div>
 
       {/* Receipt Info */}
@@ -112,24 +148,36 @@ export function Receipt({
       <div className="mb-4 border-t-2 border-zinc-900 pt-4">
         <div className="space-y-1 text-sm">
           <div className="flex justify-between">
-            <span className="text-zinc-600">Subtotal:</span>
-            <span className="text-zinc-900">{formatPrice(subtotal)}</span>
+            <span className="text-zinc-600">
+              {taxInclusive ? "Subtotal (ex tax):" : "Subtotal:"}
+            </span>
+            <span className="text-zinc-900">{formatPrice(displaySubtotal)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-zinc-600">Tax (16%):</span>
-            <span className="text-zinc-900">{formatPrice(taxAmount)}</span>
+            <span className="text-zinc-600">Tax ({taxRatePercent}%):</span>
+            <span className="text-zinc-900">{formatPrice(displayTax)}</span>
           </div>
           <div className="flex justify-between border-t border-zinc-300 pt-2 text-base font-bold">
             <span className="text-zinc-900">Total:</span>
-            <span className="text-zinc-900">{formatPrice(total)}</span>
+            <span className="text-zinc-900">{formatPrice(displayTotal)}</span>
           </div>
         </div>
       </div>
 
       {/* Footer */}
       <div className="border-t border-zinc-300 pt-4 text-center text-xs text-zinc-600">
-        <p>Thank you for shopping with us!</p>
-        <p className="mt-1">Please come again</p>
+        {receiptFooter?.trim() ? (
+          receiptFooter.split("\n").map((line, i) => (
+            <p key={i} className={i > 0 ? "mt-1" : ""}>
+              {line}
+            </p>
+          ))
+        ) : (
+          <>
+            <p>Thank you for shopping with us!</p>
+            <p className="mt-1">Please come again</p>
+          </>
+        )}
       </div>
 
       {/* Print Styles */}

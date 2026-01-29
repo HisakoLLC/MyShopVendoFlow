@@ -21,6 +21,14 @@ import { Button } from "@/components/ui/button"
 import { updateReceiptSettings } from "./actions"
 import { Toaster } from "sonner"
 import { ReceiptPreview } from "./receipt-preview"
+import { CURRENCY_OPTIONS } from "@/lib/format-currency"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 type BusinessSettings = {
   logo_url: string | null
@@ -28,6 +36,8 @@ type BusinessSettings = {
   receipt_header: string | null
   receipt_footer: string | null
   return_policy: string | null
+  currency: string | null
+  tax_inclusive: boolean | null
 }
 
 type ReceiptCustomizationTabProps = {
@@ -40,6 +50,8 @@ const receiptSettingsSchema = z.object({
   receipt_header: z.string().max(500).optional(),
   receipt_footer: z.string().max(500).optional(),
   return_policy: z.string().max(1000).optional(),
+  currency: z.string().min(1).optional(),
+  tax_inclusive: z.boolean().optional(),
 })
 
 type ReceiptFormValues = z.infer<typeof receiptSettingsSchema>
@@ -57,6 +69,8 @@ export function ReceiptCustomizationTab({
       receipt_header: businessSettings?.receipt_header || "",
       receipt_footer: businessSettings?.receipt_footer || "",
       return_policy: businessSettings?.return_policy || "",
+      currency: businessSettings?.currency || "KES",
+      tax_inclusive: businessSettings?.tax_inclusive ?? false,
     },
     mode: "onChange",
   })
@@ -69,6 +83,8 @@ export function ReceiptCustomizationTab({
       await updateReceiptSettings({
         ...values,
         logo_url: businessSettings?.logo_url || undefined,
+        currency: values.currency || "KES",
+        tax_inclusive: values.tax_inclusive ?? false,
       })
       toast.success("Receipt settings updated successfully!")
       window.location.reload()
@@ -99,6 +115,50 @@ export function ReceiptCustomizationTab({
                       <FormLabel className="text-base">Logo on Receipt</FormLabel>
                       <FormDescription>
                         Display your business logo at the top of receipts
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="currency"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Currency</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || "KES"}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select currency" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {CURRENCY_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>Used on receipts and across the app</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="tax_inclusive"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Tax inclusive of price</FormLabel>
+                      <FormDescription>
+                        When on, displayed prices include tax; when off, tax is added on top
                       </FormDescription>
                     </div>
                     <FormControl>
