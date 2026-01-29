@@ -21,6 +21,7 @@ import {
   HelpCircle,
   LogOut,
   CheckCircle2,
+  UserCog,
 } from "lucide-react"
 import { useTheme } from "next-themes"
 
@@ -45,6 +46,7 @@ const navItems = [
   { href: "/inventory", label: "Inventory", icon: Boxes },
   { href: "/purchasing", label: "Purchasing", icon: Truck },
   { href: "/customers", label: "Customers", icon: Users },
+  { href: "/staff", label: "Staff", icon: UserCog },
   { href: "/settings", label: "Settings", icon: Settings },
 ]
 
