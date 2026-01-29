@@ -115,7 +115,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
 
   React.useEffect(() => {
     let cancelled = false
-    supabase.rpc("get_account_id").then(({ data: accountId }) => {
+    supabase.rpc("get_account_id").then(({ data: accountId }: { data: string | string[] | null }) => {
       if (cancelled) return
       const aid = Array.isArray(accountId) ? accountId[0] : accountId
       if (!aid) return
