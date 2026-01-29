@@ -82,6 +82,13 @@ async function fetchPO(poId: string) {
 
   if (lineError) throw new Error(lineError.message)
 
+  const { data: bs } = await supabase
+    .from("business_settings")
+    .select("currency")
+    .eq("account_id", accountId)
+    .single()
+  const currency = (bs as { currency?: string } | null)?.currency ?? "KES"
+
   return {
     po: po as PurchaseOrder,
     lineItems: (lineItems || []) as POLineItem[],
@@ -202,7 +209,7 @@ export default async function PODetailPage({
               Total
             </div>
             <div className="mt-0.5 font-semibold text-zinc-900 dark:text-zinc-100">
-              ${(po.total_cost ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+              {formatCurrency(po.total_cost ?? 0, currency, { maximumFractionDigits: 2 })}
             </div>
           </div>
         </div>
