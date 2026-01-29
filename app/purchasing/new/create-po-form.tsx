@@ -321,6 +321,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
       router.push(`/purchasing/${result.po_id}`)
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to save purchase order.")
+    } finally {
       setIsSubmitting(false)
     }
   }
@@ -350,10 +351,26 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
       }
 
       const result = await createPurchaseOrder(data)
-      toast.success(`PO ${result.po_number} created. Opening print view…`)
-      router.push(`/purchasing/${result.po_id}/print`)
+      toast.success(`PO ${result.po_number} created. Downloading PDF…`)
+
+      const res = await fetch(`/api/po/${result.po_id}/pdf`)
+      if (!res.ok) {
+        toast.error("PO created but PDF download failed. You can print from the PO page.")
+        router.push(`/purchasing/${result.po_id}`)
+        return
+      }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `PO-${result.po_number}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
+
+      router.push(`/purchasing/${result.po_id}`)
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to create purchase order.")
+    } finally {
       setIsSubmitting(false)
     }
   }

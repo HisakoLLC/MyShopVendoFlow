@@ -96,7 +96,12 @@ export async function createPurchaseOrder(data: CreatePOData) {
     throw new Error("You must be signed in to create a purchase order.")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = Array.isArray(accountIdRaw)
+    ? accountIdRaw[0]
+    : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
+      ? (accountIdRaw as { account_id: string }).account_id
+      : accountIdRaw
   if (accountIdError || !accountId) {
     throw new Error("Account not found. Please complete setup first.")
   }
@@ -196,7 +201,12 @@ export async function createSupplier(data: CreateSupplierData) {
     throw new Error("You must be signed in to create a supplier.")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = Array.isArray(accountIdRaw)
+    ? accountIdRaw[0]
+    : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
+      ? (accountIdRaw as { account_id: string }).account_id
+      : accountIdRaw
   if (accountIdError || !accountId) {
     throw new Error("Account not found. Please complete setup first.")
   }
@@ -244,7 +254,12 @@ export async function receiveInventory(data: ReceiveInventoryData) {
     throw new Error("You must be signed in to receive inventory.")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = Array.isArray(accountIdRaw)
+    ? accountIdRaw[0]
+    : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
+      ? (accountIdRaw as { account_id: string }).account_id
+      : accountIdRaw
   if (accountIdError || !accountId) {
     throw new Error("Account not found. Please complete setup first.")
   }

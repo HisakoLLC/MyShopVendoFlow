@@ -147,10 +147,14 @@ export default async function PODetailPage({
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline" className="gap-2">
-            <Link href={`/purchasing/${po_id}/print`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`/api/po/${po_id}/pdf`}
+              download={`PO-${po.po_number}.pdf`}
+              className="inline-flex items-center gap-2"
+            >
               <Printer className="h-4 w-4" />
-              Print PO
-            </Link>
+              Download PDF
+            </a>
           </Button>
           {po.status !== "received" && (
             <Button asChild className="gap-2">
