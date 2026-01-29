@@ -171,7 +171,8 @@ export async function createBulkInventoryAdjustment(data: BulkAdjustmentData) {
     throw new Error(levelsError.message)
   }
 
-  const levelByVariant = new Map(
+  type LevelInfo = { inventory_id: string; quantity_on_hand: number }
+  const levelByVariant = new Map<string, LevelInfo>(
     (levels ?? []).map((l: { variant_id: string; inventory_id: string; quantity_on_hand: number | null }) => [
       l.variant_id,
       { inventory_id: l.inventory_id, quantity_on_hand: l.quantity_on_hand ?? 0 },
