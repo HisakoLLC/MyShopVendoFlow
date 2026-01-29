@@ -1,7 +1,8 @@
 /**
  * Clear all demo data for an account.
- * Deletes in FK-safe order: sale_line_items → sales → variant_metrics → inventory_levels
- * → product_variants → product_styles → customers → categories, seasons, suppliers.
+ * Deletes in FK-safe order: sale_line_items → sales → po_line_items → purchase_orders
+ * → variant_metrics → inventory_levels → product_variants → product_styles → customers
+ * → categories, seasons, suppliers.
  * Sets accounts.has_demo_data = false.
  */
 
@@ -46,7 +47,35 @@ export async function clearDemoData(
       if (delSalesErr) throw new Error(delSalesErr.message)
     }
 
-    // 5. Get product_styles for account, then variants
+    // 5. Get purchase_orders for this account (via suppliers), then delete po_line_items then purchase_orders
+    const { data: suppliers, error: suppErr } = await supabase
+      .from("suppliers")
+      .select("supplier_id")
+      .eq("account_id", accountId)
+    if (!suppErr && suppliers && suppliers.length > 0) {
+      const supplierIds = (suppliers as { supplier_id: string }[]).map((s) => s.supplier_id)
+      const { data: pos, error: poErr } = await supabase
+        .from("purchase_orders")
+        .select("po_id")
+        .in("supplier_id", supplierIds)
+      if (!poErr && pos && pos.length > 0) {
+        const poIds = (pos as { po_id: string }[]).map((p) => p.po_id)
+        const { error: lineErr } = await supabase
+          .from("po_line_items")
+          .delete()
+          .in("po_id", poIds)
+        if (lineErr) throw new Error(lineErr.message)
+        // inventory_receipts references purchase_orders; clear or delete receipts for these POs first
+        await supabase.from("inventory_receipts").delete().in("po_id", poIds)
+        const { error: delPoErr } = await supabase
+          .from("purchase_orders")
+          .delete()
+          .in("po_id", poIds)
+        if (delPoErr) throw new Error(delPoErr.message)
+      }
+    }
+
+    // 6. Get product_styles for account, then variants
     const { data: styles, error: stylesErr } = await supabase
       .from("product_styles")
       .select("style_id")
@@ -64,13 +93,13 @@ export async function clearDemoData(
       variantIds = (variants ?? []).map((v: { variant_id: string }) => v.variant_id)
     }
 
-    // 6. Delete variant_metrics for those variants
+    // 7. Delete variant_metrics for those variants
     if (variantIds.length > 0) {
       await supabase.from("variant_metrics").delete().in("variant_id", variantIds)
       // ignore error if table doesn't exist or RLS
     }
 
-    // 7. Delete inventory_levels for those variants
+    // 8. Delete inventory_levels for those variants
     if (variantIds.length > 0) {
       const { error: invErr } = await supabase
         .from("inventory_levels")
@@ -79,7 +108,7 @@ export async function clearDemoData(
       if (invErr) throw new Error(invErr.message)
     }
 
-    // 8. Delete product_variants for those styles
+    // 9. Delete product_variants for those styles
     if (styleIds.length > 0) {
       const { error: pvErr } = await supabase
         .from("product_variants")
@@ -88,7 +117,7 @@ export async function clearDemoData(
       if (pvErr) throw new Error(pvErr.message)
     }
 
-    // 9. Delete product_styles
+    // 10. Delete product_styles
     if (styleIds.length > 0) {
       const { error: psErr } = await supabase
         .from("product_styles")
@@ -97,16 +126,16 @@ export async function clearDemoData(
       if (psErr) throw new Error(psErr.message)
     }
 
-    // 10. Delete customers
+    // 11. Delete customers
     const { error: custErr } = await supabase.from("customers").delete().eq("account_id", accountId)
     if (custErr) throw new Error(custErr.message)
 
-    // 11. Delete categories, seasons, suppliers (account-scoped)
+    // 12. Delete categories, seasons, suppliers (account-scoped)
     await supabase.from("categories").delete().eq("account_id", accountId)
     await supabase.from("seasons").delete().eq("account_id", accountId)
     await supabase.from("suppliers").delete().eq("account_id", accountId)
 
-    // 12. Clear has_demo_data on account
+    // 13. Clear has_demo_data on account
     try {
       await (supabase as any)
         .from("accounts")
