@@ -124,6 +124,7 @@ export function EditStyleForm(props: {
 
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(style.image_url ?? null)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [removeImage, setRemoveImage] = React.useState(false)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -144,10 +145,11 @@ export function EditStyleForm(props: {
     if (selectedImage) {
       const url = URL.createObjectURL(selectedImage)
       setPreviewUrl(url)
+      setRemoveImage(false)
       return () => URL.revokeObjectURL(url)
     }
-    setPreviewUrl(style.image_url ?? null)
-  }, [selectedImage, style.image_url])
+    if (!removeImage) setPreviewUrl(style.image_url ?? null)
+  }, [selectedImage, style.image_url, removeImage])
 
   async function onSubmit(values: FormValues) {
     setIsSubmitting(true)
@@ -156,8 +158,7 @@ export function EditStyleForm(props: {
       if (accountIdError || !accountId) {
         throw new Error(accountIdError?.message ?? "Unable to resolve account.")
       }
-
-      let imageUrl = style.image_url ?? "/placeholder-product.png"
+      let imageUrl: string | null | undefined = undefined
 
       if (values.image) {
         const ext = values.image.name.split(".").pop()?.toLowerCase() || "jpg"
@@ -180,17 +181,30 @@ export function EditStyleForm(props: {
           .getPublicUrl(filePath)
 
         imageUrl = publicData.publicUrl
+      } else if (removeImage) {
+        // Best-effort delete from storage if this was a stored object URL.
+        const currentUrl = style.image_url ?? ""
+        const match = currentUrl.match(/product-images\/(.+?)(\?|$)/)
+        const path = match?.[1] ? decodeURIComponent(match[1]) : null
+        if (path) {
+          await supabase.storage.from("product-images").remove([path]).catch(() => {})
+        }
+        imageUrl = null
       }
 
-      await updateProductStyle(styleId, {
+      const payload: Record<string, unknown> = {
         name: values.name,
         category_id: values.category_id,
         season_id: values.season_id === "none" || !values.season_id ? null : values.season_id,
         description: values.description ?? null,
         base_price: values.base_price,
         cost: values.cost,
-        image_url: imageUrl,
-      })
+      }
+      if (imageUrl !== undefined) {
+        payload.image_url = imageUrl
+      }
+
+      await updateProductStyle(styleId, payload as any)
 
       toast.success("Style updated.")
       router.push("/products")
@@ -361,8 +375,21 @@ export function EditStyleForm(props: {
 
           <div className="space-y-4">
             <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-              <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                Image
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Image</div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isSubmitting || (!style.image_url && !previewUrl) || removeImage}
+                  onClick={() => {
+                    setRemoveImage(true)
+                    form.setValue("image", null, { shouldValidate: true })
+                    setPreviewUrl(null)
+                  }}
+                >
+                  Remove image
+                </Button>
               </div>
               <div className="mt-3 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/40">
                 <div className="relative aspect-square w-full">

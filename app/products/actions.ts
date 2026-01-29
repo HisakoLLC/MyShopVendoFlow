@@ -13,7 +13,8 @@ const createStyleServerSchema = z.object({
   description: z.string().max(500).trim().nullable().optional(),
   base_price: z.number().min(0.01, "Base price must be greater than 0.").max(999999999),
   cost: z.number().min(0.01, "Cost must be greater than 0.").max(999999999),
-  image_url: z.string().min(1).optional(),
+  // Optional for create; nullable for updates to support "remove image"
+  image_url: z.string().min(1).nullable().optional(),
 })
 
 export async function createProductStyle(formData: z.infer<typeof createStyleServerSchema>) {
@@ -175,7 +176,8 @@ export async function updateProductStyle(
     base_price: validated.base_price,
     cost: validated.cost,
   }
-  if (validated.image_url && validated.image_url.length > 0) {
+  // Only update image_url when explicitly provided (including null to remove).
+  if (Object.prototype.hasOwnProperty.call(validated, "image_url")) {
     updatePayload.image_url = validated.image_url
   }
 

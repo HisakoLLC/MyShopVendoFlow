@@ -15,7 +15,6 @@ import { useCart, CartItem } from "@/lib/cart-context"
 import { createClient } from "@/lib/supabase/client"
 import { Receipt } from "./Receipt"
 import { toast } from "sonner"
-import { mpesaClient } from "@/lib/mpesa/client"
 import { ensureStaffForCurrentUser } from "@/app/pos/actions"
 
 interface CheckoutModalProps {
@@ -31,6 +30,7 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
   const [currentStep, setCurrentStep] = React.useState<Step>(1)
   const [paymentMethod, setPaymentMethod] = React.useState<PaymentMethod>("cash")
   const [mpesaPhoneNumber, setMpesaPhoneNumber] = React.useState("")
+  const [mpesaConfirmationCode, setMpesaConfirmationCode] = React.useState("")
   const [amountTendered, setAmountTendered] = React.useState("")
   const [customerSearch, setCustomerSearch] = React.useState("")
   const [customerResults, setCustomerResults] = React.useState<any[]>([])
@@ -39,15 +39,7 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
   const [isProcessing, setIsProcessing] = React.useState(false)
   const [receiptNumber, setReceiptNumber] = React.useState<string | null>(null)
   const [showReceipt, setShowReceipt] = React.useState(false)
-  
-  // M-Pesa STK Push states
-  const [mpesaStatus, setMpesaStatus] = React.useState<"idle" | "sending" | "waiting" | "success" | "failed">("idle")
-  const [checkoutRequestId, setCheckoutRequestId] = React.useState<string | null>(null)
-  const [countdown, setCountdown] = React.useState(60)
-  const [pendingSaleId, setPendingSaleId] = React.useState<string | null>(null)
-  const pollingIntervalRef = React.useRef<NodeJS.Timeout | null>(null)
-  const countdownIntervalRef = React.useRef<NodeJS.Timeout | null>(null)
-  
+
   const supabase = React.useMemo(() => createClient(), [])
 
   // Calculate change for cash payments
@@ -160,15 +152,18 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
         return
       }
       if (paymentMethod === "mpesa") {
-        // Validate phone number format (12 digits, starts with 254)
-        const phoneRegex = /^254\d{9}$/
-        if (!mpesaPhoneNumber.trim()) {
-          toast.error("Please enter customer phone number")
+        // Manual M-Pesa: require a confirmation code (no STK push configured yet)
+        if (!mpesaConfirmationCode.trim()) {
+          toast.error("Please enter the M-Pesa confirmation code")
           return
         }
-        if (!phoneRegex.test(mpesaPhoneNumber.trim())) {
-          toast.error("Invalid phone number. Must be 12 digits starting with 254 (e.g., 254712345678)")
-          return
+        // Phone number optional, but validate if provided
+        if (mpesaPhoneNumber.trim()) {
+          const phoneRegex = /^254\d{9}$/
+          if (!phoneRegex.test(mpesaPhoneNumber.trim())) {
+            toast.error("Invalid phone number. Must be 12 digits starting with 254 (e.g., 254712345678)")
+            return
+          }
         }
       }
       if (paymentMethod === "cash") {
@@ -191,206 +186,7 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
     }
   }
 
-  // Cleanup polling intervals on unmount
-  React.useEffect(() => {
-    return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current)
-      }
-      if (countdownIntervalRef.current) {
-        clearInterval(countdownIntervalRef.current)
-      }
-    }
-  }, [])
-
-  // Handle M-Pesa STK Push
-  const handleMpesaStkPush = async () => {
-    if (!storeId) {
-      toast.error("Store ID is required")
-      return
-    }
-
-    if (!mpesaPhoneNumber.trim() || !/^254\d{9}$/.test(mpesaPhoneNumber.trim())) {
-      toast.error("Invalid phone number. Must be 12 digits starting with 254")
-      return
-    }
-
-    setIsProcessing(true)
-    setMpesaStatus("sending")
-
-    try {
-      // Get current user
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser()
-
-      if (userError || !user) {
-        throw new Error("User not authenticated")
-      }
-
-      let cashierId = await getCashierIdForCurrentUser()
-      if (!cashierId) cashierId = await ensureStaffForCurrentUser()
-
-      // Generate receipt number
-      const receiptNum = await generateReceiptNumber(storeId)
-      setReceiptNumber(receiptNum)
-
-      // Create pending sale record
-      const { data: sale, error: saleError } = await supabase
-        .from("sales")
-        .insert({
-          store_id: storeId,
-          cashier_id: cashierId,
-          customer_id: selectedCustomer,
-          subtotal: subtotal,
-          tax_total: taxAmount,
-          grand_total: total,
-          payment_method: "mpesa",
-          receipt_number: receiptNum,
-          status: "pending_payment",
-          sale_date: new Date().toISOString(),
-        })
-        .select("sale_id")
-        .single()
-
-      if (saleError || !sale) {
-        throw new Error(saleError?.message || "Failed to create sale")
-      }
-
-      setPendingSaleId(sale.sale_id)
-
-      // Create sale line items
-      const lineItems = cart.map((item) => ({
-        sale_id: sale.sale_id,
-        variant_id: item.variantId,
-        quantity: item.quantity,
-        unit_price: item.price,
-        tax_amount: (item.price * item.quantity * 0.16) / 1.16,
-        line_total: item.price * item.quantity,
-      }))
-
-      const { error: lineItemsError } = await supabase
-        .from("sale_line_items")
-        .insert(lineItems)
-
-      if (lineItemsError) {
-        throw new Error(lineItemsError.message || "Failed to create line items")
-      }
-
-      // Initiate STK Push
-      const stkResponse = await mpesaClient.initiateStkPush({
-        phoneNumber: mpesaPhoneNumber.trim(),
-        amount: total,
-        accountReference: sale.sale_id,
-      })
-
-      if (stkResponse.ResponseCode !== "0") {
-        throw new Error(stkResponse.ResponseDescription || "Failed to send payment request")
-      }
-
-      // Store pending payment record
-      await (supabase as any).from("pending_mpesa_payments").insert({
-        checkout_request_id: stkResponse.CheckoutRequestID,
-        sale_id: sale.sale_id,
-        phone_number: mpesaPhoneNumber.trim(),
-        amount: total,
-        status: "pending",
-      })
-
-      setCheckoutRequestId(stkResponse.CheckoutRequestID)
-      setMpesaStatus("waiting")
-      setCountdown(60)
-
-      toast.success(`Payment request sent to ${mpesaPhoneNumber.trim()}. Customer should enter M-Pesa PIN on their phone.`)
-
-      // Start countdown timer
-      countdownIntervalRef.current = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            if (countdownIntervalRef.current) {
-              clearInterval(countdownIntervalRef.current)
-            }
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
-
-      // Start polling for payment status
-      pollingIntervalRef.current = setInterval(async () => {
-        try {
-          const statusResponse = await mpesaClient.queryStkStatus(stkResponse.CheckoutRequestID)
-          
-          // Check if payment completed via callback (check database)
-          const { data: pendingPayment } = await supabase
-            .from("pending_mpesa_payments")
-            .select("status, mpesa_receipt_number")
-            .eq("checkout_request_id", stkResponse.CheckoutRequestID)
-            .single()
-
-          if (pendingPayment?.status === "completed") {
-            // Payment confirmed!
-            if (pollingIntervalRef.current) {
-              clearInterval(pollingIntervalRef.current)
-            }
-            if (countdownIntervalRef.current) {
-              clearInterval(countdownIntervalRef.current)
-            }
-
-            setMpesaStatus("success")
-            toast.success(`Payment received! M-Pesa Receipt: ${pendingPayment.mpesa_receipt_number}`)
-            
-            // Refresh sale to get updated status
-            const { data: updatedSale } = await (supabase as any)
-              .from("sales")
-              .select("status, mpesa_transaction_id")
-              .eq("sale_id", sale.sale_id)
-              .single()
-
-            if (updatedSale?.status === "completed") {
-              // Complete the sale flow
-              await completeSale(sale.sale_id, receiptNum)
-            }
-          } else if (pendingPayment?.status === "failed" || (statusResponse.ResultCode !== "0" && statusResponse.ResultCode !== "1032")) {
-            // Payment failed
-            if (pollingIntervalRef.current) {
-              clearInterval(pollingIntervalRef.current)
-            }
-            if (countdownIntervalRef.current) {
-              clearInterval(countdownIntervalRef.current)
-            }
-
-            setMpesaStatus("failed")
-            toast.error(`Payment failed. ${statusResponse.ResultDesc || "Please try again or use another payment method."}`)
-            setIsProcessing(false)
-          }
-        } catch (error) {
-          console.error("Error polling payment status:", error)
-        }
-      }, 3000) // Poll every 3 seconds
-
-      // Timeout after 60 seconds
-      setTimeout(() => {
-        if (pollingIntervalRef.current) {
-          clearInterval(pollingIntervalRef.current)
-        }
-        if (countdownIntervalRef.current) {
-          clearInterval(countdownIntervalRef.current)
-        }
-        if (mpesaStatus === "waiting") {
-          setMpesaStatus("failed")
-          toast.error("Payment request timed out. Customer did not complete payment. Please try again.")
-          setIsProcessing(false)
-        }
-      }, 60000)
-    } catch (error) {
-      console.error("M-Pesa STK Push error:", error)
-      toast.error(error instanceof Error ? error.message : "Failed to send payment request")
-      setMpesaStatus("failed")
-      setIsProcessing(false)
-    }
-  }
+  // M-Pesa is currently handled as a manual payment (no STK push configured).
 
   // Complete sale after payment confirmation
   const completeSale = async (saleId: string, receiptNum: string) => {
@@ -468,12 +264,6 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
       return
     }
 
-    // If M-Pesa, use STK Push flow
-    if (paymentMethod === "mpesa") {
-      await handleMpesaStkPush()
-      return
-    }
-
     setIsProcessing(true)
 
     try {
@@ -494,6 +284,11 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
       const receiptNum = await generateReceiptNumber(storeId)
       setReceiptNumber(receiptNum)
 
+      const saleNotes =
+        paymentMethod === "mpesa"
+          ? `M-Pesa Confirmation: ${mpesaConfirmationCode.trim()}${mpesaPhoneNumber.trim() ? ` (Phone: ${mpesaPhoneNumber.trim()})` : ""}`
+          : null
+
       // Create sale record
       const { data: sale, error: saleError } = await supabase
         .from("sales")
@@ -506,6 +301,7 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
           grand_total: total,
           payment_method: paymentMethod,
           receipt_number: receiptNum,
+          notes: saleNotes,
           status: "completed",
           sale_date: new Date().toISOString(),
         })
@@ -705,108 +501,39 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
             {paymentMethod === "mpesa" && (
               <div className="space-y-3">
                 <div>
-                  <Label htmlFor="mpesa-phone">Customer Phone Number *</Label>
+                  <Label htmlFor="mpesa-code">M-Pesa Confirmation Code *</Label>
+                  <Input
+                    id="mpesa-code"
+                    value={mpesaConfirmationCode}
+                    onChange={(e) => {
+                      setMpesaConfirmationCode(e.target.value.toUpperCase())
+                    }}
+                    placeholder="e.g. QGH5X9K2AB"
+                    className="mt-1"
+                  />
+                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                    Enter the confirmation code from the customer's M-Pesa message.
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="mpesa-phone">Customer Phone Number (optional)</Label>
                   <Input
                     id="mpesa-phone"
                     type="tel"
                     value={mpesaPhoneNumber}
                     onChange={(e) => {
-                      // Only allow digits, auto-format to 254XXXXXXXXX
-                      const value = e.target.value.replace(/\D/g, "")
-                      if (value.length <= 12) {
-                        setMpesaPhoneNumber(value)
-                      }
+                      const value = e.target.value.replace(/\\D/g, \"\")
+                      if (value.length <= 12) setMpesaPhoneNumber(value)
                     }}
-                    placeholder="254712345678"
+                    placeholder=\"254712345678\"
                     maxLength={12}
-                    className="mt-1"
-                    disabled={mpesaStatus === "waiting" || mpesaStatus === "sending"}
+                    className=\"mt-1\"
                   />
-                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className=\"mt-1 text-xs text-zinc-500 dark:text-zinc-400\">
                     Format: 254712345678 (12 digits, starts with 254)
                   </p>
                 </div>
-
-                {mpesaStatus === "idle" && (
-                  <Button
-                    type="button"
-                    onClick={handleMpesaStkPush}
-                    disabled={!mpesaPhoneNumber.trim() || !/^254\d{9}$/.test(mpesaPhoneNumber.trim())}
-                    className="w-full"
-                  >
-                    Send Payment Request
-                  </Button>
-                )}
-
-                {mpesaStatus === "sending" && (
-                  <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-900/40 dark:bg-blue-950/30">
-                    <p className="text-sm text-blue-900 dark:text-blue-100">
-                      Sending payment request to {mpesaPhoneNumber}...
-                    </p>
-                  </div>
-                )}
-
-                {mpesaStatus === "waiting" && (
-                  <div className="space-y-2 rounded-lg border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-900/40 dark:bg-yellow-950/30">
-                    <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">
-                      Payment request sent! Customer should enter M-Pesa PIN on their phone.
-                    </p>
-                    <p className="text-xs text-yellow-800 dark:text-yellow-200">
-                      Waiting for payment... ({countdown}s remaining)
-                    </p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        if (pollingIntervalRef.current) {
-                          clearInterval(pollingIntervalRef.current)
-                        }
-                        if (countdownIntervalRef.current) {
-                          clearInterval(countdownIntervalRef.current)
-                        }
-                        setMpesaStatus("idle")
-                        setCheckoutRequestId(null)
-                        setCountdown(60)
-                        setIsProcessing(false)
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                )}
-
-                {mpesaStatus === "failed" && (
-                  <div className="space-y-2 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-900/40 dark:bg-red-950/30">
-                    <p className="text-sm font-medium text-red-900 dark:text-red-100">
-                      Payment failed. Please try again or use another payment method.
-                    </p>
-                    <div className="flex gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setMpesaStatus("idle")
-                          setMpesaPhoneNumber("")
-                        }}
-                      >
-                        Try Again
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setPaymentMethod("cash")
-                          setMpesaStatus("idle")
-                        }}
-                      >
-                        Switch to Cash
-                      </Button>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
 
@@ -968,21 +695,12 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
                 onClick={handleProcessSale}
                 disabled={
                   isProcessing ||
-                  (paymentMethod === "mpesa" && mpesaStatus !== "idle" && mpesaStatus !== "success") ||
-                  (paymentMethod === "mpesa" && mpesaStatus === "idle")
+                  (paymentMethod === "mpesa" && !mpesaConfirmationCode.trim())
                 }
                 size="lg"
                 className="flex-1"
               >
-                {paymentMethod === "mpesa" && mpesaStatus === "waiting"
-                  ? "Waiting for Payment..."
-                  : paymentMethod === "mpesa" && mpesaStatus === "sending"
-                    ? "Sending Request..."
-                    : paymentMethod === "mpesa" && mpesaStatus === "success"
-                      ? "Complete Sale"
-                      : isProcessing
-                        ? "Processing..."
-                        : "Confirm Sale"}
+                {isProcessing ? "Processing..." : "Confirm Sale"}
               </Button>
             </div>
           </div>
