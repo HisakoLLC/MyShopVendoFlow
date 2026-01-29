@@ -32,6 +32,8 @@ type BusinessSettings = {
   receipt_header: string | null
   receipt_footer: string | null
   return_policy: string | null
+  currency: string | null
+  tax_inclusive: boolean | null
 }
 
 type SettingsTabsProps = {
