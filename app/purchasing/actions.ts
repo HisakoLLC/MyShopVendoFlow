@@ -137,16 +137,16 @@ export async function createPurchaseOrder(data: CreatePOData) {
     0
   )
 
-  // Create purchase order
+  // Create purchase order (created_by is FK to staff; use null if user not in staff table)
   const poInsert: PurchaseOrderInsert = {
-    account_id: accountId,
+    account_id: accountId as string,
     supplier_id: data.supplier_id,
     po_number: poNumber,
     order_date: data.order_date,
     expected_delivery_date: data.expected_delivery_date || null,
     status: data.status || "draft",
     total_cost: totalCost,
-    created_by: user.id,
+    created_by: null,
   }
 
   const { data: purchaseOrder, error: poError } = await supabase
@@ -400,11 +400,11 @@ export async function receiveInventory(data: ReceiveInventoryData) {
     }
   }
 
-  // Create inventory_receipts record
+  // Create inventory_receipts record (received_by is FK to staff; use null if user not in staff)
   const { error: receiptError } = await supabase.from("inventory_receipts").insert({
     po_id: data.po_id,
     store_id: data.store_id,
-    received_by: user.id,
+    received_by: null,
     received_date: data.received_date,
     line_items_received: receiptLineItems,
   })

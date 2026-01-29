@@ -41,7 +41,12 @@ async function fetchSuppliers(): Promise<Supplier[]> {
     redirect("/login")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = Array.isArray(accountIdRaw)
+    ? accountIdRaw[0]
+    : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
+      ? (accountIdRaw as { account_id: string }).account_id
+      : accountIdRaw
   if (accountIdError || !accountId) {
     redirect("/onboarding?redirect=/purchasing/new")
   }
@@ -75,7 +80,12 @@ async function fetchPrefillVariants(itemIds: string[]): Promise<Variant[]> {
     return []
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = Array.isArray(accountIdRaw)
+    ? accountIdRaw[0]
+    : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
+      ? (accountIdRaw as { account_id: string }).account_id
+      : accountIdRaw
   if (accountIdError || !accountId) {
     return []
   }
