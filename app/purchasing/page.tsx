@@ -105,9 +105,9 @@ function LoadingState() {
 }
 
 async function PurchasingContent() {
-  let list: POListItem[] = []
+  let data: { list: POListItem[]; currency: string }
   try {
-    list = await fetchPOList()
+    data = await fetchPurchasingData()
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to load purchase orders."
     return (
@@ -120,6 +120,7 @@ async function PurchasingContent() {
     )
   }
 
+  const { list, currency } = data
   const drafts = list.filter((po) => po.status === "draft")
   const notReceived = list.filter(
     (po) => po.status === "sent" || po.status === "partially_received"
