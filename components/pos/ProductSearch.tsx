@@ -24,6 +24,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
   const [hasSearched, setHasSearched] = React.useState(false)
   const [selectedStyleId, setSelectedStyleId] = React.useState<string | null>(null)
   const [selectedStyleName, setSelectedStyleName] = React.useState<string>("")
+  const [selectedBasePrice, setSelectedBasePrice] = React.useState<number>(0)
   const inputRef = React.useRef<HTMLInputElement>(null)
   const supabase = React.useMemo(() => createClient(), [])
   const { addToCart } = useCart()
@@ -116,6 +117,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
     if (product && defaultStoreId) {
       setSelectedStyleName(product.name)
       setSelectedStyleId(styleId)
+      setSelectedBasePrice(product.base_price)
     }
   }
 
@@ -271,10 +273,12 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
           styleId={selectedStyleId}
           styleName={selectedStyleName}
           currentStoreId={defaultStoreId}
+          basePrice={selectedBasePrice}
           onVariantSelect={handleVariantSelect}
           onClose={() => {
             setSelectedStyleId(null)
             setSelectedStyleName("")
+            setSelectedBasePrice(0)
           }}
         />
       )}

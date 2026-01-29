@@ -13,6 +13,8 @@ interface VariantSelectorProps {
   styleId: string
   styleName: string
   currentStoreId: string
+  /** Fallback when variant has no price set (e.g. 0). Used so POS shows style base price until variant is edited. */
+  basePrice?: number
   onVariantSelect: (variantId: string, size: string, color: string, price: number) => void
   onClose: () => void
 }
@@ -36,6 +38,7 @@ export function VariantSelector({
   styleId,
   styleName,
   currentStoreId,
+  basePrice = 0,
   onVariantSelect,
   onClose,
 }: VariantSelectorProps) {
@@ -90,15 +93,19 @@ export function VariantSelector({
           }
         })
 
-        // Combine variants with stock data
-        const variantsWithStock: VariantWithStock[] = variantsData.map((variant: { variant_id: string; size: string; color: string; price: number | null; sku: string }) => ({
-          variant_id: variant.variant_id,
-          size: variant.size,
-          color: variant.color,
-          price: variant.price ?? 0,
-          sku: variant.sku,
-          stock: stockMap.get(variant.variant_id) ?? 0,
-        }))
+        // Combine variants with stock data; use style base_price when variant price is 0 or null
+        const variantsWithStock: VariantWithStock[] = variantsData.map((variant: { variant_id: string; size: string; color: string; price: number | null; sku: string }) => {
+          const rawPrice = variant.price ?? 0
+          const price = rawPrice > 0 ? rawPrice : basePrice
+          return {
+            variant_id: variant.variant_id,
+            size: variant.size,
+            color: variant.color,
+            price,
+            sku: variant.sku,
+            stock: stockMap.get(variant.variant_id) ?? 0,
+          }
+        })
 
         setVariants(variantsWithStock)
       } catch (err) {

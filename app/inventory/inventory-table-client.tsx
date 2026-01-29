@@ -350,7 +350,26 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                           {item.total_stock}
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
+                          <div className="flex flex-wrap justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                setEditingVariant({
+                                  variant_id: item.variant_id,
+                                  style_name: item.style_name,
+                                  size: item.size,
+                                  color: item.color,
+                                  sku: item.sku,
+                                  price: item.price,
+                                  cost: item.cost,
+                                })
+                              }
+                              title="Edit price, cost, SKU"
+                            >
+                              <Pencil className="mr-1.5 h-4 w-4" />
+                              Edit
+                            </Button>
                             {stores.map((store) => {
                               const level = item.stores.find((s) => s.store_id === store.store_id)
                               return (
