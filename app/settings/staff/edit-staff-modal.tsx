@@ -230,8 +230,8 @@ export function EditStaffModal({
                   <FormItem>
                     <FormLabel>Assigned Store (Optional)</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      value={field.value || ""}
+                      onValueChange={(v) => field.onChange(v === "__none__" ? "" : v)}
+                      value={field.value || "__none__"}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -239,7 +239,7 @@ export function EditStaffModal({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
+                        <SelectItem value="__none__">None</SelectItem>
                         {stores.map((store) => (
                           <SelectItem key={store.store_id} value={store.store_id}>
                             {store.name}

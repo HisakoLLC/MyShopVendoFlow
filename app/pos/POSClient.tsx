@@ -47,6 +47,16 @@ export function POSClient({ defaultStoreId, storeName }: POSClientProps) {
     }
   }, [defaultStoreId, supabase])
 
+  // Store this device's store so staff/cashiers on the same computer have context
+  React.useEffect(() => {
+    try {
+      localStorage.setItem("vendoflow_last_store_id", defaultStoreId)
+      localStorage.setItem("vendoflow_last_store_name", storeName)
+    } catch {
+      // ignore
+    }
+  }, [defaultStoreId, storeName])
+
   return (
     <CartProvider taxInclusive={taxInclusive} taxRatePercent={taxRatePercent}>
       {/* Desktop/Tablet Landscape: Split screen (60/40) */}

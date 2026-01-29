@@ -147,13 +147,13 @@ export async function createStaff(data: CreateStaffData) {
     },
   })
 
-  // Generate a temporary password (user will reset via email)
-  const tempPassword = Math.random().toString(36).slice(-12) + "A1!"
+  // When generate_pin, staff will sign in with email + PIN; otherwise use a random temp password
+  const authPassword = data.generate_pin && generatedPIN ? generatedPIN : Math.random().toString(36).slice(-12) + "A1!"
 
   const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
     email: data.email.trim(),
-    password: tempPassword,
-    email_confirm: false, // Send invitation email
+    password: authPassword,
+    email_confirm: false,
   })
 
   if (authError || !authUser.user) {
