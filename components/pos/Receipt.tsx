@@ -20,6 +20,8 @@ interface ReceiptProps {
   receiptHeader?: string | null
   /** Custom footer lines (e.g. "Thank you for shopping with us!") */
   receiptFooter?: string | null
+  /** Return policy text from settings */
+  returnPolicy?: string | null
   /** Currency code for amounts (e.g. KES, USD) */
   currency?: string
   /** When true, prices are inclusive of tax; receipt shows breakdown */
@@ -177,6 +179,9 @@ export function Receipt({
             <p>Thank you for shopping with us!</p>
             <p className="mt-1">Please come again</p>
           </>
+        )}
+        {returnPolicy?.trim() && (
+          <p className="mt-3 text-zinc-500">{returnPolicy.trim()}</p>
         )}
       </div>
 

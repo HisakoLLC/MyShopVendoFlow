@@ -35,6 +35,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover"
 import { SupplierQuickAddModal } from "@/components/purchasing/SupplierQuickAddModal"
 import { createPurchaseOrder, type CreatePOData } from "@/app/purchasing/actions"
 import { createClient } from "@/lib/supabase/client"
@@ -535,25 +536,38 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
 
                         return (
                           <TableRow key={field.id}>
-                            <TableCell>
-                              <div className="relative">
-                                <div className="relative">
-                                  <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-                                  <Input
-                                    placeholder="Search product..."
-                                    value={productSearchQuery[index] || ""}
-                                    onChange={(e) => {
-                                      setProductSearchQuery((prev) => ({
-                                        ...prev,
-                                        [index]: e.target.value,
-                                      }))
-                                    }}
-                                    className="pl-8"
-                                  />
-                                </div>
-                                {productResults[index] && productResults[index].length > 0 && (
-                                  <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-zinc-200 bg-white shadow-lg dark:border-zinc-800 dark:bg-zinc-950">
-                                    {productResults[index].map((style) => (
+                            <TableCell className="align-top">
+                              <Popover
+                                open={!!(productResults[index]?.length)}
+                                onOpenChange={(open) => {
+                                  if (!open)
+                                    setProductResults((prev) => ({ ...prev, [index]: [] }))
+                                }}
+                              >
+                                <PopoverAnchor asChild>
+                                  <div className="relative">
+                                    <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                                    <Input
+                                      placeholder="Search product..."
+                                      value={productSearchQuery[index] || ""}
+                                      onChange={(e) => {
+                                        setProductSearchQuery((prev) => ({
+                                          ...prev,
+                                          [index]: e.target.value,
+                                        }))
+                                      }}
+                                      className="pl-8"
+                                    />
+                                  </div>
+                                </PopoverAnchor>
+                                <PopoverContent
+                                  className="min-w-[var(--radix-popover-trigger-width)] max-w-[320px] p-0"
+                                  side="bottom"
+                                  align="start"
+                                  sideOffset={4}
+                                >
+                                  <div className="max-h-60 overflow-auto">
+                                    {productResults[index]?.map((style) => (
                                       <button
                                         key={style.style_id}
                                         type="button"
@@ -584,8 +598,8 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                       </button>
                                     ))}
                                   </div>
-                                )}
-                              </div>
+                                </PopoverContent>
+                              </Popover>
                             </TableCell>
                             <TableCell>
                               {lineItem.style_id ? (

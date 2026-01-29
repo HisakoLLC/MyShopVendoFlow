@@ -30,9 +30,17 @@ type ReceiptSettings = {
   logoUrl: string | null
   receiptHeader: string | null
   receiptFooter: string | null
+  returnPolicy: string | null
   currency: string
   taxInclusive: boolean
   taxRatePercent: number
+}
+
+type ReceiptSnapshot = {
+  cart: CartItem[]
+  subtotal: number
+  taxAmount: number
+  total: number
 }
 
 export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
@@ -53,10 +61,12 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
     logoUrl: null,
     receiptHeader: null,
     receiptFooter: null,
+    returnPolicy: null,
     currency: "KES",
     taxInclusive: false,
     taxRatePercent: 16,
   })
+  const [receiptSnapshot, setReceiptSnapshot] = React.useState<ReceiptSnapshot | null>(null)
 
   const supabase = React.useMemo(() => createClient(), [])
 
@@ -69,16 +79,17 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
       const aid = Array.isArray(accountId) ? accountId[0] : accountId
       if (!aid) return
       const [settingsRes, storeRes] = await Promise.all([
-        supabase.from("business_settings").select("logo_url, logo_on_receipt, receipt_header, receipt_footer, currency, tax_inclusive").eq("account_id", aid).single(),
+        supabase.from("business_settings").select("logo_url, logo_on_receipt, receipt_header, receipt_footer, return_policy, currency, tax_inclusive").eq("account_id", aid).single(),
         supabase.from("stores").select("tax_rate").eq("store_id", storeId).single(),
       ])
       if (cancelled) return
       const taxRate = (storeRes.data as { tax_rate: number | null } | null)?.tax_rate ?? 16
-      const bs = settingsRes.data as { logo_url?: string | null; logo_on_receipt?: boolean | null; receipt_header?: string | null; receipt_footer?: string | null; currency?: string | null; tax_inclusive?: boolean | null } | null
+      const bs = settingsRes.data as { logo_url?: string | null; logo_on_receipt?: boolean | null; receipt_header?: string | null; receipt_footer?: string | null; return_policy?: string | null; currency?: string | null; tax_inclusive?: boolean | null } | null
       setReceiptSettings({
         logoUrl: bs?.logo_on_receipt && bs?.logo_url ? bs.logo_url : null,
         receiptHeader: bs?.receipt_header ?? null,
         receiptFooter: bs?.receipt_footer ?? null,
+        returnPolicy: bs?.return_policy ?? null,
         currency: bs?.currency ?? "KES",
         taxInclusive: bs?.tax_inclusive ?? false,
         taxRatePercent: taxRate,
@@ -88,15 +99,10 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
     return () => { cancelled = true }
   }, [storeId, supabase])
 
-  const { displaySubtotal, displayTax, displayTotal } = React.useMemo(() => {
-    const { taxInclusive, taxRatePercent } = receiptSettings
-    if (taxInclusive) {
-      const tot = subtotal
-      const subEx = tot / (1 + taxRatePercent / 100)
-      return { displaySubtotal: subEx, displayTax: tot - subEx, displayTotal: tot }
-    }
-    return { displaySubtotal: subtotal, displayTax: taxAmount, displayTotal: total }
-  }, [subtotal, taxAmount, total, receiptSettings.taxInclusive, receiptSettings.taxRatePercent])
+  // Cart context already computes correct subtotal/tax/total for both tax-inclusive and -exclusive
+  const displaySubtotal = subtotal
+  const displayTax = taxAmount
+  const displayTotal = total
 
   const change = React.useMemo(() => {
     if (paymentMethod === "cash" && amountTendered) {
@@ -435,8 +441,13 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
         }
       }
 
-      // Success!
-      toast.success(`Sale completed! Receipt #${receiptNum}`)
+      // Success! Capture receipt data before clearing cart so the receipt shows correct items and totals
+      setReceiptSnapshot({
+        cart: [...cart],
+        subtotal: displaySubtotal,
+        taxAmount: displayTax,
+        total: displayTotal,
+      })
       clearCart()
       setShowReceipt(true)
 
@@ -467,18 +478,19 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
             <p className="text-center text-lg font-semibold text-zinc-900 dark:text-zinc-100">
               Receipt #{receiptNumber}
             </p>
-            <div className="hidden print:block">
+            <div className="print:block overflow-y-auto max-h-[60vh]">
               <Receipt
                 receiptNumber={receiptNumber}
-                cart={cart}
-                subtotal={displaySubtotal}
-                taxAmount={displayTax}
-                total={displayTotal}
+                cart={receiptSnapshot?.cart ?? []}
+                subtotal={receiptSnapshot?.subtotal ?? 0}
+                taxAmount={receiptSnapshot?.taxAmount ?? 0}
+                total={receiptSnapshot?.total ?? 0}
                 paymentMethod={paymentMethod}
                 storeId={storeId}
                 logoUrl={receiptSettings.logoUrl}
                 receiptHeader={receiptSettings.receiptHeader}
                 receiptFooter={receiptSettings.receiptFooter}
+                returnPolicy={receiptSettings.returnPolicy}
                 currency={receiptSettings.currency}
                 taxInclusive={receiptSettings.taxInclusive}
                 taxRatePercent={receiptSettings.taxRatePercent}

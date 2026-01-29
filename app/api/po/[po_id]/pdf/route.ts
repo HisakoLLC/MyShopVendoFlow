@@ -131,6 +131,7 @@ export async function GET(
   doc.line(20, y, pageW - 20, y)
   y += 6
 
+  const currSym = currency === "USD" ? "$" : currency === "KES" ? "Ksh " : `${currency} `
   doc.setFont("helvetica", "normal")
   doc.setFontSize(9)
   for (const item of lineItems as Array<{
@@ -152,8 +153,8 @@ export async function GET(
     doc.text(line1, colX[0], y)
     doc.text(`${variant} ${sku}`, colX[1], y)
     doc.text(String(item.quantity_ordered), colX[2], y)
-    doc.text(`$${item.unit_cost.toFixed(2)}`, colX[3], y)
-    doc.text(`$${item.line_total.toFixed(2)}`, colX[4], y)
+    doc.text(`${currSym}${item.unit_cost.toFixed(2)}`, colX[3], y)
+    doc.text(`${currSym}${item.line_total.toFixed(2)}`, colX[4], y)
     y += 6
     if (y > 260) {
       doc.addPage()
@@ -166,24 +167,25 @@ export async function GET(
   y += 6
   doc.setFont("helvetica", "bold")
   const total = (po as { total_cost: number | null }).total_cost ?? 0
-  const currSym = currency === "USD" ? "$" : currency === "KES" ? "Ksh " : `${currency} `
   doc.text("Total:", colX[3], y)
   doc.text(`${currSym}${total.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, colX[4], y)
-  y += 16
+  y += 20
 
-  // Signature / stamp area
+  // Signature / stamp area — more space and longer lines
   doc.setFont("helvetica", "normal")
-  doc.setFontSize(9)
+  doc.setFontSize(10)
+  doc.setTextColor(0, 0, 0)
   doc.text("Authorized signature / Stamp", 20, y)
-  y += 2
+  doc.text("Date", 115, y)
+  y += 8
   doc.setDrawColor(180, 180, 180)
-  doc.line(20, y, 90, y)
-  doc.line(100, y, pageW - 20, y)
-  y += 2
+  doc.line(20, y, 105, y)
+  doc.line(115, y, pageW - 20, y)
+  y += 10
   doc.setFontSize(8)
   doc.setTextColor(120, 120, 120)
   doc.text("Sign and stamp here", 20, y)
-  doc.text("Date", 100, y)
+  doc.text("(DD/MM/YYYY)", 115, y)
 
   const filename = `PO-${(po as { po_number: string }).po_number}.pdf`
   const buf = doc.output("arraybuffer")
