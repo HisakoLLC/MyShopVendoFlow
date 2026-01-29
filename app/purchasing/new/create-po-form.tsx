@@ -119,7 +119,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
       if (cancelled) return
       const aid = Array.isArray(accountId) ? accountId[0] : accountId
       if (!aid) return
-      supabase.from("business_settings").select("currency").eq("account_id", aid).single().then(({ data }) => {
+      supabase.from("business_settings").select("currency").eq("account_id", aid).single().then(({ data }: { data: { currency?: string } | null }) => {
         if (!cancelled && (data as { currency?: string } | null)?.currency) setCurrency((data as { currency: string }).currency)
       })
     })
