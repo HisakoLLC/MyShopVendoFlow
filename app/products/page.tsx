@@ -5,6 +5,7 @@ import { Package } from "lucide-react"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import type { Tables } from "@/types/database"
+import { getSignedStorageUrl } from "@/lib/signed-storage-url"
 import { ProductsTableClient, type ProductStyleListRow } from "./products-table-client"
 import { EmptyState } from "@/components/EmptyState"
 import { ProductsListSkeleton } from "./products-list-skeleton"
@@ -84,11 +85,18 @@ async function fetchProductsData(): Promise<FetchResult> {
     }
 
     const nonArchived = (styles ?? []).filter((s: { archived: boolean | null }) => !s.archived)
+    const stylesWithSignedUrls = await Promise.all(
+      (nonArchived as Array<{ image_url?: string | null }>).map(async (s) => {
+        if (!s.image_url) return s
+        const signed = await getSignedStorageUrl(supabase, s.image_url)
+        return { ...s, image_url: signed ?? s.image_url }
+      })
+    )
 
     return {
       categories: (categories ?? []) as Array<Pick<CategoryRow, "category_id" | "name">>,
       seasons: (seasons ?? []) as Array<Pick<SeasonRow, "season_id" | "name">>,
-      styles: nonArchived as unknown as ProductStyleListRow[],
+      styles: stylesWithSignedUrls as unknown as ProductStyleListRow[],
     }
   } catch (error) {
     logError(error, "fetchProductsData")

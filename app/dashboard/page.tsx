@@ -12,6 +12,7 @@ import { DashboardMetrics } from "@/components/dashboard/DashboardMetrics"
 import { RecentSales } from "@/components/dashboard/RecentSales"
 import { RetryButton } from "@/components/dashboard/RetryButton"
 import { WelcomeDemoBanner } from "@/components/dashboard/WelcomeDemoBanner"
+import { DeleteDemoDataButton } from "@/components/dashboard/DeleteDemoDataButton"
 import {
   TrendingUp,
   TrendingDown,
@@ -403,6 +404,13 @@ async function DashboardContent() {
 
         {/* Welcome / Load demo data for new users */}
         <WelcomeDemoBanner show={recentSales.length === 0} />
+
+        {/* Delete all demo data — one button when demo data is present */}
+        {hasDemoData && (
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <DeleteDemoDataButton />
+          </div>
+        )}
 
         {/* Hero Stats */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

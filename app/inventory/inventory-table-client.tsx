@@ -3,7 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { Download, Search, AlertTriangle, Pencil } from "lucide-react"
+import { Download, Search, AlertTriangle, Pencil, Layers } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -23,7 +23,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Checkbox } from "@/components/ui/checkbox"
 import { InventoryAdjustmentModal } from "@/components/inventory/InventoryAdjustmentModal"
+import { BulkInventoryAdjustmentModal } from "@/components/inventory/BulkInventoryAdjustmentModal"
 import { VariantCellEditor } from "@/components/products/VariantCellEditor"
 import { updateProductVariant } from "@/app/products/actions"
 
@@ -101,6 +103,8 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
     price: number
     cost: number
   } | null>(null)
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
+  const [bulkModalOpen, setBulkModalOpen] = React.useState(false)
 
   const filtered = React.useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
@@ -161,6 +165,41 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
   }
 
   const hasMultipleStores = stores.length > 1
+  const filteredIds = React.useMemo(() => new Set(filtered.map((i) => i.variant_id)), [filtered])
+  const allFilteredSelected =
+    filtered.length > 0 && filtered.every((i) => selectedIds.has(i.variant_id))
+  const someSelected = selectedIds.size > 0
+
+  const toggleSelectAll = () => {
+    if (allFilteredSelected) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev)
+        filteredIds.forEach((id) => next.delete(id))
+        return next
+      })
+    } else {
+      setSelectedIds((prev) => {
+        const next = new Set(prev)
+        filteredIds.forEach((id) => next.add(id))
+        return next
+      })
+    }
+  }
+
+  const toggleRow = (variantId: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(variantId)) next.delete(variantId)
+      else next.add(variantId)
+      return next
+    })
+  }
+
+  const openBulkModal = () => setBulkModalOpen(true)
+  const closeBulkModal = () => {
+    setBulkModalOpen(false)
+    setSelectedIds(new Set())
+  }
 
   return (
     <>
@@ -207,6 +246,13 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
+
+          {someSelected && (
+            <Button onClick={openBulkModal} className="w-full sm:w-auto">
+              <Layers className="mr-2 h-4 w-4" />
+              Bulk adjust ({selectedIds.size})
+            </Button>
+          )}
         </div>
 
         {/* Table */}
@@ -232,7 +278,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={hasMultipleStores ? stores.length + 5 : 6} className="h-24 text-center">
+                    <TableCell colSpan={hasMultipleStores ? stores.length + 6 : 7} className="h-24 text-center">
                       No inventory found matching your filters.
                     </TableCell>
                   </TableRow>
@@ -243,6 +289,13 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
 
                     return (
                       <TableRow key={item.variant_id} className={rowBg}>
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedIds.has(item.variant_id)}
+                            onCheckedChange={() => toggleRow(item.variant_id)}
+                            aria-label={`Select ${item.style_name} ${item.size}/${item.color}`}
+                          />
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
@@ -351,6 +404,18 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
           }}
         />
       )}
+
+      {/* Bulk adjust modal */}
+      <BulkInventoryAdjustmentModal
+        open={bulkModalOpen}
+        onClose={closeBulkModal}
+        onSuccess={() => {
+          closeBulkModal()
+          router.refresh()
+        }}
+        stores={stores}
+        selectedVariantIds={Array.from(selectedIds)}
+      />
 
       {/* Edit variant (price/cost/SKU) modal */}
       {editingVariant && (

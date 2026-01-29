@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { createClient } from "@/lib/supabase/client"
-import Image from "next/image"
+import { StorageImage } from "@/components/StorageImage"
 import { VariantSelector } from "./VariantSelector"
 import { useCart } from "@/lib/cart-context"
 
@@ -226,7 +226,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
                 {/* Product Image */}
                 <div className="relative mb-3 aspect-square w-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-700">
                   {product.image_url ? (
-                    <Image
+                    <StorageImage
                       src={product.image_url}
                       alt={product.name}
                       fill

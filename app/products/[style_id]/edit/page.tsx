@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { Suspense } from "react"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { getSignedStorageUrl } from "@/lib/signed-storage-url"
 import type { Tables } from "@/types/database"
 import { EditStyleForm } from "@/components/products/EditStyleForm"
 
@@ -84,9 +85,15 @@ async function fetchEditData(styleId: string): Promise<FetchResult> {
     name: s.name ?? "",
   }))
 
+  const styleWithSignedImage = { ...style }
+  if (style.image_url) {
+    const signed = await getSignedStorageUrl(supabase, style.image_url)
+    if (signed) (styleWithSignedImage as { image_url: string }).image_url = signed
+  }
+
   return {
     ok: true,
-    style: style as StyleRow,
+    style: styleWithSignedImage as StyleRow,
     categories: catList as Array<Pick<CategoryRow, "category_id" | "name">>,
     seasons: seasonList as Array<Pick<SeasonRow, "season_id" | "name">>,
   }

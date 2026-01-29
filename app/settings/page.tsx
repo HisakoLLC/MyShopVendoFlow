@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { getSignedStorageUrl } from "@/lib/signed-storage-url"
 import { SettingsTabs } from "./settings-tabs"
 
 export const dynamic = "force-dynamic"
@@ -84,12 +85,19 @@ async function fetchSettingsData(): Promise<{
     .eq("account_id", accountId)
     .single()
 
-  const settings = settingsError ? null : businessSettings ?? null
+  const raw = settingsError ? null : businessSettings ?? null
+  let businessSettingsResolved: BusinessSettings | null = raw
+  if (raw?.logo_url) {
+    const signed = await getSignedStorageUrl(supabase, raw.logo_url)
+    if (signed) {
+      businessSettingsResolved = { ...raw, logo_url: signed }
+    }
+  }
 
   return {
     account: account as Account,
     stores: (stores || []) as Store[],
-    businessSettings: settings as BusinessSettings | null,
+    businessSettings: businessSettingsResolved,
   }
 }
 

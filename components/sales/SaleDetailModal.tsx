@@ -222,7 +222,7 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
 
 
   return (
-    <Dialog open={true} onOpenChange={onClose}>
+    <Dialog open={true} onOpenChange={(open) => { if (!open) onClose() }}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Sale Details - {sale.receipt_number ?? "—"}</DialogTitle>

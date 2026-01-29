@@ -11,6 +11,14 @@ const adjustmentSchema = z.object({
   reason: z.string().min(1).max(200),
 })
 
+const bulkAdjustmentSchema = z.object({
+  variant_ids: z.array(z.string().uuid()).min(1, "Select at least one variant."),
+  store_id: z.string().uuid(),
+  adjustmentType: z.enum(["add", "remove", "set"]),
+  quantity: z.coerce.number().int().min(0, "Quantity must be 0 or more."),
+  reason: z.string().min(1).max(200),
+})
+
 const transferSchema = z.object({
   from_store_id: z.string().uuid(),
   to_store_id: z.string().uuid(),
@@ -112,6 +120,106 @@ export async function createInventoryAdjustment(
 
   revalidatePath("/inventory")
   return { success: true, newQuantity }
+}
+
+export type BulkAdjustmentData = z.infer<typeof bulkAdjustmentSchema>
+
+export async function createBulkInventoryAdjustment(data: BulkAdjustmentData) {
+  const supabase = await createServerSupabaseClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    throw new Error("You must be signed in to adjust inventory.")
+  }
+
+  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  if (accountIdError || !accountId) {
+    throw new Error("Unable to resolve account.")
+  }
+
+  const parsed = bulkAdjustmentSchema.safeParse(data)
+  if (!parsed.success) {
+    throw new Error(parsed.error.errors[0]?.message ?? "Validation failed.")
+  }
+
+  const { variant_ids, store_id, adjustmentType, quantity, reason } = parsed.data
+
+  // Verify store belongs to account
+  const { data: store, error: storeError } = await supabase
+    .from("stores")
+    .select("store_id")
+    .eq("store_id", store_id)
+    .eq("account_id", accountId)
+    .single()
+
+  if (storeError || !store) {
+    throw new Error("Store not found or access denied.")
+  }
+
+  // Fetch current inventory levels for all variants at this store
+  const { data: levels, error: levelsError } = await supabase
+    .from("inventory_levels")
+    .select("inventory_id, variant_id, quantity_on_hand")
+    .in("variant_id", variant_ids)
+    .eq("store_id", store_id)
+
+  if (levelsError) {
+    throw new Error(levelsError.message)
+  }
+
+  const levelByVariant = new Map(
+    (levels ?? []).map((l: { variant_id: string; inventory_id: string; quantity_on_hand: number | null }) => [
+      l.variant_id,
+      { inventory_id: l.inventory_id, quantity_on_hand: l.quantity_on_hand ?? 0 },
+    ])
+  )
+
+  let updated = 0
+  let inserted = 0
+
+  for (const variant_id of variant_ids) {
+    const current = levelByVariant.get(variant_id)
+    const currentQty = current?.quantity_on_hand ?? 0
+
+    let newQuantity: number
+    if (adjustmentType === "add") {
+      newQuantity = currentQty + quantity
+    } else if (adjustmentType === "remove") {
+      newQuantity = Math.max(0, currentQty - quantity)
+    } else {
+      newQuantity = quantity
+    }
+
+    if (current) {
+      const { error: updateError } = await supabase
+        .from("inventory_levels")
+        .update({
+          quantity_on_hand: newQuantity,
+          last_counted_date: new Date().toISOString(),
+        })
+        .eq("inventory_id", current.inventory_id)
+
+      if (!updateError) updated++
+      else throw new Error(updateError.message)
+    } else {
+      const { error: insertError } = await supabase.from("inventory_levels").insert({
+        variant_id,
+        store_id,
+        quantity_on_hand: newQuantity,
+        quantity_reserved: 0,
+        last_counted_date: new Date().toISOString(),
+      })
+      if (!insertError) inserted++
+      else throw new Error(insertError.message)
+    }
+  }
+
+  revalidatePath("/inventory")
+  return { success: true, updated, inserted }
 }
 
 export type CreateTransferData = z.infer<typeof transferSchema>
