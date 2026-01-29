@@ -6,7 +6,7 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, useFieldArray } from "react-hook-form"
 import { toast, Toaster } from "sonner"
-import { Plus, X, Search, ShoppingCart } from "lucide-react"
+import { Plus, X, Search, Printer } from "lucide-react"
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
@@ -325,7 +325,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
     }
   }
 
-  const handleSendToSupplier = async () => {
+  const handlePrintPO = async () => {
     const values = form.getValues()
     setIsSubmitting(true)
     try {
@@ -346,14 +346,14 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
           quantity_ordered: item.quantity,
           unit_cost: item.unit_cost,
         })),
-        status: "sent",
+        status: "draft",
       }
 
       const result = await createPurchaseOrder(data)
-      toast.success(`PO ${result.po_number} sent to supplier!`)
-      router.push(`/purchasing/${result.po_id}`)
+      toast.success(`PO ${result.po_number} created. Opening print view…`)
+      router.push(`/purchasing/${result.po_id}/print`)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to send purchase order.")
+      toast.error(e instanceof Error ? e.message : "Failed to create purchase order.")
       setIsSubmitting(false)
     }
   }
@@ -362,7 +362,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
     <>
       <Toaster richColors position="top-right" />
       <Form {...form}>
-        <form onSubmit={(e) => { e.preventDefault(); handleSendToSupplier(); }} className="space-y-6">
+        <form onSubmit={(e) => { e.preventDefault(); handlePrintPO(); }} className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Main Form */}
             <div className="lg:col-span-2 space-y-6">
@@ -684,11 +684,11 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                     <Button
                       type="button"
                       className="w-full gap-2"
-                      onClick={handleSendToSupplier}
+                      onClick={handlePrintPO}
                       disabled={isSubmitting || !watchedSupplierId}
                     >
-                      <ShoppingCart className="h-4 w-4" />
-                      Send to Supplier
+                      <Printer className="h-4 w-4" />
+                      Print PO
                     </Button>
                   </div>
                 </div>

@@ -183,7 +183,8 @@ async function ReceiveInventoryContent({ poId }: { poId: string }) {
           Receive Inventory: PO #{data.po.po_number}
         </h1>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Record received inventory from supplier
+          Record received inventory from supplier. You can receive the full order or partial
+          quantities—enter only what you received today; you can receive the rest later.
         </p>
       </div>
 
