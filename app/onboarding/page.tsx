@@ -67,7 +67,6 @@ function OnboardingContent() {
   const supabase = React.useMemo(() => createClient(), [])
   const [step, setStep] = React.useState(0)
   const [isLoading, setIsLoading] = React.useState(false)
-  const [demoLoading, setDemoLoading] = React.useState(false)
 
   // Step 1: Store
   const [storeName, setStoreName] = React.useState("")
@@ -242,25 +241,6 @@ function OnboardingContent() {
       toast.error(err instanceof Error ? err.message : "Failed to set plan")
     } finally {
       setIsLoading(false)
-    }
-  }
-
-  const handleLoadDemoData = async () => {
-    setDemoLoading(true)
-    try {
-      const res = await fetch("/api/seed-demo", { method: "POST" })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) {
-        toast.error(data.error || "Failed to load demo data")
-        return
-      }
-      toast.success("Demo data loaded! Taking you to the dashboard…")
-      router.push(redirectTo)
-      router.refresh()
-    } catch {
-      toast.error("Failed to load demo data")
-    } finally {
-      setDemoLoading(false)
     }
   }
 
@@ -475,30 +455,20 @@ function OnboardingContent() {
           </Card>
         )}
 
-        {/* Step 4: Success — Load demo or go to dashboard */}
+        {/* Step 4: Success — Go to dashboard */}
         {step === 4 && (
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">You're all set! 🎉</CardTitle>
               <CardDescription className="text-base">
-                Welcome to VendoFlow. Load sample products, customers, and sales to explore the app, or go straight to your dashboard and add your own data.
+                Welcome to VendoFlow. Go to your dashboard to start adding products and making sales.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <Button
-                onClick={handleLoadDemoData}
-                className="w-full"
-                size="lg"
-                disabled={demoLoading}
-              >
-                {demoLoading ? "Loading demo data…" : "Load demo data"}
-              </Button>
-              <Button
-                variant="outline"
                 onClick={handleGoToDashboard}
                 className="w-full"
                 size="lg"
-                disabled={demoLoading}
               >
                 Go to Dashboard
               </Button>
