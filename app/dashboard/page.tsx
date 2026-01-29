@@ -178,6 +178,19 @@ async function DashboardContent() {
     )
   }
 
+  // Fetch has_demo_data for "Delete demo data" button
+  let hasDemoData = false
+  try {
+    const { data: accountRow } = await supabase
+      .from("accounts")
+      .select("has_demo_data")
+      .eq("account_id", accountId)
+      .single()
+    hasDemoData = !!accountRow?.has_demo_data
+  } catch {
+    // Column may not exist or RLS may block; show button only when we know we have demo data
+  }
+
   // Get today and yesterday dates
   const today = new Date()
   today.setHours(0, 0, 0, 0)
