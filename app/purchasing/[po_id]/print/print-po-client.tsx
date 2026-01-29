@@ -30,10 +30,12 @@ export function PrintPOClient({
   poId,
   po,
   lineItems,
+  currency = "KES",
 }: {
   poId: string
   po: PurchaseOrder
   lineItems: POLineItem[]
+  currency?: string
 }) {
   const handlePrint = () => {
     window.print()
@@ -53,11 +55,7 @@ export function PrintPOClient({
         day: "numeric",
       })
     : "—"
-  const total = (po.total_cost ?? 0).toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  })
+  const total = formatCurrency(po.total_cost ?? 0, currency, { maximumFractionDigits: 2 })
 
   return (
     <div className="min-h-screen bg-white text-black">
