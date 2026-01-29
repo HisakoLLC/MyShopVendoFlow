@@ -523,14 +523,14 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
                     type="tel"
                     value={mpesaPhoneNumber}
                     onChange={(e) => {
-                      const value = e.target.value.replace(/\\D/g, \"\")
+                      const value = e.target.value.replace(/\D/g, "")
                       if (value.length <= 12) setMpesaPhoneNumber(value)
                     }}
-                    placeholder=\"254712345678\"
+                    placeholder="254712345678"
                     maxLength={12}
-                    className=\"mt-1\"
+                    className="mt-1"
                   />
-                  <p className=\"mt-1 text-xs text-zinc-500 dark:text-zinc-400\">
+                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                     Format: 254712345678 (12 digits, starts with 254)
                   </p>
                 </div>
