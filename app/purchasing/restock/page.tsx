@@ -165,7 +165,7 @@ async function fetchRestockSuggestions(): Promise<RestockSuggestion[]> {
 
   // Include out-of-stock variants that are NOT in variant_metrics (or have null days_of_inventory)
   const outOfStockVariantIds = variantIds.filter(
-    (id) => (inventoryByVariant[id] ?? 0) <= 0 && !velocityVariantIds.has(id)
+    (id: string) => (inventoryByVariant[id] ?? 0) <= 0 && !velocityVariantIds.has(id)
   )
 
   if (outOfStockVariantIds.length > 0) {
