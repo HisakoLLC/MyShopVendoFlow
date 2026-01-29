@@ -23,14 +23,24 @@ interface CartContextType {
   subtotal: number
   taxAmount: number
   total: number
+  taxRatePercent: number
+  taxInclusive: boolean
 }
 
 const CartContext = React.createContext<CartContextType | undefined>(undefined)
 
-const TAX_RATE = 0.16 // 16% VAT (Kenya)
+const DEFAULT_TAX_RATE = 16
 const STORAGE_KEY = "vendoflow_cart"
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+interface CartProviderProps {
+  children: React.ReactNode
+  /** When true, prices in cart are inclusive of tax; total = sum of line totals, no tax added. */
+  taxInclusive?: boolean
+  /** Store tax rate (e.g. 16 for 16%). Used for display and when taxInclusive for breakdown. */
+  taxRatePercent?: number
+}
+
+export function CartProvider({ children, taxInclusive = false, taxRatePercent = DEFAULT_TAX_RATE }: CartProviderProps) {
   const [cart, setCart] = React.useState<CartItem[]>([])
 
   // Load cart from localStorage on mount
@@ -92,14 +102,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  const subtotal = React.useMemo(
+  const rawSubtotal = React.useMemo(
     () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [cart]
   )
 
-  const taxAmount = React.useMemo(() => subtotal * TAX_RATE, [subtotal])
-
-  const total = React.useMemo(() => subtotal + taxAmount, [subtotal, taxAmount])
+  const { subtotal, taxAmount, total } = React.useMemo(() => {
+    const rate = taxRatePercent / 100
+    if (taxInclusive) {
+      const totalToPay = rawSubtotal
+      const displaySubtotal = totalToPay / (1 + rate)
+      const displayTax = totalToPay - displaySubtotal
+      return { subtotal: displaySubtotal, taxAmount: displayTax, total: totalToPay }
+    }
+    const tax = rawSubtotal * rate
+    return { subtotal: rawSubtotal, taxAmount: tax, total: rawSubtotal + tax }
+  }, [rawSubtotal, taxInclusive, taxRatePercent])
 
   const value = React.useMemo(
     () => ({
@@ -111,8 +129,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       subtotal,
       taxAmount,
       total,
+      taxRatePercent,
+      taxInclusive,
     }),
-    [cart, addToCart, removeFromCart, updateQuantity, clearCart, subtotal, taxAmount, total]
+    [cart, addToCart, removeFromCart, updateQuantity, clearCart, subtotal, taxAmount, total, taxRatePercent, taxInclusive]
   )
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

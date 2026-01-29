@@ -27,7 +27,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
   const [selectedBasePrice, setSelectedBasePrice] = React.useState<number>(0)
   const inputRef = React.useRef<HTMLInputElement>(null)
   const supabase = React.useMemo(() => createClient(), [])
-  const { addToCart } = useCart()
+  const { addToCart, taxInclusive, taxRatePercent } = useCart()
 
   // Auto-focus input on mount
   React.useEffect(() => {
@@ -161,7 +161,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
         console.error("Error adding to cart:", error)
       }
     },
-    [selectedStyleId, defaultStoreId, supabase, addToCart]
+    [selectedStyleId, defaultStoreId, supabase, addToCart, taxInclusive, taxRatePercent]
   )
 
   const formatPrice = (price: number) => {

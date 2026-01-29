@@ -1,10 +1,7 @@
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
-import { ProductSearch } from "@/components/pos/ProductSearch"
-import { Cart } from "@/components/pos/Cart"
-import { CartProvider } from "@/lib/cart-context"
-import { POSMobileLayout } from "@/components/pos/POSMobileLayout"
+import { POSClient } from "./POSClient"
 
 function LoadingState() {
   return (
@@ -62,40 +59,10 @@ async function POSPageContent() {
     )
   }
 
-  // Use first store as default (or let user select in future)
   const defaultStoreId = stores[0].store_id
+  const storeName = stores[0].name
 
-  return (
-    <CartProvider>
-      {/* Desktop/Tablet Landscape: Split screen (60/40) */}
-      <div className="hidden h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950 lg:flex">
-        {/* Left Side - Product Search & Selection (60%) */}
-        <div className="flex w-[60%] flex-col border-r border-zinc-200 dark:border-zinc-800">
-          <div className="flex h-full flex-col">
-            <div className="border-b border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Point of Sale</h1>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                {stores && stores.length > 0 ? `Store: ${stores[0].name}` : "No store available"}
-              </p>
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <ProductSearch defaultStoreId={defaultStoreId} />
-            </div>
-          </div>
-        </div>
-
-        {/* Right Side - Cart (40%) */}
-        <div className="flex w-[40%] flex-col border-l border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-          <Cart defaultStoreId={defaultStoreId} />
-        </div>
-      </div>
-
-      {/* Tablet Portrait & Mobile: Use mobile layout component */}
-      <div className="lg:hidden">
-        <POSMobileLayout defaultStoreId={defaultStoreId} storeName={stores[0].name} />
-      </div>
-    </CartProvider>
-  )
+  return <POSClient defaultStoreId={defaultStoreId} storeName={storeName} />
 }
 
 export default function POSPage() {

@@ -1,0 +1,74 @@
+"use client"
+
+import * as React from "react"
+import { createClient } from "@/lib/supabase/client"
+import { ProductSearch } from "@/components/pos/ProductSearch"
+import { Cart } from "@/components/pos/Cart"
+import { CartProvider } from "@/lib/cart-context"
+import { POSMobileLayout } from "@/components/pos/POSMobileLayout"
+
+interface POSClientProps {
+  defaultStoreId: string
+  storeName: string
+}
+
+export function POSClient({ defaultStoreId, storeName }: POSClientProps) {
+  const [taxInclusive, setTaxInclusive] = React.useState(false)
+  const [taxRatePercent, setTaxRatePercent] = React.useState(16)
+  const supabase = React.useMemo(() => createClient(), [])
+
+  React.useEffect(() => {
+    let cancelled = false
+    async function load() {
+      const { data: accountIdRaw } = await supabase.rpc("get_account_id")
+      const accountId = Array.isArray(accountIdRaw)
+        ? accountIdRaw[0]
+        : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
+          ? (accountIdRaw as { account_id: string }).account_id
+          : accountIdRaw
+      if (!accountId) return
+      const [settingsRes, storeRes] = await Promise.all([
+        supabase
+          .from("business_settings")
+          .select("tax_inclusive")
+          .eq("account_id", accountId)
+          .single(),
+        supabase.from("stores").select("tax_rate").eq("store_id", defaultStoreId).single(),
+      ])
+      if (cancelled) return
+      const taxIncl = (settingsRes.data as { tax_inclusive?: boolean | null } | null)?.tax_inclusive ?? false
+      const taxRate = (storeRes.data as { tax_rate: number | null } | null)?.tax_rate ?? 16
+      setTaxInclusive(!!taxIncl)
+      setTaxRatePercent(taxRate)
+    }
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [defaultStoreId, supabase])
+
+  return (
+    <CartProvider taxInclusive={taxInclusive} taxRatePercent={taxRatePercent}>
+      {/* Desktop/Tablet Landscape: Split screen (60/40) */}
+      <div className="hidden h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950 lg:flex">
+        <div className="flex w-[60%] flex-col border-r border-zinc-200 dark:border-zinc-800">
+          <div className="flex h-full flex-col">
+            <div className="border-b border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Point of Sale</h1>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">Store: {storeName}</p>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <ProductSearch defaultStoreId={defaultStoreId} />
+            </div>
+          </div>
+        </div>
+        <div className="flex w-[40%] flex-col border-l border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+          <Cart defaultStoreId={defaultStoreId} />
+        </div>
+      </div>
+      <div className="lg:hidden">
+        <POSMobileLayout defaultStoreId={defaultStoreId} storeName={storeName} />
+      </div>
+    </CartProvider>
+  )
+}

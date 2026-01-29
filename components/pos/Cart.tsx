@@ -22,7 +22,7 @@ interface CartProps {
 }
 
 export function Cart({ defaultStoreId }: CartProps) {
-  const { cart, removeFromCart, clearCart, updateQuantity, subtotal, taxAmount, total } = useCart()
+  const { cart, removeFromCart, clearCart, updateQuantity, subtotal, taxAmount, total, taxRatePercent, taxInclusive } = useCart()
   const [showCheckout, setShowCheckout] = React.useState(false)
   const [showClearConfirm, setShowClearConfirm] = React.useState(false)
   const [stockByVariant, setStockByVariant] = React.useState<Record<string, number>>({})
@@ -213,7 +213,9 @@ export function Cart({ defaultStoreId }: CartProps) {
             <div className="space-y-2">
               {/* Subtotal */}
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">Subtotal</span>
+                <span className="text-zinc-600 dark:text-zinc-400">
+                  {taxInclusive ? "Subtotal (ex tax)" : "Subtotal"}
+                </span>
                 <span className="font-medium text-zinc-900 dark:text-zinc-100">
                   {formatPrice(subtotal)}
                 </span>
@@ -221,7 +223,7 @@ export function Cart({ defaultStoreId }: CartProps) {
 
               {/* Tax */}
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">Tax (16%)</span>
+                <span className="text-zinc-600 dark:text-zinc-400">Tax ({taxRatePercent}%)</span>
                 <span className="font-medium text-zinc-900 dark:text-zinc-100">
                   {formatPrice(taxAmount)}
                 </span>
