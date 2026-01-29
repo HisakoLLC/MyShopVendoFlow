@@ -102,10 +102,10 @@ async function fetchStaffData(): Promise<{
     throw new Error(staffError.message)
   }
 
-  // Transform staff data
+  // Transform staff data (Supabase may return FK relation as object or array)
   const transformedStaff = (staff || []).map((s: any) => ({
     ...s,
-    stores: s.stores || null,
+    stores: Array.isArray(s.stores) ? (s.stores[0] || null) : (s.stores || null),
   })) as Staff[]
 
   return {

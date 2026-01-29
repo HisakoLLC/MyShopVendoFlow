@@ -61,4 +61,4 @@ NODE_ENV=development
 
 ### Application URL
 - **Local**: `http://localhost:3000`
-- **Production**: Your Vercel deployment URL (e.g., `https://your-app.vercel.app`)
+- **Production**: Your Vercel deployment URL (e.g., `https://vendoflow.com)

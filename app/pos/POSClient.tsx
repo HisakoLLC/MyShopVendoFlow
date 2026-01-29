@@ -47,15 +47,30 @@ export function POSClient({ defaultStoreId, storeName }: POSClientProps) {
     }
   }, [defaultStoreId, supabase])
 
-  // Store this device's store so staff/cashiers on the same computer have context
+  // Store this device's store and account so staff can use PIN-only login on this computer
   React.useEffect(() => {
-    try {
-      localStorage.setItem("vendoflow_last_store_id", defaultStoreId)
-      localStorage.setItem("vendoflow_last_store_name", storeName)
-    } catch {
-      // ignore
+    let cancelled = false
+    async function save() {
+      try {
+        localStorage.setItem("vendoflow_last_store_id", defaultStoreId)
+        localStorage.setItem("vendoflow_last_store_name", storeName)
+        const { data: accountIdRaw } = await supabase.rpc("get_account_id")
+        if (cancelled) return
+        const accountId = Array.isArray(accountIdRaw)
+          ? accountIdRaw[0]
+          : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
+            ? (accountIdRaw as { account_id: string }).account_id
+            : accountIdRaw
+        if (accountId) localStorage.setItem("vendoflow_last_account_id", String(accountId))
+      } catch {
+        // ignore
+      }
     }
-  }, [defaultStoreId, storeName])
+    save()
+    return () => {
+      cancelled = true
+    }
+  }, [defaultStoreId, storeName, supabase])
 
   return (
     <CartProvider taxInclusive={taxInclusive} taxRatePercent={taxRatePercent}>

@@ -14,7 +14,7 @@ const staffSchema = z.object({
   role: z.enum(["cashier", "manager", "owner"], {
     errorMap: () => ({ message: "Role must be cashier, manager, or owner." }),
   }),
-  assigned_store_id: z.string().uuid().optional(),
+  assigned_store_id: z.string().optional(),
   generate_pin: z.boolean().optional(),
 })
 
@@ -37,8 +37,14 @@ function generatePIN(): string {
   return Math.floor(1000 + Math.random() * 9000).toString()
 }
 
+function normalizeAssignedStoreId(v: string | undefined): string | null {
+  if (!v || v === "__none__" || !/^[0-9a-f-]{36}$/i.test(v)) return null
+  return v
+}
+
 export async function createStaff(data: CreateStaffData) {
   const supabase = await createServerSupabaseClient()
+  const assignedStoreId = normalizeAssignedStoreId(data.assigned_store_id)
 
   const {
     data: { user },
@@ -103,7 +109,7 @@ export async function createStaff(data: CreateStaffData) {
   }
 
   // Validate assigned_store_id if role requires it
-  if ((data.role === "cashier" || data.role === "manager") && !data.assigned_store_id) {
+  if ((data.role === "cashier" || data.role === "manager") && !assignedStoreId) {
     throw new Error("Assigned store is required for cashier and manager roles.")
   }
 
@@ -169,7 +175,7 @@ export async function createStaff(data: CreateStaffData) {
       first_name: data.first_name.trim(),
       last_name: data.last_name.trim(),
       role: data.role,
-      assigned_store_id: data.assigned_store_id || null,
+      assigned_store_id: assignedStoreId,
       pin_hash: pinHash,
       active: true,
     })
@@ -246,8 +252,10 @@ export async function updateStaff(data: UpdateStaffData) {
     throw new Error("Staff member not found or access denied.")
   }
 
+  const assignedStoreId = normalizeAssignedStoreId(data.assigned_store_id)
+
   // Validate assigned_store_id if role requires it
-  if ((data.role === "cashier" || data.role === "manager") && !data.assigned_store_id) {
+  if ((data.role === "cashier" || data.role === "manager") && !assignedStoreId) {
     throw new Error("Assigned store is required for cashier and manager roles.")
   }
 
@@ -258,7 +266,7 @@ export async function updateStaff(data: UpdateStaffData) {
       first_name: data.first_name.trim(),
       last_name: data.last_name.trim(),
       role: data.role,
-      assigned_store_id: data.assigned_store_id || null,
+      assigned_store_id: assignedStoreId,
     })
     .eq("staff_id", data.staff_id)
 

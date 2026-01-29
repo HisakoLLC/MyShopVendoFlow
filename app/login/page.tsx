@@ -13,6 +13,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 
+const STORE_ID_KEY = "vendoflow_last_store_id"
+const STORE_NAME_KEY = "vendoflow_last_store_name"
+const ACCOUNT_ID_KEY = "vendoflow_last_account_id"
+
 export default function LoginPage() {
   const router = useRouter()
   const [supabaseError, setSupabaseError] = React.useState<string | null>(null)
@@ -31,6 +35,32 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
   const [isResetting, setIsResetting] = React.useState(false)
+
+  const [savedStore, setSavedStore] = React.useState<{
+    store_id: string
+    store_name: string
+    account_id?: string
+  } | null>(null)
+  const [pinOnlyMode, setPinOnlyMode] = React.useState(false)
+  const [pin, setPin] = React.useState("")
+  const [pinLoading, setPinLoading] = React.useState(false)
+
+  React.useEffect(() => {
+    try {
+      const storeId = localStorage.getItem(STORE_ID_KEY)
+      const storeName = localStorage.getItem(STORE_NAME_KEY)
+      const accountId = localStorage.getItem(ACCOUNT_ID_KEY)
+      if (storeId && storeName) {
+        setSavedStore({
+          store_id: storeId,
+          store_name: storeName,
+          account_id: accountId || undefined,
+        })
+      }
+    } catch {
+      // ignore
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -101,6 +131,47 @@ export default function LoginPage() {
     }
   }
 
+  const handlePinLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!savedStore || !pin.trim() || supabaseError || !supabase) return
+
+    setPinLoading(true)
+    try {
+      const res = await fetch("/api/auth/pin-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          store_id: savedStore.store_id,
+          account_id: savedStore.account_id,
+          pin: pin.trim(),
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        toast.error(data.error || "Invalid PIN")
+        return
+      }
+      if (!data.email) {
+        toast.error("Invalid PIN")
+        return
+      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: pin.trim(),
+      })
+      if (error) {
+        toast.error("Invalid PIN")
+        return
+      }
+      router.push("/dashboard")
+      router.refresh()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong")
+    } finally {
+      setPinLoading(false)
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-zinc-950">
       <Toaster richColors position="top-right" />
@@ -112,9 +183,16 @@ export default function LoginPage() {
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
             Sign in to your account
           </p>
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
-            Staff: use your email and the PIN you were given as your password.
-          </p>
+          {savedStore && (
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
+              This device has {savedStore.store_name} saved. You can sign in with your 4-digit PIN.
+            </p>
+          )}
+          {!savedStore && (
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
+              Staff: use your email and the PIN you were given as your password.
+            </p>
+          )}
         </div>
 
         {supabaseError && (
@@ -127,6 +205,39 @@ export default function LoginPage() {
           </div>
         )}
 
+        {savedStore && !pinOnlyMode && (
+          <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
+            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+              Quick PIN login — {savedStore.store_name}
+            </p>
+            <form onSubmit={handlePinLogin} className="mt-3 flex gap-2">
+              <Input
+                type="password"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={8}
+                placeholder="4-digit PIN"
+                value={pin}
+                onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
+                disabled={pinLoading}
+                className="font-mono text-lg tracking-widest"
+                autoComplete="one-time-code"
+              />
+              <Button type="submit" disabled={pin.length < 4 || pinLoading}>
+                {pinLoading ? "Signing in..." : "Sign in with PIN"}
+              </Button>
+            </form>
+            <button
+              type="button"
+              onClick={() => setPinOnlyMode(true)}
+              className="mt-2 text-xs text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            >
+              Use email & password instead
+            </button>
+          </div>
+        )}
+
+        {(!savedStore || pinOnlyMode) && (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="email">Email</Label>
@@ -185,6 +296,17 @@ export default function LoginPage() {
             {isLoading ? "Signing in..." : "Login"}
           </Button>
         </form>
+        )}
+
+        {pinOnlyMode && savedStore && (
+          <button
+            type="button"
+            onClick={() => setPinOnlyMode(false)}
+            className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+          >
+            ← Back to PIN login for {savedStore.store_name}
+          </button>
+        )}
 
         <div className="text-center text-sm text-zinc-600 dark:text-zinc-400">
           <p>
