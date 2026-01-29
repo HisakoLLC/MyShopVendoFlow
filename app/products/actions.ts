@@ -432,4 +432,3 @@ export async function updateProductVariant(
   revalidatePath(`/products/${variant.style_id}`)
   return { success: true }
 }
-

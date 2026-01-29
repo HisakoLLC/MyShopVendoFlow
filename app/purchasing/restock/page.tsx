@@ -125,8 +125,8 @@ async function fetchRestockSuggestions(): Promise<RestockSuggestion[]> {
     return acc
   }, {} as Record<string, number>)
 
-  // Transform data into restock suggestions
-  const suggestions: RestockSuggestion[] = (variantMetrics || [])
+  // Transform velocity-based data into restock suggestions (days_of_inventory < 7)
+  const velocitySuggestions: RestockSuggestion[] = (variantMetrics || [])
     .map((metric: VariantMetricRow) => {
       const variant = metric.product_variants
       if (!variant || !variant.product_styles) {
@@ -160,6 +160,77 @@ async function fetchRestockSuggestions(): Promise<RestockSuggestion[]> {
       }
     })
     .filter((s: RestockSuggestion | null): s is RestockSuggestion => s !== null)
+
+  const velocityVariantIds = new Set(velocitySuggestions.map((s) => s.variant_id))
+
+  // Include out-of-stock variants that are NOT in variant_metrics (or have null days_of_inventory)
+  const outOfStockVariantIds = variantIds.filter(
+    (id) => (inventoryByVariant[id] ?? 0) <= 0 && !velocityVariantIds.has(id)
+  )
+
+  if (outOfStockVariantIds.length > 0) {
+    const { data: outOfStockVariants, error: outOfStockError } = await supabase
+      .from("product_variants")
+      .select(
+        `
+        variant_id,
+        size,
+        color,
+        sku,
+        cost,
+        style_id,
+        product_styles!inner(
+          name,
+          image_url,
+          account_id
+        )
+      `
+      )
+      .in("variant_id", outOfStockVariantIds)
+      .eq("product_styles.account_id", accountId)
+
+    if (!outOfStockError && outOfStockVariants?.length) {
+      for (const row of outOfStockVariants) {
+        const pv = row as {
+          variant_id: string
+          size: string
+          color: string
+          sku: string
+          cost: number | null
+          style_id: string
+          product_styles: { name: string; image_url: string | null } | null
+        }
+        const style = pv.product_styles
+        if (!style) continue
+
+        const currentStock = inventoryByVariant[pv.variant_id] ?? 0
+        const unitCost = pv.cost ?? 0
+        const suggestedQty = Math.max(1, 5) // default min restock for out-of-stock
+
+        velocitySuggestions.push({
+          variant_id: pv.variant_id,
+          style_id: pv.style_id,
+          style_name: style.name,
+          style_image_url: style.image_url,
+          size: pv.size,
+          color: pv.color,
+          sku: pv.sku,
+          current_stock: currentStock,
+          avg_daily_sales_30d: 0,
+          days_remaining: 0,
+          suggested_qty: suggestedQty,
+          unit_cost: unitCost,
+          line_total: suggestedQty * unitCost,
+          restock_urgency_score: 100, // highest urgency for out-of-stock
+        })
+      }
+    }
+  }
+
+  // Sort by urgency (out-of-stock and lowest days first)
+  const suggestions = velocitySuggestions.sort(
+    (a, b) => b.restock_urgency_score - a.restock_urgency_score
+  )
 
   return suggestions
 }
