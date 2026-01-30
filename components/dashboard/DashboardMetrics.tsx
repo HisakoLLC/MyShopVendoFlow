@@ -85,7 +85,11 @@ export function DashboardMetrics({ topSellers }: DashboardMetricsProps) {
           maxBarSize={32}
           isAnimationActive
           animationDuration={800}
-          label={{ position: "right", formatter: (v: number) => formatCurrency(v), fontSize: 12 }}
+          label={{
+            position: "right",
+            formatter: (value: unknown) => formatCurrency(Number(value)),
+            fontSize: 12,
+          }}
         />
       </BarChart>
     </ResponsiveContainer>
