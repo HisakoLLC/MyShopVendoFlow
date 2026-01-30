@@ -49,8 +49,11 @@ async function fetchStaffData(): Promise<{
       ? accountIdRaw
       : Array.isArray(accountIdRaw)
         ? accountIdRaw[0]
-        : (accountIdRaw as { account_id?: string })?.account_id
-  if (!accountId) {
+        : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
+          ? (accountIdRaw as { account_id: string }).account_id
+          : null
+  const accountIdStr = accountId != null ? String(accountId) : ""
+  if (!accountIdStr) {
     redirect("/onboarding?redirect=/settings/staff")
   }
 
@@ -59,7 +62,7 @@ async function fetchStaffData(): Promise<{
     .from("account_members")
     .select("role")
     .eq("user_id", user.id)
-    .eq("account_id", accountId)
+    .eq("account_id", accountIdStr)
     .single()
 
   if (memberError || !currentMember || currentMember.role !== "owner") {
@@ -70,20 +73,20 @@ async function fetchStaffData(): Promise<{
   const { data: account, error: accountError } = await supabase
     .from("accounts")
     .select("account_id, plan_tier")
-    .eq("account_id", accountId)
+    .eq("account_id", accountIdStr)
     .single()
 
-  if (accountError) {
-    throw new Error(accountError.message)
+  if (accountError || !account) {
+    throw new Error(accountError?.message ?? "Account not found.")
   }
 
-  // Fetch stores
+  // Fetch stores (single-store app; do not filter by active so dropdown always has the store)
   const { data: stores, error: storesError } = await supabase
     .from("stores")
     .select("store_id, name")
-    .eq("account_id", accountId)
-    .eq("active", true)
+    .eq("account_id", accountIdStr)
     .order("name", { ascending: true })
+    .limit(10)
 
   if (storesError) {
     throw new Error(storesError.message)
@@ -104,7 +107,7 @@ async function fetchStaffData(): Promise<{
       stores!staff_assigned_store_id_fkey(name)
     `
     )
-    .eq("account_id", accountId)
+    .eq("account_id", accountIdStr)
     .order("first_name", { ascending: true })
 
   if (staffError) {

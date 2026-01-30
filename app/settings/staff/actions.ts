@@ -42,6 +42,25 @@ function normalizeAssignedStoreId(v: string | undefined): string | null {
   return v
 }
 
+/** Normalize get_account_id() result to a string; lowercase UUIDs for consistency with PIN login. */
+function normalizeAccountIdFromRpc(raw: unknown): string | null {
+  if (raw == null) return null
+  const s =
+    typeof raw === "string"
+      ? raw
+      : Array.isArray(raw)
+        ? raw[0]
+        : typeof raw === "object" && raw !== null && "account_id" in raw
+          ? (raw as { account_id: string }).account_id
+          : String(raw)
+  const trimmed = typeof s === "string" ? s.trim() : String(s)
+  if (!trimmed) return null
+  if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(trimmed)) {
+    return trimmed.toLowerCase()
+  }
+  return trimmed
+}
+
 export async function createStaff(data: CreateStaffData) {
   const supabase = await createServerSupabaseClient()
   const assignedStoreId = normalizeAssignedStoreId(data.assigned_store_id)
@@ -56,11 +75,7 @@ export async function createStaff(data: CreateStaffData) {
   }
 
   const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
-  const accountId = Array.isArray(accountIdRaw)
-    ? accountIdRaw[0]
-    : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
-      ? (accountIdRaw as { account_id: string }).account_id
-      : accountIdRaw
+  const accountId = normalizeAccountIdFromRpc(accountIdRaw)
   if (accountIdError || !accountId) {
     throw new Error("Account not found. Please complete setup first.")
   }
@@ -228,7 +243,8 @@ export async function updateStaff(data: UpdateStaffData) {
     throw new Error("You must be signed in to update staff.")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = normalizeAccountIdFromRpc(accountIdRaw)
   if (accountIdError || !accountId) {
     throw new Error("Account not found. Please complete setup first.")
   }
@@ -329,7 +345,8 @@ export async function deactivateStaff(staffId: string) {
     throw new Error("You must be signed in to deactivate staff.")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = normalizeAccountIdFromRpc(accountIdRaw)
   if (accountIdError || !accountId) {
     throw new Error("Account not found. Please complete setup first.")
   }
@@ -402,7 +419,8 @@ export async function resetStaffPIN(staffId: string) {
     throw new Error("You must be signed in to reset PIN.")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = normalizeAccountIdFromRpc(accountIdRaw)
   if (accountIdError || !accountId) {
     throw new Error("Account not found. Please complete setup first.")
   }

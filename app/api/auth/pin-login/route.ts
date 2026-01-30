@@ -7,6 +7,15 @@ function hashPIN(pin: string): string {
   return createHash("sha256").update(pin).digest("hex")
 }
 
+/** Normalize for comparison: UUIDs are case-insensitive per RFC. */
+function normalizeAccountIdForCompare(value: string): string {
+  const s = value.trim()
+  if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(s)) {
+    return s.toLowerCase()
+  }
+  return s
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json()
@@ -73,12 +82,13 @@ export async function POST(request: Request) {
           : typeof accountId === "object" && accountId !== null && "account_id" in accountId
             ? (accountId as { account_id: string }).account_id
             : String(accountId)
+    const accountIdForQuery = normalizeAccountIdForCompare(accountIdStr)
 
-    // 1) Try exact match: account_id + pin_hash + active
+    // 1) Try exact match: account_id + pin_hash + active (use normalized UUID for query)
     let { data: staff, error: staffError } = await supabaseAdmin
       .from("staff")
       .select("email, account_id")
-      .eq("account_id", accountIdStr)
+      .eq("account_id", accountIdForQuery)
       .eq("pin_hash", pinHash)
       .eq("active", true)
       .limit(1)
@@ -102,7 +112,9 @@ export async function POST(request: Request) {
             return (aid as { account_id: string }).account_id
           return String(aid)
         }
-        const match = byPin.find((s) => normalized(s.account_id) === accountIdStr)
+        const match = byPin.find(
+          (s) => normalizeAccountIdForCompare(normalized(s.account_id)) === accountIdForQuery
+        )
         if (match?.email) {
           staff = { email: match.email, account_id: match.account_id }
           staffError = null
