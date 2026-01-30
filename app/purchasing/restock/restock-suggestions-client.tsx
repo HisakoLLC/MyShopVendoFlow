@@ -98,6 +98,10 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
     }
   }
 
+  const RESTOCK_ITEMS_KEY = "purchasing_new_restock_items"
+  // Many browsers/servers limit URLs to ~2048 chars; keep well under to avoid URI_TOO_LONG
+  const SAFE_URL_ITEMS_LENGTH = 1600
+
   const handleCreatePO = () => {
     if (selectedVariants.size === 0) {
       return
@@ -108,12 +112,20 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
       quantity: quantities[variantId] || 1,
     }))
 
-    // Build query params for redirect
-    const params = new URLSearchParams()
-    params.set("from", "restock")
-    params.set("items", JSON.stringify(selectedItems))
+    const itemsJson = JSON.stringify(selectedItems)
 
-    router.push(`/purchasing/new?${params.toString()}`)
+    if (itemsJson.length > SAFE_URL_ITEMS_LENGTH) {
+      // Avoid URI_TOO_LONG: store in sessionStorage and redirect without items in URL
+      if (typeof sessionStorage !== "undefined") {
+        sessionStorage.setItem(RESTOCK_ITEMS_KEY, itemsJson)
+      }
+      router.push("/purchasing/new?from=restock")
+    } else {
+      const params = new URLSearchParams()
+      params.set("from", "restock")
+      params.set("items", itemsJson)
+      router.push(`/purchasing/new?${params.toString()}`)
+    }
   }
 
   const totalSelected = selectedVariants.size

@@ -1,0 +1,159 @@
+"use client"
+
+import * as React from "react"
+import { createClient } from "@/lib/supabase/client"
+import { CreatePOForm } from "./create-po-form"
+
+const RESTOCK_ITEMS_KEY = "purchasing_new_restock_items"
+
+type Supplier = {
+  supplier_id: string
+  name: string
+}
+
+type Variant = {
+  variant_id: string
+  size: string
+  color: string
+  sku: string
+  cost: number | null
+  style_id: string
+  product_styles: {
+    name: string
+    image_url: string | null
+  } | null
+}
+
+type PrefillItem = {
+  variant_id: string
+  quantity: number
+}
+
+type RestockFromStorageLoaderProps = {
+  suppliers: Supplier[]
+}
+
+export function RestockFromStorageLoader({ suppliers }: RestockFromStorageLoaderProps) {
+  const [prefillItems, setPrefillItems] = React.useState<PrefillItem[]>([])
+  const [prefillVariants, setPrefillVariants] = React.useState<Variant[]>([])
+  const [loading, setLoading] = React.useState(true)
+  const [error, setError] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    if (typeof sessionStorage === "undefined") {
+      setLoading(false)
+      return
+    }
+
+    const raw = sessionStorage.getItem(RESTOCK_ITEMS_KEY)
+    sessionStorage.removeItem(RESTOCK_ITEMS_KEY)
+
+    if (!raw) {
+      setLoading(false)
+      return
+    }
+
+    let items: PrefillItem[]
+    try {
+      items = JSON.parse(raw) as PrefillItem[]
+    } catch {
+      setError("Invalid restock data.")
+      setLoading(false)
+      return
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+      setLoading(false)
+      return
+    }
+
+    const variantIds = items.map((item) => item.variant_id)
+    const supabase = createClient()
+
+    supabase
+      .rpc("get_account_id")
+      .then(({ data: accountIdRaw }) => {
+        const accountId = Array.isArray(accountIdRaw)
+          ? accountIdRaw[0]
+          : typeof accountIdRaw === "object" &&
+              accountIdRaw !== null &&
+              "account_id" in accountIdRaw
+            ? (accountIdRaw as { account_id: string }).account_id
+            : accountIdRaw
+        if (!accountId) {
+          setLoading(false)
+          return
+        }
+        return supabase
+          .from("product_variants")
+          .select(
+            `
+            variant_id,
+            size,
+            color,
+            sku,
+            cost,
+            style_id,
+            product_styles!inner(
+              name,
+              image_url,
+              account_id
+            )
+          `
+          )
+          .in("variant_id", variantIds)
+          .eq("product_styles.account_id", accountId)
+          .then(({ data: variants, error: variantsError }) => {
+            if (variantsError) {
+              setError(variantsError.message)
+            } else if (variants) {
+              setPrefillItems(items)
+              setPrefillVariants((variants || []) as Variant[])
+            }
+          })
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : "Failed to load restock items.")
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="mx-auto w-full max-w-7xl px-4 py-6">
+        <div className="mb-6 h-8 w-64 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
+        <div className="h-96 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto w-full max-w-7xl px-4 py-10">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-100">
+          <div className="text-base font-semibold">Couldn&apos;t load restock items</div>
+          <div className="mt-1 text-sm opacity-90">{error}</div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      {prefillItems.length > 0 && (
+        <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 text-blue-900 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-100">
+          <p className="text-sm">
+            Pre-filled from restock suggestions. Review and adjust as needed.
+          </p>
+        </div>
+      )}
+      <CreatePOForm
+        suppliers={suppliers}
+        prefillItems={prefillItems}
+        prefillVariants={prefillVariants}
+      />
+    </>
+  )
+}

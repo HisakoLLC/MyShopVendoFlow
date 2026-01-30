@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { CreatePOForm } from "./create-po-form"
+import { RestockFromStorageLoader } from "./restock-from-storage-loader"
 
 export const dynamic = "force-dynamic"
 
@@ -155,7 +156,9 @@ async function CreatePOPageContent({
     return <ErrorState message={message} />
   }
 
-  // Handle pre-fill from restock suggestions
+  // Handle pre-fill from restock: URL params (small payloads) or sessionStorage (select-all / large)
+  const restockFromStorage = params.from === "restock" && !params.items
+
   if (params.from === "restock" && params.items) {
     try {
       prefillItems = JSON.parse(params.items) as PrefillItem[]
@@ -178,19 +181,24 @@ async function CreatePOPageContent({
         </p>
       </div>
 
-      {params.from === "restock" && prefillItems.length > 0 && (
-        <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 text-blue-900 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-100">
-          <p className="text-sm">
-            Pre-filled from restock suggestions. Review and adjust as needed.
-          </p>
-        </div>
+      {restockFromStorage ? (
+        <RestockFromStorageLoader suppliers={suppliers} />
+      ) : (
+        <>
+          {params.from === "restock" && prefillItems.length > 0 && (
+            <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 text-blue-900 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-100">
+              <p className="text-sm">
+                Pre-filled from restock suggestions. Review and adjust as needed.
+              </p>
+            </div>
+          )}
+          <CreatePOForm
+            suppliers={suppliers}
+            prefillItems={prefillItems}
+            prefillVariants={prefillVariants}
+          />
+        </>
       )}
-
-      <CreatePOForm
-        suppliers={suppliers}
-        prefillItems={prefillItems}
-        prefillVariants={prefillVariants}
-      />
     </div>
   )
 }
