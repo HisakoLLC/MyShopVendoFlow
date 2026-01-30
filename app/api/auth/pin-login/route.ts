@@ -82,54 +82,56 @@ export async function POST(request: Request) {
           : typeof accountId === "object" && accountId !== null && "account_id" in accountId
             ? (accountId as { account_id: string }).account_id
             : String(accountId)
-    const accountIdForQuery = normalizeAccountIdForCompare(accountIdStr)
+    const accountIdForCompare = normalizeAccountIdForCompare(accountIdStr)
 
-    // 1) Try exact match: account_id + pin_hash + active (use normalized UUID for query)
-    let { data: staff, error: staffError } = await supabaseAdmin
+    // Find all active staff with this PIN hash; filter by account (and store) in code to avoid DB comparison quirks
+    const { data: byPin, error: byPinError } = await supabaseAdmin
       .from("staff")
-      .select("email, account_id")
-      .eq("account_id", accountIdForQuery)
+      .select("email, account_id, assigned_store_id")
       .eq("pin_hash", pinHash)
       .eq("active", true)
-      .limit(1)
-      .maybeSingle()
+      .limit(50)
 
-    // 2) If no match, staff may have been saved with account_id in a different format (e.g. from get_account_id); find by PIN then filter by account
-    if ((staffError || !staff?.email) && pinHash) {
-      const { data: byPin, error: byPinError } = await supabaseAdmin
-        .from("staff")
-        .select("email, account_id")
-        .eq("pin_hash", pinHash)
-        .eq("active", true)
-        .limit(20)
-
-      if (!byPinError && byPin && byPin.length > 0) {
-        const normalized = (aid: string | null | unknown): string => {
-          if (aid == null) return ""
-          if (typeof aid === "string") return aid
-          if (Array.isArray(aid)) return aid[0] ?? ""
-          if (typeof aid === "object" && aid !== null && "account_id" in aid)
-            return (aid as { account_id: string }).account_id
-          return String(aid)
-        }
-        const match = byPin.find(
-          (s) => normalizeAccountIdForCompare(normalized(s.account_id)) === accountIdForQuery
-        )
-        if (match?.email) {
-          staff = { email: match.email, account_id: match.account_id }
-          staffError = null
-        }
-      }
+    const normalized = (aid: string | null | unknown): string => {
+      if (aid == null) return ""
+      if (typeof aid === "string") return aid
+      if (Array.isArray(aid)) return aid[0] ?? ""
+      if (typeof aid === "object" && aid !== null && "account_id" in aid)
+        return (aid as { account_id: string }).account_id
+      return String(aid)
     }
 
-    if (staffError || !staff?.email) {
+    const match = byPinError || !byPin
+      ? null
+      : byPin.find((s) => {
+          if (normalizeAccountIdForCompare(normalized(s.account_id)) !== accountIdForCompare) return false
+          // Staff must be assigned to this store (or have no assignment, e.g. owner)
+          const assigned = s.assigned_store_id ?? null
+          if (assigned != null && assigned !== store_id) return false
+          return true
+        })
+
+    if (process.env.NODE_ENV === "development" && (byPinError || !match)) {
+      const hasPinRows = !byPinError && byPin && byPin.length > 0
+      console.log("[pin-login]", {
+        store_id,
+        account_id_sent: !!bodyAccountId,
+        pin_hash_prefix: pinHash.slice(0, 8) + "...",
+        by_pin_error: byPinError?.message ?? null,
+        by_pin_count: byPin?.length ?? 0,
+        first_account_ids: hasPinRows ? byPin!.slice(0, 3).map((r) => normalized(r.account_id)) : [],
+        account_id_for_compare: accountIdForCompare,
+      })
+    }
+
+    if (!match?.email) {
       return NextResponse.json(
         { error: "Invalid PIN for this store" },
         { status: 401 }
       )
     }
 
-    return NextResponse.json({ email: staff.email })
+    return NextResponse.json({ email: match.email })
   } catch {
     return NextResponse.json(
       { error: "Something went wrong" },
