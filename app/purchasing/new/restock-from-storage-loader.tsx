@@ -72,7 +72,7 @@ export function RestockFromStorageLoader({ suppliers }: RestockFromStorageLoader
 
     supabase
       .rpc("get_account_id")
-      .then(({ data: accountIdRaw }) => {
+      .then(({ data: accountIdRaw }: { data: string | string[] | { account_id: string } | null }) => {
         const accountId = Array.isArray(accountIdRaw)
           ? accountIdRaw[0]
           : typeof accountIdRaw === "object" &&
@@ -103,7 +103,7 @@ export function RestockFromStorageLoader({ suppliers }: RestockFromStorageLoader
           )
           .in("variant_id", variantIds)
           .eq("product_styles.account_id", accountId)
-          .then(({ data: variants, error: variantsError }) => {
+          .then(({ data: variants, error: variantsError }: { data: Variant[] | null; error: { message: string } | null }) => {
             if (variantsError) {
               setError(variantsError.message)
             } else if (variants) {
