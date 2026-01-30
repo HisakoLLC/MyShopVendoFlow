@@ -113,13 +113,16 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
               .select("variant_id, quantity_on_hand")
               .eq("store_id", defaultStoreId)
               .in("variant_id", vids)
-            const styleToVariant = new Map(
-              variants.map((v: { variant_id: string; style_id: string }) => [v.variant_id, v.style_id])
+            const styleToVariant = new Map<string, string>(
+              (variants as Array<{ variant_id: string; style_id: string }>).map((v) => [
+                v.variant_id,
+                v.style_id,
+              ])
             )
             const sumByStyle: Record<string, number> = {}
             ;(inv || []).forEach((row: { variant_id: string; quantity_on_hand: number | null }) => {
               const styleId = styleToVariant.get(row.variant_id)
-              if (styleId) {
+              if (styleId != null) {
                 sumByStyle[styleId] = (sumByStyle[styleId] ?? 0) + (row.quantity_on_hand ?? 0)
               }
             })
