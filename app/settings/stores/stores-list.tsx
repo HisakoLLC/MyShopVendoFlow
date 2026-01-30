@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { StoreFormModal } from "./store-form-modal"
-import { deactivateStore } from "./actions"
+import { deactivateStore, deleteStore } from "./actions"
 import { toast, Toaster } from "sonner"
 import {
   AlertDialog,
@@ -50,6 +50,7 @@ export function StoresList({ stores, planTier }: StoresListProps) {
   const [showAddModal, setShowAddModal] = React.useState(false)
   const [editingStore, setEditingStore] = React.useState<Store | null>(null)
   const [deactivatingStore, setDeactivatingStore] = React.useState<Store | null>(null)
+  const [deletingStore, setDeletingStore] = React.useState<Store | null>(null)
   const [storesList, setStoresList] = React.useState<Store[]>(stores)
 
   const maxStores = planLimits[planTier] || 1
@@ -75,10 +76,22 @@ export function StoresList({ stores, planTier }: StoresListProps) {
       await deactivateStore(deactivatingStore.store_id)
       toast.success("Store deactivated successfully")
       setDeactivatingStore(null)
-      // Refresh will happen via revalidation
       window.location.reload()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to deactivate store.")
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!deletingStore) return
+
+    try {
+      await deleteStore(deletingStore.store_id)
+      toast.success("Store deleted permanently")
+      setDeletingStore(null)
+      window.location.reload()
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to delete store.")
     }
   }
 
@@ -188,10 +201,18 @@ export function StoresList({ stores, planTier }: StoresListProps) {
                         size="sm"
                         onClick={() => setDeactivatingStore(store)}
                       >
-                        <Trash2 className="mr-2 h-4 w-4" />
                         Deactivate
                       </Button>
                     )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
+                      onClick={() => setDeletingStore(store)}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -228,6 +249,25 @@ export function StoresList({ stores, planTier }: StoresListProps) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeactivate} className="bg-red-600 hover:bg-red-500">
               Deactivate
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!deletingStore} onOpenChange={(open) => !open && setDeletingStore(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Permanently delete store?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to permanently delete "{deletingStore?.name}"? This will remove
+              the store from your account and cannot be undone. If the store has sales or inventory
+              data, you may need to deactivate it instead.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-500">
+              Delete permanently
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

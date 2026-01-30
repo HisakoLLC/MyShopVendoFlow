@@ -1,12 +1,13 @@
 import Link from "next/link"
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
-import { Package, Plus } from "lucide-react"
+import { Package } from "lucide-react"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import type { Tables } from "@/types/database"
 import { getSignedStorageUrl } from "@/lib/signed-storage-url"
 import { ProductsTableClient, type ProductStyleListRow } from "./products-table-client"
+import { EmptyState } from "@/components/EmptyState"
 import { ProductsListSkeleton } from "./products-list-skeleton"
 import { logError, getErrorMessage, handleSupabaseError } from "@/lib/errors"
 
@@ -84,33 +85,11 @@ async function fetchProductsData(): Promise<FetchResult> {
     }
 
     const nonArchived = (styles ?? []).filter((s: { archived: boolean | null }) => !s.archived)
-    const styleIds = nonArchived.map((s: { style_id: string }) => s.style_id)
-
-    // Variant count per style
-    let variantCountByStyle: Record<string, number> = {}
-    if (styleIds.length > 0) {
-      const { data: variantRows } = await supabase
-        .from("product_variants")
-        .select("style_id")
-        .in("style_id", styleIds)
-      variantCountByStyle = (variantRows ?? []).reduce(
-        (acc: Record<string, number>, row: { style_id: string }) => {
-          acc[row.style_id] = (acc[row.style_id] ?? 0) + 1
-          return acc
-        },
-        {}
-      )
-    }
-
     const stylesWithSignedUrls = await Promise.all(
-      (nonArchived as Array<{ image_url?: string | null; style_id: string }>).map(async (s) => {
-        if (!s.image_url) return { ...s, variant_count: variantCountByStyle[s.style_id] ?? 0 }
+      (nonArchived as Array<{ image_url?: string | null }>).map(async (s) => {
+        if (!s.image_url) return s
         const signed = await getSignedStorageUrl(supabase, s.image_url)
-        return {
-          ...s,
-          image_url: signed ?? s.image_url,
-          variant_count: variantCountByStyle[s.style_id] ?? 0,
-        }
+        return { ...s, image_url: signed ?? s.image_url }
       })
     )
 
@@ -123,6 +102,19 @@ async function fetchProductsData(): Promise<FetchResult> {
     logError(error, "fetchProductsData")
     throw error
   }
+}
+
+function LoadingState() {
+  return (
+    <div className="mx-auto w-full max-w-6xl px-4 py-6">
+      <div className="mb-4 flex items-center justify-between">
+        <div className="h-8 w-48 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
+        <div className="h-10 w-36 animate-pulse rounded-lg bg-zinc-200 dark:bg-zinc-800" />
+      </div>
+      <div className="h-12 w-full animate-pulse rounded-lg bg-zinc-200 dark:bg-zinc-800" />
+      <div className="mt-4 h-80 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+    </div>
+  )
 }
 
 function ErrorState({ message }: { message: string }) {
@@ -166,57 +158,53 @@ async function ProductsPageContent() {
   // Show empty state if no products
   if (data.styles.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-6xl px-4 py-8">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto w-full max-w-6xl px-4 py-6">
+        <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Products</h1>
-            <p className="mt-1 text-slate-600 dark:text-slate-400">
-              Manage your product catalog and variants
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              Products
+            </h1>
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+              Manage your styles, pricing, and margins.
             </p>
           </div>
           <Link
             href="/products/new"
-            className="inline-flex h-12 items-center justify-center rounded-lg bg-primary-600 px-6 text-base font-medium text-white shadow-sm transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
+            className="hidden h-10 items-center justify-center rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white shadow-sm hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900/20 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white md:inline-flex"
           >
-            Add Product
+            Add New Style
           </Link>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-12 text-center dark:border-slate-800 dark:bg-slate-900">
-          <div className="mx-auto flex h-[120px] w-[120px] items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-            <Package className="h-14 w-14 text-slate-400 dark:text-slate-500" />
-          </div>
-          <h2 className="mt-6 text-xl font-semibold text-slate-900 dark:text-slate-100">
-            No products yet
-          </h2>
-          <p className="mx-auto mt-2 max-w-md text-slate-600 dark:text-slate-400">
-            Add your first product to start tracking inventory and processing sales.
-          </p>
-          <Link
-            href="/products/new"
-            className="mt-6 inline-flex h-12 items-center justify-center rounded-lg bg-primary-600 px-6 text-base font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
-          >
-            Add Product
-          </Link>
-        </div>
+        <EmptyState
+          icon={Package}
+          title="No products yet"
+          description="Add your first style to get started. You can create styles, add variants, and manage inventory."
+          action={{
+            label: "Add New Style",
+            href: "/products/new",
+            onClick: () => {},
+          }}
+        />
       </div>
     )
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8">
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mx-auto w-full max-w-6xl px-4 py-6">
+      <div className="mb-4 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Products</h1>
-          <p className="mt-1 text-slate-600 dark:text-slate-400">
-            Manage your product catalog and variants
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+            Products
+          </h1>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            Manage your styles, pricing, and margins.
           </p>
         </div>
         <Link
           href="/products/new"
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-primary-600 px-6 text-base font-medium text-white shadow-sm transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
+          className="hidden h-10 items-center justify-center rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white shadow-sm hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900/20 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white md:inline-flex"
         >
-          <Plus className="h-5 w-5" />
-          Add Product
+          Add New Style
         </Link>
       </div>
 

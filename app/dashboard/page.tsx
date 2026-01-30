@@ -11,9 +11,27 @@ import { DashboardCharts } from "@/components/dashboard/DashboardCharts"
 import { DashboardMetrics } from "@/components/dashboard/DashboardMetrics"
 import { RecentSales } from "@/components/dashboard/RecentSales"
 import { RetryButton } from "@/components/dashboard/RetryButton"
-import { DashboardStatCard } from "@/components/dashboard/DashboardStatCard"
-import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton"
-import { Plus, Box, ShoppingBag, Users, AlertTriangle } from "lucide-react"
+import {
+  TrendingUp,
+  TrendingDown,
+  ShoppingCart,
+  Package,
+  AlertTriangle,
+  Plus,
+  Box,
+  ShoppingBag,
+} from "lucide-react"
+
+function LoadingState() {
+  return (
+    <div className="flex h-screen items-center justify-center">
+      <div className="text-center">
+        <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-zinc-300 border-t-zinc-900 dark:border-zinc-700 dark:border-t-zinc-100"></div>
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">Loading dashboard...</p>
+      </div>
+    </div>
+  )
+}
 
 function DashboardErrorCard({
   title = "Something went wrong",
@@ -335,50 +353,18 @@ async function DashboardContent() {
     // product_styles/product_variants permissions or missing tables; show empty list
   }
 
-  // Fetch recent sales with customer name - non-fatal
-  type SaleRow = {
-    sale_id: string
-    receipt_number: string | null
-    grand_total: number | null
-    payment_method: string | null
-    sale_date: string | null
-    store_id: string | null
-    customers?: { first_name: string | null; last_name: string | null } | null
-  }
-  let recentSales: Array<{
-    sale_id: string
-    receipt_number: string | null
-    grand_total: number | null
-    payment_method: string | null
-    sale_date: string | null
-    store_id: string | null
-    customer_name?: string | null
-  }> = []
+  // Fetch recent sales - non-fatal
+  let recentSales: Array<{ sale_id: string; receipt_number: string | null; grand_total: number | null; payment_method: string | null; sale_date: string | null; store_id: string | null }> = []
   let itemsPerSale: Record<string, number> = {}
   try {
     const { data: recentSalesData } = await supabase
       .from("sales")
-      .select("sale_id, receipt_number, grand_total, payment_method, sale_date, store_id, customers(first_name, last_name)")
+      .select("sale_id, receipt_number, grand_total, payment_method, sale_date, store_id")
       .in("store_id", storeIds)
       .order("sale_date", { ascending: false })
       .limit(10)
 
-    const raw = (recentSalesData || []) as SaleRow[]
-    recentSales = raw.map((s) => {
-      const name =
-        s.customers?.first_name || s.customers?.last_name
-          ? [s.customers?.first_name, s.customers?.last_name].filter(Boolean).join(" ")
-          : null
-      return {
-        sale_id: s.sale_id,
-        receipt_number: s.receipt_number,
-        grand_total: s.grand_total,
-        payment_method: s.payment_method,
-        sale_date: s.sale_date,
-        store_id: s.store_id,
-        customer_name: name ?? null,
-      }
-    })
+    recentSales = recentSalesData || []
 
     const recentSaleIds = recentSales.map((s: { sale_id: string }) => s.sale_id)
     let recentLineItems: Array<{ sale_id: string | null }> | null = []
@@ -400,157 +386,188 @@ async function DashboardContent() {
     // recent sales or line items may fail; show empty list
   }
 
-  const dateLabel = today.toLocaleDateString("en-KE", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  })
-  const yesterdayFormatted = new Intl.NumberFormat("en-KE", {
-    style: "currency",
-    currency: "KES",
-    maximumFractionDigits: 0,
-  }).format(yesterdayRevenue)
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
+      maximumFractionDigits: 0,
+    }).format(price)
+  }
+
+  const formatTime = (dateStr: string | null) => {
+    if (!dateStr) return "N/A"
+    const date = new Date(dateStr)
+    return date.toLocaleTimeString("en-KE", { hour: "2-digit", minute: "2-digit" })
+  }
 
   return (
-    <div className="min-h-screen bg-slate-50 px-6 py-8 dark:bg-slate-950 md:px-8">
-      <div className="mx-auto max-w-7xl space-y-8">
-        {/* Page Header */}
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="min-h-screen bg-zinc-50 p-4 dark:bg-zinc-950 md:p-8">
+      <div className="mx-auto max-w-7xl space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-              Dashboard
-            </h1>
-            <p className="mt-1 text-slate-600 dark:text-slate-400">
-              Welcome back! Here&apos;s what&apos;s happening today.
-            </p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-500">
-              {dateLabel}
+            <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100">Dashboard</h1>
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+              Welcome back! Here's what's happening today.
             </p>
           </div>
-          <Button asChild size="lg" className="shrink-0 bg-primary-600 hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-700">
-            <Link href="/pos" className="gap-2">
-              <Plus className="h-5 w-5" />
-              New Sale
-            </Link>
-          </Button>
         </div>
 
-        {/* Stat Cards Row */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-          <DashboardStatCard
-            variant="revenue"
-            value={todayRevenue}
-            label="Today's Revenue"
-            trend={yesterdayRevenue > 0 ? `${revenueChange >= 0 ? "+" : ""}${revenueChange.toFixed(1)}%` : undefined}
-            trendUp={revenueChange >= 0}
-            comparison={`${yesterdayFormatted} yesterday`}
-            formatAsCurrency
-          />
-          <DashboardStatCard
-            variant="transactions"
-            value={todayTransactions}
-            label="Transactions"
-            trend={transactionChange !== 0 ? `${transactionChange >= 0 ? "+" : ""}${transactionChange}` : undefined}
-            trendUp={transactionChange >= 0}
-            comparison={yesterdayTransactions > 0 ? `${yesterdayTransactions} yesterday` : undefined}
-          />
-          <DashboardStatCard
-            variant="units"
-            value={todayUnitsSold}
-            label="Units Sold"
-            comparison="Items sold today"
-          />
-          <DashboardStatCard
-            variant="alerts"
-            value={lowStockCount}
-            label="Low Stock Items"
-            href="/inventory/intelligence"
-            alertBorder={lowStockCount > 5}
-          />
+        {/* Hero Stats */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {/* Today's Revenue */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Today's Revenue</CardTitle>
+              <ShoppingCart className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{formatPrice(todayRevenue)}</div>
+              <div className="flex items-center gap-1 text-xs">
+                {revenueChange >= 0 ? (
+                  <>
+                    <TrendingUp className="h-3 w-3 text-green-600" />
+                    <span className="text-green-600">
+                      {revenueChange.toFixed(1)}% vs yesterday
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <TrendingDown className="h-3 w-3 text-red-600" />
+                    <span className="text-red-600">{Math.abs(revenueChange).toFixed(1)}% vs yesterday</span>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Today's Transactions */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Today's Transactions</CardTitle>
+              <ShoppingBag className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{todayTransactions}</div>
+              <div className="flex items-center gap-1 text-xs">
+                {transactionChange >= 0 ? (
+                  <>
+                    <TrendingUp className="h-3 w-3 text-green-600" />
+                    <span className="text-green-600">
+                      +{transactionChange} vs yesterday
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <TrendingDown className="h-3 w-3 text-red-600" />
+                    <span className="text-red-600">{transactionChange} vs yesterday</span>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Today's Units Sold */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Today's Units Sold</CardTitle>
+              <Package className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{todayUnitsSold}</div>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">Items sold today</p>
+            </CardContent>
+          </Card>
+
+          {/* Low Stock Alerts */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Low Stock Alerts</CardTitle>
+              <AlertTriangle
+                className={`h-4 w-4 ${
+                  lowStockCount > 5 ? "text-red-600" : "text-zinc-600 dark:text-zinc-400"
+                }`}
+              />
+            </CardHeader>
+            <CardContent>
+              <div
+                className={`text-2xl font-bold ${lowStockCount > 5 ? "text-red-600" : "text-zinc-900 dark:text-zinc-100"}`}
+              >
+                {lowStockCount}
+              </div>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Variants with &lt;7 days inventory
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-              Sales Overview
-            </h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-              Last 7 days
-            </p>
-            <div className="mt-4">
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sales Trend (Last 7 Days)</CardTitle>
+              <CardDescription>Daily revenue over the past week</CardDescription>
+            </CardHeader>
+            <CardContent>
               <DashboardCharts salesData={salesChartData} />
-            </div>
-          </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-              Top 5 Products
-            </h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-              By revenue, last 7 days
-            </p>
-            <div className="mt-4">
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Sellers (Last 7 Days)</CardTitle>
+              <CardDescription>Top 5 styles by revenue</CardDescription>
+            </CardHeader>
+            <CardContent>
               <DashboardMetrics topSellers={topSellers} />
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Link
-            href="/inventory/intelligence?tab=deadstock"
-            className="group rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/80"
-          >
-            <span className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
-              <Box className="h-5 w-5" />
-            </span>
-            <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-              View Dead Stock
-            </h3>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-              Identify slow-moving inventory
-            </p>
-          </Link>
-          <Link
-            href="/purchasing/restock"
-            className="group rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/80"
-          >
-            <span className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-100 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400">
-              <ShoppingBag className="h-5 w-5" />
-            </span>
-            <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-              Restock Suggestions
-            </h3>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-              Reorder based on demand
-            </p>
-          </Link>
-          <Link
-            href="/customers?sort=total_spend"
-            className="group rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/80"
-          >
-            <span className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-secondary-100 text-secondary-600 dark:bg-secondary-900/30 dark:text-secondary-400">
-              <Users className="h-5 w-5" />
-            </span>
-            <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-              Top Customers
-            </h3>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-              By total spend
-            </p>
-          </Link>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>Common tasks and shortcuts</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild>
+                <Link href="/pos">
+                  <Plus className="mr-2 h-4 w-4" />
+                  New Sale
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/inventory/intelligence?tab=deadstock">
+                  <Box className="mr-2 h-4 w-4" />
+                  View Dead Stock
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/purchasing/restock">
+                  <ShoppingBag className="mr-2 h-4 w-4" />
+                  Restock Suggestions
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Recent Sales */}
-        <section>
-          <h2 className="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-100">
-            Recent Sales
-          </h2>
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <RecentSales sales={recentSales} itemsPerSale={itemsPerSale} />
-          </div>
-        </section>
+        {/* Recent Activity */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Sales</CardTitle>
+            <CardDescription>Last 10 transactions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RecentSales
+              sales={recentSales || []}
+              itemsPerSale={itemsPerSale}
+            />
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
@@ -570,7 +587,7 @@ async function DashboardContent() {
 
 export default function DashboardPage() {
   return (
-    <Suspense fallback={<DashboardSkeleton />}>
+    <Suspense fallback={<LoadingState />}>
       <DashboardContent />
     </Suspense>
   )

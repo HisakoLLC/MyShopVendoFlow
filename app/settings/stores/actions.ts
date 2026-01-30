@@ -196,3 +196,48 @@ export async function deactivateStore(storeId: string) {
   revalidatePath("/settings/stores")
   return { success: true }
 }
+
+export async function deleteStore(storeId: string) {
+  const supabase = await createServerSupabaseClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    throw new Error("You must be signed in to delete a store.")
+  }
+
+  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  if (accountIdError || !accountId) {
+    throw new Error("Account not found. Please complete setup first.")
+  }
+
+  // Verify store belongs to account
+  const { data: store, error: verifyError } = await supabase
+    .from("stores")
+    .select("store_id")
+    .eq("store_id", storeId)
+    .eq("account_id", accountId)
+    .single()
+
+  if (verifyError || !store) {
+    throw new Error("Store not found or access denied.")
+  }
+
+  const { error: deleteError } = await supabase.from("stores").delete().eq("store_id", storeId)
+
+  if (deleteError) {
+    // If FK constraint blocks delete, suggest deactivating instead
+    if (deleteError.code === "23503") {
+      throw new Error(
+        "This store has sales or inventory data. Deactivate it instead, or remove related data first."
+      )
+    }
+    throw new Error(`Failed to delete store: ${deleteError.message}`)
+  }
+
+  revalidatePath("/settings/stores")
+  return { success: true }
+}

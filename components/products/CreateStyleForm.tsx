@@ -7,8 +7,7 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { v4 as uuidv4 } from "uuid"
-import { toast } from "sonner"
-import { AlertCircle, ArrowRight, ImagePlus } from "lucide-react"
+import { toast, Toaster } from "sonner"
 
 import { createClient } from "@/lib/supabase/client"
 import { createProductStyle } from "@/app/products/actions"
@@ -30,27 +29,25 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { cn } from "@/lib/utils"
 
 type CategoryOption = { category_id: string; name: string }
 type SeasonOption = { season_id: string; name: string }
 
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024 // 2MB
 const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/jpg"]
-const DESCRIPTION_MAX = 500
 
 function createStyleSchema(categoryIds: Set<string>, seasonIds: Set<string>) {
   return z
     .object({
       name: z
         .string()
-        .min(3, "Product name must be at least 3 characters.")
-        .max(100, "Product name must be 100 characters or less.")
+        .min(3, "Style name must be at least 3 characters.")
+        .max(100, "Style name must be 100 characters or less.")
         .trim(),
       category_id: z
         .string()
-        .min(1, "Category is required.")
-        .refine((id) => categoryIds.has(id), "Please select a valid category."),
+        .uuid("Invalid category.")
+        .refine((id) => categoryIds.has(id), "Invalid category selected."),
       season_id: z
         .union([z.string().uuid(), z.literal("none"), z.null()])
         .optional()
@@ -61,7 +58,7 @@ function createStyleSchema(categoryIds: Set<string>, seasonIds: Set<string>) {
         ),
       description: z
         .string()
-        .max(DESCRIPTION_MAX, `Description must be ${DESCRIPTION_MAX} characters or less.`)
+        .max(500, "Description must be 500 characters or less.")
         .trim()
         .optional()
         .nullable(),
@@ -93,14 +90,18 @@ function createStyleSchema(categoryIds: Set<string>, seasonIds: Set<string>) {
         ),
     })
     .refine((v) => v.cost < v.base_price, {
-      message: "Cost must be less than base price.",
+      message: "Cost must be less than Base Price.",
       path: ["cost"],
     })
 }
 
-function marginPercent(basePrice: number, cost: number): number {
-  if (!Number.isFinite(basePrice) || basePrice <= 0) return 0
-  return ((basePrice - cost) / basePrice) * 100
+function formatKesInput(value: string | number) {
+  const num = typeof value === "number" ? value : Number(String(value).replace(/[^\d.]/g, ""))
+  if (!Number.isFinite(num) || num <= 0) return "0"
+  return new Intl.NumberFormat("en-KE", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(num)
 }
 
 export function CreateStyleForm(props: {
@@ -109,17 +110,16 @@ export function CreateStyleForm(props: {
 }) {
   const router = useRouter()
   const supabase = React.useMemo(() => createClient(), [])
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   const categoryIds = React.useMemo(() => new Set(props.categories.map((c) => c.category_id)), [props.categories])
   const seasonIds = React.useMemo(() => new Set(props.seasons.map((s) => s.season_id)), [props.seasons])
+
   const schema = React.useMemo(() => createStyleSchema(categoryIds, seasonIds), [categoryIds, seasonIds])
 
   type CreateStyleValues = z.infer<typeof schema>
 
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
-  const [isDragging, setIsDragging] = React.useState(false)
 
   const form = useForm<CreateStyleValues>({
     resolver: zodResolver(schema),
@@ -128,35 +128,14 @@ export function CreateStyleForm(props: {
       category_id: "",
       season_id: null,
       description: "",
-      base_price: undefined as unknown as number,
-      cost: undefined as unknown as number,
+      base_price: 1,
+      cost: 1,
       image: null,
     },
-    mode: "onBlur",
+    mode: "onChange",
   })
 
-  const name = form.watch("name")
-  const basePrice = form.watch("base_price")
-  const cost = form.watch("cost")
-  const description = form.watch("description")
   const selectedImage = form.watch("image")
-
-  const margin = React.useMemo(() => {
-    const b = Number(basePrice)
-    const c = Number(cost)
-    if (!Number.isFinite(b) || b <= 0) return null
-    return marginPercent(b, c)
-  }, [basePrice, cost])
-
-  const marginColorClass =
-    margin == null
-      ? "text-slate-500"
-      : margin >= 40
-        ? "text-success-600 dark:text-success-400"
-        : margin >= 25
-          ? "text-warning-600 dark:text-warning-500"
-          : "text-danger-600 dark:text-danger-400"
-
   React.useEffect(() => {
     if (!selectedImage) {
       setPreviewUrl(null)
@@ -167,16 +146,10 @@ export function CreateStyleForm(props: {
     return () => URL.revokeObjectURL(url)
   }, [selectedImage])
 
-  const isValid =
-    !!name?.trim() &&
-    !!form.watch("category_id") &&
-    Number(basePrice) > 0 &&
-    Number(cost) > 0 &&
-    Number(cost) < Number(basePrice)
-
   async function onSubmit(values: CreateStyleValues) {
     setIsSubmitting(true)
     try {
+      // Resolve account id for storage upload
       const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
       if (accountIdError || !accountId) {
         throw new Error(accountIdError?.message ?? "Unable to resolve account.")
@@ -184,6 +157,7 @@ export function CreateStyleForm(props: {
 
       let imageUrl = "/placeholder-product.png"
 
+      // Upload image to Supabase Storage if provided
       if (values.image) {
         const ext = values.image.name.split(".").pop()?.toLowerCase() || "jpg"
         const filePath = `${accountId}/${uuidv4()}.${ext}`
@@ -207,6 +181,7 @@ export function CreateStyleForm(props: {
         imageUrl = publicData.publicUrl
       }
 
+      // Use server action for validation and insertion
       const { style_id } = await createProductStyle({
         name: values.name,
         category_id: values.category_id,
@@ -217,445 +192,237 @@ export function CreateStyleForm(props: {
         image_url: imageUrl,
       })
 
-      toast.success("Product created successfully!")
+      toast.success("Style created successfully!")
       router.push(`/products/${style_id}/variants`)
       router.refresh()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to create product.")
+      toast.error(e instanceof Error ? e.message : "Failed to create style.")
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  function handleFileSelect(file: File | null) {
-    if (!file) {
-      form.setValue("image", null, { shouldValidate: true })
-      return
-    }
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      form.setError("image", { message: "Image must be PNG or JPG format." })
-      return
-    }
-    if (file.size > MAX_IMAGE_BYTES) {
-      form.setError("image", { message: "Image must be 2MB or smaller." })
-      return
-    }
-    form.clearErrors("image")
-    form.setValue("image", file, { shouldValidate: true })
-  }
-
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="relative">
-        {isSubmitting && (
-          <div
-            className="absolute inset-0 z-10 rounded-xl bg-white/60 backdrop-blur-[2px] dark:bg-slate-900/60"
-            aria-hidden
-          />
-        )}
+    <>
+      <Toaster richColors position="top-right" />
 
-        {/* Section 1: Basic Information */}
-        <section className="mb-6 rounded-lg bg-slate-50 p-6 dark:bg-slate-900/50">
-          <h2 className="mb-4 border-l-4 border-primary-600 pl-4 text-lg font-semibold text-slate-900 dark:text-slate-100">
-            Basic Information
-          </h2>
-
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field, fieldState }) => (
-              <FormItem className="mb-4">
-                <FormLabel className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                  Product Name <span className="text-danger-500">*</span>
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="e.g., Oversized Linen Shirt"
-                    className={cn(
-                      "h-11 rounded-lg border-slate-300 focus:border-primary-500 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-900 dark:focus:border-primary-500 dark:focus:ring-primary-500",
-                      fieldState.error && "border-danger-500 focus:border-danger-500 focus:ring-danger-500 dark:border-danger-500"
-                    )}
-                    maxLength={100}
-                    aria-required
-                    aria-describedby={fieldState.error ? "name-error" : "name-helper"}
-                  />
-                </FormControl>
-                <p id="name-helper" className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  This will be visible to customers
-                </p>
-                {fieldState.error && (
-                  <p id="name-error" className="mt-1 flex items-center gap-1.5 text-sm text-danger-600 dark:text-danger-400" role="alert">
-                    <AlertCircle className="h-4 w-4 shrink-0" />
-                    {fieldState.error.message}
-                  </p>
-                )}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="grid gap-4 md:grid-cols-2">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6 lg:grid-cols-3">
+          <div className="space-y-5 lg:col-span-2">
             <FormField
               control={form.control}
-              name="category_id"
-              render={({ field, fieldState }) => (
+              name="name"
+              render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                    Category <span className="text-danger-500">*</span>
-                  </FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <FormControl>
-                      <SelectTrigger
-                        className={cn(
-                          "h-11 rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-900",
-                          fieldState.error && "border-danger-500"
-                        )}
-                        aria-required
-                      >
+                  <FormLabel>Style Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Linen Midi Dress" maxLength={100} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid gap-5 md:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="category_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="h-11 w-full">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {props.categories.map((c) => (
-                        <SelectItem key={c.category_id} value={c.category_id}>
-                          {c.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {fieldState.error && (
-                    <p className="mt-1 flex items-center gap-1.5 text-sm text-danger-600 dark:text-danger-400" role="alert">
-                      <AlertCircle className="h-4 w-4 shrink-0" />
-                      {fieldState.error.message}
-                    </p>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                      <SelectContent>
+                        {props.categories.map((c) => (
+                          <SelectItem key={c.category_id} value={c.category_id}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="season_id"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                    Season
-                  </FormLabel>
-                  <Select
-                    value={field.value ?? "none"}
-                    onValueChange={(v) => field.onChange(v === "none" ? null : v)}
-                  >
-                    <FormControl>
-                      <SelectTrigger
-                        className={cn(
-                          "h-11 rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-900",
-                          fieldState.error && "border-danger-500"
-                        )}
-                      >
+              <FormField
+                control={form.control}
+                name="season_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Season (optional)</FormLabel>
+                    <Select
+                      value={field.value ?? "none"}
+                      onValueChange={(v) => field.onChange(v === "none" ? null : v)}
+                    >
+                      <SelectTrigger className="h-11 w-full">
                         <SelectValue placeholder="Select season" />
                       </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="none">No season</SelectItem>
-                      {props.seasons.map((s) => (
-                        <SelectItem key={s.season_id} value={s.season_id}>
-                          {s.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+                      <SelectContent>
+                        <SelectItem value="none">No season</SelectItem>
+                        {props.seasons.map((s) => (
+                          <SelectItem key={s.season_id} value={s.season_id}>
+                            {s.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem className="mt-4">
-                <FormLabel className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                  Description
-                </FormLabel>
-                <FormControl>
-                  <div className="relative">
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description (optional)</FormLabel>
+                  <FormControl>
                     <Textarea
-                      {...field}
+                      placeholder="Notes, fabric, fit, etc."
+                      maxLength={500}
                       value={field.value ?? ""}
                       onChange={field.onChange}
-                      placeholder="Describe this product..."
-                      maxLength={DESCRIPTION_MAX}
-                      rows={4}
-                      className="rounded-lg border-slate-300 pr-14 focus:border-primary-500 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-900 dark:focus:border-primary-500 dark:focus:ring-primary-500"
-                      aria-describedby="description-counter"
                     />
-                    <span
-                      id="description-counter"
-                      className="absolute bottom-3 right-3 text-xs text-slate-500 dark:text-slate-400"
-                    >
-                      {(field.value ?? "").length}/{DESCRIPTION_MAX}
-                    </span>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </section>
-
-        {/* Section 2: Pricing */}
-        <section className="mb-6 rounded-lg bg-slate-50 p-6 dark:bg-slate-900/50">
-          <h2 className="mb-4 border-l-4 border-primary-600 pl-4 text-lg font-semibold text-slate-900 dark:text-slate-100">
-            Pricing
-          </h2>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="base_price"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                    Base Price (KES) <span className="text-danger-500">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">
-                        KES
-                      </span>
-                      <Input
-                        {...field}
-                        type="number"
-                        inputMode="numeric"
-                        min={0}
-                        step={1}
-                        placeholder="0.00"
-                        className={cn(
-                          "h-11 rounded-lg border-slate-300 pl-12 text-lg focus:border-primary-500 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-900 dark:focus:border-primary-500 dark:focus:ring-primary-500",
-                          fieldState.error && "border-danger-500 focus:border-danger-500 focus:ring-danger-500 dark:border-danger-500"
-                        )}
-                        aria-required
-                      />
-                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="cost"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                    Cost (KES) <span className="text-danger-500">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">
-                        KES
-                      </span>
+            <div className="grid gap-5 md:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="base_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Base Price (KES)</FormLabel>
+                    <FormControl>
                       <Input
-                        {...field}
-                        type="number"
                         inputMode="numeric"
-                        min={0}
-                        step={1}
-                        placeholder="0.00"
-                        className={cn(
-                          "h-11 rounded-lg border-slate-300 pl-12 text-lg focus:border-primary-500 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-900 dark:focus:border-primary-500 dark:focus:ring-primary-500",
-                          fieldState.error && "border-danger-500 focus:border-danger-500 focus:ring-danger-500 dark:border-danger-500"
-                        )}
-                        aria-required
-                        aria-describedby={fieldState.error ? "cost-error" : "cost-helper"}
+                        type="number"
+                        min={1}
+                        step="1"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value)}
                       />
+                    </FormControl>
+                    <div className="text-xs text-zinc-500">
+                      Preview: KES {formatKesInput(String(field.value ?? ""))}
                     </div>
-                  </FormControl>
-                  <p id="cost-helper" className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                    Your cost from supplier
-                  </p>
-                  {fieldState.error && (
-                    <p id="cost-error" className="mt-1 flex items-center gap-1.5 text-sm text-danger-600 dark:text-danger-400" role="alert">
-                      <AlertCircle className="h-4 w-4 shrink-0" />
-                      {fieldState.error.message}
-                    </p>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Calculated Margin */}
-          <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Calculated Margin</p>
-            <p className={cn("mt-1 text-2xl font-bold", marginColorClass)}>
-              {margin != null ? `${margin.toFixed(1)}%` : "—"}
-            </p>
-          </div>
-        </section>
-
-        {/* Section 3: Product Image */}
-        <section className="mb-6 rounded-lg bg-slate-50 p-6 dark:bg-slate-900/50">
-          <h2 className="mb-4 border-l-4 border-primary-600 pl-4 text-lg font-semibold text-slate-900 dark:text-slate-100">
-            Product Image
-          </h2>
-
-          <FormField
-            control={form.control}
-            name="image"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="sr-only">Product image</FormLabel>
-                <FormControl>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/png,image/jpeg,image/jpg"
-                    className="sr-only"
-                    onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
-                    aria-describedby="image-helper"
-                  />
-                </FormControl>
-
-                {previewUrl ? (
-                  <div className="space-y-3">
-                    <div className="relative h-[200px] w-[200px] overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
-                      <Image
-                        src={previewUrl}
-                        alt="Product preview"
-                        fill
-                        className="object-cover"
-                      />
-                      {isSubmitting && (
-                        <div
-                          className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-lg bg-white/90 dark:bg-slate-900/90"
-                          aria-live="polite"
-                        >
-                          <div className="h-2 w-full max-w-[180px] overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                            <div className="h-full w-2/5 animate-pulse rounded-full bg-primary-600" />
-                          </div>
-                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                            Uploading…
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    {!isSubmitting && (
-                      <div className="flex gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          Change
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="text-danger-600 hover:bg-danger-50 hover:text-danger-700 dark:hover:bg-danger-950/30 dark:hover:text-danger-400"
-                          onClick={() => handleFileSelect(null)}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                ) : isSubmitting ? (
-                  <div
-                    className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-white p-8 dark:border-slate-600 dark:bg-slate-900"
-                    aria-live="polite"
-                  >
-                    <div className="mb-2 h-2 w-full max-w-xs overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                      <div className="h-full w-1/3 animate-pulse rounded-full bg-primary-600" />
-                    </div>
-                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      Saving…
-                    </p>
-                  </div>
-                ) : (
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => fileInputRef.current?.click()}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault()
-                        fileInputRef.current?.click()
-                      }
-                    }}
-                    onDragOver={(e) => {
-                      e.preventDefault()
-                      setIsDragging(true)
-                    }}
-                    onDragLeave={() => setIsDragging(false)}
-                    onDrop={(e) => {
-                      e.preventDefault()
-                      setIsDragging(false)
-                      const file = e.dataTransfer.files?.[0]
-                      if (file) handleFileSelect(file)
-                    }}
-                    className={cn(
-                      "flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-white p-8 transition-colors dark:border-slate-600 dark:bg-slate-900",
-                      isDragging && "border-primary-400 bg-primary-50 dark:bg-primary-950/30",
-                      !isDragging && "hover:border-primary-400 hover:bg-primary-50/50 dark:hover:bg-primary-950/20"
-                    )}
-                  >
-                    <ImagePlus className="mb-2 h-12 w-12 text-slate-400 dark:text-slate-500" />
-                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      Click to upload or drag and drop
-                    </p>
-                    <p id="image-helper" className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                      PNG, JPG up to 2MB
-                    </p>
-                  </div>
+                    <FormMessage />
+                  </FormItem>
                 )}
+              />
 
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </section>
+              <FormField
+                control={form.control}
+                name="cost"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cost (KES)</FormLabel>
+                    <FormControl>
+                      <Input
+                        inputMode="numeric"
+                        type="number"
+                        min={1}
+                        step="1"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                    </FormControl>
+                    <div className="text-xs text-zinc-500">
+                      Preview: KES {formatKesInput(String(field.value ?? ""))}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-        {/* Form actions: sticky on mobile, inline on desktop */}
-        <div className="sticky bottom-0 left-0 right-0 z-20 -mx-8 -mb-8 mt-8 flex flex-col-reverse gap-4 border-t border-slate-200 bg-white px-8 pb-6 pt-6 dark:border-slate-800 dark:bg-slate-900 sm:static sm:mx-0 sm:mb-0 sm:flex-row sm:justify-between sm:items-center sm:pb-0">
-          <Button
-            type="button"
-            variant="outline"
-            className="h-12 px-6 text-slate-700 dark:text-slate-300"
-            disabled={isSubmitting}
-            onClick={() => router.push("/products")}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            disabled={!isValid || isSubmitting}
-            className={cn(
-              "h-12 gap-2 px-8 text-lg bg-primary-600 hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-700",
-              (!isValid || isSubmitting) && "opacity-50 cursor-not-allowed"
-            )}
-          >
-            {isSubmitting ? (
-              <>
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                Saving...
-              </>
-            ) : (
-              <>
-                Next: Add Variants
-                <ArrowRight className="h-5 w-5" />
-              </>
-            )}
-          </Button>
-        </div>
-      </form>
-    </Form>
+            <div className="flex items-center gap-3 pt-2">
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Creating..." : "Create Style"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isSubmitting}
+                onClick={() => router.push("/products")}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
+              <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                Image
+              </div>
+              <div className="mt-3 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/40">
+                <div className="relative aspect-square w-full">
+                  <Image
+                    src={previewUrl ?? "/placeholder-product.png"}
+                    alt="Style image preview"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-3">
+                <FormField
+                  control={form.control}
+                  name="image"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel className="sr-only">Image Upload</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept="image/png,image/jpeg,image/jpg"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0] ?? null
+                            if (file) {
+                              // Validate file type immediately
+                              if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+                                form.setError("image", {
+                                  type: "manual",
+                                  message: "Image must be PNG or JPG format.",
+                                })
+                                return
+                              }
+                              // Validate file size immediately
+                              if (file.size > MAX_IMAGE_BYTES) {
+                                form.setError("image", {
+                                  type: "manual",
+                                  message: "Image must be 2MB or smaller.",
+                                })
+                                return
+                              }
+                            }
+                            form.setValue("image", file, { shouldValidate: true })
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                      <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                        PNG/JPG only. Max 2MB.
+                      </p>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          </div>
+        </form>
+      </Form>
+    </>
   )
 }
+
