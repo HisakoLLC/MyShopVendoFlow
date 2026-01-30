@@ -99,8 +99,6 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
   }
 
   const RESTOCK_ITEMS_KEY = "purchasing_new_restock_items"
-  // Many browsers/servers limit URLs to ~2048 chars; keep well under to avoid URI_TOO_LONG
-  const SAFE_URL_ITEMS_LENGTH = 1600
 
   const handleCreatePO = () => {
     if (selectedVariants.size === 0) {
@@ -113,19 +111,10 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
     }))
 
     const itemsJson = JSON.stringify(selectedItems)
-
-    if (itemsJson.length > SAFE_URL_ITEMS_LENGTH) {
-      // Avoid URI_TOO_LONG: store in sessionStorage and redirect without items in URL
-      if (typeof sessionStorage !== "undefined") {
-        sessionStorage.setItem(RESTOCK_ITEMS_KEY, itemsJson)
-      }
-      router.push("/purchasing/new?from=restock")
-    } else {
-      const params = new URLSearchParams()
-      params.set("from", "restock")
-      params.set("items", itemsJson)
-      router.push(`/purchasing/new?${params.toString()}`)
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.setItem(RESTOCK_ITEMS_KEY, itemsJson)
     }
+    router.push("/purchasing/new?from=restock")
   }
 
   const totalSelected = selectedVariants.size

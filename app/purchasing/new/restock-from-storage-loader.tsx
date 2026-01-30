@@ -33,11 +33,14 @@ type RestockFromStorageLoaderProps = {
   suppliers: Supplier[]
 }
 
+const LOAD_TIMEOUT_MS = 12_000
+
 export function RestockFromStorageLoader({ suppliers }: RestockFromStorageLoaderProps) {
   const [prefillItems, setPrefillItems] = React.useState<PrefillItem[]>([])
   const [prefillVariants, setPrefillVariants] = React.useState<Variant[]>([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
+  const [timeoutMessage, setTimeoutMessage] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     if (typeof sessionStorage === "undefined") {
@@ -69,6 +72,22 @@ export function RestockFromStorageLoader({ suppliers }: RestockFromStorageLoader
 
     const variantIds = items.map((item) => item.variant_id)
     const supabase = createClient()
+    let settled = false
+
+    const done = () => {
+      if (!settled) {
+        settled = true
+        setLoading(false)
+      }
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      if (!settled) {
+        settled = true
+        setTimeoutMessage("Loading took too long. You can add items manually below.")
+        setLoading(false)
+      }
+    }, LOAD_TIMEOUT_MS)
 
     supabase
       .rpc("get_account_id")
@@ -81,7 +100,7 @@ export function RestockFromStorageLoader({ suppliers }: RestockFromStorageLoader
             ? (accountIdRaw as { account_id: string }).account_id
             : accountIdRaw
         if (!accountId) {
-          setLoading(false)
+          done()
           return
         }
         return supabase
@@ -116,8 +135,13 @@ export function RestockFromStorageLoader({ suppliers }: RestockFromStorageLoader
         setError(err instanceof Error ? err.message : "Failed to load restock items.")
       })
       .finally(() => {
-        setLoading(false)
+        window.clearTimeout(timeoutId)
+        done()
       })
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
   }, [])
 
   if (loading) {
@@ -142,6 +166,11 @@ export function RestockFromStorageLoader({ suppliers }: RestockFromStorageLoader
 
   return (
     <>
+      {timeoutMessage && (
+        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100">
+          <p className="text-sm">{timeoutMessage}</p>
+        </div>
+      )}
       {prefillItems.length > 0 && (
         <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 text-blue-900 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-100">
           <p className="text-sm">
