@@ -65,16 +65,50 @@ export async function POST(request: Request) {
     }
 
     const pinHash = hashPIN(trimmedPin)
+    const accountIdStr =
+      typeof accountId === "string"
+        ? accountId
+        : Array.isArray(accountId)
+          ? accountId[0]
+          : typeof accountId === "object" && accountId !== null && "account_id" in accountId
+            ? (accountId as { account_id: string }).account_id
+            : String(accountId)
 
-    // Match staff by account + PIN + active (single-store app; no store filter so PIN works for the account)
-    const { data: staff, error: staffError } = await supabaseAdmin
+    // 1) Try exact match: account_id + pin_hash + active
+    let { data: staff, error: staffError } = await supabaseAdmin
       .from("staff")
-      .select("email")
-      .eq("account_id", accountId)
+      .select("email, account_id")
+      .eq("account_id", accountIdStr)
       .eq("pin_hash", pinHash)
       .eq("active", true)
       .limit(1)
       .maybeSingle()
+
+    // 2) If no match, staff may have been saved with account_id in a different format (e.g. from get_account_id); find by PIN then filter by account
+    if ((staffError || !staff?.email) && pinHash) {
+      const { data: byPin, error: byPinError } = await supabaseAdmin
+        .from("staff")
+        .select("email, account_id")
+        .eq("pin_hash", pinHash)
+        .eq("active", true)
+        .limit(20)
+
+      if (!byPinError && byPin && byPin.length > 0) {
+        const normalized = (aid: string | null | unknown): string => {
+          if (aid == null) return ""
+          if (typeof aid === "string") return aid
+          if (Array.isArray(aid)) return aid[0] ?? ""
+          if (typeof aid === "object" && aid !== null && "account_id" in aid)
+            return (aid as { account_id: string }).account_id
+          return String(aid)
+        }
+        const match = byPin.find((s) => normalized(s.account_id) === accountIdStr)
+        if (match?.email) {
+          staff = { email: match.email, account_id: match.account_id }
+          staffError = null
+        }
+      }
+    }
 
     if (staffError || !staff?.email) {
       return NextResponse.json(
