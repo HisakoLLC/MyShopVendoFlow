@@ -1,4 +1,14 @@
 import type { Config } from "tailwindcss"
+import {
+  primary,
+  secondary,
+  success,
+  warning,
+  danger,
+  slate,
+  borderRadius as radiusTokens,
+  boxShadow as shadowTokens,
+} from "./lib/design-tokens"
 
 const config = {
   darkMode: ["class"],
@@ -19,23 +29,27 @@ const config = {
     },
     extend: {
       colors: {
+        // VendoFlow brand palette
+        primary: {
+          ...primary,
+          DEFAULT: primary[500],
+          foreground: "#ffffff",
+        },
+        secondary: {
+          ...secondary,
+          DEFAULT: secondary[500],
+          foreground: "#ffffff",
+        },
+        success: success,
+        warning: warning,
+        danger: danger,
+        slate: slate,
+        // Semantic (theme-aware) — map to CSS variables for light/dark
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
@@ -52,11 +66,37 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+      },
+      fontFamily: {
+        sans: [
+          "var(--font-plus-jakarta-sans)",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
+        body: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        sm: radiusTokens.sm,
+        DEFAULT: radiusTokens.DEFAULT,
+        md: radiusTokens.md,
+        lg: radiusTokens.lg,
+        xl: radiusTokens.xl,
+        // Legacy semantic (for shadcn components)
+        "radius-sm": "calc(var(--radius) - 4px)",
+        "radius-md": "calc(var(--radius) - 2px)",
+        "radius-lg": "var(--radius)",
+      },
+      boxShadow: {
+        sm: shadowTokens.sm,
+        DEFAULT: shadowTokens.DEFAULT,
+        md: shadowTokens.md,
+        lg: shadowTokens.lg,
+        xl: shadowTokens.xl,
       },
       keyframes: {
         "accordion-down": {

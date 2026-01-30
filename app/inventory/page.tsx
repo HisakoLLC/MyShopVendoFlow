@@ -1,8 +1,11 @@
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
+import Link from "next/link"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import type { Tables } from "@/types/database"
+import { Button } from "@/components/ui/button"
+import { ArrowRightLeft, Brain } from "lucide-react"
 import { InventoryTableClient } from "./inventory-table-client"
 
 export const dynamic = "force-dynamic"
@@ -202,6 +205,20 @@ async function InventoryPageContent() {
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
             View and manage stock levels across all stores
           </p>
+        </div>
+        <div className="flex shrink-0 gap-2">
+          <Button variant="outline" asChild className="gap-2">
+            <Link href="/inventory/transfer">
+              <ArrowRightLeft className="h-4 w-4" />
+              Transfer
+            </Link>
+          </Button>
+          <Button variant="outline" asChild className="gap-2">
+            <Link href="/inventory/intelligence">
+              <Brain className="h-4 w-4" />
+              Intelligence
+            </Link>
+          </Button>
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import { Plus, Edit, Trash2, Key, Users, Shield, UserCog, ShoppingCart } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -71,7 +72,11 @@ const roleIcons: Record<string, React.ReactNode> = {
 }
 
 export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
+  const router = useRouter()
   const [staff, setStaff] = React.useState<Staff[]>(initialStaff)
+  React.useEffect(() => {
+    setStaff(initialStaff)
+  }, [initialStaff])
   const [showAddModal, setShowAddModal] = React.useState(false)
   const [editingStaff, setEditingStaff] = React.useState<Staff | null>(null)
   const [deactivatingStaff, setDeactivatingStaff] = React.useState<Staff | null>(null)
@@ -99,7 +104,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
       await deactivateStaff(deactivatingStaff.staff_id)
       toast.success("Staff member deactivated successfully")
       setDeactivatingStaff(null)
-      window.location.reload()
+      router.refresh()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to deactivate staff.")
     }

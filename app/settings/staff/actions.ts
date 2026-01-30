@@ -202,7 +202,7 @@ export async function createStaff(data: CreateStaffData) {
     throw new Error(`Failed to link user to account: ${memberError2.message}`)
   }
 
-  revalidatePath("/settings/staff")
+  // Don't revalidate here — client reload will refetch; avoids RSC render errors after create
   return {
     staff_id: staff.staff_id,
     email: staff.email,

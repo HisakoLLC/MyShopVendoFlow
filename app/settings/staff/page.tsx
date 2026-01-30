@@ -40,8 +40,17 @@ async function fetchStaffData(): Promise<{
     redirect("/login")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
-  if (accountIdError || !accountId) {
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  if (accountIdError || accountIdRaw == null) {
+    redirect("/onboarding?redirect=/settings/staff")
+  }
+  const accountId =
+    typeof accountIdRaw === "string"
+      ? accountIdRaw
+      : Array.isArray(accountIdRaw)
+        ? accountIdRaw[0]
+        : (accountIdRaw as { account_id?: string })?.account_id
+  if (!accountId) {
     redirect("/onboarding?redirect=/settings/staff")
   }
 
@@ -102,11 +111,30 @@ async function fetchStaffData(): Promise<{
     throw new Error(staffError.message)
   }
 
-  // Transform staff data (Supabase may return FK relation as object or array)
-  const transformedStaff = (staff || []).map((s: any) => ({
-    ...s,
-    stores: Array.isArray(s.stores) ? (s.stores[0] || null) : (s.stores || null),
-  })) as Staff[]
+  // Transform to strict serializable shape (avoids RSC/serialization errors for owner/manager)
+  const transformedStaff: Staff[] = (staff || []).map((s: Record<string, unknown>) => {
+    const rawStores = s.stores
+    const storesValue =
+      rawStores == null
+        ? null
+        : Array.isArray(rawStores)
+          ? (rawStores[0] as { name?: string } | undefined)
+          : (rawStores as { name?: string })
+    const storeName =
+      storesValue && typeof storesValue === "object" && typeof storesValue.name === "string"
+        ? { name: storesValue.name }
+        : null
+    return {
+      staff_id: String(s.staff_id ?? ""),
+      email: String(s.email ?? ""),
+      first_name: s.first_name != null ? String(s.first_name) : null,
+      last_name: s.last_name != null ? String(s.last_name) : null,
+      role: s.role != null ? String(s.role) : null,
+      assigned_store_id: s.assigned_store_id != null ? String(s.assigned_store_id) : null,
+      active: s.active != null ? Boolean(s.active) : null,
+      stores: storeName,
+    }
+  })
 
   return {
     staff: transformedStaff,
