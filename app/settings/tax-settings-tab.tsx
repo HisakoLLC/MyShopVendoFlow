@@ -74,18 +74,18 @@ export function TaxSettingsTab({ stores, planTier }: TaxSettingsTabProps) {
     <>
       <Toaster richColors position="top-right" />
       <div className="space-y-6">
-        {/* Per-Store Tax Rates */}
+        {/* Tax Rate */}
         <Card>
           <CardHeader>
-            <CardTitle>Per-Store Tax Rates</CardTitle>
+            <CardTitle>Tax Rate</CardTitle>
             <CardDescription>
-              Set the tax rate (VAT) for each store. Kenya standard: 16% VAT.
+              Set the tax rate (VAT) for your store. Kenya standard: 16% VAT.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {stores.length === 0 ? (
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                No stores found. Create a store first.
+                Complete onboarding to set up your store.
               </p>
             ) : (
               stores.map((store) => (
@@ -132,7 +132,7 @@ export function TaxSettingsTab({ stores, planTier }: TaxSettingsTabProps) {
           <CardHeader>
             <CardTitle>Multi-Rate Tax</CardTitle>
             <CardDescription>
-              Configure multiple tax rates per store (e.g., City Tax + County Tax).
+              Configure multiple tax rates (e.g., City Tax + County Tax).
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -146,8 +146,7 @@ export function TaxSettingsTab({ stores, planTier }: TaxSettingsTabProps) {
                     </div>
                     <div className="mt-1 text-sm text-yellow-800 dark:text-yellow-200">
                       Multi-rate tax support is available on Core and Scale plans. Upgrade to
-                      configure multiple tax rates per store (e.g., City Tax 8% + County Tax
-                      0.5%).
+                      configure multiple tax rates (e.g., City Tax 8% + County Tax 0.5%).
                     </div>
                   </div>
                 </div>
@@ -162,7 +161,7 @@ export function TaxSettingsTab({ stores, planTier }: TaxSettingsTabProps) {
                     </div>
                     <div className="mt-1 text-sm text-blue-800 dark:text-blue-200">
                       Multi-rate tax configuration will be available in a future update. For now,
-                      use the single tax rate per store above.
+                      use the single tax rate above.
                     </div>
                   </div>
                 </div>

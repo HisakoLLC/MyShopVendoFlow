@@ -32,22 +32,22 @@ const plans: Plan[] = [
     name: "Starter",
     price: 10000,
     stores: 1,
-    features: ["1 store", "Basic inventory", "Sales tracking", "Customer management"],
+    features: ["Basic inventory", "Sales tracking", "Customer management"],
   },
   {
     id: "core",
     name: "Core",
     price: 16500,
-    stores: 3,
-    features: ["3 stores", "Full inventory", "Advanced reports", "Multi-rate tax", "Staff management"],
+    stores: 1,
+    features: ["Full inventory", "Advanced reports", "Multi-rate tax", "Staff management"],
     recommended: true,
   },
   {
     id: "scale",
     name: "Scale",
     price: 29000,
-    stores: 10,
-    features: ["10 stores", "Everything in Core", "Unlimited staff", "Priority support", "API access"],
+    stores: 1,
+    features: ["Everything in Core", "Unlimited staff", "Priority support", "API access"],
   },
 ]
 
@@ -307,7 +307,7 @@ function OnboardingContent() {
                 <CardTitle className="text-2xl">Welcome to VendoFlow</CardTitle>
               </div>
               <CardDescription className="text-base">
-                Your all-in-one POS and inventory for small retail. We’ll guide you through creating your first store, adding categories, and choosing a plan. You can load sample data anytime to explore the app.
+                Your all-in-one POS and inventory for small retail. We’ll guide you through creating your store, adding categories, and choosing a plan. You can load sample data anytime to explore the app.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -322,8 +322,8 @@ function OnboardingContent() {
         {step === 1 && (
           <Card>
             <CardHeader>
-              <CardTitle>Step 1: Create Your First Store</CardTitle>
-              <CardDescription>Set up your first store location</CardDescription>
+              <CardTitle>Step 1: Create Your Store</CardTitle>
+              <CardDescription>Set up your store location</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>

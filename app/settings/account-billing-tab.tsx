@@ -294,7 +294,7 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
               Delete Account?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your account, all stores,
+              This action cannot be undone. This will permanently delete your account, store data,
               products, sales data, and all other associated information.
             </AlertDialogDescription>
           </AlertDialogHeader>

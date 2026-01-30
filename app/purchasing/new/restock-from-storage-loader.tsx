@@ -33,7 +33,8 @@ type RestockFromStorageLoaderProps = {
   suppliers: Supplier[]
 }
 
-const LOAD_TIMEOUT_MS = 12_000
+const LOAD_TIMEOUT_MS = 35_000
+const VARIANT_FETCH_CHUNK_SIZE = 80
 
 export function RestockFromStorageLoader({ suppliers }: RestockFromStorageLoaderProps) {
   const [prefillItems, setPrefillItems] = React.useState<PrefillItem[]>([])
@@ -89,6 +90,32 @@ export function RestockFromStorageLoader({ suppliers }: RestockFromStorageLoader
       }
     }, LOAD_TIMEOUT_MS)
 
+    const selectVariantFields = `
+      variant_id,
+      size,
+      color,
+      sku,
+      cost,
+      style_id,
+      product_styles!inner(
+        name,
+        image_url,
+        account_id
+      )
+    `
+
+    function fetchVariantsChunk(ids: string[], accountId: string): Promise<Variant[]> {
+      return supabase
+        .from("product_variants")
+        .select(selectVariantFields)
+        .in("variant_id", ids)
+        .eq("product_styles.account_id", accountId)
+        .then(({ data, error: e }: { data: Variant[] | null; error: { message: string } | null }) => {
+          if (e) throw new Error(e.message)
+          return (data || []) as Variant[]
+        })
+    }
+
     supabase
       .rpc("get_account_id")
       .then(({ data: accountIdRaw }: { data: string | string[] | { account_id: string } | null }) => {
@@ -103,33 +130,17 @@ export function RestockFromStorageLoader({ suppliers }: RestockFromStorageLoader
           done()
           return
         }
-        return supabase
-          .from("product_variants")
-          .select(
-            `
-            variant_id,
-            size,
-            color,
-            sku,
-            cost,
-            style_id,
-            product_styles!inner(
-              name,
-              image_url,
-              account_id
-            )
-          `
-          )
-          .in("variant_id", variantIds)
-          .eq("product_styles.account_id", accountId)
-          .then(({ data: variants, error: variantsError }: { data: Variant[] | null; error: { message: string } | null }) => {
-            if (variantsError) {
-              setError(variantsError.message)
-            } else if (variants) {
-              setPrefillItems(items)
-              setPrefillVariants((variants || []) as Variant[])
-            }
-          })
+        const chunks: string[][] = []
+        for (let i = 0; i < variantIds.length; i += VARIANT_FETCH_CHUNK_SIZE) {
+          chunks.push(variantIds.slice(i, i + VARIANT_FETCH_CHUNK_SIZE))
+        }
+        return Promise.all(chunks.map((chunk) => fetchVariantsChunk(chunk, accountId))).then(
+          (results) => {
+            const allVariants = results.flat()
+            setPrefillItems(items)
+            setPrefillVariants(allVariants)
+          }
+        )
       })
       .catch((err: unknown) => {
         setError(err instanceof Error ? err.message : "Failed to load restock items.")

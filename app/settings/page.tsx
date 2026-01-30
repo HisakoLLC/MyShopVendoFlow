@@ -52,7 +52,12 @@ async function fetchSettingsData(): Promise<{
     redirect("/login")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = Array.isArray(accountIdRaw)
+    ? accountIdRaw[0]
+    : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
+      ? (accountIdRaw as { account_id: string }).account_id
+      : accountIdRaw
   if (accountIdError || !accountId) {
     redirect("/onboarding?redirect=/settings")
   }
@@ -68,17 +73,18 @@ async function fetchSettingsData(): Promise<{
     throw new Error(accountError.message)
   }
 
-  // Fetch stores
-  const { data: stores, error: storesError } = await supabase
+  // Fetch the account's single store (one store per account)
+  const { data: storesRows, error: storesError } = await supabase
     .from("stores")
     .select("store_id, name, tax_rate")
     .eq("account_id", accountId)
-    .eq("active", true)
     .order("name", { ascending: true })
+    .limit(1)
 
   if (storesError) {
     throw new Error(storesError.message)
   }
+  const stores = storesRows ?? []
 
   // Fetch business_settings (may not exist yet or permission not yet granted)
   const { data: businessSettings, error: settingsError } = await supabase

@@ -26,33 +26,38 @@ async function POSPageContent() {
     redirect("/login")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = Array.isArray(accountIdRaw)
+    ? accountIdRaw[0]
+    : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
+      ? (accountIdRaw as { account_id: string }).account_id
+      : accountIdRaw
   if (accountIdError || !accountId) {
     redirect("/onboarding?redirect=/pos")
   }
 
-  // Fetch stores for inventory context
+  // Fetch the account's single store (one store per account)
   const { data: stores, error: storesError } = await supabase
     .from("stores")
     .select("store_id, name")
     .eq("account_id", accountId)
     .order("name", { ascending: true })
+    .limit(1)
 
   if (storesError) {
-    throw new Error(`Failed to load stores: ${storesError.message}`)
+    throw new Error(`Failed to load store: ${storesError.message}`)
   }
 
-  // Check if stores exist - if not, show a message
   if (!stores || stores.length === 0) {
     return (
       <div className="flex h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-zinc-950">
         <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-8 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
-          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">No Store Available</h2>
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Store Not Set Up</h2>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            You need to create at least one store before using the POS system.
+            Complete onboarding to create your store, then you can use the POS.
           </p>
           <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
-            Please create a store in your settings or contact your administrator.
+            Go to onboarding or contact your administrator.
           </p>
         </div>
       </div>

@@ -46,19 +46,42 @@ export default function LoginPage() {
   const [pinLoading, setPinLoading] = React.useState(false)
 
   React.useEffect(() => {
-    try {
-      const storeId = localStorage.getItem(STORE_ID_KEY)
-      const storeName = localStorage.getItem(STORE_NAME_KEY)
-      const accountId = localStorage.getItem(ACCOUNT_ID_KEY)
-      if (storeId && storeName) {
-        setSavedStore({
-          store_id: storeId,
-          store_name: storeName,
-          account_id: accountId || undefined,
-        })
+    let cancelled = false
+    async function validateAndSetSavedStore() {
+      try {
+        const storeId = localStorage.getItem(STORE_ID_KEY)
+        const storeName = localStorage.getItem(STORE_NAME_KEY)
+        const accountId = localStorage.getItem(ACCOUNT_ID_KEY)
+        if (!storeId || !storeName) return
+
+        const res = await fetch(
+          `/api/validate-store?store_id=${encodeURIComponent(storeId)}`
+        )
+        const data = (await res.json().catch(() => ({}))) as {
+          valid?: boolean
+          store_name?: string
+        }
+        if (cancelled) return
+
+        if (data.valid === true) {
+          setSavedStore({
+            store_id: storeId,
+            store_name: data.store_name ?? storeName,
+            account_id: accountId || undefined,
+          })
+        } else {
+          localStorage.removeItem(STORE_ID_KEY)
+          localStorage.removeItem(STORE_NAME_KEY)
+          localStorage.removeItem(ACCOUNT_ID_KEY)
+          setSavedStore(null)
+        }
+      } catch {
+        if (!cancelled) setSavedStore(null)
       }
-    } catch {
-      // ignore
+    }
+    validateAndSetSavedStore()
+    return () => {
+      cancelled = true
     }
   }, [])
 

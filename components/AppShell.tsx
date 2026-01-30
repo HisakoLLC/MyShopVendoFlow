@@ -22,7 +22,6 @@ import {
   LogOut,
   CheckCircle2,
   UserCog,
-  Store,
 } from "lucide-react"
 import { useTheme } from "next-themes"
 
@@ -48,7 +47,6 @@ const navItems = [
   { href: "/purchasing", label: "Purchasing", icon: Truck },
   { href: "/customers", label: "Customers", icon: Users },
   { href: "/staff", label: "Staff", icon: UserCog },
-  { href: "/stores", label: "Stores", icon: Store },
   { href: "/settings", label: "Settings", icon: Settings },
 ]
 
@@ -267,7 +265,6 @@ function Sidebar({
             pathname === href ||
             (href !== "/dashboard" && pathname.startsWith(href)) ||
             (href === "/purchasing" && pathname.startsWith("/purchasing")) ||
-            (href === "/stores" && pathname.startsWith("/settings/stores")) ||
             (href === "/staff" && pathname.startsWith("/settings/staff"))
           return (
             <Link

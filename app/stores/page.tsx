@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation"
 
 /**
- * /stores redirects to the stores management page under Settings.
+ * /stores redirects to settings (single-store app; store management is in a separate portal).
  */
 export default function StoresPage() {
-  redirect("/settings/stores")
+  redirect("/settings")
 }
