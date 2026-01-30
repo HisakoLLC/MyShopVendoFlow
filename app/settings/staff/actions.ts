@@ -463,17 +463,32 @@ export async function resetStaffPIN(staffId: string) {
     throw new Error(`Failed to reset PIN: ${updateError.message}`)
   }
 
-  // Update Supabase Auth user password so staff can sign in with the new PIN
+  // Update Supabase Auth user password so staff can sign in with the new PIN (listUsers is paginated; loop to find user)
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
   const supabaseUrl = getSupabaseUrl()
-  if (serviceRoleKey && supabaseUrl && staffRow.email) {
+  const staffEmailLower = staffRow.email?.trim().toLowerCase()
+  if (serviceRoleKey && supabaseUrl && staffEmailLower) {
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     })
-    const { data: users } = await supabaseAdmin.auth.admin.listUsers()
-    const authUser = users?.users?.find((u) => u.email === staffRow.email)
+    let page = 1
+    const perPage = 1000
+    let authUser: { id: string } | null = null
+    while (true) {
+      const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage })
+      if (error) break
+      const users = data?.users ?? []
+      authUser = users.find((u) => u.email?.trim().toLowerCase() === staffEmailLower) ?? null
+      if (authUser || users.length < perPage) break
+      page++
+    }
     if (authUser) {
-      await supabaseAdmin.auth.admin.updateUserById(authUser.id, { password: newPIN })
+      const { error: updateAuthError } = await supabaseAdmin.auth.admin.updateUserById(authUser.id, {
+        password: newPIN,
+      })
+      if (updateAuthError) {
+        throw new Error(`PIN was reset in staff record, but updating sign-in password failed: ${updateAuthError.message}. Ask the staff to use “Forgot password” or try again.`)
+      }
     }
   }
 
