@@ -112,7 +112,7 @@ export function RestockFromStorageLoader({ suppliers }: RestockFromStorageLoader
             }
           })
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         setError(err instanceof Error ? err.message : "Failed to load restock items.")
       })
       .finally(() => {
