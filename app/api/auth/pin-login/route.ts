@@ -60,18 +60,19 @@ export async function POST(request: Request) {
           { status: 404 }
         )
       }
-      accountId = store.account_id
+      const raw = store.account_id
+      accountId = Array.isArray(raw) ? raw[0] : typeof raw === "object" && raw !== null && "account_id" in raw ? (raw as { account_id: string }).account_id : raw
     }
 
     const pinHash = hashPIN(trimmedPin)
 
+    // Match staff by account + PIN + active (single-store app; no store filter so PIN works for the account)
     const { data: staff, error: staffError } = await supabaseAdmin
       .from("staff")
       .select("email")
       .eq("account_id", accountId)
       .eq("pin_hash", pinHash)
       .eq("active", true)
-      .or(`assigned_store_id.is.null,assigned_store_id.eq.${store_id}`)
       .limit(1)
       .maybeSingle()
 

@@ -55,7 +55,12 @@ export async function createStaff(data: CreateStaffData) {
     throw new Error("You must be signed in to create staff.")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = Array.isArray(accountIdRaw)
+    ? accountIdRaw[0]
+    : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
+      ? (accountIdRaw as { account_id: string }).account_id
+      : accountIdRaw
   if (accountIdError || !accountId) {
     throw new Error("Account not found. Please complete setup first.")
   }
