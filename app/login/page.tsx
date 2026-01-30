@@ -169,13 +169,13 @@ export default function LoginPage() {
           pin: pin.trim(),
         }),
       })
-      const data = await res.json().catch(() => ({}))
+      const data = await res.json().catch(() => ({})) as { error?: string; email?: string }
       if (!res.ok) {
-        toast.error(data.error || "Invalid PIN")
+        toast.error(data.error || "Invalid PIN for this store")
         return
       }
       if (!data.email) {
-        toast.error("Invalid PIN")
+        toast.error("Invalid PIN for this store")
         return
       }
       const { error } = await supabase.auth.signInWithPassword({
@@ -183,7 +183,7 @@ export default function LoginPage() {
         password: pin.trim(),
       })
       if (error) {
-        toast.error("Invalid PIN")
+        toast.error("Sign-in failed. Use the PIN you were given, or ask an owner to reset your PIN in Staff settings.")
         return
       }
       router.push("/dashboard")

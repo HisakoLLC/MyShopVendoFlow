@@ -7,13 +7,13 @@ function hashPIN(pin: string): string {
   return createHash("sha256").update(pin).digest("hex")
 }
 
+const UUID_REGEX =
+  /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+
 /** Normalize for comparison: UUIDs are case-insensitive per RFC. */
-function normalizeAccountIdForCompare(value: string): string {
+function normalizeUuidForCompare(value: string): string {
   const s = value.trim()
-  if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(s)) {
-    return s.toLowerCase()
-  }
-  return s
+  return UUID_REGEX.test(s) ? s.toLowerCase() : s
 }
 
 export async function POST(request: Request) {
@@ -82,7 +82,8 @@ export async function POST(request: Request) {
           : typeof accountId === "object" && accountId !== null && "account_id" in accountId
             ? (accountId as { account_id: string }).account_id
             : String(accountId)
-    const accountIdForCompare = normalizeAccountIdForCompare(accountIdStr)
+    const accountIdForCompare = normalizeUuidForCompare(accountIdStr)
+    const storeIdForCompare = normalizeUuidForCompare(store_id)
 
     // Find all active staff with this PIN hash; filter by account (and store) in code to avoid DB comparison quirks
     const { data: byPin, error: byPinError } = await supabaseAdmin
@@ -101,26 +102,38 @@ export async function POST(request: Request) {
       return String(aid)
     }
 
-    const match = byPinError || !byPin
-      ? null
-      : byPin.find((s) => {
-          if (normalizeAccountIdForCompare(normalized(s.account_id)) !== accountIdForCompare) return false
-          // Staff must be assigned to this store (or have no assignment, e.g. owner)
-          const assigned = s.assigned_store_id ?? null
-          if (assigned != null && assigned !== store_id) return false
-          return true
-        })
+    // Prefer: same account AND (no assigned store OR assigned store = this store)
+    const matchWithStore = (s: { account_id: unknown; assigned_store_id: string | null }) => {
+      if (normalizeUuidForCompare(normalized(s.account_id)) !== accountIdForCompare) return false
+      const assigned = s.assigned_store_id ?? null
+      if (assigned != null && normalizeUuidForCompare(assigned) !== storeIdForCompare) return false
+      return true
+    }
+    // Fallback: same account only (in case assigned_store_id is missing or mismatched)
+    const matchAccountOnly = (s: { account_id: unknown }) =>
+      normalizeUuidForCompare(normalized(s.account_id)) === accountIdForCompare
+
+    const match =
+      byPinError || !byPin
+        ? null
+        : byPin.find(matchWithStore) ?? byPin.find(matchAccountOnly) ?? null
 
     if (process.env.NODE_ENV === "development" && (byPinError || !match)) {
       const hasPinRows = !byPinError && byPin && byPin.length > 0
       console.log("[pin-login]", {
         store_id,
+        store_id_normalized: storeIdForCompare,
         account_id_sent: !!bodyAccountId,
+        account_id_for_compare: accountIdForCompare,
         pin_hash_prefix: pinHash.slice(0, 8) + "...",
         by_pin_error: byPinError?.message ?? null,
         by_pin_count: byPin?.length ?? 0,
-        first_account_ids: hasPinRows ? byPin!.slice(0, 3).map((r) => normalized(r.account_id)) : [],
-        account_id_for_compare: accountIdForCompare,
+        first_rows: hasPinRows
+          ? byPin!.slice(0, 3).map((r) => ({
+              account: normalizeUuidForCompare(normalized(r.account_id)),
+              assigned_store: r.assigned_store_id ? normalizeUuidForCompare(r.assigned_store_id) : null,
+            }))
+          : [],
       })
     }
 
