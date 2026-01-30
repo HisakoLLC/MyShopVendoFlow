@@ -81,25 +81,28 @@ async function fetchCreateStyleOptions(): Promise<FetchResult> {
 
 function LoadingState() {
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-6">
-      <div className="mb-6 h-8 w-48 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-      <div className="h-96 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+    <div className="mx-auto w-full max-w-4xl px-6 py-8">
+      <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="mb-8 h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+        <div className="mb-6 h-9 w-64 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+        <div className="h-96 w-full animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
+      </div>
     </div>
   )
 }
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-10">
-      <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-100">
-        <div className="text-base font-semibold">Couldn't load form</div>
+    <div className="mx-auto w-full max-w-4xl px-6 py-10">
+      <div className="rounded-xl border border-danger-200 bg-danger-50 p-5 text-danger-900 dark:border-danger-900/40 dark:bg-danger-950/30 dark:text-danger-100">
+        <div className="text-base font-semibold">Couldn&apos;t load form</div>
         <div className="mt-1 text-sm opacity-90">{message}</div>
         <div className="mt-4">
           <Link
             href="/products"
-            className="inline-flex h-10 items-center justify-center rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+            className="inline-flex h-10 items-center justify-center rounded-lg bg-slate-900 px-4 text-sm font-medium text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
           >
-            Back to products
+            Back to Products
           </Link>
         </div>
       </div>
@@ -127,27 +130,25 @@ async function CreateStylePageContent() {
   const { categories, seasons } = result.data
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-6">
-      <div className="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <div className="mb-2">
-            <Link
-              href="/products"
-              className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
-            >
-              ← Back to products
-            </Link>
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-            Add New Style
+    <div className="mx-auto w-full max-w-4xl px-6 py-8">
+      <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="mb-8">
+          <Link
+            href="/products"
+            className="inline-block text-sm font-medium text-slate-600 transition-colors hover:text-primary-600 dark:text-slate-400 dark:hover:text-primary-400"
+          >
+            ← Back to Products
+          </Link>
+          <h1 className="mt-4 text-3xl font-bold text-slate-900 dark:text-slate-100">
+            Add New Product
           </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Create a style first, then add variants (sizes/colors) next.
+          <p className="mt-2 text-slate-600 dark:text-slate-400">
+            Create a new product style with variants
           </p>
         </div>
-      </div>
 
-      <CreateStyleForm categories={categories} seasons={seasons} />
+        <CreateStyleForm categories={categories} seasons={seasons} />
+      </div>
     </div>
   )
 }

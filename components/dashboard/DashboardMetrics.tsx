@@ -5,7 +5,6 @@ import {
   Bar,
   XAxis,
   YAxis,
-  Cell,
   ResponsiveContainer,
   Tooltip,
 } from "recharts"
@@ -81,16 +80,13 @@ export function DashboardMetrics({ topSellers }: DashboardMetricsProps) {
         <Tooltip content={<CustomTooltip />} />
         <Bar
           dataKey="revenue"
+          fill={PRIMARY_HEX}
           radius={[0, 6, 6, 0]}
           maxBarSize={32}
           isAnimationActive
           animationDuration={800}
           label={{ position: "right", formatter: (v: number) => formatCurrency(v), fontSize: 12 }}
-        >
-          {chartData.map((_, index) => (
-            <Cell key={index} fill={PRIMARY_HEX} />
-          ))}
-        </Bar>
+        />
       </BarChart>
     </ResponsiveContainer>
   )

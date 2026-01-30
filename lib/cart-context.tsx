@@ -12,6 +12,8 @@ export interface CartItem {
   price: number
   quantity: number // Always 1 for fashion, but support qty for future
   sku: string
+  /** Optional style image URL for POS cart display */
+  imageUrl?: string | null
 }
 
 interface CartContextType {

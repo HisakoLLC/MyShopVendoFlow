@@ -1,11 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { Minus, Plus } from "lucide-react"
+import { Minus, Plus, ShoppingCart, X, ArrowRight } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { CheckoutModal } from "./CheckoutModal"
+import { StorageImage } from "@/components/StorageImage"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,20 +17,30 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { formatCurrency } from "@/lib/format-currency"
+import { cn } from "@/lib/utils"
 
 interface CartProps {
   defaultStoreId: string | null
 }
 
 export function Cart({ defaultStoreId }: CartProps) {
-  const { cart, removeFromCart, clearCart, updateQuantity, subtotal, taxAmount, total, taxRatePercent, taxInclusive } = useCart()
+  const {
+    cart,
+    removeFromCart,
+    clearCart,
+    updateQuantity,
+    subtotal,
+    taxAmount,
+    total,
+    taxRatePercent,
+    taxInclusive,
+  } = useCart()
   const [showCheckout, setShowCheckout] = React.useState(false)
   const [showClearConfirm, setShowClearConfirm] = React.useState(false)
   const [stockByVariant, setStockByVariant] = React.useState<Record<string, number>>({})
-
   const supabase = React.useMemo(() => createClient(), [])
 
-  // Fetch available stock for each variant in the cart at the current store
   React.useEffect(() => {
     if (!defaultStoreId || cart.length === 0) {
       setStockByVariant({})
@@ -42,7 +53,6 @@ export function Cart({ defaultStoreId }: CartProps) {
         .select("variant_id, quantity_on_hand")
         .eq("store_id", defaultStoreId)
         .in("variant_id", variantIds)
-
       if (error) {
         setStockByVariant({})
         return
@@ -57,7 +67,6 @@ export function Cart({ defaultStoreId }: CartProps) {
     })()
   }, [defaultStoreId, supabase, cart])
 
-  // When stock data loads, clamp any cart quantity that exceeds available
   React.useEffect(() => {
     if (!defaultStoreId || Object.keys(stockByVariant).length === 0) return
     cart.forEach((item) => {
@@ -68,14 +77,6 @@ export function Cart({ defaultStoreId }: CartProps) {
     })
   }, [defaultStoreId, stockByVariant, cart, updateQuantity])
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-KE", {
-      style: "currency",
-      currency: "KES",
-      maximumFractionDigits: 0,
-    }).format(price)
-  }
-
   const handleClearCart = () => {
     clearCart()
     setShowClearConfirm(false)
@@ -83,210 +84,196 @@ export function Cart({ defaultStoreId }: CartProps) {
 
   return (
     <>
-      <div className="flex h-full flex-col">
-        {/* Cart Header */}
-        <div className="border-b border-zinc-200 p-4 dark:border-zinc-800">
-          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-            Cart ({cart.length} {cart.length === 1 ? "item" : "items"})
+      <div className="flex h-full flex-col p-6">
+        {/* Header: Cart + count badge, Clear All */}
+        <div className="flex items-center justify-between border-b border-slate-200 pb-4 mb-4 dark:border-slate-800">
+          <h2 className="flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-slate-100">
+            Cart
+            <span className="inline-flex min-w-[1.75rem] items-center justify-center rounded-full bg-primary-600 px-2 py-0.5 text-sm font-medium text-white">
+              {cart.length}
+            </span>
           </h2>
+          <button
+            type="button"
+            onClick={() => cart.length > 0 && setShowClearConfirm(true)}
+            disabled={cart.length === 0}
+            className={cn(
+              "text-sm font-medium text-danger-600 hover:text-danger-700 dark:text-danger-500 dark:hover:text-danger-400",
+              cart.length === 0 && "cursor-not-allowed opacity-50"
+            )}
+          >
+            Clear All
+          </button>
         </div>
 
-        {/* Cart Items List */}
-        <div className="flex-1 overflow-y-auto p-4">
+        {/* Cart Items — scrollable */}
+        <div className="flex-1 overflow-y-auto min-h-0" style={{ maxHeight: "50vh" }}>
           {cart.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center text-center">
-              <svg
-                className="mb-4 h-16 w-16 text-zinc-400 dark:text-zinc-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                />
-              </svg>
-              <p className="mb-1 text-lg font-medium text-zinc-700 dark:text-zinc-300">
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
+                <ShoppingCart className="h-10 w-10" aria-hidden />
+              </div>
+              <p className="text-lg font-medium text-slate-900 dark:text-slate-100">
                 Cart is empty
               </p>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Start adding products to create a sale
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                Add products to create a sale
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <ul className="space-y-0">
               {cart.map((item) => (
-                <div
+                <li
                   key={item.cartItemId}
-                  className="group relative rounded-lg border border-zinc-200 bg-white p-3 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+                  className="relative flex gap-4 border-b border-slate-100 py-4 last:border-b-0 dark:border-slate-800"
                 >
-                  {/* Remove Button */}
+                  {/* Remove — 32x32 tap target */}
                   <button
+                    type="button"
                     onClick={() => removeFromCart(item.cartItemId)}
-                    className="absolute right-2 top-2 rounded p-1 text-zinc-400 opacity-0 transition-opacity hover:text-red-600 group-hover:opacity-100 dark:text-zinc-500 dark:hover:text-red-500"
+                    className="absolute right-0 top-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-danger-500/10 hover:text-danger-600 dark:hover:text-danger-400"
                     aria-label="Remove item"
                   >
-                    <svg
-                      className="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
+                    <X className="h-5 w-5" />
                   </button>
 
-                  {/* Item Details */}
-                  <div className="pr-8">
-                    <h3 className="font-medium text-zinc-900 dark:text-zinc-100">
+                  {/* Image 60x60 */}
+                  <div className="h-[60px] w-[60px] shrink-0 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800">
+                    {item.imageUrl ? (
+                      <StorageImage
+                        src={item.imageUrl}
+                        alt={item.styleName}
+                        width={60}
+                        height={60}
+                        className="h-[60px] w-[60px] object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-[60px] w-[60px] items-center justify-center text-slate-400">
+                        <ShoppingCart className="h-6 w-6" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Details + Price */}
+                  <div className="min-w-0 flex-1 pr-10">
+                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100 line-clamp-2">
                       {item.styleName}
-                    </h3>
-                    <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
+                    </p>
+                    <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-400">
                       {item.size} / {item.color}
                     </p>
-                    <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
-                      SKU: {item.sku}
-                    </p>
-                    <div className="mt-2 flex flex-col gap-1.5">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 shrink-0 rounded-r-none text-zinc-600 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-700"
-                            onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
-                            aria-label="Decrease quantity"
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <span className="min-w-[2rem] text-center text-sm font-medium tabular-nums text-zinc-900 dark:text-zinc-100">
-                            {item.quantity}
-                          </span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 shrink-0 rounded-l-none text-zinc-600 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-700"
-                            onClick={() => {
-                              const available = defaultStoreId
-                                ? (stockByVariant[item.variantId] ?? 0)
-                                : Infinity
-                              updateQuantity(item.cartItemId, Math.min(item.quantity + 1, available))
-                            }}
-                            disabled={
-                              !!defaultStoreId &&
-                              item.quantity >= (stockByVariant[item.variantId] ?? 0)
-                            }
-                            aria-label="Increase quantity"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 shrink-0">
-                          {formatPrice(item.price * item.quantity)}
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 shrink-0 rounded-r-none text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700"
+                          onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                          aria-label="Decrease quantity"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="min-w-[2rem] text-center text-sm font-medium tabular-nums text-slate-900 dark:text-slate-100">
+                          {item.quantity}
                         </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 shrink-0 rounded-l-none text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700"
+                          onClick={() => {
+                            const available = defaultStoreId
+                              ? (stockByVariant[item.variantId] ?? 0)
+                              : Infinity
+                            updateQuantity(
+                              item.cartItemId,
+                              Math.min(item.quantity + 1, available)
+                            )
+                          }}
+                          disabled={
+                            !!defaultStoreId &&
+                            item.quantity >= (stockByVariant[item.variantId] ?? 0)
+                          }
+                          aria-label="Increase quantity"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
                       </div>
-                      {defaultStoreId && stockByVariant[item.variantId] != null && (
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                          Max in stock: {stockByVariant[item.variantId]}
-                        </p>
-                      )}
+                      <span className="text-lg font-semibold text-slate-900 dark:text-slate-100 shrink-0">
+                        {formatCurrency(item.price * item.quantity)}
+                      </span>
                     </div>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </div>
 
-        {/* Footer - Sticky Bottom */}
+        {/* Totals + Checkout — sticky bottom */}
         {cart.length > 0 && (
-          <div className="border-t border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="mt-4 shrink-0 border-t-2 border-slate-200 bg-white pt-6 dark:border-slate-800 dark:bg-slate-900/50">
             <div className="space-y-2">
-              {/* Subtotal */}
-              <div className="flex justify-between text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">
-                  {taxInclusive ? "Subtotal (ex tax)" : "Subtotal"}
-                </span>
-                <span className="font-medium text-zinc-900 dark:text-zinc-100">
-                  {formatPrice(subtotal)}
+              <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400">
+                <span>{taxInclusive ? "Subtotal (ex tax)" : "Subtotal"}</span>
+                <span className="font-medium text-slate-900 dark:text-slate-100">
+                  {formatCurrency(subtotal)}
                 </span>
               </div>
-
-              {/* Tax */}
-              <div className="flex justify-between text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">Tax ({taxRatePercent}%)</span>
-                <span className="font-medium text-zinc-900 dark:text-zinc-100">
-                  {formatPrice(taxAmount)}
+              <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400">
+                <span>Tax ({taxRatePercent}%)</span>
+                <span className="font-medium text-slate-900 dark:text-slate-100">
+                  {formatCurrency(taxAmount)}
                 </span>
               </div>
-
-              {/* Total */}
-              <div className="border-t border-zinc-200 pt-2 dark:border-zinc-800">
-                <div className="flex justify-between">
-                  <span className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                    Total
-                  </span>
-                  <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
-                    {formatPrice(total)}
-                  </span>
-                </div>
+              <div className="flex justify-between pt-2">
+                <span className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                  Total
+                </span>
+                <span className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                  {formatCurrency(total)}
+                </span>
               </div>
-
-              {/* Checkout Button */}
-              <Button
-                className="mt-4 w-full"
-                size="lg"
-                onClick={() => setShowCheckout(true)}
-                disabled={cart.length === 0}
-              >
-                Checkout
-              </Button>
-
-              {/* Clear Cart Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => setShowClearConfirm(true)}
-                disabled={cart.length === 0}
-              >
-                Clear Cart
-              </Button>
             </div>
+
+            {/* Checkout — 56px height, primary, ArrowRight */}
+            <Button
+              size="lg"
+              className={cn(
+                "mt-6 h-14 w-full gap-2 bg-primary-600 text-lg font-semibold text-white hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-700",
+                "active:scale-[0.98] transition-transform",
+                cart.length === 0 && "cursor-not-allowed opacity-50"
+              )}
+              onClick={() => setShowCheckout(true)}
+              disabled={cart.length === 0}
+            >
+              Checkout
+              <ArrowRight className="h-5 w-5" aria-hidden />
+            </Button>
           </div>
         )}
       </div>
 
-      {/* Checkout Modal */}
       {showCheckout && (
-        <CheckoutModal
-          storeId={defaultStoreId}
-          onClose={() => setShowCheckout(false)}
-        />
+        <CheckoutModal storeId={defaultStoreId} onClose={() => setShowCheckout(false)} />
       )}
 
-      {/* Clear Cart Confirmation Dialog */}
       <AlertDialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Clear Cart?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove all items from the cart? This action cannot be undone.
+              Remove all items from the cart? This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleClearCart} className="bg-red-600 hover:bg-red-700">
-              Clear Cart
+            <AlertDialogAction
+              onClick={handleClearCart}
+              className="bg-danger-600 hover:bg-danger-700"
+            >
+              Clear All
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

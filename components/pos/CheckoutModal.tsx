@@ -10,7 +10,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Banknote, Smartphone, CreditCard } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { useCart, CartItem } from "@/lib/cart-context"
 import { createClient } from "@/lib/supabase/client"
 import { Receipt } from "./Receipt"
@@ -469,13 +470,13 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Sale Completed!</DialogTitle>
+            <DialogTitle>Sale Complete!</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-center text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+            <p className="text-center text-lg font-semibold text-slate-900 dark:text-slate-100">
               Receipt #{receiptNumber}
             </p>
-            <div className="print:block overflow-y-auto max-h-[60vh]">
+            <div className="print:block max-h-[60vh] overflow-y-auto">
               <Receipt
                 receiptNumber={receiptNumber}
                 cart={receiptSnapshot?.cart ?? []}
@@ -493,11 +494,11 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
                 taxRatePercent={receiptSettings.taxRatePercent}
               />
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={onClose} className="flex-1">
-                Done
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={onClose} className="min-h-[56px] flex-1">
+                New Sale
               </Button>
-              <Button onClick={handlePrintReceipt} className="flex-1">
+              <Button onClick={handlePrintReceipt} className="min-h-[56px] flex-1 bg-primary-600 hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-700">
                 Print Receipt
               </Button>
             </div>
@@ -509,62 +510,83 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>Complete Sale</DialogTitle>
         </DialogHeader>
 
-        {/* Step Indicator */}
-        <div className="flex items-center justify-center gap-2 mb-6">
+        {/* Step Indicator — progress bar */}
+        <div className="mb-8 flex items-center justify-center gap-2">
           {[1, 2, 3].map((step) => (
             <React.Fragment key={step}>
               <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
+                className={cn(
+                  "flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors",
                   currentStep >= step
-                    ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
-                    : "border-zinc-300 text-zinc-400 dark:border-zinc-700 dark:text-zinc-600"
-                }`}
+                    ? "border-primary-600 bg-primary-600 text-white dark:border-primary-500 dark:bg-primary-500"
+                    : "border-slate-300 text-slate-400 dark:border-slate-600 dark:text-slate-500"
+                )}
               >
                 {step}
               </div>
               {step < 3 && (
                 <div
-                  className={`h-0.5 w-12 ${
-                    currentStep > step
-                      ? "bg-zinc-900 dark:bg-zinc-100"
-                      : "bg-zinc-300 dark:bg-zinc-700"
-                  }`}
+                  className={cn(
+                    "h-1 w-12 rounded-full transition-colors",
+                    currentStep > step ? "bg-primary-600 dark:bg-primary-500" : "bg-slate-200 dark:bg-slate-700"
+                  )}
                 />
               )}
             </React.Fragment>
           ))}
         </div>
 
-        {/* Step 1: Payment Method */}
+        {/* Step 1: Payment Method — large cards, min 56px tap targets */}
         {currentStep === 1 && (
-          <div className="space-y-4">
-            <div>
-              <Label className="mb-3 block text-sm font-medium">Payment Method</Label>
-              <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="cash" id="cash" />
-                  <Label htmlFor="cash" className="cursor-pointer">
-                    Cash
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="mpesa" id="mpesa" />
-                  <Label htmlFor="mpesa" className="cursor-pointer">
-                    M-Pesa (Manual)
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="card" id="card" />
-                  <Label htmlFor="card" className="cursor-pointer">
-                    Card
-                  </Label>
-                </div>
-              </RadioGroup>
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              Select Payment Method
+            </h3>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("cash")}
+                className={cn(
+                  "flex min-h-[56px] flex-col items-center justify-center gap-2 rounded-xl border-2 p-6 transition-all",
+                  paymentMethod === "cash"
+                    ? "border-primary-600 bg-primary-50 dark:border-primary-500 dark:bg-primary-950/50"
+                    : "border-slate-200 bg-white hover:border-primary-400 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-primary-500"
+                )}
+              >
+                <Banknote className="h-10 w-10 text-success-600 dark:text-success-400" />
+                <span className="text-base font-semibold text-slate-900 dark:text-slate-100">Cash</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("mpesa")}
+                className={cn(
+                  "flex min-h-[56px] flex-col items-center justify-center gap-2 rounded-xl border-2 p-6 transition-all",
+                  paymentMethod === "mpesa"
+                    ? "border-primary-600 bg-primary-50 dark:border-primary-500 dark:bg-primary-950/50"
+                    : "border-slate-200 bg-white hover:border-primary-400 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-primary-500"
+                )}
+              >
+                <Smartphone className="h-10 w-10 text-success-600 dark:text-success-400" />
+                <span className="text-base font-semibold text-slate-900 dark:text-slate-100">M-Pesa</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("card")}
+                className={cn(
+                  "flex min-h-[56px] flex-col items-center justify-center gap-2 rounded-xl border-2 p-6 transition-all",
+                  paymentMethod === "card"
+                    ? "border-primary-600 bg-primary-50 dark:border-primary-500 dark:bg-primary-950/50"
+                    : "border-slate-200 bg-white hover:border-primary-400 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-primary-500"
+                )}
+              >
+                <CreditCard className="h-10 w-10 text-primary-600 dark:text-primary-400" />
+                <span className="text-base font-semibold text-slate-900 dark:text-slate-100">Card</span>
+              </button>
             </div>
 
             {paymentMethod === "mpesa" && (
@@ -590,17 +612,18 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
                   <Input
                     id="mpesa-phone"
                     type="tel"
+                    inputMode="numeric"
                     value={mpesaPhoneNumber}
                     onChange={(e) => {
                       const value = e.target.value.replace(/\D/g, "")
                       if (value.length <= 12) setMpesaPhoneNumber(value)
                     }}
-                    placeholder="254712345678"
+                    placeholder="2547XXXXXXXX"
                     maxLength={12}
-                    className="mt-1"
+                    className="mt-1 h-14 text-xl"
                   />
-                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                    Format: 254712345678 (12 digits, starts with 254)
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    Format: 2547XXXXXXXX (12 digits)
                   </p>
                 </div>
               </div>
@@ -633,11 +656,13 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
               </p>
             )}
 
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={onClose}>
+            <div className="flex justify-end gap-3 pt-6">
+              <Button variant="outline" onClick={onClose} className="min-h-[56px] px-6">
                 Cancel
               </Button>
-              <Button onClick={handleNext}>Next</Button>
+              <Button onClick={handleNext} className="min-h-[56px] bg-primary-600 px-6 hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-700">
+                Next
+              </Button>
             </div>
           </div>
         )}
@@ -756,8 +781,8 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
               </div>
             </div>
 
-            <div className="flex justify-between gap-2 pt-4">
-              <Button variant="outline" onClick={handleBack} disabled={isProcessing}>
+            <div className="flex justify-between gap-3 pt-6">
+              <Button variant="outline" onClick={handleBack} disabled={isProcessing} className="min-h-[56px] px-6">
                 Back
               </Button>
               <Button
@@ -766,10 +791,9 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
                   isProcessing ||
                   (paymentMethod === "mpesa" && !mpesaConfirmationCode.trim())
                 }
-                size="lg"
-                className="flex-1"
+                className="h-16 flex-1 bg-success-500 text-lg font-semibold text-white hover:bg-success-600 dark:bg-success-600 dark:hover:bg-success-700"
               >
-                {isProcessing ? "Processing..." : "Confirm Sale"}
+                {isProcessing ? "Processing..." : "Complete Sale"}
               </Button>
             </div>
           </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ShoppingBag } from "lucide-react"
 import {
   Table,
@@ -66,6 +67,8 @@ interface RecentSalesProps {
 }
 
 export function RecentSales({ sales, itemsPerSale }: RecentSalesProps) {
+  const router = useRouter()
+
   if (sales.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-12 px-6 dark:border-slate-700 dark:bg-slate-900/30">
@@ -103,30 +106,32 @@ export function RecentSales({ sales, itemsPerSale }: RecentSalesProps) {
             <TableRow
               key={sale.sale_id}
               className="cursor-pointer border-slate-200 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900/50"
-              asChild
+              onClick={() => router.push(`/sales/${sale.sale_id}`)}
             >
-              <Link href={`/sales/${sale.sale_id}`} className="contents">
-                <TableCell className="font-medium text-slate-700 dark:text-slate-300">
-                  {formatRelativeTime(sale.sale_date)}
-                </TableCell>
-                <TableCell>
-                  <span className="text-primary-600 hover:underline dark:text-primary-400">
-                    {sale.receipt_number ?? "—"}
-                  </span>
-                </TableCell>
-                <TableCell className="max-w-[140px] truncate text-slate-600 dark:text-slate-400">
-                  {sale.customer_name ?? "Walk-in"}
-                </TableCell>
-                <TableCell className="text-slate-600 dark:text-slate-400">
-                  {itemsPerSale[sale.sale_id] ?? 0} items
-                </TableCell>
-                <TableCell className="font-semibold text-slate-900 dark:text-slate-100">
-                  {formatCurrency(sale.grand_total ?? 0)}
-                </TableCell>
-                <TableCell>
-                  <PaymentBadge method={sale.payment_method} />
-                </TableCell>
-              </Link>
+              <TableCell className="font-medium text-slate-700 dark:text-slate-300">
+                {formatRelativeTime(sale.sale_date)}
+              </TableCell>
+              <TableCell>
+                <Link
+                  href={`/sales/${sale.sale_id}`}
+                  className="text-primary-600 hover:underline dark:text-primary-400"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {sale.receipt_number ?? "—"}
+                </Link>
+              </TableCell>
+              <TableCell className="max-w-[140px] truncate text-slate-600 dark:text-slate-400">
+                {sale.customer_name ?? "Walk-in"}
+              </TableCell>
+              <TableCell className="text-slate-600 dark:text-slate-400">
+                {itemsPerSale[sale.sale_id] ?? 0} items
+              </TableCell>
+              <TableCell className="font-semibold text-slate-900 dark:text-slate-100">
+                {formatCurrency(sale.grand_total ?? 0)}
+              </TableCell>
+              <TableCell>
+                <PaymentBadge method={sale.payment_method} />
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
