@@ -15,6 +15,14 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -37,6 +45,7 @@ type Staff = {
   role: string | null
   assigned_store_id: string | null
   active: boolean | null
+  has_pin: boolean
   stores: {
     name: string
   } | null
@@ -80,6 +89,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
   const [showAddModal, setShowAddModal] = React.useState(false)
   const [editingStaff, setEditingStaff] = React.useState<Staff | null>(null)
   const [deactivatingStaff, setDeactivatingStaff] = React.useState<Staff | null>(null)
+  const [pinModalStaff, setPinModalStaff] = React.useState<Staff | null>(null)
   const [resettingPIN, setResettingPIN] = React.useState<Staff | null>(null)
   const [generatedPIN, setGeneratedPIN] = React.useState<string | null>(null)
 
@@ -117,9 +127,17 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
       const result = await resetStaffPIN(resettingPIN.staff_id)
       setGeneratedPIN(result.pin)
       setResettingPIN(null)
+      toast.success("PIN reset. Share the new PIN with the staff member.")
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to reset PIN.")
       setResettingPIN(null)
+    }
+  }
+
+  const openResetConfirm = () => {
+    if (pinModalStaff) {
+      setResettingPIN(pinModalStaff)
+      setPinModalStaff(null)
     }
   }
 
@@ -256,7 +274,8 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setResettingPIN(member)}
+                        onClick={() => setPinModalStaff(member)}
+                        title="Manage PIN"
                       >
                         <Key className="h-4 w-4" />
                       </Button>
@@ -306,6 +325,38 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
           onSuccess={handleStaffUpdated}
         />
       )}
+
+      {/* PIN management modal: show status + Reset PIN */}
+      <Dialog open={!!pinModalStaff} onOpenChange={(open) => !open && setPinModalStaff(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Key className="h-5 w-5" />
+              PIN for {pinModalStaff ? `${(pinModalStaff.first_name || "").trim()} ${(pinModalStaff.last_name || "").trim()}`.trim() || pinModalStaff.email : ""}
+            </DialogTitle>
+            <DialogDescription asChild>
+              <div className="space-y-3 pt-1">
+                <p>
+                  {pinModalStaff?.has_pin
+                    ? "A 4-digit PIN is set for this staff. They can sign in with PIN at the login page when this device has the store saved."
+                    : "No PIN is set. Use Reset PIN to generate a 4-digit PIN for POS login."}
+                </p>
+                <p className="text-zinc-500 dark:text-zinc-400">
+                  For security, the current PIN cannot be displayed. Use Reset PIN to generate a new one and share it with the staff member.
+                </p>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setPinModalStaff(null)}>
+              Close
+            </Button>
+            <Button onClick={openResetConfirm}>
+              Reset PIN
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog
         open={!!deactivatingStaff}

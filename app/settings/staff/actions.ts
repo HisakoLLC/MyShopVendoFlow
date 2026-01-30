@@ -437,15 +437,15 @@ export async function resetStaffPIN(staffId: string) {
     throw new Error("Only owners can reset PINs.")
   }
 
-  // Verify staff belongs to account
-  const { data: staff, error: verifyError } = await supabase
+  // Verify staff belongs to account and get email for auth update
+  const { data: staffRow, error: verifyError } = await supabase
     .from("staff")
-    .select("staff_id")
+    .select("staff_id, email")
     .eq("staff_id", staffId)
     .eq("account_id", accountId)
     .single()
 
-  if (verifyError || !staff) {
+  if (verifyError || !staffRow) {
     throw new Error("Staff member not found or access denied.")
   }
 
@@ -453,7 +453,7 @@ export async function resetStaffPIN(staffId: string) {
   const newPIN = generatePIN()
   const pinHash = hashPIN(newPIN)
 
-  // Update PIN hash
+  // Update PIN hash in staff table
   const { error: updateError } = await supabase
     .from("staff")
     .update({ pin_hash: pinHash })
@@ -461,6 +461,20 @@ export async function resetStaffPIN(staffId: string) {
 
   if (updateError) {
     throw new Error(`Failed to reset PIN: ${updateError.message}`)
+  }
+
+  // Update Supabase Auth user password so staff can sign in with the new PIN
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
+  const supabaseUrl = getSupabaseUrl()
+  if (serviceRoleKey && supabaseUrl && staffRow.email) {
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    })
+    const { data: users } = await supabaseAdmin.auth.admin.listUsers()
+    const authUser = users?.users?.find((u) => u.email === staffRow.email)
+    if (authUser) {
+      await supabaseAdmin.auth.admin.updateUserById(authUser.id, { password: newPIN })
+    }
   }
 
   revalidatePath("/settings/staff")

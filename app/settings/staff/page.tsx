@@ -14,6 +14,7 @@ type Staff = {
   role: string | null
   assigned_store_id: string | null
   active: boolean | null
+  has_pin: boolean
   stores: {
     name: string
   } | null
@@ -92,7 +93,7 @@ async function fetchStaffData(): Promise<{
     throw new Error(storesError.message)
   }
 
-  // Fetch staff
+  // Fetch staff (pin_hash used only to derive has_pin; not sent to client)
   const { data: staff, error: staffError } = await supabase
     .from("staff")
     .select(
@@ -104,6 +105,7 @@ async function fetchStaffData(): Promise<{
       role,
       assigned_store_id,
       active,
+      pin_hash,
       stores!staff_assigned_store_id_fkey(name)
     `
     )
@@ -135,6 +137,7 @@ async function fetchStaffData(): Promise<{
       role: s.role != null ? String(s.role) : null,
       assigned_store_id: s.assigned_store_id != null ? String(s.assigned_store_id) : null,
       active: s.active != null ? Boolean(s.active) : null,
+      has_pin: !!(s.pin_hash != null && s.pin_hash !== ""),
       stores: storeName,
     }
   })
