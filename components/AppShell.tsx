@@ -166,7 +166,7 @@ function NavContent({
               href={item.href}
               label={item.label}
               icon={item.icon}
-              badge={item.badge}
+              badge={"badge" in item ? item.badge : undefined}
               pathname={pathname}
               onClick={onNavClick}
             />

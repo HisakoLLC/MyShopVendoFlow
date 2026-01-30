@@ -1,62 +1,96 @@
 "use client"
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts"
+import { formatCurrency } from "@/lib/format-currency"
+
+const PRIMARY_HEX = "#9333ea" // primary-600
+const SLATE_200 = "rgb(226 232 240)"
 
 interface DashboardMetricsProps {
   topSellers: Array<{ name: string; revenue: number }>
 }
 
+function CustomTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean
+  payload?: Array<{ payload: { fullName: string; revenue: number } }>
+}) {
+  if (!active || !payload?.length) return null
+  const { fullName, revenue } = payload[0].payload
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-lg dark:border-slate-700 dark:bg-slate-900">
+      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 truncate max-w-[200px]" title={fullName}>
+        {fullName}
+      </p>
+      <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+        {formatCurrency(revenue)}
+      </p>
+    </div>
+  )
+}
+
 export function DashboardMetrics({ topSellers }: DashboardMetricsProps) {
   if (topSellers.length === 0) {
     return (
-      <div className="flex h-[300px] items-center justify-center text-sm text-zinc-500 dark:text-zinc-400">
-        No sales data available
+      <div className="flex h-[320px] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-slate-200 bg-slate-50/50 px-4 dark:border-slate-700 dark:bg-slate-900/30">
+        <p className="text-center text-sm font-medium text-slate-600 dark:text-slate-400">
+          No sales data yet. Process your first sale!
+        </p>
       </div>
     )
   }
 
-  // Truncate long names for display
   const chartData = topSellers.map((seller) => ({
-    name: seller.name.length > 20 ? seller.name.substring(0, 20) + "..." : seller.name,
+    name: seller.name.length > 24 ? seller.name.substring(0, 24) + "…" : seller.name,
     revenue: seller.revenue,
     fullName: seller.name,
   }))
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={chartData} layout="vertical">
-        <CartesianGrid strokeDasharray="3 3" className="stroke-zinc-200 dark:stroke-zinc-800" />
+    <ResponsiveContainer width="100%" height={320}>
+      <BarChart
+        data={chartData}
+        layout="vertical"
+        margin={{ top: 8, right: 8, left: 0, bottom: 8 }}
+      >
         <XAxis
           type="number"
-          className="text-xs"
-          tick={{ fill: "rgb(113 113 122)" }}
-          tickLine={{ stroke: "rgb(113 113 122)" }}
+          tick={{ fontSize: 12, fill: "rgb(100 116 139)" }}
+          tickLine={{ stroke: SLATE_200 }}
+          axisLine={{ stroke: SLATE_200 }}
           tickFormatter={(value) => `KES ${(value / 1000).toFixed(0)}k`}
         />
         <YAxis
           type="category"
           dataKey="name"
-          width={120}
-          className="text-xs"
-          tick={{ fill: "rgb(113 113 122)" }}
-          tickLine={{ stroke: "rgb(113 113 122)" }}
+          width={140}
+          tick={{ fontSize: 12, fill: "rgb(51 65 85)" }}
+          tickLine={false}
+          axisLine={false}
         />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: "white",
-            border: "1px solid rgb(228 228 231)",
-            borderRadius: "0.5rem",
-          }}
-          formatter={(value: number | undefined, name: string | undefined, props: any) => [
-            new Intl.NumberFormat("en-KE", {
-              style: "currency",
-              currency: "KES",
-              maximumFractionDigits: 0,
-            }).format(value || 0),
-            props.payload.fullName || "Revenue",
-          ]}
-        />
-        <Bar dataKey="revenue" fill="rgb(24 24 27)" radius={[0, 4, 4, 0]} />
+        <Tooltip content={<CustomTooltip />} />
+        <Bar
+          dataKey="revenue"
+          radius={[0, 6, 6, 0]}
+          maxBarSize={32}
+          isAnimationActive
+          animationDuration={800}
+          label={{ position: "right", formatter: (v: number) => formatCurrency(v), fontSize: 12 }}
+        >
+          {chartData.map((_, index) => (
+            <Cell key={index} fill={PRIMARY_HEX} />
+          ))}
+        </Bar>
       </BarChart>
     </ResponsiveContainer>
   )
