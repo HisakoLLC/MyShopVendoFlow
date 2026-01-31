@@ -142,10 +142,19 @@ async function fetchStaffData(): Promise<{
     }
   })
 
+  // Ensure serializable shape for RSC (no extra keys or non-serializable values)
+  const accountSafe: Account = {
+    account_id: String(account?.account_id ?? ""),
+    plan_tier: account?.plan_tier != null ? String(account.plan_tier) : null,
+  }
+  const storesSafe: Array<{ store_id: string; name: string }> = (stores || []).map((s) => ({
+    store_id: String(s.store_id ?? ""),
+    name: String(s.name ?? ""),
+  }))
   return {
     staff: transformedStaff,
-    account: account as Account,
-    stores: (stores || []) as Array<{ store_id: string; name: string }>,
+    account: accountSafe,
+    stores: storesSafe,
   }
 }
 
@@ -170,23 +179,24 @@ function ErrorState({ message }: { message: string }) {
 }
 
 async function StaffPageContent() {
-  let data: { staff: Staff[]; account: Account; stores: Array<{ store_id: string; name: string }> }
   try {
-    data = await fetchStaffData()
+    const data = await fetchStaffData()
+    if (!data?.account?.account_id) {
+      return <ErrorState message="Account not found. Please complete onboarding first." />
+    }
+    return (
+      <div className="mx-auto w-full max-w-7xl px-4 py-6">
+        <StaffList
+          initialStaff={Array.isArray(data.staff) ? data.staff : []}
+          planTier={data.account?.plan_tier || "starter"}
+          stores={Array.isArray(data.stores) ? data.stores : []}
+        />
+      </div>
+    )
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unable to load staff."
     return <ErrorState message={message} />
   }
-
-  return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-6">
-      <StaffList
-        initialStaff={data.staff}
-        planTier={data.account.plan_tier || "starter"}
-        stores={data.stores}
-      />
-    </div>
-  )
 }
 
 export default function StaffPage() {

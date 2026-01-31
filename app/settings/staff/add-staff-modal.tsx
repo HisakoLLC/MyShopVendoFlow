@@ -109,7 +109,9 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
       if (result.pin) {
         setGeneratedPIN(result.pin)
       }
-      toast.success(`Invitation sent to ${result.email}`)
+      toast.success(`Staff created. ${result.pin ? "Share the PIN with them." : ""}`)
+      setIsSubmitting(false)
+      form.reset()
       onSuccess()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to create staff member.")

@@ -81,6 +81,14 @@ function OnboardingContent() {
   // Step 3: Plan
   const [selectedPlan, setSelectedPlan] = React.useState<string | null>(null)
 
+  const toAccountId = (v: unknown): string | null => {
+    if (v == null) return null
+    if (typeof v === "string") return v || null
+    if (Array.isArray(v)) return v[0] != null ? String(v[0]) : null
+    if (typeof v === "object" && v !== null && "account_id" in v) return String((v as { account_id: unknown }).account_id) || null
+    return String(v) || null
+  }
+
   const handleStep1 = async () => {
     if (!storeName.trim()) {
       toast.error("Store name is required")
@@ -97,7 +105,7 @@ function OnboardingContent() {
         return
       }
 
-      let accountId: string | null = (await supabase.rpc("get_account_id")).data ?? null
+      let accountId: string | null = toAccountId((await supabase.rpc("get_account_id")).data)
       if (!accountId) {
         const ensured = await ensureAccountForCurrentUser()
         if (ensured.success) accountId = ensured.accountId
@@ -152,7 +160,7 @@ function OnboardingContent() {
         return
       }
 
-      let accountId: string | null = (await supabase.rpc("get_account_id")).data ?? null
+      let accountId: string | null = toAccountId((await supabase.rpc("get_account_id")).data)
       if (!accountId) {
         const ensured = await ensureAccountForCurrentUser()
         if (ensured.success) accountId = ensured.accountId
@@ -204,7 +212,7 @@ function OnboardingContent() {
         return
       }
 
-      let accountId: string | null = (await supabase.rpc("get_account_id")).data ?? null
+      let accountId: string | null = toAccountId((await supabase.rpc("get_account_id")).data)
       if (!accountId) {
         const ensured = await ensureAccountForCurrentUser()
         if (ensured.success) accountId = ensured.accountId

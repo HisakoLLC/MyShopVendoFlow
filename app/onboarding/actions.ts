@@ -32,31 +32,71 @@ export async function ensureAccountForCurrentUser(): Promise<
     .select("account_id")
     .eq("user_id", user.id)
     .limit(1)
-    .single()
+    .maybeSingle()
 
   if (member?.account_id) {
     return { success: true, accountId: member.account_id }
   }
 
+  const ownerEmail = user.email?.trim() ?? ""
+  if (ownerEmail) {
+    const { data: existingAccount } = await supabase
+      .from("accounts")
+      .select("account_id")
+      .eq("owner_email", ownerEmail)
+      .limit(1)
+      .maybeSingle()
+    if (existingAccount?.account_id) {
+      const memberId = uuidv4()
+      const { error: linkError } = await supabase.from("account_members").insert({
+        member_id: memberId,
+        account_id: existingAccount.account_id,
+        user_id: user.id,
+        role: "owner",
+      })
+      if (!linkError) {
+        return { success: true, accountId: existingAccount.account_id }
+      }
+    }
+  }
+
   // Create account + membership using the authenticated user's session.
-  // RLS policies "Users can create their own account" and "Users can create their own membership"
-  // allow this, so it works without the service role key (e.g. on Vercel where it may be missing).
   const accountId = uuidv4()
   const memberId = uuidv4()
 
   const { error: accountError } = await supabase.from("accounts").insert({
     account_id: accountId,
     business_name: "My Business",
-    owner_email: user.email?.trim() ?? "",
+    owner_email: ownerEmail,
     plan_tier: null,
     subscription_status: "trial",
   })
 
   if (accountError) {
+    const code = (accountError as { code?: string }).code
+    if (code === "23505" && ownerEmail) {
+      const { data: existingAccount } = await supabase
+        .from("accounts")
+        .select("account_id")
+        .eq("owner_email", ownerEmail)
+        .limit(1)
+        .maybeSingle()
+      if (existingAccount?.account_id) {
+        const memberId = uuidv4()
+        const { error: linkError } = await supabase.from("account_members").insert({
+          member_id: memberId,
+          account_id: existingAccount.account_id,
+          user_id: user.id,
+          role: "owner",
+        })
+        if (!linkError) {
+          return { success: true, accountId: existingAccount.account_id }
+        }
+      }
+    }
     const isPermissionDenied =
-      (accountError as { code?: string }).code === "42501" ||
+      code === "42501" ||
       String(accountError.message).toLowerCase().includes("permission denied")
-    // Fallback: try service-role path (e.g. local dev with service key set)
     if (isPermissionDenied) {
       try {
         const result = await createAccountAfterSignup(
@@ -73,7 +113,7 @@ export async function ensureAccountForCurrentUser(): Promise<
     }
     return {
       success: false,
-      error: `Failed to create account: ${accountError.message}. Code: ${(accountError as { code?: string }).code ?? "unknown"}`,
+      error: `Failed to create account: ${accountError.message}. Code: ${code ?? "unknown"}`,
     }
   }
 

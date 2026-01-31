@@ -99,12 +99,12 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
 
   const handleStaffCreated = () => {
     setShowAddModal(false)
-    window.location.reload()
+    router.refresh()
   }
 
   const handleStaffUpdated = () => {
     setEditingStaff(null)
-    window.location.reload()
+    router.refresh()
   }
 
   const handleDeactivate = async () => {
