@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { toast, Toaster } from "sonner"
 
@@ -19,6 +19,8 @@ const ACCOUNT_ID_KEY = "vendoflow_last_account_id"
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const deletedParam = searchParams.get("deleted") === "1"
   const [supabaseError, setSupabaseError] = React.useState<string | null>(null)
   const supabase = React.useMemo(() => {
     try {
@@ -217,6 +219,16 @@ export default function LoginPage() {
             </p>
           )}
         </div>
+
+        {deletedParam && (
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/40 dark:bg-blue-950/30">
+            <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">Account scheduled for deletion</p>
+            <p className="mt-1 text-xs text-blue-800 dark:text-blue-200">
+              Your account has been marked for deletion. All data will be permanently removed after 90 days.
+              You can request a copy of your data before then by contacting support.
+            </p>
+          </div>
+        )}
 
         {supabaseError && (
           <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/40 dark:bg-red-950/30">

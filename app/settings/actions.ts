@@ -313,3 +313,73 @@ export async function updateStoreTaxRate(data: TaxRateData) {
   revalidatePath("/settings")
   return { success: true }
 }
+
+/** Normalize get_account_id() result to a string. */
+function toAccountId(raw: unknown): string | null {
+  if (raw == null) return null
+  if (typeof raw === "string") return raw || null
+  if (Array.isArray(raw)) return raw[0] != null ? String(raw[0]) : null
+  if (typeof raw === "object" && raw !== null && "account_id" in raw) return String((raw as { account_id: unknown }).account_id) || null
+  return String(raw) || null
+}
+
+/**
+ * Request account deletion. Marks the account as deleted and revokes access.
+ * Data is retained for 90 days; user can request a copy before then.
+ */
+export async function requestAccountDeletion(): Promise<{ success: true } | { success: false; error: string }> {
+  const supabase = await createServerSupabaseClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    return { success: false, error: "You must be signed in." }
+  }
+
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = toAccountId(accountIdRaw)
+  if (accountIdError || !accountId) {
+    return { success: false, error: "Account not found." }
+  }
+
+  const { data: member, error: memberError } = await supabase
+    .from("account_members")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("account_id", accountId)
+    .maybeSingle()
+
+  if (memberError || !member || member.role !== "owner") {
+    return { success: false, error: "Only the account owner can delete the account." }
+  }
+
+  const purgeAt = new Date()
+  purgeAt.setDate(purgeAt.getDate() + 90)
+
+  const { error: updateError } = await supabase
+    .from("accounts")
+    .update({
+      subscription_status: "deleted",
+      trial_ends_at: purgeAt.toISOString(),
+    })
+    .eq("account_id", accountId)
+
+  if (updateError) {
+    return { success: false, error: `Failed to mark account for deletion: ${updateError.message}` }
+  }
+
+  const { error: deleteMembersError } = await supabase
+    .from("account_members")
+    .delete()
+    .eq("account_id", accountId)
+
+  if (deleteMembersError) {
+    return { success: false, error: `Failed to revoke access: ${deleteMembersError.message}` }
+  }
+
+  revalidatePath("/", "layout")
+  return { success: true }
+}

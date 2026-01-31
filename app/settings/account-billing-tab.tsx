@@ -1,8 +1,11 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { CreditCard, AlertTriangle, Trash2 } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
+import { requestAccountDeletion } from "./actions"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -40,6 +43,8 @@ const planNames: Record<string, string> = {
 }
 
 export function AccountBillingTab({ account }: AccountBillingTabProps) {
+  const router = useRouter()
+  const supabase = React.useMemo(() => createClient(), [])
   const [showCancelDialog, setShowCancelDialog] = React.useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = React.useState("")
@@ -75,10 +80,16 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
 
     setIsProcessing(true)
     try {
-      // TODO: Implement account deletion
-      toast.info("Account deletion coming soon.")
+      const result = await requestAccountDeletion()
+      if (!result.success) {
+        toast.error(result.error)
+        return
+      }
       setShowDeleteDialog(false)
       setDeleteConfirmText("")
+      await supabase.auth.signOut()
+      router.push("/login?deleted=1")
+      router.refresh()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to delete account.")
     } finally {
@@ -244,8 +255,8 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
               <div>
                 <div className="font-medium text-zinc-900 dark:text-zinc-100">Delete Account</div>
                 <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                  Permanently delete your account and all associated data. This action cannot be
-                  undone.
+                  Schedule account deletion. Your data is retained for 90 days, then permanently
+                  removed. You can request a copy of your data before the 90-day period.
                 </div>
               </div>
               <Button
@@ -293,9 +304,19 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
               <AlertTriangle className="h-5 w-5" />
               Delete Account?
             </AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your account, store data,
-              products, sales data, and all other associated information.
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                <p>
+                  Your account will be marked for deletion and you will be signed out immediately.
+                  All account data (stores, products, sales, etc.) is retained for 90 days, then
+                  permanently removed.
+                </p>
+                <p>
+                  You can request a copy of your data within 90 days by contacting support (e.g.
+                  email or in-app support).
+                </p>
+                <p className="font-medium">This action cannot be undone.</p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="my-4 space-y-2">
