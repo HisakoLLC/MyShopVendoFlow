@@ -147,7 +147,7 @@ async function fetchStaffData(): Promise<{
     account_id: String(account?.account_id ?? ""),
     plan_tier: account?.plan_tier != null ? String(account.plan_tier) : null,
   }
-  const storesSafe: Array<{ store_id: string; name: string }> = (stores || []).map((s) => ({
+  const storesSafe: Array<{ store_id: string; name: string }> = (stores || []).map((s: { store_id?: unknown; name?: unknown }) => ({
     store_id: String(s.store_id ?? ""),
     name: String(s.name ?? ""),
   }))
