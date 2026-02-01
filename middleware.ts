@@ -23,7 +23,7 @@ export async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname
 
     // Public routes that don't require authentication
-    const publicRoutes = ["/login", "/signup", "/onboarding", "/reset-password"]
+    const publicRoutes = ["/login", "/signup", "/onboarding", "/reset-password", "/auth/pin-login"]
     const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route))
     const isApiRoute = pathname.startsWith("/api")
 
@@ -81,11 +81,25 @@ export async function middleware(request: NextRequest) {
       error: userError,
     } = await supabase.auth.getUser()
 
-    // If error getting user or no user session, redirect to login
+    // If error getting user or no user session: /pos -> pin-login, else -> login
     if (userError || !user) {
-      const redirectUrl = new URL("/login", request.url)
+      const isPos = pathname === "/pos" || pathname.startsWith("/pos/")
+      const redirectPath = isPos ? "/auth/pin-login" : "/login"
+      const redirectUrl = new URL(redirectPath, request.url)
       redirectUrl.searchParams.set("redirect", pathname)
       return NextResponse.redirect(redirectUrl)
+    }
+
+    // Staff (shared PIN user): allow only /pos
+    if (user.email === "pos-staff@vendoflow.internal") {
+      const allowedStaffPaths = ["/pos"]
+      const allowed = allowedStaffPaths.some((p) => pathname === p || pathname.startsWith(p + "/"))
+      if (!allowed) {
+        const redirectUrl = new URL("/auth/pin-login", request.url)
+        redirectUrl.searchParams.set("redirect", "/pos")
+        return NextResponse.redirect(redirectUrl)
+      }
+      return response
     }
 
     // Check if user has completed onboarding (has account_members record)

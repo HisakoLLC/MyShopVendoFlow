@@ -1,17 +1,16 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { getSupabaseUrl } from "@/lib/supabase/env"
-import { createHash } from "crypto"
+import { verifyPIN } from "@/lib/auth/pin-auth"
 
-function hashPIN(pin: string): string {
-  return createHash("sha256").update(pin).digest("hex")
-}
+const POS_STAFF_SHARED_EMAIL = "pos-staff@vendoflow.internal"
+const LOCKOUT_ATTEMPTS = 3
+const LOCKOUT_MINUTES = 5
 
 const UUID_REGEX =
   /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
 
-/** Normalize for comparison: UUIDs are case-insensitive per RFC. */
-function normalizeUuidForCompare(value: string): string {
+function normalizeUuid(value: string): string {
   const s = value.trim()
   return UUID_REGEX.test(s) ? s.toLowerCase() : s
 }
@@ -54,7 +53,7 @@ export async function POST(request: Request) {
       auth: { autoRefreshToken: false, persistSession: false },
     })
 
-    let accountId = bodyAccountId
+    let accountId: string | null = bodyAccountId && typeof bodyAccountId === "string" ? bodyAccountId : null
 
     if (!accountId) {
       const { data: store, error: storeError } = await supabaseAdmin
@@ -69,100 +68,131 @@ export async function POST(request: Request) {
           { status: 404 }
         )
       }
-      const raw = store.account_id
-      accountId = Array.isArray(raw) ? raw[0] : typeof raw === "object" && raw !== null && "account_id" in raw ? (raw as { account_id: string }).account_id : raw
+      accountId = typeof store.account_id === "string" ? store.account_id : String(store.account_id)
     }
 
-    const pinHash = hashPIN(trimmedPin)
-    const accountIdStr =
-      typeof accountId === "string"
-        ? accountId
-        : Array.isArray(accountId)
-          ? accountId[0]
-          : typeof accountId === "object" && accountId !== null && "account_id" in accountId
-            ? (accountId as { account_id: string }).account_id
-            : String(accountId)
-    const accountIdForCompare = normalizeUuidForCompare(accountIdStr)
-    const storeIdForCompare = normalizeUuidForCompare(store_id)
+    const accountIdNorm = normalizeUuid(accountId)
+    const storeIdNorm = normalizeUuid(store_id)
 
-    // Find all active staff with this PIN hash; filter by account (and store) in code to avoid DB comparison quirks
-    const { data: byPin, error: byPinError } = await supabaseAdmin
+    // Fetch active staff for this account that have a PIN (and optionally match store)
+    const { data: staffRows, error: staffError } = await supabaseAdmin
       .from("staff")
-      .select("email, account_id, assigned_store_id")
-      .eq("pin_hash", pinHash)
+      .select("staff_id, account_id, email, pin_hash, assigned_store_id, active, failed_attempts, locked_until")
+      .eq("account_id", accountIdNorm)
       .eq("active", true)
-      .limit(50)
+      .not("pin_hash", "is", null)
+      .limit(100)
 
-    const normalized = (aid: string | null | unknown): string => {
-      if (aid == null) return ""
-      if (typeof aid === "string") return aid
-      if (Array.isArray(aid)) return aid[0] ?? ""
-      if (typeof aid === "object" && aid !== null && "account_id" in aid)
-        return (aid as { account_id: string }).account_id
-      return String(aid)
-    }
-
-    // Prefer: same account AND (no assigned store OR assigned store = this store)
-    const matchWithStore = (s: { account_id: unknown; assigned_store_id: string | null }) => {
-      if (normalizeUuidForCompare(normalized(s.account_id)) !== accountIdForCompare) return false
-      const assigned = s.assigned_store_id ?? null
-      if (assigned != null && normalizeUuidForCompare(assigned) !== storeIdForCompare) return false
-      return true
-    }
-    // Fallback: same account only (in case assigned_store_id is missing or mismatched)
-    const matchAccountOnly = (s: { account_id: unknown }) =>
-      normalizeUuidForCompare(normalized(s.account_id)) === accountIdForCompare
-
-    const match =
-      byPinError || !byPin
-        ? null
-        : byPin.find(matchWithStore) ?? byPin.find(matchAccountOnly) ?? null
-
-    if (process.env.NODE_ENV === "development" && (byPinError || !match)) {
-      const hasPinRows = !byPinError && byPin && byPin.length > 0
-      console.log("[pin-login]", {
-        store_id,
-        store_id_normalized: storeIdForCompare,
-        account_id_sent: !!bodyAccountId,
-        account_id_for_compare: accountIdForCompare,
-        pin_hash_prefix: pinHash.slice(0, 8) + "...",
-        by_pin_error: byPinError?.message ?? null,
-        by_pin_count: byPin?.length ?? 0,
-        first_rows: hasPinRows
-          ? byPin!.slice(0, 3).map((r) => ({
-              account: normalizeUuidForCompare(normalized(r.account_id)),
-              assigned_store: r.assigned_store_id ? normalizeUuidForCompare(r.assigned_store_id) : null,
-            }))
-          : [],
-      })
-    }
-
-    if (!match?.email) {
+    if (staffError || !staffRows?.length) {
       return NextResponse.json(
         { error: "Invalid PIN for this store" },
         { status: 401 }
       )
     }
 
-    // Sign in via magic link so we don't depend on Auth password (avoids password policy / sync issues)
-    const origin = request.headers.get("origin") || request.headers.get("referer")?.replace(/\/[^/]*$/, "") || ""
-    const redirectTo = origin ? `${origin}/dashboard` : undefined
-    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-      type: "magiclink",
-      email: String(match.email).trim(),
-      options: redirectTo ? { redirectTo } : undefined,
-    })
-    if (linkError || !linkData?.properties?.action_link) {
-      return NextResponse.json(
-        { error: "Could not create sign-in link. Try again or ask an owner to reset your PIN." },
-        { status: 500 }
-      )
+    const now = new Date()
+    type StaffRow = (typeof staffRows)[0] & { failed_attempts?: number | null; locked_until?: string | null }
+    const withLock = (row: StaffRow) => {
+      const lockedUntil = row.locked_until ? new Date(row.locked_until) : null
+      if (lockedUntil && lockedUntil > now) {
+        const mins = Math.ceil((lockedUntil.getTime() - now.getTime()) / 60_000)
+        return { locked: true as const, mins }
+      }
+      return { locked: false as const }
     }
-    const actionLink = linkData.properties.action_link as string
-    const baseUrl = supabaseUrl.replace(/\/$/, "")
-    const signInLink = actionLink.startsWith("http") ? actionLink : `${baseUrl}/${actionLink}`
 
-    return NextResponse.json({ email: match.email, sign_in_link: signInLink })
+    // Prefer staff assigned to this store, then any staff for account
+    const byStore = staffRows.filter(
+      (r) =>
+        normalizeUuid(String((r as StaffRow).assigned_store_id ?? "")) === storeIdNorm
+    )
+    const list = byStore.length > 0 ? byStore : staffRows
+
+    for (const row of list as StaffRow[]) {
+      const lock = withLock(row)
+      if (lock.locked) {
+        return NextResponse.json(
+          { error: `Too many failed attempts. Try again in ${lock.mins} minute(s).` },
+          { status: 403 }
+        )
+      }
+      const hash = row.pin_hash
+      if (!hash) continue
+      const match = await verifyPIN(trimmedPin, hash)
+      if (match) {
+        // Reset failed attempts on success
+        await supabaseAdmin
+          .from("staff")
+          .update({ failed_attempts: 0, locked_until: null })
+          .eq("staff_id", row.staff_id)
+
+        // Ensure shared POS staff user exists
+        const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 })
+        let sharedUser = existingUsers?.users?.find((u) => u.email === POS_STAFF_SHARED_EMAIL)
+        if (!sharedUser) {
+          const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
+            email: POS_STAFF_SHARED_EMAIL,
+            password: crypto.randomUUID() + crypto.randomUUID(),
+            email_confirm: true,
+          })
+          if (createErr || !created.user) {
+            return NextResponse.json(
+              { error: "Could not create sign-in session. Try again." },
+              { status: 500 }
+            )
+          }
+          sharedUser = created.user
+        }
+
+        // Do not set metadata here (race with concurrent logins). Redirect URL carries staff_id/account_id; /api/auth/bind-staff sets metadata after landing.
+
+        const origin =
+          request.headers.get("origin") ||
+          request.headers.get("referer")?.replace(/\/[^/]*$/, "") ||
+          ""
+        const redirectPath = `/pos?staff_id=${encodeURIComponent(row.staff_id)}&account_id=${encodeURIComponent(accountIdNorm)}`
+        const redirectTo = origin ? `${origin}${redirectPath}` : redirectPath
+
+        const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+          type: "magiclink",
+          email: POS_STAFF_SHARED_EMAIL,
+          options: { redirectTo },
+        })
+
+        if (linkError || !linkData?.properties?.action_link) {
+          return NextResponse.json(
+            { error: "Could not create sign-in link. Try again." },
+            { status: 500 }
+          )
+        }
+
+        const actionLink = linkData.properties.action_link as string
+        const baseUrl = supabaseUrl.replace(/\/$/, "")
+        const signInLink = actionLink.startsWith("http") ? actionLink : `${baseUrl}/${actionLink}`
+
+        return NextResponse.json({ sign_in_link: signInLink })
+      }
+    }
+
+    // No match: optionally increment failed_attempts only when single staff (so we know who tried)
+    if (list.length === 1) {
+      const row = list[0] as StaffRow
+      const current = Number(row.failed_attempts) || 0
+      const nextAttempts = current + 1
+      const updates: { failed_attempts: number; locked_until?: string } = {
+        failed_attempts: nextAttempts,
+      }
+      if (nextAttempts >= LOCKOUT_ATTEMPTS) {
+        const lockedUntil = new Date(now.getTime() + LOCKOUT_MINUTES * 60 * 1000)
+        updates.locked_until = lockedUntil.toISOString()
+      }
+      await supabaseAdmin.from("staff").update(updates).eq("staff_id", row.staff_id)
+    }
+
+    return NextResponse.json(
+      { error: "Invalid PIN. Try again." },
+      { status: 401 }
+    )
   } catch {
     return NextResponse.json(
       { error: "Something went wrong" },

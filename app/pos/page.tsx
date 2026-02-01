@@ -2,6 +2,9 @@ import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { POSClient } from "./POSClient"
+import { BindStaffThenPOS } from "./BindStaffThenPOS"
+
+const POS_STAFF_SHARED_EMAIL = "pos-staff@vendoflow.internal"
 
 function LoadingState() {
   return (
@@ -14,8 +17,13 @@ function LoadingState() {
   )
 }
 
-async function POSPageContent() {
+async function POSPageContent({
+  searchParams,
+}: {
+  searchParams: Promise<{ staff_id?: string; account_id?: string }>
+}) {
   const supabase = await createServerSupabaseClient()
+  const params = await searchParams
 
   const {
     data: { user },
@@ -23,16 +31,32 @@ async function POSPageContent() {
   } = await supabase.auth.getUser()
 
   if (userError || !user) {
-    redirect("/login")
+    redirect("/auth/pin-login?redirect=/pos")
   }
 
+  // Owner: account from RPC. Staff: account from user_metadata (set after bind-staff).
   const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
-  const accountId = Array.isArray(accountIdRaw)
+  const accountIdFromRpc = Array.isArray(accountIdRaw)
     ? accountIdRaw[0]
     : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
       ? (accountIdRaw as { account_id: string }).account_id
       : accountIdRaw
-  if (accountIdError || !accountId) {
+  const accountIdFromMeta = user?.user_metadata?.account_id as string | undefined
+  const accountId = accountIdFromRpc ?? accountIdFromMeta ?? null
+
+  // Staff just landed via magic link: URL has staff_id & account_id but metadata not bound yet.
+  if (
+    user.email === POS_STAFF_SHARED_EMAIL &&
+    params.staff_id &&
+    params.account_id &&
+    !accountIdFromMeta
+  ) {
+    return (
+      <BindStaffThenPOS staffId={params.staff_id} accountId={params.account_id} />
+    )
+  }
+
+  if (!accountId) {
     redirect("/onboarding?redirect=/pos")
   }
 
@@ -70,10 +94,14 @@ async function POSPageContent() {
   return <POSClient defaultStoreId={defaultStoreId} storeName={storeName} />
 }
 
-export default function POSPage() {
+export default async function POSPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ staff_id?: string; account_id?: string }>
+}) {
   return (
     <Suspense fallback={<LoadingState />}>
-      <POSPageContent />
+      <POSPageContent searchParams={searchParams} />
     </Suspense>
   )
 }

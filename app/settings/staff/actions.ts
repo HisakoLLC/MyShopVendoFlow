@@ -2,10 +2,8 @@
 
 import { revalidatePath } from "next/cache"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
-import { createClient } from "@supabase/supabase-js"
-import { getSupabaseUrl } from "@/lib/supabase/env"
 import { z } from "zod"
-import { createHash } from "crypto"
+import { hashPIN as hashPINBcrypt } from "@/lib/auth/pin-auth"
 
 const staffSchema = z.object({
   first_name: z.string().min(1, "First name is required.").max(100, "First name is too long."),
@@ -24,15 +22,8 @@ export type UpdateStaffData = Omit<z.infer<typeof staffSchema>, "email" | "gener
 }
 
 /**
- * Hash a PIN using Node.js crypto
- */
-function hashPIN(pin: string): string {
-  return createHash("sha256").update(pin).digest("hex")
-}
-
-/**
  * Generate a 6-digit PIN with an easy-to-remember pattern (same digits at start or end).
- * Examples: 33xxxx, 11xxxx, 00xxxx, xxxx00, xxxx11, xxxx33 — meets Supabase min length 6.
+ * Examples: 33xxxx, 11xxxx, 00xxxx, xxxx00, xxxx11, xxxx33.
  */
 function generatePIN(): string {
   const fourRandom = Math.floor(1000 + Math.random() * 9000).toString()
@@ -160,44 +151,15 @@ export async function createStaff(data: CreateStaffData) {
     throw new Error("Staff member with this email already exists.")
   }
 
-  // Generate PIN if requested
+  // Generate PIN if requested (bcrypt hash; staff sign in via PIN only, no separate auth user)
   let pinHash: string | null = null
   let generatedPIN: string | null = null
   if (data.generate_pin) {
     generatedPIN = generatePIN()
-    pinHash = await hashPIN(generatedPIN)
+    pinHash = await hashPINBcrypt(generatedPIN)
   }
 
-  // Create user in Supabase Auth (using admin API via service role)
-  // Note: This requires service role key - we'll use a server-side approach
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
-  if (!serviceRoleKey) {
-    throw new Error("Service role key not configured. Cannot create staff user.")
-  }
-
-  const supabaseUrl = getSupabaseUrl()
-  if (!supabaseUrl) throw new Error("Supabase URL not configured.")
-  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  })
-
-  // When generate_pin, staff will sign in with email + PIN; otherwise use a random temp password
-  const authPassword = data.generate_pin && generatedPIN ? generatedPIN : Math.random().toString(36).slice(-12) + "A1!"
-
-  const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
-    email: data.email.trim(),
-    password: authPassword,
-    email_confirm: false,
-  })
-
-  if (authError || !authUser.user) {
-    throw new Error(`Failed to create user: ${authError?.message || "Unknown error"}`)
-  }
-
-  // Create staff record
+  // Create staff record only (no auth.users or account_members for staff; they use shared PIN login)
   const { data: staff, error: staffError } = await supabase
     .from("staff")
     .insert({
@@ -214,31 +176,14 @@ export async function createStaff(data: CreateStaffData) {
     .single()
 
   if (staffError) {
-    // Try to delete the auth user if staff creation fails
-    await supabaseAdmin.auth.admin.deleteUser(authUser.user.id)
     throw new Error(`Failed to create staff record: ${staffError.message}`)
   }
 
-  // Create account_members record
-  const { error: memberError2 } = await supabase.from("account_members").insert({
-    account_id: accountId,
-    user_id: authUser.user.id,
-    role: data.role,
-  })
-
-  if (memberError2) {
-    // Cleanup: delete staff and auth user
-    await supabase.from("staff").delete().eq("staff_id", staff.staff_id)
-    await supabaseAdmin.auth.admin.deleteUser(authUser.user.id)
-    throw new Error(`Failed to link user to account: ${memberError2.message}`)
-  }
-
-  // Don't revalidate here — client reload will refetch; avoids RSC render errors after create
   return {
     staff_id: staff.staff_id,
     email: staff.email,
     name: `${staff.first_name} ${staff.last_name}`,
-    pin: generatedPIN, // Return PIN only on creation
+    pin: generatedPIN, // Shown to owner once only
   }
 }
 
@@ -306,40 +251,7 @@ export async function updateStaff(data: UpdateStaffData) {
     throw new Error(`Failed to update staff: ${updateError.message}`)
   }
 
-  // Update account_members role if changed
-  // Note: We need to find the user_id by email using admin API
-  const { data: staffUser, error: staffUserError } = await supabase
-    .from("staff")
-    .select("email")
-    .eq("staff_id", data.staff_id)
-    .single()
-
-  if (!staffUserError && staffUser) {
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
-    const supabaseUrl = getSupabaseUrl()
-    if (serviceRoleKey && supabaseUrl) {
-      const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-        },
-      })
-
-      const { data: users, error: listError } = await supabaseAdmin.auth.admin.listUsers()
-      if (!listError && users) {
-        const authUser = users.users.find((u) => u.email === staffUser.email)
-        if (authUser) {
-          // Update account_members role
-          await supabase
-            .from("account_members")
-            .update({ role: data.role })
-            .eq("user_id", authUser.id)
-            .eq("account_id", accountId)
-        }
-      }
-    }
-  }
-
+  // Staff no longer have account_members; role is only in staff table (already updated above)
   revalidatePath("/settings/staff")
   return { success: true }
 }
@@ -451,7 +363,7 @@ export async function resetStaffPIN(staffId: string) {
   // Verify staff belongs to account and get email for auth update
   const { data: staffRow, error: verifyError } = await supabase
     .from("staff")
-    .select("staff_id, email")
+    .select("staff_id")
     .eq("staff_id", staffId)
     .eq("account_id", accountId)
     .single()
@@ -462,45 +374,15 @@ export async function resetStaffPIN(staffId: string) {
 
   // Generate new PIN
   const newPIN = generatePIN()
-  const pinHash = hashPIN(newPIN)
+  const pinHash = await hashPINBcrypt(newPIN)
 
-  // Update PIN hash in staff table
   const { error: updateError } = await supabase
     .from("staff")
-    .update({ pin_hash: pinHash })
+    .update({ pin_hash: pinHash, failed_attempts: 0, locked_until: null })
     .eq("staff_id", staffId)
 
   if (updateError) {
     throw new Error(`Failed to reset PIN: ${updateError.message}`)
-  }
-
-  // Update Supabase Auth user password so staff can sign in with the new PIN (listUsers is paginated; loop to find user)
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
-  const supabaseUrl = getSupabaseUrl()
-  const staffEmailLower = staffRow.email?.trim().toLowerCase()
-  if (serviceRoleKey && supabaseUrl && staffEmailLower) {
-    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    })
-    let page = 1
-    const perPage = 1000
-    let authUser: { id: string } | null = null
-    while (true) {
-      const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage })
-      if (error) break
-      const users = data?.users ?? []
-      authUser = users.find((u) => u.email?.trim().toLowerCase() === staffEmailLower) ?? null
-      if (authUser || users.length < perPage) break
-      page++
-    }
-    if (authUser) {
-      const { error: updateAuthError } = await supabaseAdmin.auth.admin.updateUserById(authUser.id, {
-        password: newPIN,
-      })
-      if (updateAuthError) {
-        throw new Error(`PIN was reset in staff record, but updating sign-in password failed: ${updateAuthError.message}. Ask the staff to use “Forgot password” or try again.`)
-      }
-    }
   }
 
   revalidatePath("/settings/staff")
