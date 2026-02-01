@@ -144,13 +144,18 @@ export async function POST(request: Request) {
           sharedUser = created.user
         }
 
-        // Do not set metadata here (race with concurrent logins). Redirect URL carries staff_id/account_id; /api/auth/bind-staff sets metadata after landing.
-
-        const origin =
-          request.headers.get("origin") ||
-          request.headers.get("referer")?.replace(/\/[^/]*$/, "") ||
-          ""
-        const redirectPath = `/pos?staff_id=${encodeURIComponent(row.staff_id)}&account_id=${encodeURIComponent(accountIdNorm)}`
+        // Redirect to /auth/callback so the client can exchange #access_token for a session
+        // before loading /pos (middleware requires session cookie on first request).
+        let origin = request.headers.get("origin") || ""
+        if (!origin) {
+          try {
+            const referer = request.headers.get("referer")
+            if (referer) origin = new URL(referer).origin
+          } catch {
+            // ignore
+          }
+        }
+        const redirectPath = `/auth/callback?staff_id=${encodeURIComponent(row.staff_id)}&account_id=${encodeURIComponent(accountIdNorm)}`
         const redirectTo = origin ? `${origin}${redirectPath}` : redirectPath
 
         const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
