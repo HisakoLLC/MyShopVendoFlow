@@ -117,30 +117,36 @@ async function fetchStaffData(): Promise<{
   }
 
   // Transform to strict serializable shape (avoids RSC/serialization errors for owner/manager)
-  const transformedStaff: Staff[] = (staff || []).map((s: Record<string, unknown>) => {
-    const rawStores = s.stores
-    const storesValue =
-      rawStores == null
-        ? null
-        : Array.isArray(rawStores)
-          ? (rawStores[0] as { name?: string } | undefined)
-          : (rawStores as { name?: string })
-    const storeName =
-      storesValue && typeof storesValue === "object" && typeof storesValue.name === "string"
-        ? { name: storesValue.name }
-        : null
-    return {
-      staff_id: String(s.staff_id ?? ""),
-      email: String(s.email ?? ""),
-      first_name: s.first_name != null ? String(s.first_name) : null,
-      last_name: s.last_name != null ? String(s.last_name) : null,
-      role: s.role != null ? String(s.role) : null,
-      assigned_store_id: s.assigned_store_id != null ? String(s.assigned_store_id) : null,
-      active: s.active != null ? Boolean(s.active) : null,
-      has_pin: !!(s.pin_hash != null && s.pin_hash !== ""),
-      stores: storeName,
+  const transformedStaff: Staff[] = []
+  for (const s of staff || []) {
+    try {
+      const raw = s as Record<string, unknown>
+      const rawStores = raw.stores
+      const storesValue =
+        rawStores == null
+          ? null
+          : Array.isArray(rawStores)
+            ? (rawStores[0] as { name?: string } | undefined)
+            : (rawStores as { name?: string })
+      const storeName =
+        storesValue && typeof storesValue === "object" && typeof storesValue.name === "string"
+          ? { name: storesValue.name }
+          : null
+      transformedStaff.push({
+        staff_id: String(raw.staff_id ?? ""),
+        email: String(raw.email ?? ""),
+        first_name: raw.first_name != null ? String(raw.first_name) : null,
+        last_name: raw.last_name != null ? String(raw.last_name) : null,
+        role: raw.role != null ? String(raw.role) : null,
+        assigned_store_id: raw.assigned_store_id != null ? String(raw.assigned_store_id) : null,
+        active: raw.active != null ? Boolean(raw.active) : null,
+        has_pin: !!(raw.pin_hash != null && raw.pin_hash !== ""),
+        stores: storeName,
+      })
+    } catch {
+      // Skip rows that fail to serialize (e.g. unexpected shape after new staff create)
     }
-  })
+  }
 
   // Ensure serializable shape for RSC (no extra keys or non-serializable values)
   const accountSafe: Account = {

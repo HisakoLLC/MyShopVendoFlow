@@ -181,9 +181,17 @@ function LoginContent() {
           pin: pinTrimmed,
         }),
       })
-      const data = (await res.json().catch(() => ({}))) as { error?: string; email?: string }
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string
+        email?: string
+        sign_in_link?: string
+      }
       if (!res.ok) {
         toast.error(data.error || "Invalid PIN for this store")
+        return
+      }
+      if (data.sign_in_link) {
+        window.location.href = data.sign_in_link
         return
       }
       if (!data.email) {

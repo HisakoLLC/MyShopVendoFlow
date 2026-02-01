@@ -144,31 +144,25 @@ export async function POST(request: Request) {
       )
     }
 
-    // Sync Auth user password to this PIN so sign-in works (fixes out-of-sync from old create/reset flows)
-    const emailLower = String(match.email).trim().toLowerCase()
-    let page = 1
-    const perPage = 1000
-    while (true) {
-      const { data: listData, error: listError } = await supabaseAdmin.auth.admin.listUsers({
-        page,
-        perPage,
-      })
-      if (listError) break
-      const users = listData?.users ?? []
-      const authUser = users.find(
-        (u) => u.email?.trim().toLowerCase() === emailLower
+    // Sign in via magic link so we don't depend on Auth password (avoids password policy / sync issues)
+    const origin = request.headers.get("origin") || request.headers.get("referer")?.replace(/\/[^/]*$/, "") || ""
+    const redirectTo = origin ? `${origin}/dashboard` : undefined
+    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: "magiclink",
+      email: String(match.email).trim(),
+      options: redirectTo ? { redirectTo } : undefined,
+    })
+    if (linkError || !linkData?.properties?.action_link) {
+      return NextResponse.json(
+        { error: "Could not create sign-in link. Try again or ask an owner to reset your PIN." },
+        { status: 500 }
       )
-      if (authUser) {
-        await supabaseAdmin.auth.admin.updateUserById(authUser.id, {
-          password: trimmedPin,
-        })
-        break
-      }
-      if (users.length < perPage) break
-      page++
     }
+    const actionLink = linkData.properties.action_link as string
+    const baseUrl = supabaseUrl.replace(/\/$/, "")
+    const signInLink = actionLink.startsWith("http") ? actionLink : `${baseUrl}/${actionLink}`
 
-    return NextResponse.json({ email: match.email })
+    return NextResponse.json({ email: match.email, sign_in_link: signInLink })
   } catch {
     return NextResponse.json(
       { error: "Something went wrong" },
