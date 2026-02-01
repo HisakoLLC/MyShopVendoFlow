@@ -98,10 +98,13 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
   const canAddMore = currentCount < maxStaff
 
   const handleStaffCreated = (newStaff?: Staff) => {
-    setShowAddModal(false)
     if (newStaff) {
-      setStaff((prev) => [...prev, newStaff])
+      React.startTransition(() => {
+        setShowAddModal(false)
+        setStaff((prev) => [...prev, newStaff])
+      })
     } else {
+      setShowAddModal(false)
       router.refresh()
     }
   }
@@ -342,8 +345,8 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
               <div className="space-y-3 pt-1">
                 <p>
                   {pinModalStaff?.has_pin
-                    ? "A 4-digit PIN is set for this staff. They can sign in with PIN at the login page when this device has the store saved."
-                    : "No PIN is set. Use Reset PIN to generate a 4-digit PIN for POS login."}
+                    ? "A 6-digit PIN is set for this staff. They can sign in with PIN at the login page when this device has the store saved."
+                    : "No PIN is set. Use Reset PIN to generate a 6-digit PIN for POS login."}
                 </p>
                 <p className="text-zinc-500 dark:text-zinc-400">
                   For security, the current PIN cannot be displayed. Use Reset PIN to generate a new one and share it with the staff member.
@@ -395,7 +398,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Reset PIN?</AlertDialogTitle>
             <AlertDialogDescription>
-              Generate a new 4-digit PIN for{" "}
+              Generate a new 6-digit PIN for{" "}
               {resettingPIN
                 ? `${resettingPIN.first_name || ""} ${resettingPIN.last_name || ""}`.trim()
                 : "this staff member"}

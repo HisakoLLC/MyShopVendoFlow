@@ -33,9 +33,9 @@ export async function POST(request: Request) {
     }
 
     const trimmedPin = pin.trim()
-    if (trimmedPin.length < 4 || !/^\d{4,}$/.test(trimmedPin)) {
+    if (trimmedPin.length < 6 || !/^\d{6,}$/.test(trimmedPin)) {
       return NextResponse.json(
-        { error: "PIN must be at least 4 digits" },
+        { error: "PIN must be 6 digits" },
         { status: 400 }
       )
     }
@@ -142,6 +142,30 @@ export async function POST(request: Request) {
         { error: "Invalid PIN for this store" },
         { status: 401 }
       )
+    }
+
+    // Sync Auth user password to this PIN so sign-in works (fixes out-of-sync from old create/reset flows)
+    const emailLower = String(match.email).trim().toLowerCase()
+    let page = 1
+    const perPage = 1000
+    while (true) {
+      const { data: listData, error: listError } = await supabaseAdmin.auth.admin.listUsers({
+        page,
+        perPage,
+      })
+      if (listError) break
+      const users = listData?.users ?? []
+      const authUser = users.find(
+        (u) => u.email?.trim().toLowerCase() === emailLower
+      )
+      if (authUser) {
+        await supabaseAdmin.auth.admin.updateUserById(authUser.id, {
+          password: trimmedPin,
+        })
+        break
+      }
+      if (users.length < perPage) break
+      page++
     }
 
     return NextResponse.json({ email: match.email })

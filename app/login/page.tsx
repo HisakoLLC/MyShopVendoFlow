@@ -168,7 +168,7 @@ function LoginContent() {
   const handlePinLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     const pinTrimmed = pin.replace(/\D/g, "").slice(0, 8)
-    if (!savedStore || pinTrimmed.length < 4 || supabaseError || !supabase) return
+    if (!savedStore || pinTrimmed.length < 6 || supabaseError || !supabase) return
 
     setPinLoading(true)
     try {
@@ -195,7 +195,7 @@ function LoginContent() {
         password: pinTrimmed,
       })
       if (error) {
-        toast.error("Sign-in failed. Use the 4-digit PIN you were given, or ask an owner to reset your PIN in Staff settings.")
+        toast.error("Sign-in failed. Use the 6-digit PIN you were given, or ask an owner to reset your PIN in Staff settings.")
         return
       }
       router.push("/dashboard")
@@ -222,7 +222,7 @@ function LoginContent() {
           </p>
           {savedStore && !showEmailPassword && (
             <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
-              Staff: enter your 4-digit PIN. Owner? Use email and password below.
+              Staff: enter your 6-digit PIN. Owner? Use email and password below.
             </p>
           )}
           {(!savedStore || showEmailPassword) && (
@@ -255,7 +255,7 @@ function LoginContent() {
         {savedStore && !showEmailPassword && (
           <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-900/50">
             <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-              Staff — enter your 4-digit PIN
+              Staff — enter your 6-digit PIN
             </p>
             <form onSubmit={handlePinLogin} className="mt-4 space-y-3">
               <Input
@@ -263,7 +263,7 @@ function LoginContent() {
                 inputMode="numeric"
                 pattern="[0-9]*"
                 maxLength={8}
-                placeholder="••••"
+                placeholder="••••••"
                 value={pin}
                 onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
                 disabled={pinLoading}
@@ -271,7 +271,7 @@ function LoginContent() {
                 autoComplete="one-time-code"
                 autoFocus
               />
-              <Button type="submit" className="w-full" disabled={pin.replace(/\D/g, "").length < 4 || pinLoading}>
+              <Button type="submit" className="w-full" disabled={pin.replace(/\D/g, "").length < 6 || pinLoading}>
                 {pinLoading ? "Signing in..." : "Sign in with PIN"}
               </Button>
             </form>

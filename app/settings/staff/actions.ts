@@ -31,10 +31,21 @@ function hashPIN(pin: string): string {
 }
 
 /**
- * Generate a random 4-digit PIN
+ * Generate a 6-digit PIN with an easy-to-remember pattern (same digits at start or end).
+ * Examples: 33xxxx, 11xxxx, 00xxxx, xxxx00, xxxx11, xxxx33 — meets Supabase min length 6.
  */
 function generatePIN(): string {
-  return Math.floor(1000 + Math.random() * 9000).toString()
+  const fourRandom = Math.floor(1000 + Math.random() * 9000).toString()
+  const patterns: Array<() => string> = [
+    () => "33" + fourRandom,
+    () => "11" + fourRandom,
+    () => "00" + fourRandom,
+    () => fourRandom + "00",
+    () => fourRandom + "11",
+    () => fourRandom + "33",
+  ]
+  const pick = patterns[Math.floor(Math.random() * patterns.length)]
+  return pick()
 }
 
 function normalizeAssignedStoreId(v: string | undefined): string | null {

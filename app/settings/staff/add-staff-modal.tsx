@@ -127,7 +127,7 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
       const storeName = values.assigned_store_id
         ? stores.find((s) => s.store_id === values.assigned_store_id)?.name ?? null
       : null
-      onSuccess({
+      const newStaff = {
         staff_id: result.staff_id,
         email: result.email,
         first_name: values.first_name.trim() || null,
@@ -137,7 +137,9 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
         active: true,
         has_pin: !!result.pin,
         stores: storeName ? { name: storeName } : null,
-      })
+      }
+      // Defer so any post–server-action behavior runs first and we avoid Server Components render error
+      queueMicrotask(() => onSuccess(newStaff))
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to create staff member.")
       setIsSubmitting(false)
@@ -299,7 +301,7 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                     <div className="space-y-1 leading-none">
                       <FormLabel>Generate PIN</FormLabel>
                       <FormDescription>
-                        Auto-generate a 4-digit PIN for POS login
+                        Auto-generate a 6-digit PIN for POS login (easy to remember, e.g. 33xxxx or xxxx00)
                       </FormDescription>
                     </div>
                   </FormItem>
