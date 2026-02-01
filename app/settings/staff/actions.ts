@@ -82,15 +82,16 @@ export async function createStaff(data: CreateStaffData) {
     throw new Error("Account not found. Please complete setup first.")
   }
 
-  // Verify current user is owner
+  // Verify current user is owner (account_members or staff with role owner)
+  const isStaffOwner = user.email === "pos-staff@vendoflow.internal" && user.user_metadata?.role === "owner"
   const { data: currentMember, error: memberError } = await supabase
     .from("account_members")
     .select("role")
     .eq("user_id", user.id)
     .eq("account_id", accountId)
-    .single()
-
-  if (memberError || !currentMember || currentMember.role !== "owner") {
+    .maybeSingle()
+  const isAccountOwner = !memberError && currentMember?.role === "owner"
+  if (!isStaffOwner && !isAccountOwner) {
     throw new Error("Only owners can manage staff.")
   }
 
@@ -205,15 +206,16 @@ export async function updateStaff(data: UpdateStaffData) {
     throw new Error("Account not found. Please complete setup first.")
   }
 
-  // Verify current user is owner
+  // Verify current user is owner (account_members or staff with role owner)
+  const isStaffOwner = user.email === "pos-staff@vendoflow.internal" && user.user_metadata?.role === "owner"
   const { data: currentMember, error: memberError } = await supabase
     .from("account_members")
     .select("role")
     .eq("user_id", user.id)
     .eq("account_id", accountId)
-    .single()
-
-  if (memberError || !currentMember || currentMember.role !== "owner") {
+    .maybeSingle()
+  const isAccountOwner = !memberError && currentMember?.role === "owner"
+  if (!isStaffOwner && !isAccountOwner) {
     throw new Error("Only owners can manage staff.")
   }
 
@@ -274,15 +276,16 @@ export async function deactivateStaff(staffId: string) {
     throw new Error("Account not found. Please complete setup first.")
   }
 
-  // Verify current user is owner
+  // Verify current user is owner (account_members or staff with role owner)
+  const isStaffOwner = user.email === "pos-staff@vendoflow.internal" && user.user_metadata?.role === "owner"
   const { data: currentMember, error: memberError } = await supabase
     .from("account_members")
     .select("role")
     .eq("user_id", user.id)
     .eq("account_id", accountId)
-    .single()
-
-  if (memberError || !currentMember || currentMember.role !== "owner") {
+    .maybeSingle()
+  const isAccountOwner = !memberError && currentMember?.role === "owner"
+  if (!isStaffOwner && !isAccountOwner) {
     throw new Error("Only owners can manage staff.")
   }
 
@@ -349,14 +352,15 @@ export async function resetStaffPIN(staffId: string) {
   }
 
   // Verify current user is owner
+  const isStaffOwner = user.email === "pos-staff@vendoflow.internal" && user.user_metadata?.role === "owner"
   const { data: currentMember, error: memberError } = await supabase
     .from("account_members")
     .select("role")
     .eq("user_id", user.id)
     .eq("account_id", accountId)
-    .single()
-
-  if (memberError || !currentMember || currentMember.role !== "owner") {
+    .maybeSingle()
+  const isAccountOwner = !memberError && currentMember?.role === "owner"
+  if (!isStaffOwner && !isAccountOwner) {
     throw new Error("Only owners can reset PINs.")
   }
 

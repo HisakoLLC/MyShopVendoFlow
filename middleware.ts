@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 import { getSupabaseUrl, getSupabaseAnonKey } from "@/lib/supabase/env"
+import { getRoleFromUser, canAccessPath, type StaffRole } from "@/lib/auth/roles"
 
 export async function middleware(request: NextRequest) {
   try {
@@ -90,13 +91,13 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    // Staff (shared PIN user): allow only /pos
+    // Staff (shared PIN user): allow paths by role (cashier / manager / owner)
     if (user.email === "pos-staff@vendoflow.internal") {
-      const allowedStaffPaths = ["/pos"]
-      const allowed = allowedStaffPaths.some((p) => pathname === p || pathname.startsWith(p + "/"))
-      if (!allowed) {
-        const redirectUrl = new URL("/auth/pin-login", request.url)
-        redirectUrl.searchParams.set("redirect", "/pos")
+      const role: StaffRole = (user.user_metadata?.role === "owner" || user.user_metadata?.role === "manager" || user.user_metadata?.role === "cashier")
+        ? user.user_metadata.role
+        : "cashier"
+      if (!canAccessPath(pathname, role)) {
+        const redirectUrl = new URL("/pos", request.url)
         return NextResponse.redirect(redirectUrl)
       }
       return response

@@ -47,7 +47,7 @@ export async function POST(request: Request) {
 
     const { data: staff, error: staffError } = await supabaseAdmin
       .from("staff")
-      .select("staff_id, account_id, active")
+      .select("staff_id, account_id, active, role")
       .eq("staff_id", staff_id)
       .eq("account_id", account_id)
       .eq("active", true)
@@ -60,8 +60,9 @@ export async function POST(request: Request) {
       )
     }
 
+    const role = staff.role === "owner" || staff.role === "manager" || staff.role === "cashier" ? staff.role : "cashier"
     await supabaseAdmin.auth.admin.updateUserById(user.id, {
-      user_metadata: { staff_id: staff.staff_id, account_id: staff.account_id },
+      user_metadata: { staff_id: staff.staff_id, account_id: staff.account_id, role },
     })
 
     return NextResponse.json({ ok: true })

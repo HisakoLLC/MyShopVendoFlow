@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { createClient } from "@/lib/supabase/client"
 import type { AuthChangeEvent, Session, User } from "@supabase/supabase-js"
+import { getRoleFromUser, canShowNavItem, getRoleLabel, type StaffRole } from "@/lib/auth/roles"
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -52,6 +53,10 @@ const navItems = [
 
 function getUserDisplayName(user: User | null): string {
   if (!user) return "User"
+  if (user.email === "pos-staff@vendoflow.internal") {
+    const role = user.user_metadata?.role as string | undefined
+    return role ? `${getRoleLabel(role as StaffRole)}` : "Staff"
+  }
   const name =
     user.user_metadata?.full_name ??
     user.user_metadata?.name ??
@@ -225,12 +230,15 @@ function Sidebar({
   collapsed,
   onToggle,
   user,
+  role,
 }: {
   collapsed: boolean
   onToggle: () => void
   user: User | null
+  role: StaffRole
 }) {
   const pathname = usePathname()
+  const visibleNavItems = navItems.filter((item) => canShowNavItem(item.href, role))
 
   return (
     <aside
@@ -260,7 +268,7 @@ function Sidebar({
         </Button>
       </div>
       <nav className="flex-1 space-y-0.5 overflow-y-auto p-2">
-        {navItems.map(({ href, label, icon: Icon }) => {
+        {visibleNavItems.map(({ href, label, icon: Icon }) => {
           const isActive =
             pathname === href ||
             (href !== "/dashboard" && pathname.startsWith(href)) ||
@@ -345,12 +353,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return <>{children}</>
   }
 
+  const role = getRoleFromUser(user)
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       <Sidebar
         collapsed={collapsed}
         onToggle={() => setCollapsed((c) => !c)}
         user={user}
+        role={role}
       />
       <main
         className={cn(

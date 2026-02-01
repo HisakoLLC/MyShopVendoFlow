@@ -58,15 +58,17 @@ async function fetchStaffData(): Promise<{
     redirect("/onboarding?redirect=/settings/staff")
   }
 
-  // Verify current user is owner
+  // Verify current user is owner (account_members.role or staff with user_metadata.role === 'owner')
   const { data: currentMember, error: memberError } = await supabase
     .from("account_members")
     .select("role")
     .eq("user_id", user.id)
     .eq("account_id", accountIdStr)
-    .single()
+    .maybeSingle()
 
-  if (memberError || !currentMember || currentMember.role !== "owner") {
+  const isStaffOwner = user.email === "pos-staff@vendoflow.internal" && user.user_metadata?.role === "owner"
+  const isAccountOwner = !memberError && currentMember?.role === "owner"
+  if (!isStaffOwner && !isAccountOwner) {
     throw new Error("Access denied. Only owners can manage staff.")
   }
 
