@@ -46,7 +46,8 @@ export async function uploadLogo(formData: FormData) {
     throw new Error("You must be signed in to upload logo.")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = toAccountId(accountIdRaw)
   if (accountIdError || !accountId) {
     throw new Error("Account not found. Please complete setup first.")
   }
@@ -95,7 +96,7 @@ export async function uploadLogo(formData: FormData) {
     .from("business_settings")
     .select("account_id")
     .eq("account_id", accountId)
-    .single()
+    .maybeSingle()
 
   const settingsData = {
     account_id: accountId,
@@ -127,7 +128,8 @@ export async function updateBusinessProfile(data: BusinessProfileData) {
     throw new Error("You must be signed in to update business profile.")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = toAccountId(accountIdRaw)
   if (accountIdError || !accountId) {
     throw new Error("Account not found. Please complete setup first.")
   }
@@ -156,7 +158,7 @@ export async function updateBusinessProfile(data: BusinessProfileData) {
     .from("business_settings")
     .select("account_id")
     .eq("account_id", accountId)
-    .single()
+    .maybeSingle()
 
   const settingsData = {
     account_id: accountId,
@@ -205,7 +207,8 @@ export async function updateReceiptSettings(data: ReceiptSettingsData & { logo_u
     throw new Error("You must be signed in to update receipt settings.")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = toAccountId(accountIdRaw)
   if (accountIdError || !accountId) {
     throw new Error("Account not found. Please complete setup first.")
   }
@@ -221,7 +224,7 @@ export async function updateReceiptSettings(data: ReceiptSettingsData & { logo_u
     .from("business_settings")
     .select("account_id")
     .eq("account_id", accountId)
-    .single()
+    .maybeSingle()
 
   const settingsData: any = {
     account_id: accountId,
@@ -275,7 +278,8 @@ export async function updateStoreTaxRate(data: TaxRateData) {
     throw new Error("You must be signed in to update tax rates.")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = toAccountId(accountIdRaw)
   if (accountIdError || !accountId) {
     throw new Error("Account not found. Please complete setup first.")
   }

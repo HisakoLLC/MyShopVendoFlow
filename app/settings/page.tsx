@@ -62,15 +62,18 @@ async function fetchSettingsData(): Promise<{
     redirect("/onboarding?redirect=/settings")
   }
 
-  // Fetch account
+  // Fetch account (RLS: account_members for owners; staff need FIX_ACCOUNTS_RLS_FOR_STAFF.sql)
   const { data: account, error: accountError } = await supabase
     .from("accounts")
     .select("account_id, business_name, owner_email, plan_tier, subscription_status, trial_ends_at, stripe_customer_id")
     .eq("account_id", accountId)
-    .single()
+    .maybeSingle()
 
   if (accountError) {
     throw new Error(accountError.message)
+  }
+  if (!account) {
+    throw new Error("Account not found.")
   }
 
   // Fetch the account's single store (one store per account)
@@ -86,12 +89,12 @@ async function fetchSettingsData(): Promise<{
   }
   const stores = storesRows ?? []
 
-  // Fetch business_settings (may not exist yet or permission not yet granted)
+  // Fetch business_settings (may not exist yet; use maybeSingle so 0 rows doesn't throw)
   const { data: businessSettings, error: settingsError } = await supabase
     .from("business_settings")
     .select("logo_url, business_address, business_phone, tax_id, logo_on_receipt, receipt_header, receipt_footer, return_policy, currency, tax_inclusive")
     .eq("account_id", accountId)
-    .single()
+    .maybeSingle()
 
   const raw = settingsError ? null : businessSettings ?? null
   let businessSettingsResolved: BusinessSettings | null = raw
