@@ -217,7 +217,7 @@ export function VariantMatrixBuilder({
       const { count } = await createProductVariants(styleId, variants)
 
       toast.success(`${count} variant${count === 1 ? "" : "s"} created successfully!`)
-      router.push(`/products/${styleId}`)
+      router.push("/products")
       router.refresh()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to create variants.")

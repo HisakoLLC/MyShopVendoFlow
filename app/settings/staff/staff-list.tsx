@@ -152,7 +152,10 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
       setDeletingStaff(null)
       router.refresh()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to delete staff.")
+      const message = e instanceof Error ? e.message : "Failed to delete staff."
+      toast.error(message)
+      setDeletingStaff(null)
+      // Don't rethrow so the error boundary doesn't show the generic Server Components error
     }
   }
 
