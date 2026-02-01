@@ -3,7 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { Download, Search, AlertTriangle, Pencil, Layers } from "lucide-react"
+import { Download, Search, AlertTriangle, Pencil, Layers, ImageIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -59,6 +59,27 @@ type InventoryTableClientProps = {
 }
 
 type StockStatus = "all" | "in-stock" | "low-stock" | "out-of-stock"
+
+function InventoryStyleImage({ src, alt }: { src: string; alt: string }) {
+  const [error, setError] = React.useState(false)
+  if (error) {
+    return (
+      <div className="flex h-full w-full items-center justify-center text-zinc-400 dark:text-zinc-500" aria-hidden>
+        <ImageIcon className="h-6 w-6" />
+      </div>
+    )
+  }
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      className="object-cover"
+      sizes="56px"
+      onError={() => setError(true)}
+    />
+  )
+}
 
 function getStockColor(quantity: number | null): string {
   const qty = quantity ?? 0
@@ -261,7 +282,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[200px]">Style</TableHead>
+                  <TableHead className="min-w-[220px] w-[220px]">Style</TableHead>
                   <TableHead>Variant</TableHead>
                   <TableHead>SKU</TableHead>
                   {hasMultipleStores &&
@@ -296,25 +317,23 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                             aria-label={`Select ${item.style_name} ${item.size}/${item.color}`}
                           />
                         </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
+                        <TableCell className="min-w-[220px] align-middle py-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:ring-zinc-700">
                               {item.style_image_url ? (
-                                <Image
+                                <InventoryStyleImage
                                   src={item.style_image_url}
                                   alt={item.style_name}
-                                  fill
-                                  className="object-cover"
                                 />
                               ) : (
-                                <div className="flex h-full w-full items-center justify-center text-xs text-zinc-500">
-                                  No image
+                                <div className="flex h-full w-full items-center justify-center text-zinc-400 dark:text-zinc-500" aria-hidden>
+                                  <ImageIcon className="h-6 w-6" />
                                 </div>
                               )}
                             </div>
-                            <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                            <span className="min-w-0 max-w-[140px] truncate font-medium text-zinc-900 dark:text-zinc-100" title={item.style_name}>
                               {item.style_name}
-                            </div>
+                            </span>
                           </div>
                         </TableCell>
                         <TableCell className="text-zinc-700 dark:text-zinc-300">
