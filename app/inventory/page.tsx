@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { getSignedStorageUrl } from "@/lib/signed-storage-url"
 import type { Tables } from "@/types/database"
 import { Button } from "@/components/ui/button"
 import { ArrowRightLeft, Brain } from "lucide-react"
@@ -160,9 +161,25 @@ async function fetchInventoryData(): Promise<FetchResult> {
     })
   })
 
+  const inventoryList = Array.from(inventoryMap.values())
+
+  // Sign image URLs so they load for private Supabase storage buckets (same as /products)
+  const uniqueImageUrls = [...new Set(inventoryList.map((i) => i.style_image_url).filter(Boolean))] as string[]
+  const signedMap = new Map<string, string>()
+  await Promise.all(
+    uniqueImageUrls.map(async (url) => {
+      const signed = await getSignedStorageUrl(supabase, url)
+      if (signed) signedMap.set(url, signed)
+    })
+  )
+  const inventoryWithSignedUrls = inventoryList.map((item) => ({
+    ...item,
+    style_image_url: (item.style_image_url && signedMap.get(item.style_image_url)) ?? item.style_image_url,
+  }))
+
   return {
     stores: stores ?? [],
-    inventory: Array.from(inventoryMap.values()),
+    inventory: inventoryWithSignedUrls,
   }
 }
 
