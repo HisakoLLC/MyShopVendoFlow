@@ -152,7 +152,7 @@ async function DashboardContent() {
 
   const storeIds = stores?.map((s: { store_id: string }) => s.store_id) || []
 
-  // If no stores exist, show a helpful message
+  // If no stores exist, show a helpful message (onboarding is first-time only; complete setup in Settings)
   if (storeIds.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
@@ -168,7 +168,7 @@ async function DashboardContent() {
               The dashboard requires stores to display sales metrics and inventory data.
             </p>
             <Button asChild className="w-full">
-              <Link href="/onboarding">Go to Onboarding</Link>
+              <Link href="/settings">Complete setup in Settings</Link>
             </Button>
           </CardContent>
         </Card>

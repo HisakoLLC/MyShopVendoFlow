@@ -23,8 +23,8 @@ export async function middleware(request: NextRequest) {
 
     const pathname = request.nextUrl.pathname
 
-    // Public routes that don't require authentication
-    const publicRoutes = ["/login", "/signup", "/onboarding", "/reset-password", "/auth/pin-login", "/auth/callback"]
+    // Public routes that don't require authentication (/onboarding is first-time only, not public)
+    const publicRoutes = ["/login", "/signup", "/reset-password", "/auth/pin-login", "/auth/callback"]
     const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route))
     const isApiRoute = pathname.startsWith("/api")
 
@@ -91,8 +91,11 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    // Staff (shared PIN user): allow paths by role (cashier / manager / owner)
+    // Staff (shared PIN user): allow paths by role; never show onboarding (first-time is for account owners only)
     if (user.email === "pos-staff@vendoflow.internal") {
+      if (pathname === "/onboarding" || pathname.startsWith("/onboarding/")) {
+        return NextResponse.redirect(new URL("/pos", request.url))
+      }
       const role: StaffRole = (user.user_metadata?.role === "owner" || user.user_metadata?.role === "manager" || user.user_metadata?.role === "cashier")
         ? user.user_metadata.role
         : "cashier"
@@ -110,12 +113,23 @@ export async function middleware(request: NextRequest) {
       .eq("user_id", user.id)
       .single()
 
-    // If no account_members record, send to ensure-route to sign out if account was deleted
+    // If no account_members record, send to ensure-route (then to /onboarding for first-time only)
     if (memberError || !accountMember) {
       if (pathname !== "/onboarding" && !pathname.startsWith("/api/auth/ensure-route")) {
         return NextResponse.redirect(new URL("/api/auth/ensure-route", request.url))
       }
       return response
+    }
+
+    // Onboarding is first-time only: if user has at least one store (completed onboarding), redirect away
+    if (pathname === "/onboarding" || pathname.startsWith("/onboarding/")) {
+      const { count } = await supabase
+        .from("stores")
+        .select("store_id", { count: "exact", head: true })
+        .eq("account_id", accountMember.account_id)
+      if (count != null && count > 0) {
+        return NextResponse.redirect(new URL("/dashboard", request.url))
+      }
     }
 
     // Check subscription status from accounts table

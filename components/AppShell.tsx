@@ -139,7 +139,7 @@ function SidebarUser({
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium">{displayName}</p>
-              {user?.email && (
+              {user?.email && user.email !== "pos-staff@vendoflow.internal" && (
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
                   {user.email}
                 </p>

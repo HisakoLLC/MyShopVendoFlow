@@ -92,10 +92,10 @@ async function POSPageContent({
         <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-8 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
           <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Store Not Set Up</h2>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Complete onboarding to create your store, then you can use the POS.
+            Complete setup in Settings to create your store, then you can use the POS.
           </p>
           <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
-            Go to onboarding or contact your administrator.
+            Go to Settings or contact your administrator.
           </p>
         </div>
       </div>
