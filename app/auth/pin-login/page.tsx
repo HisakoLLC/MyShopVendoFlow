@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { toast } from "sonner"
@@ -11,7 +12,7 @@ const ACCOUNT_ID_KEY = "vendoflow_last_account_id"
 
 const DIGITS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "⌫"]
 
-export default function PinLoginPage() {
+function PinLoginContent() {
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get("redirect") ?? "/pos"
   const [pin, setPin] = React.useState("")
@@ -180,5 +181,25 @@ export default function PinLoginPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+function PinLoginFallback() {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-100 px-4 dark:bg-zinc-950">
+      <div className="w-full max-w-sm rounded-2xl border border-zinc-200 bg-white p-8 shadow-xl dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="flex justify-center py-12">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-200 border-t-zinc-900 dark:border-zinc-700 dark:border-t-zinc-100" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function PinLoginPage() {
+  return (
+    <Suspense fallback={<PinLoginFallback />}>
+      <PinLoginContent />
+    </Suspense>
   )
 }
