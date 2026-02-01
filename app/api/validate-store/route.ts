@@ -28,7 +28,7 @@ export async function GET(request: Request) {
 
   const { data: store, error } = await supabase
     .from("stores")
-    .select("store_id, name, active")
+    .select("store_id, name, active, account_id")
     .eq("store_id", storeId)
     .single()
 
@@ -40,8 +40,16 @@ export async function GET(request: Request) {
     return NextResponse.json({ valid: false })
   }
 
+  const accountId =
+    store.account_id != null
+      ? typeof store.account_id === "string"
+        ? store.account_id
+        : String(store.account_id)
+      : undefined
+
   return NextResponse.json({
     valid: true,
     store_name: store.name ?? undefined,
+    account_id: accountId,
   })
 }

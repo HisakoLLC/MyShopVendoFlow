@@ -49,3 +49,13 @@ If it still fails after a reset, check that `SUPABASE_SERVICE_ROLE_KEY` is set i
 
 4. **Invalid service role key**  
    The service role key must be the long JWT from Supabase Dashboard → Settings → API → **service_role** (not the anon key). If it’s too short or wrong, signup can fail when creating the account.
+
+---
+
+## Account deletion: data export and permanent purge
+
+**Customer asks for their data (data request / export):**  
+Run **`sql/EXPORT_ACCOUNT_DATA.sql`** in the Supabase SQL Editor. Replace every `'YOUR_ACCOUNT_ID_HERE'` with the account's UUID (from `accounts` where `owner_email = '…'` or from `account_members`). Run each `SELECT` and export the results (e.g. Download as CSV). Storage (logos, product images) must be exported separately from the Storage buckets.
+
+**Permanently delete all data for an account (after 90 days or when authorized):**  
+Run **`sql/PURGE_ACCOUNT_DATA.sql`** in the Supabase SQL Editor. Replace every `'YOUR_ACCOUNT_ID_HERE'` with the account's UUID. Run the whole script. This deletes all rows for that account in the correct order. It does **not** delete Auth users or Storage files; do those separately if required.

@@ -66,10 +66,22 @@ type Store = {
   name: string
 }
 
+type NewStaffForList = {
+  staff_id: string
+  email: string
+  first_name: string | null
+  last_name: string | null
+  role: string | null
+  assigned_store_id: string | null
+  active: boolean | null
+  has_pin: boolean
+  stores: { name: string } | null
+}
+
 type AddStaffModalProps = {
   open: boolean
   onClose: () => void
-  onSuccess: () => void
+  onSuccess: (newStaff?: NewStaffForList) => void
   stores: Store[]
 }
 
@@ -112,7 +124,20 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
       toast.success(`Staff created. ${result.pin ? "Share the PIN with them." : ""}`)
       setIsSubmitting(false)
       form.reset()
-      onSuccess()
+      const storeName = values.assigned_store_id
+        ? stores.find((s) => s.store_id === values.assigned_store_id)?.name ?? null
+      : null
+      onSuccess({
+        staff_id: result.staff_id,
+        email: result.email,
+        first_name: values.first_name.trim() || null,
+        last_name: values.last_name.trim() || null,
+        role: values.role,
+        assigned_store_id: values.assigned_store_id || null,
+        active: true,
+        has_pin: !!result.pin,
+        stores: storeName ? { name: storeName } : null,
+      })
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to create staff member.")
       setIsSubmitting(false)

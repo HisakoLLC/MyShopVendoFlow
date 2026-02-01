@@ -97,9 +97,13 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
   const currentCount = staff.filter((s) => s.active !== false).length
   const canAddMore = currentCount < maxStaff
 
-  const handleStaffCreated = () => {
+  const handleStaffCreated = (newStaff?: Staff) => {
     setShowAddModal(false)
-    router.refresh()
+    if (newStaff) {
+      setStaff((prev) => [...prev, newStaff])
+    } else {
+      router.refresh()
+    }
   }
 
   const handleStaffUpdated = () => {

@@ -292,6 +292,10 @@ function Sidebar({
 
 const noSidebarPaths = ["/", "/login", "/signup", "/onboarding"]
 
+const STORE_ID_KEY = "vendoflow_last_store_id"
+const STORE_NAME_KEY = "vendoflow_last_store_name"
+const ACCOUNT_ID_KEY = "vendoflow_last_account_id"
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = React.useState(false)
@@ -309,6 +313,29 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     })
     return () => subscription.unsubscribe()
   }, [supabase])
+
+  // Persist current store/account to localStorage when any user (owner or staff) is logged in,
+  // so staff can use 4-digit PIN login on this device.
+  React.useEffect(() => {
+    if (!user) return
+    let cancelled = false
+    fetch("/api/current-store")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { store_id?: string; store_name?: string; account_id?: string } | null) => {
+        if (cancelled || !data?.store_id) return
+        try {
+          localStorage.setItem(STORE_ID_KEY, data.store_id)
+          if (data.store_name) localStorage.setItem(STORE_NAME_KEY, data.store_name)
+          if (data.account_id) localStorage.setItem(ACCOUNT_ID_KEY, data.account_id)
+        } catch {
+          // ignore
+        }
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [user?.id])
 
   const showSidebar = !noSidebarPaths.some(
     (p) => pathname === p || (p !== "/" && pathname.startsWith(p))
