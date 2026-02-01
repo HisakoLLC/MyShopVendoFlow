@@ -362,7 +362,7 @@ export async function requestAccountDeletion(): Promise<{ success: true } | { su
   const { error: updateError } = await supabase
     .from("accounts")
     .update({
-      subscription_status: "deleted",
+      subscription_status: "cancelled",
       trial_ends_at: purgeAt.toISOString(),
     })
     .eq("account_id", accountId)
