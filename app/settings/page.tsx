@@ -62,16 +62,22 @@ async function fetchSettingsData(): Promise<{
     redirect("/onboarding?redirect=/settings")
   }
 
-  // Fetch account (RLS: account_members for owners; staff need FIX_ACCOUNTS_RLS_FOR_STAFF.sql)
-  const { data: account, error: accountError } = await supabase
-    .from("accounts")
-    .select("account_id, business_name, owner_email, plan_tier, subscription_status, trial_ends_at, stripe_customer_id")
-    .eq("account_id", accountId)
-    .maybeSingle()
-
-  if (accountError) {
-    throw new Error(accountError.message)
+  // Fetch account: prefer RPC (bypasses RLS for staff; run GET_ACCOUNT_FOR_SETTINGS.sql), else direct table
+  let account: Account | null = null
+  const { data: accountRows, error: accountError } = await supabase.rpc("get_account_for_settings")
+  if (!accountError && accountRows != null) {
+    const row = Array.isArray(accountRows) ? accountRows[0] : accountRows
+    if (row && typeof row === "object") account = row as Account
   }
+  if (!account) {
+    const { data: accountDirect, error: directError } = await supabase
+      .from("accounts")
+      .select("account_id, business_name, owner_email, plan_tier, subscription_status, trial_ends_at, stripe_customer_id")
+      .eq("account_id", accountId)
+      .maybeSingle()
+    if (!directError && accountDirect) account = accountDirect as Account
+  }
+
   if (!account) {
     throw new Error("Account not found.")
   }
