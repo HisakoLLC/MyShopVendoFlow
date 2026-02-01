@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { Plus, Edit, Trash2, Key, Users, Shield, UserCog, ShoppingCart } from "lucide-react"
+import { Plus, Edit, Trash2, Key, Users, Shield, UserCog, ShoppingCart, UserPlus, Trash } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { AddStaffModal } from "./add-staff-modal"
 import { EditStaffModal } from "./edit-staff-modal"
-import { deactivateStaff, resetStaffPIN } from "./actions"
+import { deactivateStaff, reactivateStaff, deleteStaff, resetStaffPIN } from "./actions"
 import { toast, Toaster } from "sonner"
 
 type Staff = {
@@ -46,6 +46,7 @@ type Staff = {
   assigned_store_id: string | null
   active: boolean | null
   has_pin: boolean
+  last_login_at: string | null
   stores: {
     name: string
   } | null
@@ -89,6 +90,8 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
   const [showAddModal, setShowAddModal] = React.useState(false)
   const [editingStaff, setEditingStaff] = React.useState<Staff | null>(null)
   const [deactivatingStaff, setDeactivatingStaff] = React.useState<Staff | null>(null)
+  const [reactivatingStaff, setReactivatingStaff] = React.useState<Staff | null>(null)
+  const [deletingStaff, setDeletingStaff] = React.useState<Staff | null>(null)
   const [pinModalStaff, setPinModalStaff] = React.useState<Staff | null>(null)
   const [resettingPIN, setResettingPIN] = React.useState<Staff | null>(null)
   const [generatedPIN, setGeneratedPIN] = React.useState<string | null>(null)
@@ -124,6 +127,32 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
       router.refresh()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to deactivate staff.")
+    }
+  }
+
+  const handleReactivate = async () => {
+    if (!reactivatingStaff) return
+
+    try {
+      await reactivateStaff(reactivatingStaff.staff_id)
+      toast.success("Staff member reactivated successfully")
+      setReactivatingStaff(null)
+      router.refresh()
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to reactivate staff.")
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!deletingStaff) return
+
+    try {
+      await deleteStaff(deletingStaff.staff_id)
+      toast.success("Staff member removed permanently")
+      setDeletingStaff(null)
+      router.refresh()
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to delete staff.")
     }
   }
 
@@ -267,7 +296,14 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm text-zinc-400">—</span>
+                    <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                      {member.last_login_at
+                        ? new Date(member.last_login_at).toLocaleString(undefined, {
+                            dateStyle: "short",
+                            timeStyle: "short",
+                          })
+                        : "—"}
+                    </span>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
@@ -286,14 +322,35 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
                       >
                         <Key className="h-4 w-4" />
                       </Button>
-                      {member.active !== false && (
+                      {member.active !== false ? (
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => setDeactivatingStaff(member)}
+                          title="Deactivate"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
+                      ) : (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setReactivatingStaff(member)}
+                            title="Reactivate"
+                          >
+                            <UserPlus className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeletingStaff(member)}
+                            title="Delete permanently"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/50"
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </>
                       )}
                     </div>
                   </TableCell>
@@ -377,13 +434,59 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
               {deactivatingStaff
                 ? `${deactivatingStaff.first_name || ""} ${deactivatingStaff.last_name || ""}`.trim()
                 : "this staff member"}
-              ? They will lose access immediately.
+              ? They will lose access immediately. You can reactivate them later.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeactivate} className="bg-red-600 hover:bg-red-500">
               Deactivate
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={!!reactivatingStaff}
+        onOpenChange={(open) => !open && setReactivatingStaff(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reactivate Staff Member?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Reactivate{" "}
+              {reactivatingStaff
+                ? `${reactivatingStaff.first_name || ""} ${reactivatingStaff.last_name || ""}`.trim()
+                : "this staff member"}
+              ? They will be able to sign in with their PIN again.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleReactivate}>Reactivate</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={!!deletingStaff}
+        onOpenChange={(open) => !open && setDeletingStaff(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Staff Member Permanently?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove{" "}
+              {deletingStaff
+                ? `${deletingStaff.first_name || ""} ${deletingStaff.last_name || ""}`.trim()
+                : "this staff member"}
+              {" "}from your account. Their PIN and record cannot be recovered. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-500">
+              Delete permanently
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

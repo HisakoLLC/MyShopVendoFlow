@@ -333,6 +333,132 @@ export async function deactivateStaff(staffId: string) {
   return { success: true }
 }
 
+export async function reactivateStaff(staffId: string) {
+  const supabase = await createServerSupabaseClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    throw new Error("You must be signed in to reactivate staff.")
+  }
+
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = normalizeAccountIdFromRpc(accountIdRaw)
+  if (accountIdError || !accountId) {
+    throw new Error("Account not found. Please complete setup first.")
+  }
+
+  const isStaffOwner = user.email === "pos-staff@vendoflow.internal" && user.user_metadata?.role === "owner"
+  const { data: currentMember, error: memberError } = await supabase
+    .from("account_members")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("account_id", accountId)
+    .maybeSingle()
+  const isAccountOwner = !memberError && currentMember?.role === "owner"
+  if (!isStaffOwner && !isAccountOwner) {
+    throw new Error("Only owners can manage staff.")
+  }
+
+  const { data: staff, error: verifyError } = await supabase
+    .from("staff")
+    .select("staff_id")
+    .eq("staff_id", staffId)
+    .eq("account_id", accountId)
+    .single()
+
+  if (verifyError || !staff) {
+    throw new Error("Staff member not found or access denied.")
+  }
+
+  const { error: updateError } = await supabase
+    .from("staff")
+    .update({ active: true })
+    .eq("staff_id", staffId)
+
+  if (updateError) {
+    throw new Error(`Failed to reactivate staff: ${updateError.message}`)
+  }
+
+  revalidatePath("/settings/staff")
+  return { success: true }
+}
+
+export async function deleteStaff(staffId: string) {
+  const supabase = await createServerSupabaseClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    throw new Error("You must be signed in to delete staff.")
+  }
+
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = normalizeAccountIdFromRpc(accountIdRaw)
+  if (accountIdError || !accountId) {
+    throw new Error("Account not found. Please complete setup first.")
+  }
+
+  const isStaffOwner = user.email === "pos-staff@vendoflow.internal" && user.user_metadata?.role === "owner"
+  const { data: currentMember, error: memberError } = await supabase
+    .from("account_members")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("account_id", accountId)
+    .maybeSingle()
+  const isAccountOwner = !memberError && currentMember?.role === "owner"
+  if (!isStaffOwner && !isAccountOwner) {
+    throw new Error("Only owners can manage staff.")
+  }
+
+  const { data: staff, error: verifyError } = await supabase
+    .from("staff")
+    .select("staff_id, role, active")
+    .eq("staff_id", staffId)
+    .eq("account_id", accountId)
+    .single()
+
+  if (verifyError || !staff) {
+    throw new Error("Staff member not found or access denied.")
+  }
+
+  if (staff.role === "owner" && staff.active) {
+    const { data: activeOwners, error: ownersError } = await supabase
+      .from("staff")
+      .select("staff_id")
+      .eq("account_id", accountId)
+      .eq("role", "owner")
+      .eq("active", true)
+
+    if (ownersError) {
+      throw new Error("Failed to check owner count.")
+    }
+
+    if ((activeOwners?.length || 0) <= 1) {
+      throw new Error("Cannot delete the only active owner. Deactivate first or assign another owner.")
+    }
+  }
+
+  const { error: deleteError } = await supabase
+    .from("staff")
+    .delete()
+    .eq("staff_id", staffId)
+    .eq("account_id", accountId)
+
+  if (deleteError) {
+    throw new Error(`Failed to delete staff: ${deleteError.message}`)
+  }
+
+  revalidatePath("/settings/staff")
+  return { success: true }
+}
+
 export async function resetStaffPIN(staffId: string) {
   const supabase = await createServerSupabaseClient()
 

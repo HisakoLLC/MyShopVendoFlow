@@ -120,10 +120,14 @@ export async function POST(request: Request) {
       if (!hash) continue
       const match = await verifyPIN(trimmedPin, hash)
       if (match) {
-        // Reset failed attempts on success
+        // Reset failed attempts and record last login
         await supabaseAdmin
           .from("staff")
-          .update({ failed_attempts: 0, locked_until: null })
+          .update({
+            failed_attempts: 0,
+            locked_until: null,
+            last_login_at: new Date().toISOString(),
+          })
           .eq("staff_id", row.staff_id)
 
         // Ensure shared POS staff user exists

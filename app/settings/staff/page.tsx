@@ -15,6 +15,7 @@ type Staff = {
   assigned_store_id: string | null
   active: boolean | null
   has_pin: boolean
+  last_login_at: string | null
   stores: {
     name: string
   } | null
@@ -108,6 +109,7 @@ async function fetchStaffData(): Promise<{
       assigned_store_id,
       active,
       pin_hash,
+      last_login_at,
       stores!staff_assigned_store_id_fkey(name)
     `
     )
@@ -143,6 +145,7 @@ async function fetchStaffData(): Promise<{
         assigned_store_id: raw.assigned_store_id != null ? String(raw.assigned_store_id) : null,
         active: raw.active != null ? Boolean(raw.active) : null,
         has_pin: !!(raw.pin_hash != null && raw.pin_hash !== ""),
+        last_login_at: raw.last_login_at != null ? String(raw.last_login_at) : null,
         stores: storeName,
       })
     } catch {
