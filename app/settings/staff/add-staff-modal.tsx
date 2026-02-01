@@ -75,6 +75,7 @@ type NewStaffForList = {
   assigned_store_id: string | null
   active: boolean | null
   has_pin: boolean
+  last_login_at: string | null
   stores: { name: string } | null
 }
 
@@ -127,7 +128,7 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
       const storeName = values.assigned_store_id
         ? stores.find((s) => s.store_id === values.assigned_store_id)?.name ?? null
       : null
-      const newStaff = {
+      const newStaff: NewStaffForList = {
         staff_id: result.staff_id,
         email: result.email,
         first_name: values.first_name.trim() || null,
@@ -136,6 +137,7 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
         assigned_store_id: values.assigned_store_id || null,
         active: true,
         has_pin: !!result.pin,
+        last_login_at: null,
         stores: storeName ? { name: storeName } : null,
       }
       // Defer so any post–server-action behavior runs first and we avoid Server Components render error
