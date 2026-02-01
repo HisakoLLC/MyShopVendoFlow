@@ -95,10 +95,10 @@ export async function middleware(request: NextRequest) {
       .eq("user_id", user.id)
       .single()
 
-    // If no account_members record, redirect to onboarding
+    // If no account_members record, send to ensure-route to sign out if account was deleted
     if (memberError || !accountMember) {
-      if (pathname !== "/onboarding") {
-        return NextResponse.redirect(new URL("/onboarding", request.url))
+      if (pathname !== "/onboarding" && !pathname.startsWith("/api/auth/ensure-route")) {
+        return NextResponse.redirect(new URL("/api/auth/ensure-route", request.url))
       }
       return response
     }

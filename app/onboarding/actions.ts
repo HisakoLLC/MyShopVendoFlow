@@ -1,8 +1,33 @@
 "use server"
 
+import { createClient } from "@supabase/supabase-js"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { getSupabaseUrl } from "@/lib/supabase/env"
 import { createAccountAfterSignup } from "@/app/signup/actions"
 import { v4 as uuidv4 } from "uuid"
+
+/**
+ * Returns true if the current user's email is tied to an account that is
+ * scheduled for deletion (subscription_status = 'cancelled'). Used to block
+ * login and sign out deleted-account users.
+ */
+export async function isAccountDeletedForCurrentUser(): Promise<boolean> {
+  const supabase = await createServerSupabaseClient()
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  if (userError || !user?.email?.trim()) return false
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
+  const supabaseUrl = getSupabaseUrl()
+  if (!serviceRoleKey || !supabaseUrl) return false
+  const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } })
+  const { data } = await admin
+    .from("accounts")
+    .select("account_id")
+    .eq("owner_email", user.email.trim())
+    .eq("subscription_status", "cancelled")
+    .limit(1)
+    .maybeSingle()
+  return !!data?.account_id
+}
 
 /**
  * Ensures the current user has an account (and account_members row).
@@ -42,11 +67,17 @@ export async function ensureAccountForCurrentUser(): Promise<
   if (ownerEmail) {
     const { data: existingAccount } = await supabase
       .from("accounts")
-      .select("account_id")
+      .select("account_id, subscription_status")
       .eq("owner_email", ownerEmail)
       .limit(1)
       .maybeSingle()
     if (existingAccount?.account_id) {
+      if (existingAccount.subscription_status === "cancelled") {
+        return {
+          success: false,
+          error: "This account has been scheduled for deletion and can no longer be accessed.",
+        }
+      }
       const memberId = uuidv4()
       const { error: linkError } = await supabase.from("account_members").insert({
         member_id: memberId,
@@ -77,11 +108,17 @@ export async function ensureAccountForCurrentUser(): Promise<
     if (code === "23505" && ownerEmail) {
       const { data: existingAccount } = await supabase
         .from("accounts")
-        .select("account_id")
+        .select("account_id, subscription_status")
         .eq("owner_email", ownerEmail)
         .limit(1)
         .maybeSingle()
       if (existingAccount?.account_id) {
+        if (existingAccount.subscription_status === "cancelled") {
+          return {
+            success: false,
+            error: "This account has been scheduled for deletion and can no longer be accessed.",
+          }
+        }
         const memberId = uuidv4()
         const { error: linkError } = await supabase.from("account_members").insert({
           member_id: memberId,

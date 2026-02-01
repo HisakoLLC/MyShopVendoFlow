@@ -7,6 +7,7 @@ import { toast, Toaster } from "sonner"
 import { Suspense } from "react"
 
 import { createClient } from "@/lib/supabase/client"
+import { isAccountDeletedForCurrentUser } from "@/app/onboarding/actions"
 
 export const dynamic = "force-dynamic"
 import { Button } from "@/components/ui/button"
@@ -118,7 +119,13 @@ function LoginContent() {
           .single()
 
         if (memberError || !accountMember) {
-          // No account linked, redirect to onboarding
+          // No account linked: check if account was deleted (scheduled for deletion)
+          const deleted = await isAccountDeletedForCurrentUser()
+          if (deleted) {
+            await supabase.auth.signOut()
+            window.location.href = "/login?deleted=1"
+            return
+          }
           router.push("/onboarding")
         } else {
           // Account exists, redirect to dashboard
