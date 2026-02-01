@@ -44,15 +44,29 @@ async function POSPageContent({
   const accountIdFromMeta = user?.user_metadata?.account_id as string | undefined
   const accountId = accountIdFromRpc ?? accountIdFromMeta ?? null
 
-  // Staff just landed via magic link: URL has staff_id & account_id but metadata not bound yet.
+  // Staff with staff_id & account_id in URL: always run bind-staff so session gets correct staff + role.
+  // (URL params come from PIN login and identify the current staff; shared user may have had previous metadata.)
   if (
     user.email === POS_STAFF_SHARED_EMAIL &&
     params.staff_id &&
-    params.account_id &&
-    !accountIdFromMeta
+    params.account_id
   ) {
     return (
       <BindStaffThenPOS staffId={params.staff_id} accountId={params.account_id} />
+    )
+  }
+
+  // Staff already have session but no role in JWT — re-run bind-staff so nav/middleware get role.
+  const staffIdFromMeta = user?.user_metadata?.staff_id as string | undefined
+  const hasRole = Boolean(user?.user_metadata?.role)
+  if (
+    user?.email === POS_STAFF_SHARED_EMAIL &&
+    staffIdFromMeta &&
+    accountIdFromMeta &&
+    !hasRole
+  ) {
+    return (
+      <BindStaffThenPOS staffId={staffIdFromMeta} accountId={accountIdFromMeta} />
     )
   }
 

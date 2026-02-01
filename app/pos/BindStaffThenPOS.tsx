@@ -40,6 +40,11 @@ export function BindStaffThenPOS({
         }
         await supabase.auth.refreshSession()
         if (cancelled) return
+        // Full page load so server/middleware see the new session cookie with role in JWT
+        if (typeof window !== "undefined") {
+          window.location.href = "/pos"
+          return
+        }
         router.replace("/pos")
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Something went wrong")
