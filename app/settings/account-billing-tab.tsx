@@ -106,6 +106,13 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
     <>
       <Toaster richColors position="top-right" />
       <div className="space-y-6">
+        {/* Info: account deletion is available */}
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/40 dark:bg-blue-950/30">
+          <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+            Account deletion is available in the Danger Zone below. Your data is retained for 90 days; you can request a copy before then.
+          </p>
+        </div>
+
         {/* Account Info */}
         <Card>
           <CardHeader>

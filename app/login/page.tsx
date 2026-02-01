@@ -4,6 +4,7 @@ import * as React from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { toast, Toaster } from "sonner"
+import { Suspense } from "react"
 
 import { createClient } from "@/lib/supabase/client"
 
@@ -17,7 +18,7 @@ const STORE_ID_KEY = "vendoflow_last_store_id"
 const STORE_NAME_KEY = "vendoflow_last_store_name"
 const ACCOUNT_ID_KEY = "vendoflow_last_account_id"
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const deletedParam = searchParams.get("deleted") === "1"
@@ -356,5 +357,28 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+function LoginFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-zinc-950">
+      <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-8 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+            VendoFlow
+          </h1>
+          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Loading...</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginFallback />}>
+      <LoginContent />
+    </Suspense>
   )
 }
