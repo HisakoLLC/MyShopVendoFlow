@@ -10,6 +10,8 @@ const createStyleServerSchema = z.object({
   name: z.string().min(3, "Style name must be at least 3 characters.").max(100).trim(),
   category_id: z.string().uuid("Invalid category ID."),
   season_id: z.string().uuid().nullable().optional(),
+  /** When creating a style, season_name is used to find-or-create a season; takes precedence over season_id when provided. */
+  season_name: z.string().max(100).trim().nullable().optional(),
   description: z.string().max(500).trim().nullable().optional(),
   base_price: z.number().min(0.01, "Base price must be greater than 0.").max(999999999),
   cost: z.number().min(0.01, "Cost must be greater than 0.").max(999999999),
@@ -60,26 +62,50 @@ export async function createProductStyle(formData: z.infer<typeof createStyleSer
     throw new Error("Invalid category selected.")
   }
 
-  // Verify season belongs to account (if provided)
-  if (validated.season_id) {
+  const accountIdStr = typeof accountId === "string" ? accountId : String(accountId)
+
+  // Resolve season_id: from season_name (find-or-create) or from season_id
+  let seasonId: string | null = validated.season_id ?? null
+  const seasonNameTrimmed = validated.season_name?.trim()
+  if (seasonNameTrimmed) {
+    const { data: existing } = await supabase
+      .from("seasons")
+      .select("season_id")
+      .eq("account_id", accountIdStr)
+      .ilike("name", seasonNameTrimmed)
+      .limit(1)
+      .maybeSingle()
+    if (existing?.season_id) {
+      seasonId = existing.season_id
+    } else {
+      const { data: created, error: createErr } = await supabase
+        .from("seasons")
+        .insert({ account_id: accountIdStr, name: seasonNameTrimmed })
+        .select("season_id")
+        .single()
+      if (createErr || !created) {
+        throw new Error("Could not save season.")
+      }
+      seasonId = created.season_id
+    }
+  } else if (validated.season_id) {
     const { data: season, error: seasonError } = await supabase
       .from("seasons")
       .select("season_id")
       .eq("season_id", validated.season_id)
       .eq("account_id", accountId)
       .single()
-
     if (seasonError || !season) {
       throw new Error("Invalid season selected.")
     }
+    seasonId = validated.season_id
   }
 
-  const accountIdStr = typeof accountId === "string" ? accountId : String(accountId)
   const payload = {
     account_id: accountIdStr,
     name: validated.name,
     category_id: validated.category_id,
-    season_id: validated.season_id ?? null,
+    season_id: seasonId,
     description: validated.description ?? null,
     base_price: validated.base_price,
     cost: validated.cost,

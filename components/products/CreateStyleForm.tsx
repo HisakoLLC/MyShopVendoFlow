@@ -36,7 +36,7 @@ type SeasonOption = { season_id: string; name: string }
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024 // 2MB
 const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/jpg"]
 
-function createStyleSchema(categoryIds: Set<string>, seasonIds: Set<string>) {
+function createStyleSchema(categoryIds: Set<string>) {
   return z
     .object({
       name: z
@@ -48,14 +48,12 @@ function createStyleSchema(categoryIds: Set<string>, seasonIds: Set<string>) {
         .string()
         .uuid("Invalid category.")
         .refine((id) => categoryIds.has(id), "Invalid category selected."),
-      season_id: z
-        .union([z.string().uuid(), z.literal("none"), z.null()])
+      season_name: z
+        .string()
+        .max(100, "Season must be 100 characters or less.")
+        .trim()
         .optional()
-        .nullable()
-        .refine(
-          (id) => !id || id === "none" || seasonIds.has(id as string),
-          "Invalid season selected."
-        ),
+        .nullable(),
       description: z
         .string()
         .max(500, "Description must be 500 characters or less.")
@@ -112,9 +110,8 @@ export function CreateStyleForm(props: {
   const supabase = React.useMemo(() => createClient(), [])
 
   const categoryIds = React.useMemo(() => new Set(props.categories.map((c) => c.category_id)), [props.categories])
-  const seasonIds = React.useMemo(() => new Set(props.seasons.map((s) => s.season_id)), [props.seasons])
 
-  const schema = React.useMemo(() => createStyleSchema(categoryIds, seasonIds), [categoryIds, seasonIds])
+  const schema = React.useMemo(() => createStyleSchema(categoryIds), [categoryIds])
 
   type CreateStyleValues = z.infer<typeof schema>
 
@@ -126,7 +123,7 @@ export function CreateStyleForm(props: {
     defaultValues: {
       name: "",
       category_id: "",
-      season_id: null,
+      season_name: "",
       description: "",
       base_price: 1,
       cost: 1,
@@ -185,7 +182,7 @@ export function CreateStyleForm(props: {
       const { style_id } = await createProductStyle({
         name: values.name,
         category_id: values.category_id,
-        season_id: values.season_id === "none" || !values.season_id ? null : values.season_id,
+        season_name: values.season_name?.trim() || null,
         description: values.description ?? null,
         base_price: values.base_price,
         cost: values.cost,
@@ -249,26 +246,19 @@ export function CreateStyleForm(props: {
 
               <FormField
                 control={form.control}
-                name="season_id"
+                name="season_name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Season (optional)</FormLabel>
-                    <Select
-                      value={field.value ?? "none"}
-                      onValueChange={(v) => field.onChange(v === "none" ? null : v)}
-                    >
-                      <SelectTrigger className="h-11 w-full">
-                        <SelectValue placeholder="Select season" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">No season</SelectItem>
-                        {props.seasons.map((s) => (
-                          <SelectItem key={s.season_id} value={s.season_id}>
-                            {s.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g. Fall 2025, Summer, SS24"
+                        maxLength={100}
+                        className="h-11"
+                        value={field.value ?? ""}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
