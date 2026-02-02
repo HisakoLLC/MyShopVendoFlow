@@ -404,17 +404,14 @@ export function ProductsTableClient(props: {
                   const margin = marginPercent(base, cost)
                   const categoryName = s.categories?.name ?? "—"
                   const seasonName = s.seasons?.name ?? "—"
-                  const CardWrapper = viewMode === "active" ? Link : "div"
-                  const cardProps =
-                    viewMode === "active"
-                      ? { href: `/products/${s.style_id}/edit` }
-                      : {}
+                  const cardClassName =
+                    "block rounded-lg border border-zinc-200 bg-white p-4 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
 
-                  return (
-                    <CardWrapper
+                  return viewMode === "active" ? (
+                    <Link
                       key={s.style_id}
-                      {...cardProps}
-                      className="block rounded-lg border border-zinc-200 bg-white p-4 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
+                      href={`/products/${s.style_id}/edit`}
+                      className={cardClassName}
                     >
                       <div className="flex gap-4">
                         {/* Image */}
@@ -562,7 +559,143 @@ export function ProductsTableClient(props: {
                           </AlertDialog.Root>
                         </div>
                       </div>
-                    </CardWrapper>
+                    </Link>
+                  ) : (
+                    <div key={s.style_id} className={cardClassName}>
+                      <div className="flex gap-4">
+                        {/* Image */}
+                        <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
+                          {s.image_url ? (
+                            <Image
+                              src={s.image_url}
+                              alt={s.name}
+                              width={80}
+                              height={80}
+                              className="h-20 w-20 object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center text-xs text-zinc-500">
+                              No image
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Details */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="truncate font-medium text-zinc-900 dark:text-zinc-100">
+                            {s.name}
+                          </h3>
+                          <div className="mt-1 space-y-1 text-xs text-zinc-600 dark:text-zinc-400">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">Category:</span>
+                              <span>{categoryName}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">Season:</span>
+                              <span>{seasonName}</span>
+                            </div>
+                            <div className="flex items-center justify-between pt-1">
+                              <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                                {formatKes(base)}
+                              </span>
+                              <span className="rounded-md bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                                {margin.toFixed(1)}% margin
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Actions - archived: Restore + Delete */}
+                        <div className="flex flex-col items-end gap-2">
+                          <button
+                            type="button"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-green-600 hover:bg-green-50 hover:text-green-700 dark:text-green-400 dark:hover:bg-green-950/30 dark:hover:text-green-300"
+                            title="Restore to active"
+                            disabled={isPending}
+                            onClick={() => {
+                              setError(null)
+                              startTransition(async () => {
+                                try {
+                                  setRestoringId(s.style_id)
+                                  await unarchiveProductStyle(s.style_id)
+                                  setViewMode("active")
+                                  router.refresh()
+                                } catch (err) {
+                                  setError(err instanceof Error ? err.message : "Failed to restore.")
+                                } finally {
+                                  setRestoringId(null)
+                                }
+                              })
+                            }}
+                          >
+                            <ArchiveRestore className="h-4 w-4" />
+                          </button>
+                          <AlertDialog.Root
+                            open={deletingId === s.style_id}
+                            onOpenChange={(open) => setDeletingId(open ? s.style_id : null)}
+                          >
+                            <AlertDialog.Trigger asChild>
+                              <button
+                                type="button"
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30"
+                                title="Delete permanently"
+                                disabled={isPending}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </AlertDialog.Trigger>
+
+                            <AlertDialog.Portal>
+                              <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
+                              <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-white p-5 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950">
+                                <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                                  Delete &quot;{s.name}&quot; permanently?
+                                </AlertDialog.Title>
+                                <AlertDialog.Description className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                                  This will remove the style and all its variants and inventory levels. This cannot be undone.
+                                </AlertDialog.Description>
+
+                                <div className="mt-4 flex items-center justify-end gap-2">
+                                  <AlertDialog.Cancel asChild>
+                                    <button
+                                      type="button"
+                                      className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-900"
+                                      disabled={isPending}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </AlertDialog.Cancel>
+
+                                  <AlertDialog.Action asChild>
+                                    <button
+                                      type="button"
+                                      className="inline-flex h-10 items-center justify-center rounded-lg bg-red-600 px-4 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-500 dark:hover:bg-red-600"
+                                      disabled={isPending}
+                                      onClick={() => {
+                                        setError(null)
+                                        startTransition(async () => {
+                                          try {
+                                            await deleteProductStyle(s.style_id)
+                                            setDeletingId(null)
+                                          } catch (e) {
+                                            setError(e instanceof Error ? e.message : "Failed to delete.")
+                                          } finally {
+                                            setDeletingId(null)
+                                          }
+                                        })
+                                      }}
+                                    >
+                                      {isPending ? "Deleting..." : "Delete"}
+                                    </button>
+                                  </AlertDialog.Action>
+                                </div>
+                              </AlertDialog.Content>
+                            </AlertDialog.Portal>
+                          </AlertDialog.Root>
+                        </div>
+                      </div>
+                    </div>
                   )
                 })
               )}
