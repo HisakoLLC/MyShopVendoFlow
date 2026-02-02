@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/table"
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover"
 import { SupplierQuickAddModal } from "@/components/purchasing/SupplierQuickAddModal"
-import { createPurchaseOrder, type CreatePOData } from "@/app/purchasing/actions"
+import { createPurchaseOrder, signStorageUrls, type CreatePOData } from "@/app/purchasing/actions"
 import { createClient } from "@/lib/supabase/client"
 import { formatCurrency } from "@/lib/format-currency"
 
@@ -207,7 +207,10 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
             .limit(10)
 
           if (!error && styles) {
-            setProductResults((prev) => ({ ...prev, [index]: styles }))
+            const urls = styles.map((s) => s.image_url)
+            const signed = await signStorageUrls(urls)
+            const withSigned = styles.map((s, i) => ({ ...s, image_url: signed[i] ?? s.image_url }))
+            setProductResults((prev) => ({ ...prev, [index]: withSigned }))
           }
         } catch (err) {
           console.error("Error searching products:", err)
@@ -250,7 +253,15 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
         .order("color")
 
       if (!error && variants) {
-        setVariantOptions((prev) => ({ ...prev, [index]: variants as Variant[] }))
+        const urls = (variants as Variant[]).map((v) => v.product_styles?.image_url ?? null)
+        const signed = await signStorageUrls(urls)
+        const withSigned = (variants as Variant[]).map((v, i) => ({
+          ...v,
+          product_styles: v.product_styles
+            ? { ...v.product_styles, image_url: signed[i] ?? v.product_styles.image_url }
+            : null,
+        }))
+        setVariantOptions((prev) => ({ ...prev, [index]: withSigned }))
       }
     } catch (err) {
       console.error("Error fetching variants:", err)

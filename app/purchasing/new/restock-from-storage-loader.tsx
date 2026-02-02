@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { createClient } from "@/lib/supabase/client"
+import { signStorageUrls } from "@/app/purchasing/actions"
 import { CreatePOForm } from "./create-po-form"
 
 const RESTOCK_ITEMS_KEY = "purchasing_new_restock_items"
@@ -135,10 +136,18 @@ export function RestockFromStorageLoader({ suppliers }: RestockFromStorageLoader
           chunks.push(variantIds.slice(i, i + VARIANT_FETCH_CHUNK_SIZE))
         }
         return Promise.all(chunks.map((chunk) => fetchVariantsChunk(chunk, accountId))).then(
-          (results) => {
+          async (results) => {
             const allVariants = results.flat()
+            const urls = allVariants.map((v) => v.product_styles?.image_url ?? null)
+            const signed = await signStorageUrls(urls)
+            const withSigned = allVariants.map((v, i) => ({
+              ...v,
+              product_styles: v.product_styles
+                ? { ...v.product_styles, image_url: signed[i] ?? v.product_styles.image_url }
+                : null,
+            }))
             setPrefillItems(items)
-            setPrefillVariants(allVariants)
+            setPrefillVariants(withSigned)
           }
         )
       })

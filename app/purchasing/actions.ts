@@ -4,7 +4,19 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { getSignedStorageUrl } from "@/lib/signed-storage-url"
 import type { Database } from "@/types/database"
+
+/** Sign Supabase storage URLs for client-displayed images (private buckets). */
+export async function signStorageUrls(
+  urls: (string | null | undefined)[]
+): Promise<(string | null)[]> {
+  if (urls.length === 0) return []
+  const supabase = await createServerSupabaseClient()
+  return Promise.all(
+    urls.map((url) => (url ? getSignedStorageUrl(supabase, url) : Promise.resolve(null)))
+  )
+}
 
 type Tables = Database["public"]["Tables"]
 type PurchaseOrderInsert = Tables["purchase_orders"]["Insert"]

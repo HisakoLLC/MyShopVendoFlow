@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { getSignedStorageUrl } from "@/lib/signed-storage-url"
 import { ReceiveInventoryForm } from "./receive-inventory-form"
 
 export const dynamic = "force-dynamic"
@@ -163,6 +164,25 @@ async function ReceiveInventoryContent({ poId }: { poId: string }) {
   let data: { po: PurchaseOrder; lineItems: POLineItem[]; stores: Store[] }
   try {
     data = await fetchPOData(poId)
+    const supabase = await createServerSupabaseClient()
+    // Sign Supabase storage URLs so product images load for private buckets
+    const lineItemsWithSignedUrls = await Promise.all(
+      data.lineItems.map(async (item) => {
+        const style = item.product_variants?.product_styles
+        if (!style?.image_url) return item
+        const signed = await getSignedStorageUrl(supabase, style.image_url)
+        return {
+          ...item,
+          product_variants: item.product_variants
+            ? {
+                ...item.product_variants,
+                product_styles: { ...style, image_url: signed }
+              }
+            : null,
+        }
+      })
+    )
+    data = { ...data, lineItems: lineItemsWithSignedUrls }
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unable to load purchase order."
     return <ErrorState message={message} />
