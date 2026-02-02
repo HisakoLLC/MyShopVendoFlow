@@ -207,9 +207,13 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
             .limit(10)
 
           if (!error && styles) {
-            const urls = styles.map((s) => s.image_url)
+            const typed = styles as ProductStyle[]
+            const urls = typed.map((s: ProductStyle) => s.image_url)
             const signed = await signStorageUrls(urls)
-            const withSigned = styles.map((s, i) => ({ ...s, image_url: signed[i] ?? s.image_url }))
+            const withSigned = typed.map((s: ProductStyle, i: number) => ({
+              ...s,
+              image_url: signed[i] ?? s.image_url,
+            }))
             setProductResults((prev) => ({ ...prev, [index]: withSigned }))
           }
         } catch (err) {
