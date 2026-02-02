@@ -176,7 +176,7 @@ export function VariantSelector({
         cell.variant.price,
         cell.variant.sku
       )
-      onClose()
+      // Don't close modal — user can add more variants or same variant again, then close via overlay/X
     }
   }
 
@@ -291,20 +291,29 @@ export function VariantSelector({
               </div>
             </div>
 
-            {/* Legend */}
-            <div className="flex flex-wrap items-center gap-4 border-t border-zinc-200 pt-4 text-xs dark:border-zinc-800">
-              <div className="flex items-center gap-2">
-                <div className="h-4 w-4 rounded border-2 border-green-400 bg-green-50 dark:border-green-600 dark:bg-green-950/20"></div>
-                <span className="text-zinc-600 dark:text-zinc-400">In Stock (3+)</span>
+            {/* Legend + Done */}
+            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-zinc-200 pt-4 text-xs dark:border-zinc-800">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 rounded border-2 border-green-400 bg-green-50 dark:border-green-600 dark:bg-green-950/20"></div>
+                  <span className="text-zinc-600 dark:text-zinc-400">In Stock (3+)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 rounded border-2 border-yellow-400 bg-yellow-50 dark:border-yellow-600 dark:bg-yellow-950/20"></div>
+                  <span className="text-zinc-600 dark:text-zinc-400">Low Stock (1-2)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 rounded border-2 border-zinc-300 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800"></div>
+                  <span className="text-zinc-600 dark:text-zinc-400">Out of Stock</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="h-4 w-4 rounded border-2 border-yellow-400 bg-yellow-50 dark:border-yellow-600 dark:bg-yellow-950/20"></div>
-                <span className="text-zinc-600 dark:text-zinc-400">Low Stock (1-2)</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-4 w-4 rounded border-2 border-zinc-300 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800"></div>
-                <span className="text-zinc-600 dark:text-zinc-400">Out of Stock</span>
-              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+              >
+                Done
+              </button>
             </div>
           </div>
         )}
