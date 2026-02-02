@@ -269,6 +269,9 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12 px-2" aria-label="Select row">
+                    <span className="sr-only">Select</span>
+                  </TableHead>
                   <TableHead className="w-[200px]">Style</TableHead>
                   <TableHead>Variant</TableHead>
                   <TableHead>SKU</TableHead>
@@ -286,7 +289,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={hasMultipleStores ? stores.length + 6 : 7} className="h-24 text-center">
+                    <TableCell colSpan={hasMultipleStores ? stores.length + 7 : 8} className="h-24 text-center">
                       No inventory found matching your filters.
                     </TableCell>
                   </TableRow>
@@ -297,7 +300,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
 
                     return (
                       <TableRow key={item.variant_id} className={rowBg}>
-                        <TableCell>
+                        <TableCell className="w-12 px-2">
                           <Checkbox
                             checked={selectedIds.has(item.variant_id)}
                             onCheckedChange={() => toggleRow(item.variant_id)}
