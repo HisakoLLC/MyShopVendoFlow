@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { getSignedStorageUrl } from "@/lib/signed-storage-url"
 import { RestockSuggestionsClient } from "./restock-suggestions-client"
 
 export const dynamic = "force-dynamic"
@@ -268,6 +269,17 @@ async function RestockSuggestionsContent() {
       const { data: bs } = await supabase.from("business_settings").select("currency").eq("account_id", accountId).single()
       currency = (bs as { currency?: string } | null)?.currency ?? "KES"
     }
+
+    // Sign Supabase storage URLs so images load for private buckets
+    const suggestionsWithSignedUrls = await Promise.all(
+      suggestions.map(async (s) => ({
+        ...s,
+        style_image_url: s.style_image_url
+          ? await getSignedStorageUrl(supabase, s.style_image_url)
+          : null,
+      }))
+    )
+    suggestions = suggestionsWithSignedUrls
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unable to load restock suggestions."
     return <ErrorState message={message} />
