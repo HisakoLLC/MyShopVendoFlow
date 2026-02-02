@@ -122,46 +122,23 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
   }
 
   const handleVariantSelect = React.useCallback(
-    async (variantId: string, size: string, color: string, price: number) => {
-      if (!selectedStyleId || !defaultStoreId) return
+    (variantId: string, size: string, color: string, price: number, sku: string) => {
+      if (!selectedStyleId || !selectedStyleName) return
 
-      try {
-        // Fetch variant details to get SKU, cost, and style info
-        const { data: variant, error: variantError } = await supabase
-          .from("product_variants")
-          .select("sku, cost, product_styles!inner(style_id, name, image_url)")
-          .eq("variant_id", variantId)
-          .single()
+      addToCart({
+        variantId,
+        styleName: selectedStyleName,
+        size,
+        color,
+        sku,
+        price,
+      })
 
-        if (variantError || !variant) {
-          console.error("Error fetching variant:", variantError)
-          return
-        }
-
-        const style = variant.product_styles as unknown as {
-          style_id: string
-          name: string
-          image_url: string | null
-        }
-
-        // Add to cart
-        addToCart({
-          variantId,
-          styleName: style.name,
-          size,
-          color,
-          sku: variant.sku,
-          price,
-        })
-
-        // Close variant selector
-        setSelectedStyleId(null)
-        setSelectedStyleName("")
-      } catch (error) {
-        console.error("Error adding to cart:", error)
-      }
+      setSelectedStyleId(null)
+      setSelectedStyleName("")
+      setSelectedBasePrice(0)
     },
-    [selectedStyleId, defaultStoreId, supabase, addToCart, taxInclusive, taxRatePercent]
+    [selectedStyleId, selectedStyleName, addToCart]
   )
 
   const formatPrice = (price: number) => {
