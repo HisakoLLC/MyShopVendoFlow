@@ -348,6 +348,76 @@ export async function deleteProductStyle(styleId: string) {
   revalidatePath("/inventory")
 }
 
+export async function deleteProductVariant(variantId: string) {
+  const supabase = await createServerSupabaseClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    throw new Error("You must be signed in to delete a variant.")
+  }
+
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  if (accountIdError || !accountIdRaw) {
+    throw new Error("Unable to resolve account.")
+  }
+  const accountId = Array.isArray(accountIdRaw) ? accountIdRaw[0] ?? null : accountIdRaw
+
+  const { data: variant, error: variantError } = await supabase
+    .from("product_variants")
+    .select("variant_id, style_id, product_styles!inner(account_id)")
+    .eq("variant_id", variantId)
+    .single()
+
+  if (variantError || !variant) {
+    throw new Error("Variant not found or access denied.")
+  }
+
+  const style = variant.product_styles as { account_id: string } | null
+  if (!style || style.account_id !== accountId) {
+    throw new Error("Variant not found or access denied.")
+  }
+
+  const { data: saleLine } = await supabase
+    .from("sale_line_items")
+    .select("variant_id")
+    .eq("variant_id", variantId)
+    .limit(1)
+    .maybeSingle()
+  if (saleLine) {
+    throw new Error("Cannot delete: this variant has sales history.")
+  }
+
+  const { data: poLine } = await supabase
+    .from("po_line_items")
+    .select("variant_id")
+    .eq("variant_id", variantId)
+    .limit(1)
+    .maybeSingle()
+  if (poLine) {
+    throw new Error("Cannot delete: this variant is on a purchase order. Remove it from the order first.")
+  }
+
+  await supabase.from("inventory_levels").delete().eq("variant_id", variantId)
+  await supabase.from("inventory_transfers").delete().eq("variant_id", variantId)
+  await supabase.from("variant_metrics").delete().eq("variant_id", variantId)
+
+  const { error: deleteVariantError } = await supabase
+    .from("product_variants")
+    .delete()
+    .eq("variant_id", variantId)
+
+  if (deleteVariantError) {
+    throw new Error(deleteVariantError.message)
+  }
+
+  revalidatePath("/products")
+  revalidatePath("/inventory")
+}
+
 const variantInsertSchema = z.object({
   style_id: z.string().uuid(),
   size: z.string().min(1),

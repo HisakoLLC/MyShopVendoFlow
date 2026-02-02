@@ -28,7 +28,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { InventoryAdjustmentModal } from "@/components/inventory/InventoryAdjustmentModal"
 import { BulkInventoryAdjustmentModal } from "@/components/inventory/BulkInventoryAdjustmentModal"
 import { VariantCellEditor } from "@/components/products/VariantCellEditor"
-import { updateProductVariant, deleteProductStyle } from "@/app/products/actions"
+import { updateProductVariant, deleteProductVariant } from "@/app/products/actions"
 
 type Store = {
   store_id: string
@@ -106,9 +106,11 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
   } | null>(null)
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
   const [bulkModalOpen, setBulkModalOpen] = React.useState(false)
-  const [deletingStyle, setDeletingStyle] = React.useState<{
-    style_id: string
+  const [deletingVariant, setDeletingVariant] = React.useState<{
+    variant_id: string
     style_name: string
+    size: string
+    color: string
   } | null>(null)
   const [deletePending, startDeleteTransition] = React.useTransition()
 
@@ -408,10 +410,15 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                               variant="outline"
                               size="sm"
                               className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30"
-                              title="Delete this product style permanently"
+                              title="Delete this variant only (this size/color)"
                               disabled={deletePending}
                               onClick={() =>
-                                setDeletingStyle({ style_id: item.style_id, style_name: item.style_name })
+                                setDeletingVariant({
+                                  variant_id: item.variant_id,
+                                  style_name: item.style_name,
+                                  size: item.size,
+                                  color: item.color,
+                                })
                               }
                             >
                               <Trash2 className="mr-1.5 h-4 w-4" />
@@ -455,19 +462,24 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
         selectedVariantIds={Array.from(selectedIds)}
       />
 
-      {/* Delete style confirmation */}
+      {/* Delete variant confirmation */}
       <AlertDialog.Root
-        open={deletingStyle !== null}
-        onOpenChange={(open) => !open && setDeletingStyle(null)}
+        open={deletingVariant !== null}
+        onOpenChange={(open) => !open && setDeletingVariant(null)}
       >
         <AlertDialog.Portal>
           <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
           <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-white p-5 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950">
             <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-              Delete &quot;{deletingStyle?.style_name ?? ""}&quot; permanently?
+              Delete this variant?
             </AlertDialog.Title>
             <AlertDialog.Description className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              This will remove the entire style and all its variants and inventory levels from Products and Inventory. This cannot be undone. Products with sales history cannot be deleted.
+              {deletingVariant && (
+                <>
+                  Remove <strong>{deletingVariant.style_name} – {deletingVariant.size} / {deletingVariant.color}</strong> only.
+                  This variant and its stock will be deleted. The style and other variants will remain. This cannot be undone.
+                </>
+              )}
             </AlertDialog.Description>
 
             <div className="mt-4 flex items-center justify-end gap-2">
@@ -482,22 +494,22 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                   variant="destructive"
                   disabled={deletePending}
                   onClick={() => {
-                    if (!deletingStyle) return
+                    if (!deletingVariant) return
                     startDeleteTransition(async () => {
                       try {
-                        await deleteProductStyle(deletingStyle.style_id)
-                        toast.success("Product deleted.")
-                        setDeletingStyle(null)
+                        await deleteProductVariant(deletingVariant.variant_id)
+                        toast.success("Variant deleted.")
+                        setDeletingVariant(null)
                         router.refresh()
                       } catch (e) {
                         toast.error(e instanceof Error ? e.message : "Failed to delete.")
                       } finally {
-                        setDeletingStyle(null)
+                        setDeletingVariant(null)
                       }
                     })
                   }}
                 >
-                  {deletePending ? "Deleting..." : "Delete"}
+                  {deletePending ? "Deleting..." : "Delete variant"}
                 </Button>
               </AlertDialog.Action>
             </div>
