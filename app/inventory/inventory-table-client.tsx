@@ -3,7 +3,8 @@
 import * as React from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { Download, Search, AlertTriangle, Pencil, Layers } from "lucide-react"
+import * as AlertDialog from "@radix-ui/react-alert-dialog"
+import { Download, Search, AlertTriangle, Pencil, Layers, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -27,7 +28,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { InventoryAdjustmentModal } from "@/components/inventory/InventoryAdjustmentModal"
 import { BulkInventoryAdjustmentModal } from "@/components/inventory/BulkInventoryAdjustmentModal"
 import { VariantCellEditor } from "@/components/products/VariantCellEditor"
-import { updateProductVariant } from "@/app/products/actions"
+import { updateProductVariant, deleteProductStyle } from "@/app/products/actions"
 
 type Store = {
   store_id: string
@@ -105,6 +106,11 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
   } | null>(null)
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
   const [bulkModalOpen, setBulkModalOpen] = React.useState(false)
+  const [deletingStyle, setDeletingStyle] = React.useState<{
+    style_id: string
+    style_name: string
+  } | null>(null)
+  const [deletePending, startDeleteTransition] = React.useTransition()
 
   const filtered = React.useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
@@ -398,6 +404,19 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                                 </Button>
                               )
                             })}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30"
+                              title="Delete this product style permanently"
+                              disabled={deletePending}
+                              onClick={() =>
+                                setDeletingStyle({ style_id: item.style_id, style_name: item.style_name })
+                              }
+                            >
+                              <Trash2 className="mr-1.5 h-4 w-4" />
+                              Delete
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -435,6 +454,56 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
         stores={stores}
         selectedVariantIds={Array.from(selectedIds)}
       />
+
+      {/* Delete style confirmation */}
+      <AlertDialog.Root
+        open={deletingStyle !== null}
+        onOpenChange={(open) => !open && setDeletingStyle(null)}
+      >
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
+          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-white p-5 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950">
+            <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+              Delete &quot;{deletingStyle?.style_name ?? ""}&quot; permanently?
+            </AlertDialog.Title>
+            <AlertDialog.Description className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+              This will remove the entire style and all its variants and inventory levels from Products and Inventory. This cannot be undone. Products with sales history cannot be deleted.
+            </AlertDialog.Description>
+
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <AlertDialog.Cancel asChild>
+                <Button variant="outline" disabled={deletePending}>
+                  Cancel
+                </Button>
+              </AlertDialog.Cancel>
+
+              <AlertDialog.Action asChild>
+                <Button
+                  variant="destructive"
+                  disabled={deletePending}
+                  onClick={() => {
+                    if (!deletingStyle) return
+                    startDeleteTransition(async () => {
+                      try {
+                        await deleteProductStyle(deletingStyle.style_id)
+                        toast.success("Product deleted.")
+                        setDeletingStyle(null)
+                        router.refresh()
+                      } catch (e) {
+                        toast.error(e instanceof Error ? e.message : "Failed to delete.")
+                      } finally {
+                        setDeletingStyle(null)
+                      }
+                    })
+                  }}
+                >
+                  {deletePending ? "Deleting..." : "Delete"}
+                </Button>
+              </AlertDialog.Action>
+            </div>
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
 
       {/* Edit variant (price/cost/SKU) modal */}
       {editingVariant && (

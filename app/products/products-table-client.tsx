@@ -4,11 +4,11 @@ import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
 import * as AlertDialog from "@radix-ui/react-alert-dialog"
-import { Archive, Pencil } from "lucide-react"
+import { Archive, Pencil, Trash2 } from "lucide-react"
 
 import type { Tables } from "@/types/database"
 import { ProductsFilters } from "@/components/products/ProductsFilters"
-import { archiveProductStyle } from "./actions"
+import { archiveProductStyle, deleteProductStyle } from "./actions"
 
 type CategoryRow = Tables<"categories">
 type SeasonRow = Tables<"seasons">
@@ -43,6 +43,7 @@ export function ProductsTableClient(props: {
     { search: "", category: "all", season: "all" }
   )
   const [archivingId, setArchivingId] = React.useState<string | null>(null)
+  const [deletingId, setDeletingId] = React.useState<string | null>(null)
   const [isPending, startTransition] = React.useTransition()
   const [error, setError] = React.useState<string | null>(null)
 
@@ -250,6 +251,69 @@ export function ProductsTableClient(props: {
                                 </AlertDialog.Content>
                               </AlertDialog.Portal>
                             </AlertDialog.Root>
+
+                            <AlertDialog.Root
+                              open={deletingId === s.style_id}
+                              onOpenChange={(open) => setDeletingId(open ? s.style_id : null)}
+                            >
+                              <AlertDialog.Trigger asChild>
+                                <button
+                                  type="button"
+                                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
+                                  title="Delete permanently"
+                                  disabled={isPending}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </AlertDialog.Trigger>
+
+                              <AlertDialog.Portal>
+                                <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
+                                <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-white p-5 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950">
+                                  <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                                    Delete &quot;{s.name}&quot; permanently?
+                                  </AlertDialog.Title>
+                                  <AlertDialog.Description className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                                    This will remove the style and all its variants and inventory levels. This cannot be undone. Products with sales history cannot be deleted—use Archive instead.
+                                  </AlertDialog.Description>
+
+                                  <div className="mt-4 flex items-center justify-end gap-2">
+                                    <AlertDialog.Cancel asChild>
+                                      <button
+                                        type="button"
+                                        className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-900"
+                                        disabled={isPending}
+                                      >
+                                        Cancel
+                                      </button>
+                                    </AlertDialog.Cancel>
+
+                                    <AlertDialog.Action asChild>
+                                      <button
+                                        type="button"
+                                        className="inline-flex h-10 items-center justify-center rounded-lg bg-red-600 px-4 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-500 dark:hover:bg-red-600"
+                                        disabled={isPending}
+                                        onClick={() => {
+                                          setError(null)
+                                          startTransition(async () => {
+                                            try {
+                                              await deleteProductStyle(s.style_id)
+                                              setDeletingId(null)
+                                            } catch (e) {
+                                              setError(e instanceof Error ? e.message : "Failed to delete.")
+                                            } finally {
+                                              setDeletingId(null)
+                                            }
+                                          })
+                                        }}
+                                      >
+                                        {isPending ? "Deleting..." : "Delete"}
+                                      </button>
+                                    </AlertDialog.Action>
+                                  </div>
+                                </AlertDialog.Content>
+                              </AlertDialog.Portal>
+                            </AlertDialog.Root>
                           </div>
                         </td>
                       </tr>
@@ -337,6 +401,69 @@ export function ProductsTableClient(props: {
                           >
                             <Pencil className="h-4 w-4" />
                           </Link>
+                          <AlertDialog.Root
+                            open={deletingId === s.style_id}
+                            onOpenChange={(open) => setDeletingId(open ? s.style_id : null)}
+                          >
+                            <AlertDialog.Trigger asChild>
+                              <button
+                                type="button"
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30"
+                                title="Delete permanently"
+                                disabled={isPending}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </AlertDialog.Trigger>
+
+                            <AlertDialog.Portal>
+                              <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
+                              <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-white p-5 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950">
+                                <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                                  Delete &quot;{s.name}&quot; permanently?
+                                </AlertDialog.Title>
+                                <AlertDialog.Description className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                                  This will remove the style and all its variants and inventory levels. This cannot be undone.
+                                </AlertDialog.Description>
+
+                                <div className="mt-4 flex items-center justify-end gap-2">
+                                  <AlertDialog.Cancel asChild>
+                                    <button
+                                      type="button"
+                                      className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-900"
+                                      disabled={isPending}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </AlertDialog.Cancel>
+
+                                  <AlertDialog.Action asChild>
+                                    <button
+                                      type="button"
+                                      className="inline-flex h-10 items-center justify-center rounded-lg bg-red-600 px-4 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-500 dark:hover:bg-red-600"
+                                      disabled={isPending}
+                                      onClick={() => {
+                                        setError(null)
+                                        startTransition(async () => {
+                                          try {
+                                            await deleteProductStyle(s.style_id)
+                                            setDeletingId(null)
+                                          } catch (e) {
+                                            setError(e instanceof Error ? e.message : "Failed to delete.")
+                                          } finally {
+                                            setDeletingId(null)
+                                          }
+                                        })
+                                      }}
+                                    >
+                                      {isPending ? "Deleting..." : "Delete"}
+                                    </button>
+                                  </AlertDialog.Action>
+                                </div>
+                              </AlertDialog.Content>
+                            </AlertDialog.Portal>
+                          </AlertDialog.Root>
                         </div>
                       </div>
                     </Link>

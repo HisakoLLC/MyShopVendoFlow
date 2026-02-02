@@ -253,6 +253,99 @@ export async function archiveProductStyle(styleId: string) {
   }
 
   revalidatePath("/products")
+  revalidatePath("/inventory")
+}
+
+export async function deleteProductStyle(styleId: string) {
+  const supabase = await createServerSupabaseClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    throw new Error("You must be signed in to delete a product.")
+  }
+
+  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+  if (accountIdError || !accountId) {
+    throw new Error("Unable to resolve account.")
+  }
+
+  const normAccountId = Array.isArray(accountId) ? accountId[0] ?? null : accountId
+  if (normAccountId == null || normAccountId === "") {
+    throw new Error("Unable to resolve account.")
+  }
+
+  const { data: style, error: styleError } = await supabase
+    .from("product_styles")
+    .select("style_id")
+    .eq("style_id", styleId)
+    .eq("account_id", normAccountId)
+    .single()
+
+  if (styleError || !style) {
+    throw new Error("Style not found or access denied.")
+  }
+
+  const { data: variants, error: variantsError } = await supabase
+    .from("product_variants")
+    .select("variant_id")
+    .eq("style_id", styleId)
+
+  if (variantsError) {
+    throw new Error("Failed to load product variants.")
+  }
+
+  const variantIds = (variants ?? []).map((v: { variant_id: string }) => v.variant_id)
+  if (variantIds.length > 0) {
+    const { data: saleLines } = await supabase
+      .from("sale_line_items")
+      .select("variant_id")
+      .in("variant_id", variantIds)
+      .limit(1)
+    if (saleLines && saleLines.length > 0) {
+      throw new Error("Cannot delete: this product has sales history. Archive it instead.")
+    }
+
+    const { data: poLines } = await supabase
+      .from("po_line_items")
+      .select("variant_id")
+      .in("variant_id", variantIds)
+      .limit(1)
+    if (poLines && poLines.length > 0) {
+      throw new Error("Cannot delete: this product is on a purchase order. Remove it from the order first.")
+    }
+  }
+
+  if (variantIds.length > 0) {
+    await supabase.from("inventory_levels").delete().in("variant_id", variantIds)
+    await supabase.from("inventory_transfers").delete().in("variant_id", variantIds)
+    await supabase.from("variant_metrics").delete().in("variant_id", variantIds)
+  }
+
+  const { error: deleteVariantsError } = await supabase
+    .from("product_variants")
+    .delete()
+    .eq("style_id", styleId)
+
+  if (deleteVariantsError) {
+    throw new Error(deleteVariantsError.message)
+  }
+
+  const { error: deleteStyleError } = await supabase
+    .from("product_styles")
+    .delete()
+    .eq("style_id", styleId)
+    .eq("account_id", normAccountId)
+
+  if (deleteStyleError) {
+    throw new Error(deleteStyleError.message)
+  }
+
+  revalidatePath("/products")
+  revalidatePath("/inventory")
 }
 
 const variantInsertSchema = z.object({
