@@ -3,12 +3,13 @@
 import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import * as AlertDialog from "@radix-ui/react-alert-dialog"
-import { Archive, Pencil, Trash2 } from "lucide-react"
+import { Archive, ArchiveRestore, Pencil, Trash2 } from "lucide-react"
 
 import type { Tables } from "@/types/database"
 import { ProductsFilters } from "@/components/products/ProductsFilters"
-import { archiveProductStyle, deleteProductStyle } from "./actions"
+import { archiveProductStyle, unarchiveProductStyle, deleteProductStyle } from "./actions"
 
 type CategoryRow = Tables<"categories">
 type SeasonRow = Tables<"seasons">
@@ -17,6 +18,7 @@ export type ProductStyleListRow = Pick<
   Tables<"product_styles">,
   "style_id" | "name" | "base_price" | "cost" | "image_url" | "category_id" | "season_id"
 > & {
+  archived?: boolean | null
   categories?: Pick<CategoryRow, "name"> | null
   seasons?: Pick<SeasonRow, "name"> | null
 }
@@ -39,23 +41,36 @@ export function ProductsTableClient(props: {
   categories: Array<Pick<CategoryRow, "category_id" | "name">>
   seasons: Array<Pick<SeasonRow, "season_id" | "name">>
 }) {
+  const router = useRouter()
+  const [viewMode, setViewMode] = React.useState<"active" | "archived">("active")
   const [filters, setFilters] = React.useState<{ search: string; category: string; season: string }>(
     { search: "", category: "all", season: "all" }
   )
   const [archivingId, setArchivingId] = React.useState<string | null>(null)
+  const [restoringId, setRestoringId] = React.useState<string | null>(null)
   const [deletingId, setDeletingId] = React.useState<string | null>(null)
   const [isPending, startTransition] = React.useTransition()
   const [error, setError] = React.useState<string | null>(null)
 
+  const activeStyles = React.useMemo(
+    () => props.styles.filter((s) => !s.archived),
+    [props.styles]
+  )
+  const archivedStyles = React.useMemo(
+    () => props.styles.filter((s) => s.archived),
+    [props.styles]
+  )
+  const currentList = viewMode === "active" ? activeStyles : archivedStyles
+
   const filtered = React.useMemo(() => {
     const q = (filters.search ?? "").trim().toLowerCase()
-    return props.styles.filter((s) => {
+    return currentList.filter((s) => {
       const matchesName = !q || s.name.toLowerCase().includes(q)
       const matchesCategory = filters.category === "all" || s.category_id === filters.category
       const matchesSeason = filters.season === "all" || s.season_id === filters.season
       return matchesName && matchesCategory && matchesSeason
     })
-  }, [props.styles, filters])
+  }, [currentList, filters])
 
   const hasProducts = props.styles.length > 0
 
@@ -71,21 +86,36 @@ export function ProductsTableClient(props: {
             />
           </div>
 
-          <div className="flex items-center justify-between gap-3 md:justify-end">
+          <div className="flex flex-wrap items-center justify-between gap-3 md:justify-end">
             {error ? (
               <div className="text-sm text-red-600 dark:text-red-400">{error}</div>
             ) : (
-              <div className="text-sm text-zinc-500">
-                {filtered.length} {filtered.length === 1 ? "style" : "styles"}
+              <div className="flex items-center gap-2 text-sm text-zinc-500">
+                <span>
+                  {viewMode === "active"
+                    ? `${filtered.length} ${filtered.length === 1 ? "style" : "styles"}`
+                    : `${filtered.length} archived`}
+                </span>
+                {archivedStyles.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setViewMode(viewMode === "archived" ? "active" : "archived")}
+                    className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                  >
+                    {viewMode === "archived" ? "Active" : `Archived (${archivedStyles.length})`}
+                  </button>
+                )}
               </div>
             )}
 
-            <Link
-              href="/products/new"
-              className="inline-flex h-10 items-center justify-center rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white shadow-sm hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900/20 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
-            >
-              Add New Style
-            </Link>
+            {viewMode === "active" && (
+              <Link
+                href="/products/new"
+                className="inline-flex h-10 items-center justify-center rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white shadow-sm hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900/20 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+              >
+                Add New Style
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -130,8 +160,10 @@ export function ProductsTableClient(props: {
               <tbody className="divide-y divide-zinc-100 text-sm dark:divide-zinc-900">
                 {filtered.length === 0 ? (
                   <tr>
-                    <td className="px-4 py-10 text-center text-zinc-500 dark:text-zinc-400" colSpan={6}>
-                      No styles match your filters.
+                    <td className="px-4 py-10 text-center text-zinc-500 dark:text-zinc-400" colSpan={8}>
+                      {viewMode === "archived"
+                        ? "No archived styles match your filters."
+                        : "No styles match your filters."}
                     </td>
                   </tr>
                 ) : (
@@ -182,75 +214,104 @@ export function ProductsTableClient(props: {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center justify-end gap-1">
-                            <Link
-                              href={`/products/${s.style_id}/edit`}
-                              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
-                              title="Edit"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Link>
-
-                            <AlertDialog.Root
-                              open={archivingId === s.style_id}
-                              onOpenChange={(open) => setArchivingId(open ? s.style_id : null)}
-                            >
-                              <AlertDialog.Trigger asChild>
-                                <button
-                                  type="button"
-                                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
-                                  title="Archive"
-                                  disabled={isPending}
+                            {viewMode === "active" ? (
+                              <>
+                                <Link
+                                  href={`/products/${s.style_id}/edit`}
+                                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
+                                  title="Edit"
                                 >
-                                  <Archive className="h-4 w-4" />
-                                </button>
-                              </AlertDialog.Trigger>
+                                  <Pencil className="h-4 w-4" />
+                                </Link>
 
-                              <AlertDialog.Portal>
-                                <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
-                                <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-white p-5 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950">
-                                  <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                                    Archive this style?
-                                  </AlertDialog.Title>
-                                  <AlertDialog.Description className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                                    This will hide the style from your active products list. You can restore it later from an archive view (if enabled).
-                                  </AlertDialog.Description>
+                                <AlertDialog.Root
+                                  open={archivingId === s.style_id}
+                                  onOpenChange={(open) => setArchivingId(open ? s.style_id : null)}
+                                >
+                                  <AlertDialog.Trigger asChild>
+                                    <button
+                                      type="button"
+                                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
+                                      title="Archive"
+                                      disabled={isPending}
+                                    >
+                                      <Archive className="h-4 w-4" />
+                                    </button>
+                                  </AlertDialog.Trigger>
 
-                                  <div className="mt-4 flex items-center justify-end gap-2">
-                                    <AlertDialog.Cancel asChild>
-                                      <button
-                                        type="button"
-                                        className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-900"
-                                        disabled={isPending}
-                                      >
-                                        Cancel
-                                      </button>
-                                    </AlertDialog.Cancel>
+                                  <AlertDialog.Portal>
+                                    <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
+                                    <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-white p-5 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950">
+                                      <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                                        Archive this style?
+                                      </AlertDialog.Title>
+                                      <AlertDialog.Description className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                                        This will hide the style from your active list. You can restore it anytime from Archived.
+                                      </AlertDialog.Description>
 
-                                    <AlertDialog.Action asChild>
-                                      <button
-                                        type="button"
-                                        className="inline-flex h-10 items-center justify-center rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
-                                        disabled={isPending}
-                                        onClick={() => {
-                                          setError(null)
-                                          startTransition(async () => {
-                                            try {
-                                              await archiveProductStyle(s.style_id)
-                                            } catch (e) {
-                                              setError(e instanceof Error ? e.message : "Failed to archive.")
-                                            } finally {
-                                              setArchivingId(null)
-                                            }
-                                          })
-                                        }}
-                                      >
-                                        {isPending ? "Archiving..." : "Archive"}
-                                      </button>
-                                    </AlertDialog.Action>
-                                  </div>
-                                </AlertDialog.Content>
-                              </AlertDialog.Portal>
-                            </AlertDialog.Root>
+                                      <div className="mt-4 flex items-center justify-end gap-2">
+                                        <AlertDialog.Cancel asChild>
+                                          <button
+                                            type="button"
+                                            className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-900"
+                                            disabled={isPending}
+                                          >
+                                            Cancel
+                                          </button>
+                                        </AlertDialog.Cancel>
+
+                                        <AlertDialog.Action asChild>
+                                          <button
+                                            type="button"
+                                            className="inline-flex h-10 items-center justify-center rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                                            disabled={isPending}
+                                            onClick={() => {
+                                              setError(null)
+                                              startTransition(async () => {
+                                                try {
+                                                  await archiveProductStyle(s.style_id)
+                                                  router.refresh()
+                                                } catch (e) {
+                                                  setError(e instanceof Error ? e.message : "Failed to archive.")
+                                                } finally {
+                                                  setArchivingId(null)
+                                                }
+                                              })
+                                            }}
+                                          >
+                                            {isPending ? "Archiving..." : "Archive"}
+                                          </button>
+                                        </AlertDialog.Action>
+                                      </div>
+                                    </AlertDialog.Content>
+                                  </AlertDialog.Portal>
+                                </AlertDialog.Root>
+                              </>
+                            ) : (
+                              <button
+                                type="button"
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-green-600 hover:bg-green-50 hover:text-green-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-green-400 dark:hover:bg-green-950/30 dark:hover:text-green-300"
+                                title="Restore to active"
+                                disabled={isPending}
+                                onClick={() => {
+                                  setError(null)
+                                  startTransition(async () => {
+                                    try {
+                                      setRestoringId(s.style_id)
+                                      await unarchiveProductStyle(s.style_id)
+                                      setViewMode("active")
+                                      router.refresh()
+                                    } catch (e) {
+                                      setError(e instanceof Error ? e.message : "Failed to restore.")
+                                    } finally {
+                                      setRestoringId(null)
+                                    }
+                                  })
+                                }}
+                              >
+                                <ArchiveRestore className="h-4 w-4" />
+                              </button>
+                            )}
 
                             <AlertDialog.Root
                               open={deletingId === s.style_id}
@@ -331,7 +392,9 @@ export function ProductsTableClient(props: {
               {filtered.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-zinc-200 bg-white p-10 text-center dark:border-zinc-800 dark:bg-zinc-950">
                   <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                    No styles match your filters.
+                    {viewMode === "archived"
+                      ? "No archived styles match your filters."
+                      : "No styles match your filters."}
                   </p>
                 </div>
               ) : (
@@ -341,11 +404,16 @@ export function ProductsTableClient(props: {
                   const margin = marginPercent(base, cost)
                   const categoryName = s.categories?.name ?? "—"
                   const seasonName = s.seasons?.name ?? "—"
+                  const CardWrapper = viewMode === "active" ? Link : "div"
+                  const cardProps =
+                    viewMode === "active"
+                      ? { href: `/products/${s.style_id}/edit` }
+                      : {}
 
                   return (
-                    <Link
+                    <CardWrapper
                       key={s.style_id}
-                      href={`/products/${s.style_id}/edit`}
+                      {...cardProps}
                       className="block rounded-lg border border-zinc-200 bg-white p-4 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
                     >
                       <div className="flex gap-4">
@@ -393,14 +461,42 @@ export function ProductsTableClient(props: {
 
                         {/* Actions */}
                         <div className="flex flex-col items-end gap-2">
-                          <Link
-                            href={`/products/${s.style_id}/edit`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
-                            title="Edit"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Link>
+                          {viewMode === "active" ? (
+                            <Link
+                              href={`/products/${s.style_id}/edit`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                              title="Edit"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Link>
+                          ) : (
+                            <button
+                              type="button"
+                              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-green-600 hover:bg-green-50 hover:text-green-700 dark:text-green-400 dark:hover:bg-green-950/30 dark:hover:text-green-300"
+                              title="Restore to active"
+                              disabled={isPending}
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                setError(null)
+                                startTransition(async () => {
+                                  try {
+                                    setRestoringId(s.style_id)
+                                    await unarchiveProductStyle(s.style_id)
+                                    setViewMode("active")
+                                    router.refresh()
+                                  } catch (err) {
+                                    setError(err instanceof Error ? err.message : "Failed to restore.")
+                                  } finally {
+                                    setRestoringId(null)
+                                  }
+                                })
+                              }}
+                            >
+                              <ArchiveRestore className="h-4 w-4" />
+                            </button>
+                          )}
                           <AlertDialog.Root
                             open={deletingId === s.style_id}
                             onOpenChange={(open) => setDeletingId(open ? s.style_id : null)}
@@ -466,7 +562,7 @@ export function ProductsTableClient(props: {
                           </AlertDialog.Root>
                         </div>
                       </div>
-                    </Link>
+                    </CardWrapper>
                   )
                 })
               )}

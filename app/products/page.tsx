@@ -77,16 +77,14 @@ async function fetchProductsData(): Promise<FetchResult> {
       `
       )
       .eq("account_id", accountId)
-      .or("archived.is.null,archived.eq.false")
       .order("created_at", { ascending: false })
 
     if (stylesError) {
       throw handleSupabaseError(stylesError)
     }
 
-    const nonArchived = (styles ?? []).filter((s: { archived: boolean | null }) => !s.archived)
     const stylesWithSignedUrls = await Promise.all(
-      (nonArchived as Array<{ image_url?: string | null }>).map(async (s) => {
+      (styles ?? []).map(async (s: { image_url?: string | null }) => {
         if (!s.image_url) return s
         const signed = await getSignedStorageUrl(supabase, s.image_url)
         return { ...s, image_url: signed ?? s.image_url }

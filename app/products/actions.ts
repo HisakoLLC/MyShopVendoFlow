@@ -256,6 +256,38 @@ export async function archiveProductStyle(styleId: string) {
   revalidatePath("/inventory")
 }
 
+export async function unarchiveProductStyle(styleId: string) {
+  const supabase = await createServerSupabaseClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    throw new Error("You must be signed in to restore a product.")
+  }
+
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  if (accountIdError || !accountIdRaw) {
+    throw new Error("Unable to resolve account.")
+  }
+  const accountId = Array.isArray(accountIdRaw) ? accountIdRaw[0] ?? null : accountIdRaw
+
+  const { error: updateError } = await supabase
+    .from("product_styles")
+    .update({ archived: false })
+    .eq("style_id", styleId)
+    .eq("account_id", accountId)
+
+  if (updateError) {
+    throw new Error(updateError.message)
+  }
+
+  revalidatePath("/products")
+  revalidatePath("/inventory")
+}
+
 export async function deleteProductStyle(styleId: string) {
   const supabase = await createServerSupabaseClient()
 
