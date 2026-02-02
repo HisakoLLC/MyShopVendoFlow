@@ -68,6 +68,14 @@ export function CartProvider({ children, taxInclusive = false, taxRatePercent = 
   const addToCart = React.useCallback(
     (item: Omit<CartItem, "cartItemId" | "quantity">, quantity: number = 1) => {
       setCart((prev) => {
+        const existing = prev.find((i) => i.variantId === item.variantId)
+        if (existing) {
+          return prev.map((i) =>
+            i.variantId === item.variantId
+              ? { ...i, quantity: i.quantity + quantity }
+              : i
+          )
+        }
         const newItem: CartItem = {
           ...item,
           cartItemId: uuidv4(),

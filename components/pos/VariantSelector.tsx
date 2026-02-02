@@ -15,7 +15,7 @@ interface VariantSelectorProps {
   currentStoreId: string
   /** Fallback when variant has no price set (e.g. 0). Used so POS shows style base price until variant is edited. */
   basePrice?: number
-  onVariantSelect: (variantId: string, size: string, color: string, price: number, sku: string) => void
+  onVariantSelect: (variantId: string, size: string, color: string, price: number, sku: string, styleName: string) => void
   onClose: () => void
 }
 
@@ -174,9 +174,10 @@ export function VariantSelector({
         cell.variant.size,
         cell.variant.color,
         cell.variant.price,
-        cell.variant.sku
+        cell.variant.sku,
+        styleName
       )
-      // Don't close modal — user can add more variants or same variant again, then close via overlay/X
+      // Don't close modal — user can add more variants or same variant again, then close via Done
     }
   }
 

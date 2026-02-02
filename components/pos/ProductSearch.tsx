@@ -122,18 +122,19 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
   }
 
   const handleVariantSelect = React.useCallback(
-    (variantId: string, size: string, color: string, price: number, sku: string) => {
-      if (!selectedStyleName) return
+    (variantId: string, size: string, color: string, price: number, sku: string, styleName: string) => {
+      const name = styleName || selectedStyleName
+      if (!name) return
 
       addToCart({
         variantId,
-        styleName: selectedStyleName,
+        styleName: name,
         size,
         color,
         sku,
         price,
       })
-      // Keep modal open so user can add more variants; they close via overlay or X
+      // Modal stays open so user can add more; close via Done
     },
     [selectedStyleName, addToCart]
   )
