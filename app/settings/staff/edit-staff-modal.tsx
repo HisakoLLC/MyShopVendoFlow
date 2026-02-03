@@ -33,27 +33,14 @@ import {
 } from "@/components/ui/select"
 import { updateStaff, type UpdateStaffData } from "./actions"
 
-const staffSchema = z
-  .object({
-    first_name: z.string().min(1, "First name is required.").max(100, "First name is too long."),
-    last_name: z.string().min(1, "Last name is required.").max(100, "Last name is too long."),
-    role: z.enum(["cashier", "manager", "owner"], {
-      errorMap: () => ({ message: "Role must be cashier, manager, or owner." }),
-    }),
-    assigned_store_id: z.string().uuid().optional(),
-  })
-  .refine(
-    (data) => {
-      if ((data.role === "cashier" || data.role === "manager") && !data.assigned_store_id) {
-        return false
-      }
-      return true
-    },
-    {
-      message: "Assigned store is required for cashier and manager roles.",
-      path: ["assigned_store_id"],
-    }
-  )
+// Single store per account: no store selection; server keeps/assigns the account's store
+const staffSchema = z.object({
+  first_name: z.string().min(1, "First name is required.").max(100, "First name is too long."),
+  last_name: z.string().min(1, "Last name is required.").max(100, "Last name is too long."),
+  role: z.enum(["cashier", "manager", "owner"], {
+    errorMap: () => ({ message: "Role must be cashier, manager, or owner." }),
+  }),
+})
 
 type StaffFormValues = z.infer<typeof staffSchema>
 
@@ -95,12 +82,9 @@ export function EditStaffModal({
       first_name: staff.first_name || "",
       last_name: staff.last_name || "",
       role: (staff.role as "cashier" | "manager" | "owner") || "cashier",
-      assigned_store_id: staff.assigned_store_id || "",
     },
     mode: "onChange",
   })
-
-  const watchedRole = form.watch("role")
 
   const onSubmit = async (values: StaffFormValues) => {
     setIsSubmitting(true)
@@ -110,7 +94,6 @@ export function EditStaffModal({
         first_name: values.first_name,
         last_name: values.last_name,
         role: values.role,
-        assigned_store_id: values.assigned_store_id || undefined,
       }
       await updateStaff(data)
       toast.success("Staff member updated successfully!")
@@ -191,67 +174,6 @@ export function EditStaffModal({
                 </FormItem>
               )}
             />
-
-            {(watchedRole === "cashier" || watchedRole === "manager") && (
-              <FormField
-                control={form.control}
-                name="assigned_store_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Assigned Store *</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value || ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select store" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {stores.map((store) => (
-                          <SelectItem key={store.store_id} value={store.store_id}>
-                            {store.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {watchedRole === "owner" && stores.length > 0 && (
-              <FormField
-                control={form.control}
-                name="assigned_store_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Assigned Store (Optional)</FormLabel>
-                    <Select
-                      onValueChange={(v) => field.onChange(v === "__none__" ? "" : v)}
-                      value={field.value || "__none__"}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select store (optional)" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="__none__">None</SelectItem>
-                        {stores.map((store) => (
-                          <SelectItem key={store.store_id} value={store.store_id}>
-                            {store.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>

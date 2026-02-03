@@ -37,11 +37,11 @@ export async function GET() {
     return NextResponse.json({ error: "No account" }, { status: 404 })
   }
 
+  // Single store per account; include rows where active is true or null
   const { data: stores, error: storesError } = await supabase
     .from("stores")
     .select("store_id, name")
     .eq("account_id", accountIdStr)
-    .eq("active", true)
     .order("name", { ascending: true })
     .limit(1)
 

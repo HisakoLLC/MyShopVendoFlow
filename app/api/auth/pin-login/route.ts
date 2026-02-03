@@ -24,9 +24,18 @@ export async function POST(request: Request) {
       pin?: string
     }
 
-    if (!store_id || typeof store_id !== "string" || !pin || typeof pin !== "string") {
+    if (!pin || typeof pin !== "string") {
       return NextResponse.json(
-        { error: "store_id and pin are required" },
+        { error: "PIN is required" },
+        { status: 400 }
+      )
+    }
+    // Require either store_id or account_id (single store: account_id alone is enough)
+    const hasStoreId = typeof store_id === "string" && store_id.trim() !== ""
+    const hasAccountId = typeof bodyAccountId === "string" && bodyAccountId.trim() !== ""
+    if (!hasStoreId && !hasAccountId) {
+      return NextResponse.json(
+        { error: "Store or account context is required. Open POS from a device that has already signed in, or use your manager's link." },
         { status: 400 }
       )
     }
@@ -53,13 +62,13 @@ export async function POST(request: Request) {
       auth: { autoRefreshToken: false, persistSession: false },
     })
 
-    let accountId: string | null = bodyAccountId && typeof bodyAccountId === "string" ? bodyAccountId : null
+    let accountId: string | null = hasAccountId ? (bodyAccountId as string).trim() : null
 
-    if (!accountId) {
+    if (!accountId && hasStoreId) {
       const { data: store, error: storeError } = await supabaseAdmin
         .from("stores")
         .select("account_id")
-        .eq("store_id", store_id)
+        .eq("store_id", (store_id as string).trim())
         .single()
 
       if (storeError || !store?.account_id) {
@@ -71,13 +80,12 @@ export async function POST(request: Request) {
       accountId = typeof store.account_id === "string" ? store.account_id : String(store.account_id)
     }
 
-    const accountIdNorm = normalizeUuid(accountId)
-    const storeIdNorm = normalizeUuid(store_id)
+    const accountIdNorm = normalizeUuid(accountId!)
 
-    // Fetch active staff for this account that have a PIN (and optionally match store)
+    // Fetch active staff for this account that have a PIN (single store: no filter by assigned_store_id)
     const { data: staffRows, error: staffError } = await supabaseAdmin
       .from("staff")
-      .select("staff_id, account_id, email, pin_hash, assigned_store_id, active, failed_attempts, locked_until")
+      .select("staff_id, account_id, email, pin_hash, active, failed_attempts, locked_until")
       .eq("account_id", accountIdNorm)
       .eq("active", true)
       .not("pin_hash", "is", null)
@@ -85,7 +93,7 @@ export async function POST(request: Request) {
 
     if (staffError || !staffRows?.length) {
       return NextResponse.json(
-        { error: "Invalid PIN for this store" },
+        { error: "Invalid PIN. Try again." },
         { status: 401 }
       )
     }
@@ -101,12 +109,8 @@ export async function POST(request: Request) {
       return { locked: false as const }
     }
 
-    // Prefer staff assigned to this store, then any staff for account
-    const byStore = staffRows.filter(
-      (r) =>
-        normalizeUuid(String((r as StaffRow).assigned_store_id ?? "")) === storeIdNorm
-    )
-    const list = byStore.length > 0 ? byStore : staffRows
+    // Single store per account: match any staff for this account
+    const list = staffRows
 
     for (const row of list as StaffRow[]) {
       const lock = withLock(row)

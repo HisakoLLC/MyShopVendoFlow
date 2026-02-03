@@ -131,9 +131,18 @@ export async function createStaff(data: CreateStaffData) {
     )
   }
 
-  // Validate assigned_store_id if role requires it
-  if ((data.role === "cashier" || data.role === "manager") && !assignedStoreId) {
-    throw new Error("Assigned store is required for cashier and manager roles.")
+  // Single store per account: if no store provided, use the account's store
+  let resolvedStoreId = assignedStoreId
+  if (!resolvedStoreId) {
+    const { data: accountStores, error: storesErr } = await supabase
+      .from("stores")
+      .select("store_id")
+      .eq("account_id", accountId)
+      .order("name", { ascending: true })
+      .limit(1)
+    if (!storesErr && accountStores?.[0]?.store_id) {
+      resolvedStoreId = accountStores[0].store_id
+    }
   }
 
   // Check for duplicate email
@@ -169,7 +178,7 @@ export async function createStaff(data: CreateStaffData) {
       first_name: data.first_name.trim(),
       last_name: data.last_name.trim(),
       role: data.role,
-      assigned_store_id: assignedStoreId,
+      assigned_store_id: resolvedStoreId,
       pin_hash: pinHash,
       active: true,
     })
@@ -231,11 +240,15 @@ export async function updateStaff(data: UpdateStaffData) {
     throw new Error("Staff member not found or access denied.")
   }
 
-  const assignedStoreId = normalizeAssignedStoreId(data.assigned_store_id)
-
-  // Validate assigned_store_id if role requires it
-  if ((data.role === "cashier" || data.role === "manager") && !assignedStoreId) {
-    throw new Error("Assigned store is required for cashier and manager roles.")
+  let assignedStoreId = normalizeAssignedStoreId(data.assigned_store_id)
+  if (!assignedStoreId) {
+    const { data: accountStores } = await supabase
+      .from("stores")
+      .select("store_id")
+      .eq("account_id", accountId)
+      .order("name", { ascending: true })
+      .limit(1)
+    if (accountStores?.[0]?.store_id) assignedStoreId = accountStores[0].store_id
   }
 
   // Update staff

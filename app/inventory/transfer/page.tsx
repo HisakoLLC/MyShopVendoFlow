@@ -44,7 +44,7 @@ export default async function TransferInventoryPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            This feature will let you control inventory across different stores in one portal. It will be available in a dedicated portal soon.
+            Transfers between locations are not available yet. You have one store per account; this page will support additional features in the future.
           </p>
         </CardContent>
       </Card>

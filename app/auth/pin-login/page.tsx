@@ -21,22 +21,35 @@ function PinLoginContent() {
   const [storeName, setStoreName] = React.useState<string>("")
   const [accountId, setAccountId] = React.useState<string | undefined>(undefined)
 
+  // Single store per account: we need either account_id or store_id (from URL or localStorage)
   React.useEffect(() => {
-    const fromUrl = searchParams.get("store_id")
+    const accountFromUrl = searchParams.get("account_id")
+    const storeFromUrl = searchParams.get("store_id")
     const nameFromUrl = searchParams.get("store_name")
-    if (fromUrl) {
-      setStoreId(fromUrl)
+    if (accountFromUrl) {
+      setAccountId(accountFromUrl)
+      setStoreId(null)
+      setStoreName("")
+      return
+    }
+    if (storeFromUrl) {
+      setStoreId(storeFromUrl)
       setStoreName(nameFromUrl ?? "")
+      setAccountId(undefined)
       return
     }
     try {
+      const savedAccountId = typeof window !== "undefined" ? localStorage.getItem(ACCOUNT_ID_KEY) : null
       const savedStoreId = typeof window !== "undefined" ? localStorage.getItem(STORE_ID_KEY) : null
       const savedName = typeof window !== "undefined" ? localStorage.getItem(STORE_NAME_KEY) : null
-      const savedAccountId = typeof window !== "undefined" ? localStorage.getItem(ACCOUNT_ID_KEY) : null
-      if (savedStoreId) {
+      if (savedAccountId) {
+        setAccountId(savedAccountId)
         setStoreId(savedStoreId)
         setStoreName(savedName ?? "")
-        setAccountId(savedAccountId ?? undefined)
+      } else if (savedStoreId) {
+        setStoreId(savedStoreId)
+        setStoreName(savedName ?? "")
+        setAccountId(undefined)
       }
     } catch {
       // ignore
@@ -61,8 +74,9 @@ function PinLoginContent() {
       toast.error("Enter a 6-digit PIN")
       return
     }
-    if (!storeId) {
-      toast.error("No store selected. Open POS from a device that has already selected a store, or add ?store_id=... to the URL.")
+    // Single store: account_id or store_id is enough
+    if (!accountId && !storeId) {
+      toast.error("Open POS from a device where someone has already signed in, or use the link your manager gave you.")
       return
     }
 
@@ -72,8 +86,8 @@ function PinLoginContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          store_id: storeId,
-          account_id: accountId,
+          ...(storeId ? { store_id: storeId } : {}),
+          ...(accountId ? { account_id: accountId } : {}),
           pin: trimmed,
         }),
       })
@@ -108,10 +122,10 @@ function PinLoginContent() {
           </p>
         </div>
 
-        {!storeId ? (
+        {!accountId && !storeId ? (
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/40 dark:bg-amber-950/30">
             <p className="text-sm text-amber-900 dark:text-amber-100">
-              No store set. Use the POS from a device that has already logged in, or open the link your owner gave you (with store_id).
+              To sign in with PIN, open the POS from a device where someone has already signed in, or use the link your manager gave you.
             </p>
             <Link href="/login" className="mt-3 inline-block text-sm font-medium text-amber-700 dark:text-amber-300 underline">
               Owner login

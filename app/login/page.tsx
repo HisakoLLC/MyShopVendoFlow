@@ -187,7 +187,7 @@ function LoginContent() {
         sign_in_link?: string
       }
       if (!res.ok) {
-        toast.error(data.error || "Invalid PIN for this store")
+        toast.error(data.error || "Invalid PIN. Try again.")
         return
       }
       if (data.sign_in_link) {
@@ -195,7 +195,7 @@ function LoginContent() {
         return
       }
       if (!data.email) {
-        toast.error("Invalid PIN for this store")
+        toast.error("Invalid PIN. Try again.")
         return
       }
       const { error } = await supabase.auth.signInWithPassword({
