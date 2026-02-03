@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client"
 import { StorageImage } from "@/components/StorageImage"
 import { VariantSelector } from "./VariantSelector"
 import { useCart } from "@/lib/cart-context"
+import { toast } from "sonner"
 
 interface ProductSearchProps {
   defaultStoreId: string | null
@@ -34,9 +35,10 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
     inputRef.current?.focus()
   }, [])
 
-  // Debounced search
+  // Debounced search: exact SKU → add to cart; otherwise show product grid
   React.useEffect(() => {
-    if (!searchQuery.trim()) {
+    const query = searchQuery.trim()
+    if (!query) {
       setProducts([])
       setHasSearched(false)
       return
@@ -47,11 +49,47 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
 
     const timeoutId = setTimeout(async () => {
       try {
-        // First, search product_styles by name
+        // Exact SKU match (case-insensitive): if exactly one variant, add to cart and skip grid
+        const { data: exactVariants, error: exactError } = await supabase
+          .from("product_variants")
+          .select("variant_id, style_id, size, color, price, sku, product_styles(name, base_price)")
+          .ilike("sku", query)
+          .limit(2)
+
+        if (!exactError && exactVariants?.length === 1) {
+          const v = exactVariants[0] as {
+            variant_id: string
+            style_id: string
+            size: string
+            color: string
+            price: number | null
+            sku: string
+            product_styles: { name: string | null; base_price: number | null } | null
+          }
+          const styleName = v.product_styles?.name ?? "Product"
+          const basePrice = v.product_styles?.base_price ?? 0
+          const price = (v.price != null && v.price > 0) ? v.price : basePrice
+          addToCart({
+            variantId: v.variant_id,
+            styleName,
+            size: v.size,
+            color: v.color,
+            sku: v.sku,
+            price,
+          })
+          setSearchQuery("")
+          setProducts([])
+          setHasSearched(false)
+          toast.success(`Added ${styleName} (${v.size} / ${v.color}) to cart`)
+          setIsLoading(false)
+          return
+        }
+
+        // Otherwise: search by name and partial SKU, show product grid
         const { data: stylesByName, error: stylesError } = await supabase
           .from("product_styles")
           .select("style_id, name, image_url, base_price")
-          .ilike("name", `%${searchQuery.trim()}%`)
+          .ilike("name", `%${query}%`)
           .eq("archived", false)
           .limit(12)
 
@@ -62,24 +100,20 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
           return
         }
 
-        // Then, search product_variants by SKU and get associated style_ids
         const { data: variantsBySku, error: variantsError } = await supabase
           .from("product_variants")
           .select("style_id")
-          .ilike("sku", `%${searchQuery.trim()}%`)
+          .ilike("sku", `%${query}%`)
           .limit(12)
 
         if (variantsError) {
           console.error("Error searching variants:", variantsError)
-          // Continue with styles results even if variant search fails
         }
 
-        // Get unique style_ids from variants
         const variantStyleIds = [
           ...new Set((variantsBySku || []).map((v: { style_id: string | null }) => v.style_id).filter(Boolean)),
         ] as string[]
 
-        // Fetch product_styles for variant matches
         let stylesByVariant: ProductStyle[] = []
         if (variantStyleIds.length > 0) {
           const { data: variantStyles, error: variantStylesError } = await supabase
@@ -93,13 +127,10 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
           }
         }
 
-        // Combine and deduplicate results
         const allStyles = [...(stylesByName || []), ...stylesByVariant]
         const uniqueStyles = Array.from(
           new Map(allStyles.map((style) => [style.style_id, style])).values()
         )
-
-        // Limit to 12 results
         setProducts(uniqueStyles.slice(0, 12))
       } catch (error) {
         console.error("Error in search:", error)
@@ -107,10 +138,10 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
       } finally {
         setIsLoading(false)
       }
-    }, 300) // 300ms debounce
+    }, 300)
 
     return () => clearTimeout(timeoutId)
-  }, [searchQuery, supabase])
+  }, [searchQuery, supabase, addToCart])
 
   const handleProductSelect = (styleId: string) => {
     const product = products.find((p) => p.style_id === styleId)
