@@ -27,6 +27,7 @@ interface Sale {
   store_id: string | null
   cashier_id: string | null
   customer_id: string | null
+  notes: string | null
   stores: { name: string } | null
   staff: { first_name: string | null; last_name: string | null } | null
   customers: { first_name: string | null; last_name: string | null; phone: string | null } | null
@@ -124,7 +125,7 @@ export function SalesReportClient({
       let query = supabase
         .from("sales")
         .select(
-          "sale_id, receipt_number, sale_date, grand_total, payment_method, store_id, cashier_id, customer_id, stores(name), staff(first_name, last_name), customers(first_name, last_name, phone)"
+          "sale_id, receipt_number, sale_date, grand_total, payment_method, store_id, cashier_id, customer_id, notes, stores(name), staff(first_name, last_name), customers(first_name, last_name, phone)"
         )
         .in("store_id", storeIds)
         .gte("sale_date", `${from}T00:00:00.000Z`)

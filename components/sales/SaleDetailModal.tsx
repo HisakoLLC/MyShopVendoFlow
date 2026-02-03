@@ -28,6 +28,7 @@ interface Sale {
   store_id: string | null
   cashier_id: string | null
   customer_id: string | null
+  notes: string | null
   stores: { name: string } | null
   staff: { first_name: string | null; last_name: string | null } | null
   customers: { first_name: string | null; last_name: string | null; phone: string | null } | null
@@ -256,6 +257,14 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
                 <div className="text-sm text-zinc-600 dark:text-zinc-400">Payment Method</div>
                 <div className="font-medium capitalize">{sale.payment_method || "N/A"}</div>
               </div>
+              {sale.payment_method?.toLowerCase() === "mpesa" && sale.notes?.trim() && (
+                <div className="space-y-2 md:col-span-2">
+                  <div className="text-sm text-zinc-600 dark:text-zinc-400">M-Pesa details</div>
+                  <div className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 font-mono text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
+                    {sale.notes.trim()}
+                  </div>
+                </div>
+              )}
               {sale.customers && (
                 <div className="space-y-2 md:col-span-2">
                   <div className="text-sm text-zinc-600 dark:text-zinc-400">Customer</div>

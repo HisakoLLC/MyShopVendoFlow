@@ -148,13 +148,17 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
   const formatPrice = (price: number) =>
     formatCurrency(price, receiptSettings.currency, { maximumFractionDigits: 0 })
 
-  // Resolve cashier_id: sales.cashier_id must reference staff.staff_id, not auth user id
+  // Resolve cashier_id: prefer user_metadata.staff_id (set after PIN login / bind-staff) so the actual cashier is recorded
   const getCashierIdForCurrentUser = async (): Promise<string | null> => {
     const {
       data: { user },
       error: userError,
     } = await supabase.auth.getUser()
-    if (userError || !user?.email) return null
+    if (userError || !user) return null
+    // PIN login sets user_metadata.staff_id via bind-staff — use it so sales show the real cashier
+    const metaStaffId = user.user_metadata?.staff_id as string | undefined
+    if (metaStaffId && typeof metaStaffId === "string") return metaStaffId
+    if (!user.email) return null
     const { data: accountId } = await supabase.rpc("get_account_id")
     const aid = Array.isArray(accountId) ? accountId[0] : accountId
     if (!aid) return null

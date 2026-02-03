@@ -12,6 +12,7 @@ type Sale = {
   store_id: string | null
   cashier_id: string | null
   customer_id: string | null
+  notes: string | null
   stores: { name: string } | null
   staff: { first_name: string | null; last_name: string | null } | null
   customers: { first_name: string | null; last_name: string | null; phone: string | null } | null
