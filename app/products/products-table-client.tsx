@@ -425,7 +425,8 @@ export function ProductsTableClient(props: {
                     const base = Number(s.base_price ?? 0)
                     const cost = Number(s.cost ?? 0)
                     const discountPct = s.discount_percent ?? 0
-                    const displayPrice = effectivePrice(base, s.discount_percent)
+                    const active = isDiscountActive(s.discount_percent, s.discount_ends_at)
+                    const displayPrice = effectivePrice(base, s.discount_percent, s.discount_ends_at)
                     const margin = marginPercent(displayPrice, cost)
                     const categoryName = s.categories?.name ?? "—"
                     const seasonName = s.seasons?.name ?? "—"
@@ -435,6 +436,15 @@ export function ProductsTableClient(props: {
                         key={s.style_id}
                         className="group transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/40"
                       >
+                        {viewMode === "active" && (
+                          <td className="w-10 px-2 py-3">
+                            <Checkbox
+                              checked={selectedIds.has(s.style_id)}
+                              onCheckedChange={() => toggleSelection(s.style_id)}
+                              aria-label={`Select ${s.name}`}
+                            />
+                          </td>
+                        )}
                         <td className="px-4 py-3">
                           <div className="h-[60px] w-[60px] overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
                             {s.image_url ? (
