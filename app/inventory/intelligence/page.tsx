@@ -28,8 +28,13 @@ async function IntelligenceContent() {
     redirect("/login")
   }
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
-  if (accountIdError || !accountId) {
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId =
+    accountIdRaw != null
+      ? (Array.isArray(accountIdRaw) ? accountIdRaw[0] ?? accountIdRaw : accountIdRaw)
+      : null
+  const accountIdStr = accountId != null ? String(accountId) : null
+  if (accountIdError || !accountIdStr) {
     redirect("/onboarding?redirect=/inventory/intelligence")
   }
 
@@ -38,7 +43,7 @@ async function IntelligenceContent() {
   const { data: accountVariants, error: variantsError } = await supabase
     .from("product_variants")
     .select("variant_id, product_styles!inner(account_id)")
-    .eq("product_styles.account_id", accountId)
+    .eq("product_styles.account_id", accountIdStr)
 
   const variantIds = (accountVariants || []).map((v: { variant_id: string }) => v.variant_id)
 
@@ -82,7 +87,7 @@ async function IntelligenceContent() {
   const { data: productStyles, error: stylesError } = await supabase
     .from("product_styles")
     .select("style_id, name, image_url")
-    .eq("account_id", accountId)
+    .eq("account_id", accountIdStr)
     .eq("archived", false)
     .order("name", { ascending: true })
 

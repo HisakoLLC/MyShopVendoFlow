@@ -72,6 +72,21 @@ export function InventoryIntelligenceClient({
     return `${value.toFixed(1)}%`
   }
 
+  // Derive stock_health when not set by metrics job (healthy | low_stock | dead_stock | out_of_stock)
+  const getEffectiveStockHealth = React.useCallback(
+    (vm: VariantMetric, stock: number): string => {
+      if (stock === 0) return "out_of_stock"
+      if (vm.stock_health && vm.stock_health !== "unknown") return vm.stock_health
+      const sellThrough = vm.sell_through_90d ?? 0
+      const daysInv = vm.days_of_inventory ?? 0
+      if (daysInv <= 0) return "out_of_stock"
+      if (sellThrough < 10 && daysInv > 60) return "dead_stock"
+      if (daysInv < 7) return "low_stock"
+      return "healthy"
+    },
+    []
+  )
+
   // Calculate dead stock (sell_through_90d < 10% AND quantity_on_hand > 3 AND days_of_inventory > 60)
   const deadStock = React.useMemo(() => {
     return variantMetrics
@@ -92,39 +107,49 @@ export function InventoryIntelligenceClient({
 
   const totalDeadStockValue = deadStock.reduce((sum, item) => sum + item.inventoryValue, 0)
 
-  // Calculate low stock alerts (days_of_inventory < 7)
+  // Low stock alerts: days_of_inventory < 7 OR out of stock (most critical first)
   const lowStockAlerts = React.useMemo(() => {
     return variantMetrics
       .filter((vm) => {
-        const daysInventory = vm.days_of_inventory || 0
-        return daysInventory < 7 && daysInventory > 0
+        const stock = inventoryByVariant[vm.variant_id] || 0
+        const daysInventory = vm.days_of_inventory ?? 0
+        return stock === 0 || daysInventory < 7
       })
       .map((vm) => {
         const stock = inventoryByVariant[vm.variant_id] || 0
         const avgDaily = vm.avg_daily_sales_30d || 0
-        const daysRemaining = vm.days_of_inventory || 0
+        const daysRemaining = stock === 0 ? 0 : (vm.days_of_inventory ?? 0)
         const suggestedReorder = Math.max(0, Math.ceil(30 * avgDaily - stock))
         return {
           ...vm,
           stock,
           daysRemaining,
           suggestedReorder,
+          isOutOfStock: stock === 0,
         }
       })
-      .sort((a, b) => a.daysRemaining - b.daysRemaining)
+      .sort((a, b) => {
+        if (a.isOutOfStock && !b.isOutOfStock) return -1
+        if (!a.isOutOfStock && b.isOutOfStock) return 1
+        return a.daysRemaining - b.daysRemaining
+      })
   }, [variantMetrics, inventoryByVariant])
 
-  // Calculate stock health summary
+  // Calculate stock health summary (use derived health when stock_health is null)
   const stockHealthSummary = React.useMemo(() => {
     const total = variantMetrics.length
-    const healthy = variantMetrics.filter((vm) => vm.stock_health === "healthy").length
-    const lowStock = variantMetrics.filter((vm) => vm.stock_health === "low_stock").length
-    const deadStock = variantMetrics.filter((vm) => vm.stock_health === "dead_stock").length
-    const outOfStock = variantMetrics.filter((vm) => {
+    let healthy = 0
+    let lowStock = 0
+    let deadStock = 0
+    let outOfStock = 0
+    variantMetrics.forEach((vm) => {
       const stock = inventoryByVariant[vm.variant_id] || 0
-      return stock === 0
-    }).length
-
+      const health = getEffectiveStockHealth(vm, stock)
+      if (health === "healthy") healthy++
+      else if (health === "low_stock") lowStock++
+      else if (health === "dead_stock") deadStock++
+      else outOfStock++
+    })
     return {
       total,
       healthy,
@@ -136,19 +161,19 @@ export function InventoryIntelligenceClient({
       deadStockPercent: total > 0 ? (deadStock / total) * 100 : 0,
       outOfStockPercent: total > 0 ? (outOfStock / total) * 100 : 0,
     }
-  }, [variantMetrics, inventoryByVariant])
+  }, [variantMetrics, inventoryByVariant, getEffectiveStockHealth])
 
   // Filter variants by stock health
   const [healthFilter, setHealthFilter] = React.useState<string>("all")
   const filteredHealthVariants = React.useMemo(() => {
     if (healthFilter === "all") return variantMetrics
     return variantMetrics.filter((vm) => {
-      if (healthFilter === "out_of_stock") {
-        return (inventoryByVariant[vm.variant_id] || 0) === 0
-      }
-      return vm.stock_health === healthFilter
+      const stock = inventoryByVariant[vm.variant_id] || 0
+      const health = getEffectiveStockHealth(vm, stock)
+      if (healthFilter === "out_of_stock") return health === "out_of_stock"
+      return health === healthFilter
     })
-  }, [variantMetrics, inventoryByVariant, healthFilter])
+  }, [variantMetrics, inventoryByVariant, healthFilter, getEffectiveStockHealth])
 
   // Heatmap data for selected style
   const heatmapData = React.useMemo(() => {
@@ -363,7 +388,7 @@ export function InventoryIntelligenceClient({
                               {item.avg_daily_sales_30d?.toFixed(2) || "0.00"}
                             </TableCell>
                             <TableCell className={`text-right ${getDaysRemainingColor(item.daysRemaining)}`}>
-                              {item.daysRemaining.toFixed(1)} days
+                              {item.isOutOfStock ? "Out of stock" : `${item.daysRemaining.toFixed(1)} days`}
                             </TableCell>
                             <TableCell className="text-right font-medium">
                               {item.suggestedReorder}
@@ -461,6 +486,11 @@ export function InventoryIntelligenceClient({
                 </div>
               </CardHeader>
               <CardContent>
+                {variantMetrics.length === 0 ? (
+                  <div className="py-12 text-center text-zinc-500 dark:text-zinc-400">
+                    No variant metrics yet. Sales and inventory data will populate stock health over time.
+                  </div>
+                ) : (
                 <div className="rounded-md border border-zinc-200 dark:border-zinc-800">
                   <Table>
                     <TableHeader>
@@ -474,9 +504,15 @@ export function InventoryIntelligenceClient({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredHealthVariants.map((vm) => {
+                      {filteredHealthVariants.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="py-8 text-center text-zinc-500 dark:text-zinc-400">
+                            No variants match the selected filter
+                          </TableCell>
+                        </TableRow>
+                      ) : filteredHealthVariants.map((vm) => {
                         const stock = inventoryByVariant[vm.variant_id] || 0
-                        const healthStatus = stock === 0 ? "out_of_stock" : vm.stock_health || "unknown"
+                        const healthStatus = getEffectiveStockHealth(vm, stock)
                         const healthColor =
                           healthStatus === "healthy"
                             ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
@@ -512,6 +548,7 @@ export function InventoryIntelligenceClient({
                     </TableBody>
                   </Table>
                 </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -619,6 +656,8 @@ export function InventoryIntelligenceClient({
                       </div>
                     </div>
                   </div>
+                )}
+                  </>
                 )}
               </CardContent>
             </Card>
