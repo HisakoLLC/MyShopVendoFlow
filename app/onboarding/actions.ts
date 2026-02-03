@@ -100,7 +100,7 @@ export async function ensureAccountForCurrentUser(): Promise<
     business_name: "My Business",
     owner_email: ownerEmail,
     plan_tier: null,
-    subscription_status: "trial",
+    subscription_status: "active",
   })
 
   if (accountError) {

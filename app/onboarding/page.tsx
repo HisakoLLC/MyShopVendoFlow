@@ -226,16 +226,11 @@ function OnboardingContent() {
         return
       }
 
-      // Set trial period (14 days)
-      const trialEndsAt = new Date()
-      trialEndsAt.setDate(trialEndsAt.getDate() + 14)
-
       const { error } = await supabase
         .from("accounts")
         .update({
           plan_tier: selectedPlan,
-          trial_ends_at: trialEndsAt.toISOString(),
-          subscription_status: "trial",
+          subscription_status: "active",
         })
         .eq("account_id", accountId)
 
@@ -489,7 +484,7 @@ function OnboardingContent() {
           <Card>
             <CardHeader>
               <CardTitle>Step 3: Choose Your Plan</CardTitle>
-              <CardDescription>Start with a 14-day free trial on any plan</CardDescription>
+              <CardDescription>Choose a plan that fits your business</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-3">
@@ -538,7 +533,7 @@ function OnboardingContent() {
                   className="flex-1"
                   disabled={isLoading || !selectedPlan}
                 >
-                  {isLoading ? "Setting up..." : "Start 14-Day Free Trial"}
+                  {isLoading ? "Setting up..." : "Continue"}
                 </Button>
               </div>
             </CardContent>

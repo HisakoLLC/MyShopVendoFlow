@@ -76,7 +76,7 @@ export async function createAccountAfterSignup(
       business_name: businessName.trim(),
       owner_email: ownerEmail.trim(),
       plan_tier: null, // Will be set during onboarding
-      subscription_status: "trial",
+      subscription_status: "active",
     })
     .select()
     .single()

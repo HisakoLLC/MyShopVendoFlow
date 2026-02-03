@@ -37,7 +37,7 @@ BEGIN
     'My Business',
     v_email,
     NULL,
-    'trial'
+    'active'
   );
 
   INSERT INTO public.account_members (
