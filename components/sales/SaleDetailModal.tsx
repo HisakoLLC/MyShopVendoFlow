@@ -8,6 +8,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
   Table,
   TableBody,
@@ -18,6 +20,8 @@ import {
 } from "@/components/ui/table"
 import { createClient } from "@/lib/supabase/client"
 import { Printer, RotateCcw } from "lucide-react"
+import { toast } from "sonner"
+import { processRefund } from "@/app/sales/actions"
 
 interface Sale {
   sale_id: string
@@ -29,6 +33,7 @@ interface Sale {
   cashier_id: string | null
   customer_id: string | null
   notes: string | null
+  status: string | null
   stores: { name: string } | null
   staff: { first_name: string | null; last_name: string | null } | null
   customers: { first_name: string | null; last_name: string | null; phone: string | null } | null
@@ -56,6 +61,8 @@ interface SaleDetailModalProps {
   onClose: () => void
 }
 
+type RefundMethod = "cash" | "mpesa" | "card"
+
 export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
   const [lineItems, setLineItems] = React.useState<SaleLineItem[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
@@ -65,6 +72,9 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
     grand_total: number | null
   } | null>(null)
   const [showReceipt, setShowReceipt] = React.useState(false)
+  const [showRefundDialog, setShowRefundDialog] = React.useState(false)
+  const [refundMethod, setRefundMethod] = React.useState<RefundMethod>("cash")
+  const [isRefunding, setIsRefunding] = React.useState(false)
   const supabase = React.useMemo(() => createClient(), [])
 
   // Fetch full sale details and line items
@@ -129,11 +139,12 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
   }
 
   const canRefund = React.useMemo(() => {
+    if (sale.status === "refunded") return false
     if (!sale.sale_date) return false
     const saleDate = new Date(sale.sale_date)
     const daysSinceSale = (Date.now() - saleDate.getTime()) / (1000 * 60 * 60 * 24)
     return daysSinceSale <= 90
-  }, [sale.sale_date])
+  }, [sale.sale_date, sale.status])
 
   const handlePrintReceipt = () => {
     if (!saleDetails) return
@@ -216,13 +227,35 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
     }, 250)
   }
 
-  const handleRefund = () => {
-    // TODO: Implement refund logic
-    alert("Refund functionality coming soon")
+  const handleOpenRefund = () => {
+    setRefundMethod((sale.payment_method?.toLowerCase() as RefundMethod) || "cash")
+    setShowRefundDialog(true)
+  }
+
+  const handleConfirmRefund = async () => {
+    setIsRefunding(true)
+    try {
+      const result = await processRefund({
+        sale_id: sale.sale_id,
+        refund_method: refundMethod,
+      })
+      if (result.success) {
+        toast.success("Refund processed successfully. Inventory has been restored.")
+        setShowRefundDialog(false)
+        onClose()
+      } else {
+        toast.error(result.error)
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to process refund")
+    } finally {
+      setIsRefunding(false)
+    }
   }
 
 
   return (
+    <>
     <Dialog open={true} onOpenChange={(open) => { if (!open) onClose() }}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -354,7 +387,7 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
                 Reprint Receipt
               </Button>
               {canRefund && (
-                <Button variant="outline" onClick={handleRefund} className="flex-1">
+                <Button variant="outline" onClick={handleOpenRefund} className="flex-1">
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Process Refund
                 </Button>
@@ -367,5 +400,68 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
         )}
       </DialogContent>
     </Dialog>
+
+    {/* Refund confirmation dialog (sibling to avoid nested Radix Dialog issues) */}
+    <Dialog open={showRefundDialog} onOpenChange={setShowRefundDialog}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Process Refund</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            Refund full amount of{" "}
+            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+              {saleDetails ? formatPrice(saleDetails.grand_total ?? 0) : ""}
+            </span>{" "}
+            for receipt {sale.receipt_number ?? "—"}? Inventory will be restored for all items.
+          </p>
+          <div>
+            <Label className="mb-2 block text-sm font-medium">Refund method</Label>
+            <RadioGroup
+              value={refundMethod}
+              onValueChange={(v) => setRefundMethod(v as RefundMethod)}
+              className="flex flex-wrap gap-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="cash" id="refund-cash" />
+                <Label htmlFor="refund-cash" className="cursor-pointer font-normal">
+                  Cash
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="mpesa" id="refund-mpesa" />
+                <Label htmlFor="refund-mpesa" className="cursor-pointer font-normal">
+                  M-Pesa
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="card" id="refund-card" />
+                <Label htmlFor="refund-card" className="cursor-pointer font-normal">
+                  Card
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+          <div className="flex gap-2 pt-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setShowRefundDialog(false)}
+              disabled={isRefunding}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="flex-1"
+              onClick={handleConfirmRefund}
+              disabled={isRefunding || !saleDetails?.grand_total}
+            >
+              {isRefunding ? "Processing…" : "Confirm Refund"}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   )
 }
