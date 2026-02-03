@@ -15,6 +15,10 @@ interface VariantSelectorProps {
   currentStoreId: string
   /** Fallback when variant has no price set (e.g. 0). Used so POS shows style base price until variant is edited. */
   basePrice?: number
+  /** Style-level discount % (0–100). Applied to all variants of this style. */
+  discountPercent?: number
+  /** When the discount ends (ISO string). Discount only applied if null or in the future. */
+  discountEndsAt?: string | null
   onVariantSelect: (variantId: string, size: string, color: string, price: number, sku: string, styleName: string) => void
   onClose: () => void
 }
@@ -39,9 +43,14 @@ export function VariantSelector({
   styleName,
   currentStoreId,
   basePrice = 0,
+  discountPercent = 0,
+  discountEndsAt = null,
   onVariantSelect,
   onClose,
 }: VariantSelectorProps) {
+  const active = Boolean(
+    discountPercent > 0 && (!discountEndsAt || new Date(discountEndsAt) > new Date())
+  )
   const [variants, setVariants] = React.useState<VariantWithStock[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
@@ -93,10 +102,10 @@ export function VariantSelector({
           }
         })
 
-        // Combine variants with stock data; use style base_price when variant price is 0 or null
+        // Combine variants with stock data; use style base_price when variant price is 0 or null; apply style discount
         const variantsWithStock: VariantWithStock[] = variantsData.map((variant: { variant_id: string; size: string; color: string; price: number | null; sku: string }) => {
-          const rawPrice = variant.price ?? 0
-          const price = rawPrice > 0 ? rawPrice : basePrice
+          const rawPrice = (variant.price ?? 0) > 0 ? variant.price! : basePrice
+          const price = discountPercent > 0 ? Math.round(rawPrice * (1 - discountPercent / 100)) : rawPrice
           return {
             variant_id: variant.variant_id,
             size: variant.size,
@@ -119,7 +128,7 @@ export function VariantSelector({
     if (styleId && currentStoreId) {
       fetchVariants()
     }
-  }, [styleId, currentStoreId, supabase])
+  }, [styleId, currentStoreId, basePrice, discountPercent, discountEndsAt, active, supabase])
 
   // Build matrix: sizes as rows, colors as columns
   const { matrix, sizes, colors } = React.useMemo(() => {

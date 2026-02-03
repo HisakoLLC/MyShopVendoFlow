@@ -11,11 +11,24 @@ interface ProductSearchProps {
   defaultStoreId: string | null
 }
 
+function isDiscountActive(percent: number | null | undefined, endsAt: string | null | undefined): boolean {
+  const pct = Number(percent) || 0
+  if (pct <= 0) return false
+  if (!endsAt) return true
+  try {
+    return new Date(endsAt) > new Date()
+  } catch {
+    return true
+  }
+}
+
 interface ProductStyle {
   style_id: string
   name: string
   image_url: string | null
   base_price: number
+  discount_percent?: number | null
+  discount_ends_at?: string | null
 }
 
 export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
@@ -26,6 +39,8 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
   const [selectedStyleId, setSelectedStyleId] = React.useState<string | null>(null)
   const [selectedStyleName, setSelectedStyleName] = React.useState<string>("")
   const [selectedBasePrice, setSelectedBasePrice] = React.useState<number>(0)
+  const [selectedDiscountPercent, setSelectedDiscountPercent] = React.useState<number>(0)
+  const [selectedDiscountEndsAt, setSelectedDiscountEndsAt] = React.useState<string | null>(null)
   const inputRef = React.useRef<HTMLInputElement>(null)
   const supabase = React.useMemo(() => createClient(), [])
   const { addToCart, taxInclusive, taxRatePercent } = useCart()
@@ -52,7 +67,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
         // Exact SKU match (case-insensitive): if exactly one variant, add to cart and skip grid
         const { data: exactVariants, error: exactError } = await supabase
           .from("product_variants")
-          .select("variant_id, style_id, size, color, price, sku, product_styles(name, base_price)")
+          .select("variant_id, style_id, size, color, price, sku, product_styles(name, base_price, discount_percent, discount_ends_at)")
           .ilike("sku", query)
           .limit(2)
 
@@ -64,11 +79,14 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
             color: string
             price: number | null
             sku: string
-            product_styles: { name: string | null; base_price: number | null } | null
+            product_styles: { name: string | null; base_price: number | null; discount_percent?: number | null; discount_ends_at?: string | null } | null
           }
           const styleName = v.product_styles?.name ?? "Product"
           const basePrice = v.product_styles?.base_price ?? 0
-          const price = (v.price != null && v.price > 0) ? v.price : basePrice
+          const rawPrice = (v.price != null && v.price > 0) ? v.price : basePrice
+          const discountPct = Number(v.product_styles?.discount_percent) || 0
+          const active = isDiscountActive(discountPct, v.product_styles?.discount_ends_at)
+          const price = active ? Math.round(rawPrice * (1 - discountPct / 100)) : rawPrice
           addToCart({
             variantId: v.variant_id,
             styleName,
@@ -88,7 +106,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
         // Otherwise: search by name and partial SKU, show product grid
         const { data: stylesByName, error: stylesError } = await supabase
           .from("product_styles")
-          .select("style_id, name, image_url, base_price")
+          .select("style_id, name, image_url, base_price, discount_percent, discount_ends_at")
           .ilike("name", `%${query}%`)
           .eq("archived", false)
           .limit(12)
@@ -118,7 +136,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
         if (variantStyleIds.length > 0) {
           const { data: variantStyles, error: variantStylesError } = await supabase
             .from("product_styles")
-            .select("style_id, name, image_url, base_price")
+            .select("style_id, name, image_url, base_price, discount_percent, discount_ends_at")
             .in("style_id", variantStyleIds)
             .eq("archived", false)
 
@@ -149,6 +167,8 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
       setSelectedStyleName(product.name)
       setSelectedStyleId(styleId)
       setSelectedBasePrice(product.base_price)
+      setSelectedDiscountPercent(Number(product.discount_percent) || 0)
+      setSelectedDiscountEndsAt(product.discount_ends_at ?? null)
     }
   }
 
@@ -265,7 +285,14 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
                   {product.name}
                 </h3>
                 <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                  {formatPrice(product.base_price)}
+                  {isDiscountActive(product.discount_percent, product.discount_ends_at)
+                    ? formatPrice(Math.round(product.base_price * (1 - (Number(product.discount_percent) || 0) / 100)))
+                    : formatPrice(product.base_price)}
+                  {isDiscountActive(product.discount_percent, product.discount_ends_at) && (
+                    <span className="ml-1 text-xs text-green-600 dark:text-green-400">
+                      {product.discount_percent}% off
+                    </span>
+                  )}
                 </p>
               </button>
             ))}
@@ -280,6 +307,8 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
           styleName={selectedStyleName}
           currentStoreId={defaultStoreId}
           basePrice={selectedBasePrice}
+          discountPercent={selectedDiscountPercent}
+          discountEndsAt={selectedDiscountEndsAt}
           onVariantSelect={handleVariantSelect}
           onClose={() => {
             setSelectedStyleId(null)

@@ -72,6 +72,8 @@ async function fetchProductsData(): Promise<FetchResult> {
         category_id,
         season_id,
         archived,
+        discount_percent,
+        discount_ends_at,
         categories ( name ),
         seasons ( name )
       `

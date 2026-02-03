@@ -653,3 +653,112 @@ export async function updateProductVariant(
   revalidatePath(`/products/${variant.style_id}`)
   return { success: true }
 }
+
+/** Apply or clear a style-level discount (0–100%). Optional endsAt ISO string; null = no end date. */
+export async function applyStyleDiscount(
+  styleId: string,
+  discountPercent: number,
+  endsAt?: string | null
+) {
+  const supabase = await createServerSupabaseClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+  if (userError || !user) {
+    throw new Error("You must be signed in to set a discount.")
+  }
+
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = Array.isArray(accountIdRaw) ? accountIdRaw[0] ?? null : accountIdRaw
+  if (accountIdError || accountId == null || accountId === "") {
+    throw new Error("Unable to resolve account.")
+  }
+
+  const percent = Number(discountPercent)
+  if (!Number.isFinite(percent) || percent < 0 || percent > 100) {
+    throw new Error("Discount must be between 0 and 100.")
+  }
+
+  const { data: style, error: styleError } = await supabase
+    .from("product_styles")
+    .select("style_id")
+    .eq("style_id", styleId)
+    .eq("account_id", accountId)
+    .single()
+
+  if (styleError || !style) {
+    throw new Error("Style not found or access denied.")
+  }
+
+  const payload: { discount_percent: number; discount_ends_at: string | null } = {
+    discount_percent: percent,
+    discount_ends_at: endsAt && endsAt.trim() ? endsAt.trim() : null,
+  }
+
+  const { error: updateError } = await supabase
+    .from("product_styles")
+    .update(payload)
+    .eq("style_id", styleId)
+    .eq("account_id", accountId)
+
+  if (updateError) {
+    throw new Error(updateError.message)
+  }
+
+  revalidatePath("/products")
+  revalidatePath("/pos")
+  return { success: true }
+}
+
+/** Apply the same discount (and optional end date) to multiple styles. */
+export async function applyBulkStyleDiscount(
+  styleIds: string[],
+  discountPercent: number,
+  endsAt?: string | null
+) {
+  const supabase = await createServerSupabaseClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+  if (userError || !user) {
+    throw new Error("You must be signed in to set a discount.")
+  }
+
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = Array.isArray(accountIdRaw) ? accountIdRaw[0] ?? null : accountIdRaw
+  if (accountIdError || accountId == null || accountId === "") {
+    throw new Error("Unable to resolve account.")
+  }
+
+  const percent = Number(discountPercent)
+  if (!Number.isFinite(percent) || percent < 0 || percent > 100) {
+    throw new Error("Discount must be between 0 and 100.")
+  }
+
+  if (!styleIds.length) {
+    throw new Error("Select at least one style.")
+  }
+
+  const payload = {
+    discount_percent: percent,
+    discount_ends_at: endsAt && endsAt.trim() ? endsAt.trim() : null,
+  }
+
+  const { error: updateError } = await supabase
+    .from("product_styles")
+    .update(payload)
+    .eq("account_id", accountId)
+    .in("style_id", styleIds)
+
+  if (updateError) {
+    throw new Error(updateError.message)
+  }
+
+  revalidatePath("/products")
+  revalidatePath("/pos")
+  return { success: true, count: styleIds.length }
+}

@@ -5,11 +5,23 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import * as AlertDialog from "@radix-ui/react-alert-dialog"
-import { Archive, ArchiveRestore, Pencil, Trash2 } from "lucide-react"
+import { Archive, ArchiveRestore, Pencil, Percent, Trash2 } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 
 import type { Tables } from "@/types/database"
 import { ProductsFilters } from "@/components/products/ProductsFilters"
-import { archiveProductStyle, unarchiveProductStyle, deleteProductStyle } from "./actions"
+import { Checkbox } from "@/components/ui/checkbox"
+import { archiveProductStyle, unarchiveProductStyle, deleteProductStyle, applyStyleDiscount, applyBulkStyleDiscount } from "./actions"
 
 type CategoryRow = Tables<"categories">
 type SeasonRow = Tables<"seasons">
@@ -19,6 +31,8 @@ export type ProductStyleListRow = Pick<
   "style_id" | "name" | "base_price" | "cost" | "image_url" | "category_id" | "season_id"
 > & {
   archived?: boolean | null
+  discount_percent?: number | null
+  discount_ends_at?: string | null
   categories?: Pick<CategoryRow, "name"> | null
   seasons?: Pick<SeasonRow, "name"> | null
 }
@@ -36,6 +50,40 @@ function marginPercent(basePrice: number, cost: number) {
   return ((basePrice - cost) / basePrice) * 100
 }
 
+/** True if discount should be applied (percent > 0 and not past end date). */
+function isDiscountActive(
+  discountPercent: number | null | undefined,
+  endsAt: string | null | undefined
+): boolean {
+  const pct = Number(discountPercent) || 0
+  if (pct <= 0) return false
+  if (!endsAt) return true
+  try {
+    return new Date(endsAt) > new Date()
+  } catch {
+    return true
+  }
+}
+
+function effectivePrice(
+  basePrice: number,
+  discountPercent: number | null | undefined,
+  endsAt?: string | null
+): number {
+  if (!isDiscountActive(discountPercent, endsAt)) return basePrice
+  const pct = Number(discountPercent) || 0
+  return Math.round(basePrice * (1 - pct / 100))
+}
+
+function formatEndsAt(iso: string | null | undefined): string {
+  if (!iso) return ""
+  try {
+    return new Date(iso).toLocaleDateString(undefined, { dateStyle: "medium" })
+  } catch {
+    return ""
+  }
+}
+
 export function ProductsTableClient(props: {
   styles: ProductStyleListRow[]
   categories: Array<Pick<CategoryRow, "category_id" | "name">>
@@ -49,8 +97,29 @@ export function ProductsTableClient(props: {
   const [archivingId, setArchivingId] = React.useState<string | null>(null)
   const [restoringId, setRestoringId] = React.useState<string | null>(null)
   const [deletingId, setDeletingId] = React.useState<string | null>(null)
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
+  const [discountStyle, setDiscountStyle] = React.useState<{ styleId: string; name: string; currentPercent: number; endsAt?: string | null } | null>(null)
+  const [discountInput, setDiscountInput] = React.useState("")
+  const [discountEndsAtInput, setDiscountEndsAtInput] = React.useState("")
+  const [bulkDiscountOpen, setBulkDiscountOpen] = React.useState(false)
+  const [bulkDiscountPercent, setBulkDiscountPercent] = React.useState("")
+  const [bulkDiscountEndsAt, setBulkDiscountEndsAt] = React.useState("")
   const [isPending, startTransition] = React.useTransition()
   const [error, setError] = React.useState<string | null>(null)
+
+  const selectedCount = selectedIds.size
+  const toggleSelection = (styleId: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(styleId)) next.delete(styleId)
+      else next.add(styleId)
+      return next
+    })
+  }
+  const selectAllFiltered = () => {
+    setSelectedIds(new Set(filtered.map((s) => s.style_id)))
+  }
+  const clearSelection = () => setSelectedIds(new Set())
 
   const activeStyles = React.useMemo(
     () => props.styles.filter((s) => !s.archived),
@@ -76,6 +145,182 @@ export function ProductsTableClient(props: {
 
   return (
     <div className="w-full">
+      {/* Single-style discount dialog */}
+      <Dialog open={!!discountStyle} onOpenChange={(open) => !open && setDiscountStyle(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Set discount</DialogTitle>
+            <DialogDescription>
+              {discountStyle ? `Apply a discount to "${discountStyle.name}". This affects all variants at POS and in listings.` : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            <div className="grid gap-2">
+              <Label htmlFor="discount-percent">Discount % (0–100)</Label>
+              <Input
+                id="discount-percent"
+                type="number"
+                min={0}
+                max={100}
+                step={1}
+                value={discountInput}
+                onChange={(e) => setDiscountInput(e.target.value)}
+                placeholder="0"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="discount-ends-at">Ends on (optional)</Label>
+              <Input
+                id="discount-ends-at"
+                type="date"
+                value={discountEndsAtInput}
+                onChange={(e) => setDiscountEndsAtInput(e.target.value)}
+              />
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">Leave empty for no end date.</p>
+            </div>
+          </div>
+          <DialogFooter className="flex-row gap-2 sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDiscountStyle(null)
+                setDiscountInput("")
+                setDiscountEndsAtInput("")
+              }}
+            >
+              Cancel
+            </Button>
+            {discountStyle && discountStyle.currentPercent > 0 && (
+              <Button
+                variant="outline"
+                disabled={isPending}
+                onClick={() => {
+                  if (!discountStyle) return
+                  setError(null)
+                  startTransition(async () => {
+                    try {
+                      await applyStyleDiscount(discountStyle.styleId, 0, null)
+                      router.refresh()
+                      setDiscountStyle(null)
+                      setDiscountInput("")
+                      setDiscountEndsAtInput("")
+                    } catch (e) {
+                      setError(e instanceof Error ? e.message : "Failed to clear discount.")
+                    }
+                  })
+                }}
+              >
+                Clear discount
+              </Button>
+            )}
+            <Button
+              disabled={isPending}
+              onClick={() => {
+                if (!discountStyle) return
+                const num = parseInt(discountInput, 10)
+                if (!Number.isFinite(num) || num < 0 || num > 100) {
+                  setError("Enter a number between 0 and 100.")
+                  return
+                }
+                const endsAt = discountEndsAtInput.trim() ? `${discountEndsAtInput.trim()}T23:59:59.000Z` : null
+                setError(null)
+                startTransition(async () => {
+                  try {
+                    await applyStyleDiscount(discountStyle.styleId, num, endsAt)
+                    router.refresh()
+                    setDiscountStyle(null)
+                    setDiscountInput("")
+                    setDiscountEndsAtInput("")
+                  } catch (e) {
+                    setError(e instanceof Error ? e.message : "Failed to apply discount.")
+                  }
+                })
+              }}
+            >
+              Apply
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk discount dialog */}
+      <Dialog open={bulkDiscountOpen} onOpenChange={setBulkDiscountOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Bulk discount</DialogTitle>
+            <DialogDescription>
+              Apply the same discount to {selectedCount} selected style{selectedCount !== 1 ? "s" : ""}. Affects all variants at POS and in listings.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            <div className="grid gap-2">
+              <Label htmlFor="bulk-discount-percent">Discount % (0–100)</Label>
+              <Input
+                id="bulk-discount-percent"
+                type="number"
+                min={0}
+                max={100}
+                step={1}
+                value={bulkDiscountPercent}
+                onChange={(e) => setBulkDiscountPercent(e.target.value)}
+                placeholder="0"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="bulk-discount-ends-at">Ends on (optional)</Label>
+              <Input
+                id="bulk-discount-ends-at"
+                type="date"
+                value={bulkDiscountEndsAt}
+                onChange={(e) => setBulkDiscountEndsAt(e.target.value)}
+              />
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">Leave empty for no end date.</p>
+            </div>
+          </div>
+          <DialogFooter className="flex-row gap-2 sm:justify-end">
+            <Button variant="outline" onClick={() => setBulkDiscountOpen(false)}>Cancel</Button>
+            <Button
+              disabled={isPending}
+              onClick={() => {
+                const num = parseInt(bulkDiscountPercent, 10)
+                if (!Number.isFinite(num) || num < 0 || num > 100) {
+                  setError("Enter a number between 0 and 100.")
+                  return
+                }
+                const endsAt = bulkDiscountEndsAt.trim() ? `${bulkDiscountEndsAt.trim()}T23:59:59.000Z` : null
+                setError(null)
+                startTransition(async () => {
+                  try {
+                    await applyBulkStyleDiscount(Array.from(selectedIds), num, endsAt)
+                    router.refresh()
+                    setBulkDiscountOpen(false)
+                    setBulkDiscountPercent("")
+                    setBulkDiscountEndsAt("")
+                    setSelectedIds(new Set())
+                  } catch (e) {
+                    setError(e instanceof Error ? e.message : "Failed to apply bulk discount.")
+                  }
+                })
+              }}
+            >
+              Apply to {selectedCount} styles
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {selectedCount > 0 && viewMode === "active" && (
+        <div className="-mx-4 mb-4 flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900/50">
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            {selectedCount} style{selectedCount !== 1 ? "s" : ""} selected
+          </span>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={clearSelection}>Clear</Button>
+            <Button size="sm" onClick={() => setBulkDiscountOpen(true)}>Bulk discount</Button>
+          </div>
+        </div>
+      )}
+
       <div className="sticky top-0 z-10 -mx-4 mb-4 border-b bg-white/80 px-4 py-3 backdrop-blur dark:bg-zinc-950/80">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex-1">
@@ -147,6 +392,15 @@ export function ProductsTableClient(props: {
               <table className="w-full">
               <thead className="bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:bg-zinc-900/40 dark:text-zinc-400">
                 <tr>
+                  {viewMode === "active" && (
+                    <th className="w-10 px-2 py-3">
+                      <Checkbox
+                        checked={filtered.length > 0 && filtered.every((s) => selectedIds.has(s.style_id))}
+                        onCheckedChange={(checked) => (checked ? selectAllFiltered() : clearSelection())}
+                        aria-label="Select all"
+                      />
+                    </th>
+                  )}
                   <th className="px-4 py-3">Image</th>
                   <th className="px-4 py-3">Style Name</th>
                   <th className="px-4 py-3">Category</th>
@@ -160,7 +414,7 @@ export function ProductsTableClient(props: {
               <tbody className="divide-y divide-zinc-100 text-sm dark:divide-zinc-900">
                 {filtered.length === 0 ? (
                   <tr>
-                    <td className="px-4 py-10 text-center text-zinc-500 dark:text-zinc-400" colSpan={8}>
+                    <td className="px-4 py-10 text-center text-zinc-500 dark:text-zinc-400" colSpan={viewMode === "active" ? 9 : 8}>
                       {viewMode === "archived"
                         ? "No archived styles match your filters."
                         : "No styles match your filters."}
@@ -170,7 +424,9 @@ export function ProductsTableClient(props: {
                   filtered.map((s) => {
                     const base = Number(s.base_price ?? 0)
                     const cost = Number(s.cost ?? 0)
-                    const margin = marginPercent(base, cost)
+                    const discountPct = s.discount_percent ?? 0
+                    const displayPrice = effectivePrice(base, s.discount_percent)
+                    const margin = marginPercent(displayPrice, cost)
                     const categoryName = s.categories?.name ?? "—"
                     const seasonName = s.seasons?.name ?? "—"
 
@@ -202,7 +458,18 @@ export function ProductsTableClient(props: {
                         <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">{categoryName}</td>
                         <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">{seasonName}</td>
                         <td className="px-4 py-3 text-right font-medium text-zinc-900 dark:text-zinc-100">
-                          {formatKes(base)}
+                          {active ? (
+                            <span className="flex flex-col items-end gap-0.5">
+                              <span className="text-zinc-500 line-through">{formatKes(base)}</span>
+                              <span>{formatKes(displayPrice)}</span>
+                              <span className="text-xs font-normal text-green-600 dark:text-green-400">{discountPct}% off</span>
+                              {s.discount_ends_at && (
+                                <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">Until {formatEndsAt(s.discount_ends_at)}</span>
+                              )}
+                            </span>
+                          ) : (
+                            formatKes(base)
+                          )}
                         </td>
                         <td className="px-4 py-3 text-right text-zinc-700 dark:text-zinc-300">
                           {formatKes(cost)}
@@ -223,6 +490,20 @@ export function ProductsTableClient(props: {
                                 >
                                   <Pencil className="h-4 w-4" />
                                 </Link>
+
+                                <button
+                                  type="button"
+                                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
+                                  title="Discount"
+                                  disabled={isPending}
+                                  onClick={() => {
+                                    setDiscountStyle({ styleId: s.style_id, name: s.name, currentPercent: discountPct, endsAt: s.discount_ends_at })
+                                    setDiscountInput(String(discountPct))
+                                    setDiscountEndsAtInput(s.discount_ends_at ? new Date(s.discount_ends_at).toISOString().slice(0, 10) : "")
+                                  }}
+                                >
+                                  <Percent className="h-4 w-4" />
+                                </button>
 
                                 <AlertDialog.Root
                                   open={archivingId === s.style_id}
@@ -401,7 +682,10 @@ export function ProductsTableClient(props: {
                 filtered.map((s) => {
                   const base = Number(s.base_price ?? 0)
                   const cost = Number(s.cost ?? 0)
-                  const margin = marginPercent(base, cost)
+                  const discountPct = s.discount_percent ?? 0
+                  const active = isDiscountActive(s.discount_percent, s.discount_ends_at)
+                  const displayPrice = effectivePrice(base, s.discount_percent, s.discount_ends_at)
+                  const margin = marginPercent(displayPrice, cost)
                   const categoryName = s.categories?.name ?? "—"
                   const seasonName = s.seasons?.name ?? "—"
                   const cardClassName =
@@ -447,7 +731,17 @@ export function ProductsTableClient(props: {
                             </div>
                             <div className="flex items-center justify-between pt-1">
                               <span className="font-semibold text-zinc-900 dark:text-zinc-100">
-                                {formatKes(base)}
+                                {active ? (
+                                  <>
+                                    <span className="text-zinc-500 line-through">{formatKes(base)}</span>{" "}
+                                    {formatKes(displayPrice)} <span className="text-xs text-green-600 dark:text-green-400">{discountPct}% off</span>
+                                    {s.discount_ends_at && (
+                                      <span className="block text-xs font-normal text-zinc-500 dark:text-zinc-400">Until {formatEndsAt(s.discount_ends_at)}</span>
+                                    )}
+                                  </>
+                                ) : (
+                                  formatKes(base)
+                                )}
                               </span>
                               <span className="rounded-md bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
                                 {margin.toFixed(1)}% margin
@@ -459,6 +753,15 @@ export function ProductsTableClient(props: {
                         {/* Actions */}
                         <div className="flex flex-col items-end gap-2">
                           {viewMode === "active" ? (
+                            <>
+                            <div className="flex items-center gap-1">
+                              <Checkbox
+                                checked={selectedIds.has(s.style_id)}
+                                onCheckedChange={() => toggleSelection(s.style_id)}
+                                onClick={(e) => e.stopPropagation()}
+                                aria-label={`Select ${s.name}`}
+                              />
+                            </div>
                             <Link
                               href={`/products/${s.style_id}/edit`}
                               onClick={(e) => e.stopPropagation()}
@@ -467,6 +770,21 @@ export function ProductsTableClient(props: {
                             >
                               <Pencil className="h-4 w-4" />
                             </Link>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                setDiscountStyle({ styleId: s.style_id, name: s.name, currentPercent: discountPct, endsAt: s.discount_ends_at })
+                                setDiscountInput(String(discountPct))
+                                setDiscountEndsAtInput(s.discount_ends_at ? new Date(s.discount_ends_at).toISOString().slice(0, 10) : "")
+                              }}
+                              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                              title="Discount"
+                            >
+                              <Percent className="h-4 w-4" />
+                            </button>
+                            </>
                           ) : (
                             <button
                               type="button"
@@ -596,7 +914,17 @@ export function ProductsTableClient(props: {
                             </div>
                             <div className="flex items-center justify-between pt-1">
                               <span className="font-semibold text-zinc-900 dark:text-zinc-100">
-                                {formatKes(base)}
+                                {active ? (
+                                  <>
+                                    <span className="text-zinc-500 line-through">{formatKes(base)}</span>{" "}
+                                    {formatKes(displayPrice)} <span className="text-xs text-green-600 dark:text-green-400">{discountPct}% off</span>
+                                    {s.discount_ends_at && (
+                                      <span className="block text-xs font-normal text-zinc-500 dark:text-zinc-400">Until {formatEndsAt(s.discount_ends_at)}</span>
+                                    )}
+                                  </>
+                                ) : (
+                                  formatKes(base)
+                                )}
                               </span>
                               <span className="rounded-md bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
                                 {margin.toFixed(1)}% margin
