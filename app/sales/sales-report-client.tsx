@@ -46,10 +46,13 @@ interface Staff {
   email: string
 }
 
-interface SalesReportClientProps {
+type RefundRow = { sale_id: string | null; refund_amount: number; refunded_line_items: Array<{ quantity?: number }> | null }
+
+export interface SalesReportClientProps {
   initialSales: Sale[]
   itemsPerSale: Record<string, number>
   initialTotalUnits: number
+  initialRefunds?: RefundRow[]
   stores: Store[]
   staff: Staff[]
   defaultDateRange: { from: string; to: string }
@@ -61,6 +64,7 @@ export function SalesReportClient({
   initialSales,
   itemsPerSale: initialItemsPerSale,
   initialTotalUnits,
+  initialRefunds = [],
   stores,
   staff,
   defaultDateRange,
@@ -68,6 +72,7 @@ export function SalesReportClient({
   const [sales, setSales] = React.useState<Sale[]>(initialSales)
   const [itemsPerSale, setItemsPerSale] = React.useState<Record<string, number>>(initialItemsPerSale)
   const [totalUnitsSold, setTotalUnitsSold] = React.useState<number>(initialTotalUnits)
+  const [refunds, setRefunds] = React.useState<RefundRow[]>(initialRefunds)
   const [isLoading, setIsLoading] = React.useState(false)
   const [selectedSale, setSelectedSale] = React.useState<Sale | null>(null)
 
@@ -155,31 +160,37 @@ export function SalesReportClient({
 
       setSales(salesData || [])
 
-      // Get line items count and quantities
       const saleIds = (salesData || []).map((s: { sale_id: string }) => s.sale_id)
       if (saleIds.length > 0) {
-        const { data: lineItems } = await supabase
-          .from("sale_line_items")
-          .select("sale_id, quantity")
-          .in("sale_id", saleIds)
+        const [lineItemsRes, refundsRes] = await Promise.all([
+          supabase
+            .from("sale_line_items")
+            .select("sale_id, quantity")
+            .in("sale_id", saleIds),
+          supabase
+            .from("refunds")
+            .select("sale_id, refund_amount, refunded_line_items")
+            .in("sale_id", saleIds),
+        ])
 
-        const itemsMap = (lineItems || []).reduce((acc: Record<string, number>, item: { sale_id: string | null; quantity: number | null }) => {
+        const lineItems = lineItemsRes.data || []
+        const itemsMap = lineItems.reduce((acc: Record<string, number>, item: { sale_id: string | null; quantity: number | null }) => {
           if (item.sale_id) {
-            acc[item.sale_id] = (acc[item.sale_id] || 0) + 1 // Count of line items
+            acc[item.sale_id] = (acc[item.sale_id] || 0) + 1
           }
           return acc
         }, {} as Record<string, number>)
-
-        // Calculate total units sold (sum of all quantities)
-        const totalUnits = (lineItems || []).reduce((sum: number, item: { sale_id: string | null; quantity: number | null }) => sum + (item.quantity || 0), 0)
+        const totalUnits = lineItems.reduce((sum: number, item: { sale_id: string | null; quantity: number | null }) => sum + (item.quantity || 0), 0)
         setTotalUnitsSold(totalUnits)
         setItemsPerSale(itemsMap)
+        setRefunds((refundsRes.data as RefundRow[]) || [])
       } else {
         setItemsPerSale({})
         setTotalUnitsSold(0)
+        setRefunds([])
       }
 
-      setCurrentPage(1) // Reset to first page
+      setCurrentPage(1)
     } catch (error) {
       console.error("Error fetching sales:", error)
     } finally {
@@ -192,19 +203,27 @@ export function SalesReportClient({
     fetchSales()
   }, [fetchSales])
 
-  // Calculate summary metrics
+  // Calculate summary metrics (net of refunds)
   const summary = React.useMemo(() => {
-    const totalRevenue = sales.reduce((sum, s) => sum + (s.grand_total || 0), 0)
+    const grossRevenue = sales.reduce((sum, s) => sum + (s.grand_total || 0), 0)
+    const refundTotal = refunds.reduce((sum, r) => sum + (r.refund_amount || 0), 0)
+    const totalRevenue = Math.max(0, grossRevenue - refundTotal)
     const totalTransactions = sales.length
     const averageBasketSize = totalTransactions > 0 ? totalRevenue / totalTransactions : 0
+    const refundedUnits = refunds.reduce((sum, r) => {
+      const items = r.refunded_line_items
+      if (!Array.isArray(items)) return sum
+      return sum + items.reduce((q: number, it: { quantity?: number }) => q + (it?.quantity ?? 0), 0)
+    }, 0)
+    const totalUnits = Math.max(0, totalUnitsSold - refundedUnits)
 
     return {
       totalRevenue,
       totalTransactions,
       averageBasketSize,
-      totalUnits: totalUnitsSold,
+      totalUnits,
     }
-  }, [sales, totalUnitsSold])
+  }, [sales, totalUnitsSold, refunds])
 
   // Pagination
   const totalPages = Math.ceil(sales.length / itemsPerPage)

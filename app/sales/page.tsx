@@ -98,15 +98,16 @@ async function SalesReportContent() {
     }
   }
 
-  // Get line items count and quantities for each sale
   const saleIds = initialSales.map((s: { sale_id: string }) => s.sale_id)
   let lineItems: Array<{ sale_id: string | null; quantity: number | null }> | null = null
+  let initialRefunds: Array<{ sale_id: string | null; refund_amount: number; refunded_line_items: Array<{ quantity?: number }> | null }> = []
   if (saleIds.length > 0) {
-    const result = await supabase
-      .from("sale_line_items")
-      .select("sale_id, quantity")
-      .in("sale_id", saleIds)
-    lineItems = result.data
+    const [lineRes, refundsRes] = await Promise.all([
+      supabase.from("sale_line_items").select("sale_id, quantity").in("sale_id", saleIds),
+      supabase.from("refunds").select("sale_id, refund_amount, refunded_line_items").in("sale_id", saleIds),
+    ])
+    lineItems = lineRes.data
+    initialRefunds = (refundsRes.data as Array<{ sale_id: string | null; refund_amount: number; refunded_line_items: Array<{ quantity?: number }> | null }>) || []
   } else {
     lineItems = []
   }
@@ -125,6 +126,7 @@ async function SalesReportContent() {
       initialSales={initialSales}
       itemsPerSale={itemsPerSale}
       initialTotalUnits={initialTotalUnits}
+      initialRefunds={initialRefunds}
       stores={stores || []}
       staff={staff || []}
       defaultDateRange={{
