@@ -167,18 +167,45 @@ export function VariantSelector({
     return "border-green-400 bg-green-50 dark:border-green-600 dark:bg-green-950/20"
   }
 
-  const handleCellClick = (cell: MatrixCell) => {
-    if (cell.variant && cell.variant.stock > 0) {
-      onVariantSelect(
-        cell.variant.variant_id,
-        cell.variant.size,
-        cell.variant.color,
-        cell.variant.price,
-        cell.variant.sku,
-        styleName
-      )
-      // Don't close modal — user can add more variants or same variant again, then close via Done
+  const handleCellSelect = React.useCallback(
+    (cell: MatrixCell) => {
+      if (cell.variant && cell.variant.stock > 0) {
+        onVariantSelect(
+          cell.variant.variant_id,
+          cell.variant.size,
+          cell.variant.color,
+          cell.variant.price,
+          cell.variant.sku,
+          styleName
+        )
+      }
+    },
+    [onVariantSelect, styleName]
+  )
+
+  // Avoid double-add when both pointerdown and click fire (mouse/touch)
+  const pendingPointerRef = React.useRef<string | null>(null)
+
+  const handleCellPointerDown = (e: React.PointerEvent, cell: MatrixCell) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const key = cell.variant ? `${cell.size}-${cell.color}` : ""
+    if (key) {
+      pendingPointerRef.current = key
+      handleCellSelect(cell)
+      setTimeout(() => {
+        pendingPointerRef.current = null
+      }, 300)
     }
+  }
+
+  const handleCellClick = (e: React.MouseEvent, cell: MatrixCell) => {
+    if (pendingPointerRef.current !== null) {
+      e.preventDefault()
+      e.stopPropagation()
+      return
+    }
+    handleCellSelect(cell)
   }
 
   return (
@@ -244,11 +271,13 @@ export function VariantSelector({
                             >
                               {variant ? (
                                 <button
-                                  onClick={() => handleCellClick(cell)}
+                                  type="button"
                                   disabled={!isAvailable}
-                                  className={`w-full rounded border-2 p-3 text-left transition-all ${
+                                  onPointerDown={(e) => handleCellPointerDown(e, cell)}
+                                  onClick={(e) => handleCellClick(e, cell)}
+                                  className={`w-full rounded border-2 p-3 text-left transition-shadow touch-manipulation ${
                                     isAvailable
-                                      ? `${getStockColorClass(stock)} hover:scale-105 hover:shadow-md cursor-pointer`
+                                      ? `${getStockColorClass(stock)} hover:shadow-md active:shadow-lg cursor-pointer`
                                       : `${getStockColorClass(stock)} cursor-not-allowed opacity-60`
                                   }`}
                                 >
