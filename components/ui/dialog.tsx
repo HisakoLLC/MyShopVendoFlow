@@ -36,7 +36,7 @@ const DialogContent = React.forwardRef<
       ref={ref}
       className={cn(
         // Mobile: Full screen
-        "fixed left-0 top-0 z-50 grid w-screen h-screen max-w-none translate-x-0 translate-y-0 gap-4 border-0 bg-white p-4 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 dark:bg-zinc-950",
+        "fixed left-0 top-0 z-50 grid w-screen h-screen max-w-none translate-x-0 translate-y-0 gap-4 border-0 bg-background p-4 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 dark:bg-background",
         // Desktop: Centered modal
         "md:left-[50%] md:top-[50%] md:w-full md:h-auto md:max-w-lg md:translate-x-[-50%] md:translate-y-[-50%] md:rounded-lg md:border md:border-zinc-200 md:dark:border-zinc-800",
         "max-h-[90vh] overflow-y-auto",

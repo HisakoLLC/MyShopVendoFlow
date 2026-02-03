@@ -5,18 +5,18 @@
 /* ——— VendoFlow Design System: CSS variables ——— */
 @layer base {
   :root {
-    /* VendoFlow Primary (Deep Purple/Violet) */
-    --primary-50: #faf5ff;
-    --primary-100: #f3e8ff;
-    --primary-200: #e9d5ff;
-    --primary-300: #d8b4fe;
-    --primary-400: #c084fc;
-    --primary-500: #a855f7;
-    --primary-600: #9333ea;
-    --primary-700: #7e22ce;
-    --primary-800: #6b21a8;
-    --primary-900: #581c87;
-    --primary-950: #3b0764;
+    /* VendoFlow Primary (#8c0007) */
+    --primary-50: #fde8e8;
+    --primary-100: #fad0d1;
+    --primary-200: #f5a0a2;
+    --primary-300: #ef7073;
+    --primary-400: #ea4044;
+    --primary-500: #c41e22;
+    --primary-600: #8c0007;
+    --primary-700: #6b0005;
+    --primary-800: #4a0004;
+    --primary-900: #290002;
+    --primary-950: #140001;
 
     /* VendoFlow Secondary (Rose/Pink) */
     --secondary-50: #fff1f2;
@@ -50,13 +50,13 @@
     --slate-950: #020617;
 
     /* Theme-aware semantic (HSL for light/dark) */
-    --background: 0 0% 100%;
+    --background: 30 11% 89%;
     --foreground: 222.2 47.4% 11.2%;
-    --card: 0 0% 100%;
+    --card: 30 11% 89%;
     --card-foreground: 222.2 47.4% 11.2%;
-    --popover: 0 0% 100%;
+    --popover: 30 11% 89%;
     --popover-foreground: 222.2 47.4% 11.2%;
-    --primary: 262.1 83.3% 57.8%;
+    --primary: 357 100% 27%;
     --primary-foreground: 0 0% 100%;
     --secondary: 346.8 77.2% 49.8%;
     --secondary-foreground: 0 0% 100%;
@@ -68,18 +68,18 @@
     --destructive-foreground: 0 0% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 262.1 83.3% 57.8%;
+    --ring: 357 100% 27%;
     --radius: 8px;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 75 19% 14%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
+    --card: 75 19% 14%;
     --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
+    --popover: 75 19% 14%;
     --popover-foreground: 210 40% 98%;
-    --primary: 263.4 70% 50.4%;
+    --primary: 357 100% 27%;
     --primary-foreground: 0 0% 100%;
     --secondary: 346.8 77.2% 49.8%;
     --secondary-foreground: 0 0% 100%;
@@ -91,7 +91,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 263.4 70% 50.4%;
+    --ring: 357 100% 27%;
   }
 }
 

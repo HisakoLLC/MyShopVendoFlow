@@ -40,9 +40,9 @@ export function POSMobileLayout({ defaultStoreId, storeName }: POSMobileLayoutPr
   }, [])
 
   return (
-    <div className="flex h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
+    <div className="flex h-screen flex-col bg-background dark:bg-background">
       {/* Header */}
-      <div className="border-b border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="border-b border-zinc-200 bg-background p-4 dark:border-zinc-800 dark:bg-background">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 sm:text-2xl">

@@ -235,7 +235,7 @@ export function VariantMatrixBuilder({
 
       <div className="space-y-6">
         {/* Size Selection */}
-        <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="rounded-xl border border-zinc-200 bg-background p-6 dark:border-zinc-800 dark:bg-background">
           <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
             Size Selection
           </h2>
@@ -282,7 +282,7 @@ export function VariantMatrixBuilder({
               {sizeArray.map((size) => (
                 <div
                   key={size}
-                  className="flex items-center space-x-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900"
+                  className="flex items-center space-x-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-background"
                 >
                   <Checkbox
                     checked={selectedSizes.has(size)}
@@ -296,7 +296,7 @@ export function VariantMatrixBuilder({
         </div>
 
         {/* Color Selection */}
-        <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="rounded-xl border border-zinc-200 bg-background p-6 dark:border-zinc-800 dark:bg-background">
           <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
             Color Selection
           </h2>
@@ -309,8 +309,8 @@ export function VariantMatrixBuilder({
                 onClick={() => handleColorToggle(color.name)}
                 className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
                   selectedColors.has(color.name)
-                    ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
-                    : "border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-900"
+                    ? "border-primary bg-primary text-primary-foreground dark:border-primary dark:bg-primary dark:text-primary-foreground"
+                    : "border-zinc-200 bg-background text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background dark:text-zinc-100 dark:hover:bg-zinc-900"
                 }`}
               >
                 {selectedColors.has(color.name) && <Check className="h-4 w-4" />}
@@ -353,7 +353,7 @@ export function VariantMatrixBuilder({
             <button
               type="button"
               onClick={() => setShowCustomColor(true)}
-              className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-900"
+              className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-background px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background dark:text-zinc-400 dark:hover:bg-zinc-900"
             >
               <Plus className="h-4 w-4" />
               Add Custom Color
@@ -365,7 +365,7 @@ export function VariantMatrixBuilder({
               {colorArray.map((color) => (
                 <div
                   key={color}
-                  className="flex items-center space-x-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900"
+                  className="flex items-center space-x-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-background"
                 >
                   <Checkbox
                     checked={selectedColors.has(color)}
@@ -380,7 +380,7 @@ export function VariantMatrixBuilder({
 
         {/* Variant Matrix Preview */}
         {sizeArray.length > 0 && colorArray.length > 0 && (
-          <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
+          <div className="rounded-xl border border-zinc-200 bg-background p-6 dark:border-zinc-800 dark:bg-background">
             <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
               Variant Preview ({sizeArray.length} × {colorArray.length} ={" "}
               {sizeArray.length * colorArray.length} variants)
@@ -391,13 +391,13 @@ export function VariantMatrixBuilder({
                 <table className="min-w-full border-collapse">
                   <thead>
                     <tr>
-                      <th className="border border-zinc-200 bg-zinc-50 px-4 py-2 text-left text-sm font-semibold text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
+                      <th className="border border-zinc-200 bg-zinc-50 px-4 py-2 text-left text-sm font-semibold text-zinc-900 dark:border-zinc-800 dark:bg-background dark:text-zinc-100">
                         Size
                       </th>
                       {colorArray.map((color) => (
                         <th
                           key={color}
-                          className="border border-zinc-200 bg-zinc-50 px-4 py-2 text-center text-sm font-semibold text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                          className="border border-zinc-200 bg-zinc-50 px-4 py-2 text-center text-sm font-semibold text-zinc-900 dark:border-zinc-800 dark:bg-background dark:text-zinc-100"
                         >
                           {color}
                         </th>
@@ -407,7 +407,7 @@ export function VariantMatrixBuilder({
                   <tbody>
                     {sizeArray.map((size) => (
                       <tr key={size}>
-                        <td className="border border-zinc-200 bg-zinc-50 px-4 py-2 text-sm font-medium text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
+                        <td className="border border-zinc-200 bg-zinc-50 px-4 py-2 text-sm font-medium text-zinc-900 dark:border-zinc-800 dark:bg-background dark:text-zinc-100">
                           {size}
                         </td>
                         {colorArray.map((color) => {
@@ -423,7 +423,7 @@ export function VariantMatrixBuilder({
                               <button
                                 type="button"
                                 onClick={() => handleCellClick(cell)}
-                                className="w-full rounded-lg border border-zinc-200 bg-white p-3 text-left transition hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900"
+                                className="w-full rounded-lg border border-zinc-200 bg-background p-3 text-left transition hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background dark:hover:bg-zinc-900"
                               >
                                 <div className="text-xs font-medium text-zinc-900 dark:text-zinc-100">
                                   SKU: {cell.sku}

@@ -310,7 +310,7 @@ export function ProductsTableClient(props: {
       </Dialog>
 
       {selectedCount > 0 && viewMode === "active" && (
-        <div className="-mx-4 mb-4 flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900/50">
+        <div className="-mx-4 mb-4 flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-background/50">
           <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
             {selectedCount} style{selectedCount !== 1 ? "s" : ""} selected
           </span>
@@ -321,7 +321,7 @@ export function ProductsTableClient(props: {
         </div>
       )}
 
-      <div className="sticky top-0 z-10 -mx-4 mb-4 border-b bg-white/80 px-4 py-3 backdrop-blur dark:bg-zinc-950/80">
+      <div className="sticky top-0 z-10 -mx-4 mb-4 border-b bg-background/80 px-4 py-3 backdrop-blur dark:bg-background/80">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex-1">
             <ProductsFilters
@@ -356,7 +356,7 @@ export function ProductsTableClient(props: {
             {viewMode === "active" && (
               <Link
                 href="/products/new"
-                className="inline-flex h-10 items-center justify-center rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white shadow-sm hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900/20 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-primary-foreground dark:hover:opacity-90"
               >
                 Add New Style
               </Link>
@@ -366,7 +366,7 @@ export function ProductsTableClient(props: {
       </div>
 
       {!hasProducts ? (
-        <div className="rounded-xl border border-dashed border-zinc-200 bg-white p-10 text-center dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="rounded-xl border border-dashed border-zinc-200 bg-background p-10 text-center dark:border-zinc-800 dark:bg-background">
           <div className="mx-auto max-w-md space-y-3">
             <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
               No products yet.
@@ -377,7 +377,7 @@ export function ProductsTableClient(props: {
             <div className="pt-2">
               <Link
                 href="/products/new"
-                className="inline-flex h-10 items-center justify-center rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white shadow-sm hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900/20 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-primary-foreground dark:hover:opacity-90"
               >
                 Add New Style
               </Link>
@@ -387,10 +387,10 @@ export function ProductsTableClient(props: {
       ) : (
         <>
           {/* Desktop: Table View */}
-          <div className="hidden overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950 md:block">
+          <div className="hidden overflow-hidden rounded-xl border border-zinc-200 bg-background shadow-sm dark:border-zinc-800 dark:bg-background md:block">
             <div className="overflow-x-auto">
               <table className="w-full">
-              <thead className="bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:bg-zinc-900/40 dark:text-zinc-400">
+              <thead className="bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:bg-background/40 dark:text-zinc-400">
                 <tr>
                   {viewMode === "active" && (
                     <th className="w-10 px-2 py-3">
@@ -446,7 +446,7 @@ export function ProductsTableClient(props: {
                           </td>
                         )}
                         <td className="px-4 py-3">
-                          <div className="h-[60px] w-[60px] overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
+                          <div className="h-[60px] w-[60px] overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-background dark:ring-zinc-800">
                             {s.image_url ? (
                               <Image
                                 src={s.image_url}
@@ -485,7 +485,7 @@ export function ProductsTableClient(props: {
                           {formatKes(cost)}
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">
+                          <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 dark:bg-background dark:text-zinc-200">
                             {margin.toFixed(1)}%
                           </span>
                         </td>
@@ -532,7 +532,7 @@ export function ProductsTableClient(props: {
 
                                   <AlertDialog.Portal>
                                     <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
-                                    <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-white p-5 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950">
+                                    <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-background p-5 shadow-lg outline-none dark:border-zinc-800 dark:bg-background">
                                       <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
                                         Archive this style?
                                       </AlertDialog.Title>
@@ -544,7 +544,7 @@ export function ProductsTableClient(props: {
                                         <AlertDialog.Cancel asChild>
                                           <button
                                             type="button"
-                                            className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-900"
+                                            className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-background px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background dark:text-zinc-100 dark:hover:bg-zinc-900"
                                             disabled={isPending}
                                           >
                                             Cancel
@@ -554,7 +554,7 @@ export function ProductsTableClient(props: {
                                         <AlertDialog.Action asChild>
                                           <button
                                             type="button"
-                                            className="inline-flex h-10 items-center justify-center rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                                            className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary dark:text-primary-foreground dark:hover:opacity-90"
                                             disabled={isPending}
                                             onClick={() => {
                                               setError(null)
@@ -621,7 +621,7 @@ export function ProductsTableClient(props: {
 
                               <AlertDialog.Portal>
                                 <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
-                                <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-white p-5 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950">
+                                <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-background p-5 shadow-lg outline-none dark:border-zinc-800 dark:bg-background">
                                   <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
                                     Delete &quot;{s.name}&quot; permanently?
                                   </AlertDialog.Title>
@@ -633,7 +633,7 @@ export function ProductsTableClient(props: {
                                     <AlertDialog.Cancel asChild>
                                       <button
                                         type="button"
-                                        className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-900"
+                                        className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-background px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background dark:text-zinc-100 dark:hover:bg-zinc-900"
                                         disabled={isPending}
                                       >
                                         Cancel
@@ -681,7 +681,7 @@ export function ProductsTableClient(props: {
           <div className="md:hidden">
             <div className="space-y-3">
               {filtered.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-zinc-200 bg-white p-10 text-center dark:border-zinc-800 dark:bg-zinc-950">
+                <div className="rounded-xl border border-dashed border-zinc-200 bg-background p-10 text-center dark:border-zinc-800 dark:bg-background">
                   <p className="text-sm text-zinc-500 dark:text-zinc-400">
                     {viewMode === "archived"
                       ? "No archived styles match your filters."
@@ -699,7 +699,7 @@ export function ProductsTableClient(props: {
                   const categoryName = s.categories?.name ?? "—"
                   const seasonName = s.seasons?.name ?? "—"
                   const cardClassName =
-                    "block rounded-lg border border-zinc-200 bg-white p-4 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
+                    "block rounded-lg border border-zinc-200 bg-background p-4 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
 
                   return viewMode === "active" ? (
                     <Link
@@ -709,7 +709,7 @@ export function ProductsTableClient(props: {
                     >
                       <div className="flex gap-4">
                         {/* Image */}
-                        <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
+                        <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-background dark:ring-zinc-800">
                           {s.image_url ? (
                             <Image
                               src={s.image_url}
@@ -840,7 +840,7 @@ export function ProductsTableClient(props: {
 
                             <AlertDialog.Portal>
                               <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
-                              <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-white p-5 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950">
+                              <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-background p-5 shadow-lg outline-none dark:border-zinc-800 dark:bg-background">
                                 <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
                                   Delete &quot;{s.name}&quot; permanently?
                                 </AlertDialog.Title>
@@ -852,7 +852,7 @@ export function ProductsTableClient(props: {
                                   <AlertDialog.Cancel asChild>
                                     <button
                                       type="button"
-                                      className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-900"
+                                      className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-background px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background dark:text-zinc-100 dark:hover:bg-zinc-900"
                                       disabled={isPending}
                                     >
                                       Cancel
@@ -892,7 +892,7 @@ export function ProductsTableClient(props: {
                     <div key={s.style_id} className={cardClassName}>
                       <div className="flex gap-4">
                         {/* Image */}
-                        <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
+                        <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-background dark:ring-zinc-800">
                           {s.image_url ? (
                             <Image
                               src={s.image_url}
@@ -986,7 +986,7 @@ export function ProductsTableClient(props: {
 
                             <AlertDialog.Portal>
                               <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
-                              <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-white p-5 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950">
+                              <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-background p-5 shadow-lg outline-none dark:border-zinc-800 dark:bg-background">
                                 <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
                                   Delete &quot;{s.name}&quot; permanently?
                                 </AlertDialog.Title>
@@ -998,7 +998,7 @@ export function ProductsTableClient(props: {
                                   <AlertDialog.Cancel asChild>
                                     <button
                                       type="button"
-                                      className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-900"
+                                      className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-background px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background dark:text-zinc-100 dark:hover:bg-zinc-900"
                                       disabled={isPending}
                                     >
                                       Cancel

@@ -525,7 +525,7 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
                   currentStep >= step
-                    ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
+                    ? "border-primary bg-primary text-primary-foreground dark:border-primary dark:bg-primary dark:text-primary-foreground"
                     : "border-zinc-300 text-zinc-400 dark:border-zinc-700 dark:text-zinc-600"
                 }`}
               >
@@ -664,7 +664,7 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
               )}
 
               {customerResults.length > 0 && (
-                <div className="mt-2 space-y-1 rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+                <div className="mt-2 space-y-1 rounded-lg border border-zinc-200 bg-background dark:border-zinc-800 dark:bg-background">
                   {customerResults.map((customer) => (
                     <button
                       key={customer.customer_id}

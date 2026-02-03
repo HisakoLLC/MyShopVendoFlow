@@ -33,7 +33,7 @@ export function DashboardCharts({ salesData }: DashboardChartsProps) {
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: "white",
+            backgroundColor: "#e6e1de",
             border: "1px solid rgb(228 228 231)",
             borderRadius: "0.5rem",
           }}

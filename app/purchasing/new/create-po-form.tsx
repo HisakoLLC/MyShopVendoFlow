@@ -415,7 +415,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
             {/* Main Form */}
             <div className="lg:col-span-2 space-y-6">
               {/* PO Details */}
-              <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
+              <div className="rounded-lg border border-zinc-200 bg-background p-6 dark:border-zinc-800 dark:bg-background">
                 <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                   PO Details
                 </h2>
@@ -504,7 +504,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
               </div>
 
               {/* Line Items */}
-              <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
+              <div className="rounded-lg border border-zinc-200 bg-background p-6 dark:border-zinc-800 dark:bg-background">
                 <div className="mb-4 flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                     Line Items
@@ -715,7 +715,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
 
             {/* PO Summary Sidebar */}
             <div className="lg:col-span-1">
-              <div className="sticky top-6 rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
+              <div className="sticky top-6 rounded-lg border border-zinc-200 bg-background p-6 dark:border-zinc-800 dark:bg-background">
                 <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                   PO Summary
                 </h2>

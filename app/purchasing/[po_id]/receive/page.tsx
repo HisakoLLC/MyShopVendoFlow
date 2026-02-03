@@ -150,7 +150,7 @@ function ErrorState({ message }: { message: string }) {
         <div className="mt-4">
           <Link
             href="/purchasing"
-            className="inline-flex h-10 items-center justify-center rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+            className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 dark:bg-primary dark:text-primary-foreground dark:hover:opacity-90"
           >
             Back to Purchasing
           </Link>
@@ -209,7 +209,7 @@ async function ReceiveInventoryContent({ poId }: { poId: string }) {
       </div>
 
       {/* PO Details */}
-      <div className="mb-6 rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="mb-6 rounded-lg border border-zinc-200 bg-background p-6 dark:border-zinc-800 dark:bg-background">
         <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
           PO Details
         </h2>

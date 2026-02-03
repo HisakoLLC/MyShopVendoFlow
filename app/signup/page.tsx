@@ -130,9 +130,9 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 py-12 dark:bg-zinc-950">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 dark:bg-background">
       <Toaster richColors position="top-right" />
-      <div className="w-full max-w-md space-y-8 rounded-xl border border-zinc-200 bg-white p-8 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="w-full max-w-md space-y-8 rounded-xl border border-zinc-200 bg-background p-8 shadow-lg dark:border-zinc-800 dark:bg-background">
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
             VendoFlow

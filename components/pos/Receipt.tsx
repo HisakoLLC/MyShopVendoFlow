@@ -115,7 +115,7 @@ export function Receipt({
   const displayLogoUrl = isSupabaseStorageLogo ? resolvedLogoUrl : logoUrl ?? null
 
   return (
-    <div className="mx-auto max-w-md bg-white p-6 print:p-4" id="receipt">
+    <div className="mx-auto max-w-md bg-background p-6 print:p-4 print:bg-white" id="receipt">
       {/* Logo - when enabled in settings; use signed URL for Supabase storage (private buckets) */}
       {logoUrl && displayLogoUrl && (
         <div className="mb-4 flex justify-center border-b border-zinc-200 pb-4">

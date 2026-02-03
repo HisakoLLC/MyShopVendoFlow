@@ -120,7 +120,7 @@ export function Cart({ defaultStoreId }: CartProps) {
               {cart.map((item) => (
                 <div
                   key={item.cartItemId}
-                  className="group relative rounded-lg border border-zinc-200 bg-white p-3 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+                  className="group relative rounded-lg border border-zinc-200 bg-background p-3 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-background dark:hover:border-zinc-700"
                 >
                   {/* Remove Button */}
                   <button

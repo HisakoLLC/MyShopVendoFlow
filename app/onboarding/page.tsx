@@ -272,7 +272,7 @@ function OnboardingContent() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 py-12 dark:bg-zinc-950">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 dark:bg-background">
       <Toaster richColors position="top-right" />
       <div className="w-full max-w-2xl space-y-8">
         {/* Progress Indicator */}
@@ -283,7 +283,7 @@ function OnboardingContent() {
                 <div
                   className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
                     step >= s
-                      ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
+                      ? "border-primary bg-primary text-primary-foreground dark:border-primary dark:bg-primary dark:text-primary-foreground"
                       : "border-zinc-300 text-zinc-400 dark:border-zinc-700 dark:text-zinc-600"
                   }`}
                 >
@@ -397,7 +397,7 @@ function OnboardingContent() {
                     disabled={isLoading}
                     className={`rounded-lg border p-3 text-left transition-colors ${
                       selectedCategories.includes(category)
-                        ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
+                        ? "border-primary bg-primary text-primary-foreground dark:border-primary dark:bg-primary dark:text-primary-foreground"
                         : "border-zinc-200 hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-600"
                     }`}
                   >
@@ -547,7 +547,7 @@ function OnboardingContent() {
 export default function OnboardingPage() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 py-12 dark:bg-zinc-950">
+      <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 dark:bg-background">
         <div className="text-center">
           <div className="text-lg font-semibold">Loading...</div>
         </div>

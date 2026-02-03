@@ -209,7 +209,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
             placeholder="Search products by name or SKU..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 pl-10 text-zinc-900 placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-400"
+            className="w-full rounded-lg border border-zinc-300 bg-background px-4 py-3 pl-10 text-zinc-900 placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-background dark:text-zinc-100 dark:placeholder-zinc-400"
           />
           <svg
             className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400"
@@ -249,7 +249,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
               <button
                 key={product.style_id}
                 onClick={() => handleProductSelect(product.style_id)}
-                className="group relative overflow-hidden rounded-lg border border-zinc-200 bg-white p-4 text-left transition-all hover:scale-105 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-800"
+                className="group relative overflow-hidden rounded-lg border border-zinc-200 bg-background p-4 text-left transition-all hover:scale-105 hover:shadow-lg dark:border-zinc-800 dark:bg-background"
               >
                 {/* Product Image */}
                 <div className="relative mb-3 aspect-square w-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-700">

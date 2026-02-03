@@ -58,14 +58,14 @@ export function BindStaffThenPOS({
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-zinc-950">
-        <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-8 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="flex h-screen items-center justify-center bg-background px-4 dark:bg-background">
+        <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-background p-8 shadow-lg dark:border-zinc-800 dark:bg-background">
           <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Session error</h2>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{error}</p>
           <button
             type="button"
             onClick={() => router.replace("/auth/pin-login?redirect=/pos")}
-            className="mt-4 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+            className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 dark:bg-primary dark:text-primary-foreground dark:hover:opacity-90"
           >
             Back to PIN login
           </button>

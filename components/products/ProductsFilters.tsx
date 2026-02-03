@@ -98,7 +98,7 @@ export function ProductsFilters({ categories, seasons, onFilterChange }: Product
             value={search ?? ""}
             onChange={(e) => form.setValue("search", e.target.value, { shouldValidate: true })}
             placeholder="Search styles..."
-            className="h-11 w-full rounded-lg border border-zinc-200 bg-white pl-10 pr-3 text-sm outline-none ring-offset-2 transition focus:border-zinc-300 focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:focus:ring-zinc-100/10"
+            className="h-11 w-full rounded-lg border border-zinc-200 bg-background pl-10 pr-3 text-sm outline-none ring-offset-2 transition focus:border-zinc-300 focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-800 dark:bg-background dark:text-zinc-50 dark:focus:ring-zinc-100/10"
           />
         </div>
       </div>

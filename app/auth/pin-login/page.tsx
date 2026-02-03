@@ -113,8 +113,8 @@ function PinLoginContent() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-100 px-4 dark:bg-zinc-950">
-      <div className="w-full max-w-sm rounded-2xl border border-zinc-200 bg-white p-8 shadow-xl dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 dark:bg-background">
+      <div className="w-full max-w-sm rounded-2xl border border-zinc-200 bg-background p-8 shadow-xl dark:border-zinc-800 dark:bg-background">
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Staff PIN</h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
@@ -135,7 +135,7 @@ function PinLoginContent() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex justify-center">
               <div
-                className="flex h-14 w-full max-w-[240px] items-center justify-center gap-1 rounded-xl border-2 border-zinc-200 bg-zinc-50 px-4 dark:border-zinc-700 dark:bg-zinc-800"
+                className="flex h-14 w-full max-w-[240px] items-center justify-center gap-1 rounded-xl border-2 border-zinc-200 bg-zinc-50 px-4 dark:border-zinc-700 dark:bg-background"
                 aria-label="PIN digits"
               >
                 {[0, 1, 2, 3, 4, 5].map((i) => (
@@ -160,7 +160,7 @@ function PinLoginContent() {
                   className={
                     d === ""
                       ? "pointer-events-none"
-                      : "flex h-14 items-center justify-center rounded-xl border border-zinc-200 bg-white text-xl font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+                      : "flex h-14 items-center justify-center rounded-xl border border-zinc-200 bg-background text-xl font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:bg-background dark:text-zinc-100 dark:hover:bg-zinc-700"
                   }
                 >
                   {d}
@@ -173,14 +173,14 @@ function PinLoginContent() {
                 type="button"
                 onClick={handleClear}
                 disabled={isLoading || pin.length === 0}
-                className="flex-1 rounded-xl border border-zinc-200 bg-zinc-100 py-3 text-sm font-medium text-zinc-700 hover:bg-zinc-200 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                className="flex-1 rounded-xl border border-zinc-200 bg-zinc-100 py-3 text-sm font-medium text-zinc-700 hover:bg-zinc-200 disabled:opacity-50 dark:border-zinc-700 dark:bg-background dark:text-zinc-300 dark:hover:bg-zinc-700"
               >
                 Clear
               </button>
               <button
                 type="submit"
                 disabled={isLoading || pin.length !== 6}
-                className="flex-1 rounded-xl bg-zinc-900 py-3 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                className="flex-1 rounded-xl bg-primary py-3 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50 dark:bg-primary dark:text-primary-foreground dark:hover:bg-zinc-700"
               >
                 {isLoading ? "Signing in…" : "Login"}
               </button>
@@ -200,8 +200,8 @@ function PinLoginContent() {
 
 function PinLoginFallback() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-100 px-4 dark:bg-zinc-950">
-      <div className="w-full max-w-sm rounded-2xl border border-zinc-200 bg-white p-8 shadow-xl dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 dark:bg-background">
+      <div className="w-full max-w-sm rounded-2xl border border-zinc-200 bg-background p-8 shadow-xl dark:border-zinc-800 dark:bg-background">
         <div className="flex justify-center py-12">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-200 border-t-zinc-900 dark:border-zinc-700 dark:border-t-zinc-100" />
         </div>

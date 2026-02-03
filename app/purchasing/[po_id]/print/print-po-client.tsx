@@ -58,9 +58,9 @@ export function PrintPOClient({
   const total = formatCurrency(po.total_cost ?? 0, currency, { maximumFractionDigits: 2 })
 
   return (
-    <div className="min-h-screen bg-white text-black">
+    <div className="min-h-screen bg-background text-foreground print:bg-white print:text-black">
       {/* Toolbar - hidden when printing */}
-      <div className="no-print fixed top-0 left-0 right-0 z-50 border-b border-zinc-200 bg-white px-4 py-3 shadow-sm">
+      <div className="no-print fixed top-0 left-0 right-0 z-50 border-b border-zinc-200 bg-background px-4 py-3 shadow-sm">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <span className="text-sm font-medium text-zinc-600">
             PO #{po.po_number} — Print or save as PDF
@@ -76,7 +76,7 @@ export function PrintPOClient({
             <button
               type="button"
               onClick={handlePrint}
-              className="rounded-lg bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-zinc-800"
+              className="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
             >
               Print
             </button>

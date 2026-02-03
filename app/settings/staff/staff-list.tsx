@@ -235,7 +235,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
 
       {/* Staff Table */}
       {staff.length === 0 ? (
-        <div className="rounded-lg border border-zinc-200 bg-white p-12 text-center dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="rounded-lg border border-zinc-200 bg-background p-12 text-center dark:border-zinc-800 dark:bg-background">
           <Users className="mx-auto mb-4 h-12 w-12 text-zinc-400" />
           <h3 className="mb-2 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
             No staff members yet
@@ -251,7 +251,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
           )}
         </div>
       ) : (
-        <div className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="rounded-lg border border-zinc-200 bg-background dark:border-zinc-800 dark:bg-background">
           <Table>
             <TableHeader>
               <TableRow>
@@ -369,7 +369,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
         <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
           Recent Activity
         </h2>
-        <div className="rounded-lg border border-zinc-200 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="rounded-lg border border-zinc-200 bg-background p-8 text-center dark:border-zinc-800 dark:bg-background">
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
             Activity log coming soon. This will show recent staff actions.
           </p>

@@ -99,7 +99,6 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
         last_name: values.last_name,
         email: values.email,
         role: values.role,
-        assigned_store_id: values.assigned_store_id || undefined,
         generate_pin: values.generate_pin,
       }
 
@@ -110,9 +109,7 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
       toast.success(`Staff created. ${result.pin ? "Share the PIN with them." : ""}`)
       setIsSubmitting(false)
       form.reset()
-      const storeName = values.assigned_store_id
-        ? stores.find((s) => s.store_id === values.assigned_store_id)?.name ?? null
-      : null
+      const storeName = stores.length > 0 ? stores[0].name : null
       const newStaff: NewStaffForList = {
         staff_id: result.staff_id,
         email: result.email,
