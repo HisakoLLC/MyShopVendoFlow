@@ -72,16 +72,19 @@ export function InventoryIntelligenceClient({
     return `${value.toFixed(1)}%`
   }
 
-  // Derive stock_health when not set by metrics job (healthy | low_stock | dead_stock | out_of_stock)
+  // Derive stock_health when not set by metrics job. Stat cards use this; definitions align with tabs:
+  // - Out of stock: stock === 0 only.
+  // - Dead stock: stock > 3, sell-through 90d < 10%, days of inventory > 60 (matches Dead Stock tab).
+  // - Low stock: stock > 0, 0 < days of inventory < 7 (running out soon).
+  // - Healthy: everything else with stock > 0.
   const getEffectiveStockHealth = React.useCallback(
     (vm: VariantMetric, stock: number): string => {
       if (stock === 0) return "out_of_stock"
       if (vm.stock_health && vm.stock_health !== "unknown") return vm.stock_health
       const sellThrough = vm.sell_through_90d ?? 0
       const daysInv = vm.days_of_inventory ?? 0
-      if (daysInv <= 0) return "out_of_stock"
-      if (sellThrough < 10 && daysInv > 60) return "dead_stock"
-      if (daysInv < 7) return "low_stock"
+      if (stock > 3 && daysInv > 60 && sellThrough < 10) return "dead_stock"
+      if (daysInv > 0 && daysInv < 7) return "low_stock"
       return "healthy"
     },
     []
