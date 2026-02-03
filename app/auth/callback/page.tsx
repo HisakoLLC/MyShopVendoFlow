@@ -65,8 +65,8 @@ function AuthCallbackContent() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 dark:bg-background">
-        <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-background p-8 shadow-lg dark:border-zinc-800 dark:bg-background">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background-light px-4 dark:bg-background-dark">
+        <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-background-card-light p-8 shadow-lg dark:border-border-dark dark:bg-background-card-dark">
           <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Sign-in error</h2>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{error}</p>
           <button
@@ -82,7 +82,7 @@ function AuthCallbackContent() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background dark:bg-background">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background-light dark:bg-background-dark">
       <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-200 border-t-zinc-900 dark:border-zinc-700 dark:border-t-zinc-100" />
       <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">Completing sign-in...</p>
     </div>
@@ -93,7 +93,7 @@ export default function AuthCallbackPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen flex-col items-center justify-center bg-background dark:bg-background">
+        <div className="flex min-h-screen flex-col items-center justify-center bg-background-light dark:bg-background-dark">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-200 border-t-zinc-900 dark:border-zinc-700 dark:border-t-zinc-100" />
         </div>
       }

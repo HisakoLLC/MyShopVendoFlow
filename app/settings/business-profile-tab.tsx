@@ -121,7 +121,7 @@ export function BusinessProfileTab({ account, businessSettings }: BusinessProfil
   return (
     <>
       <Toaster richColors position="top-right" />
-      <div className="rounded-lg border border-zinc-200 bg-background p-6 dark:border-zinc-800 dark:bg-background">
+      <div className="rounded-lg border border-zinc-200 bg-background-card-light p-6 dark:border-border-dark dark:bg-background-card-dark">
         <h2 className="mb-6 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
           Business Profile
         </h2>

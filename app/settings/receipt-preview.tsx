@@ -29,7 +29,7 @@ export function ReceiptPreview({
   const total = subtotal + tax
 
   return (
-    <div className="rounded-lg border-2 border-zinc-300 bg-background p-4 dark:border-zinc-700 dark:bg-background">
+    <div className="rounded-lg border-2 border-zinc-300 bg-background-card-light p-4 dark:border-border-dark dark:bg-background-card-dark">
       <div className="font-mono text-xs leading-tight text-zinc-900 dark:text-zinc-100">
         {/* Logo */}
         {logoUrl && (

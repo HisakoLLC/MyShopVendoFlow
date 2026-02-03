@@ -216,7 +216,7 @@ export function CustomersList({ initialCustomers }: CustomersListProps) {
 
       {/* Customers Table */}
       {filteredAndSorted.length === 0 ? (
-        <div className="rounded-lg border border-zinc-200 bg-background p-12 text-center dark:border-zinc-800 dark:bg-background">
+        <div className="rounded-lg border border-zinc-200 bg-background-card-light p-12 text-center dark:border-border-dark dark:bg-background-card-dark">
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
             {searchQuery || filter !== "all"
               ? "No customers match your filters."
@@ -224,7 +224,7 @@ export function CustomersList({ initialCustomers }: CustomersListProps) {
           </p>
         </div>
       ) : (
-        <div className="rounded-lg border border-zinc-200 bg-background dark:border-zinc-800 dark:bg-background">
+        <div className="rounded-lg border border-zinc-200 bg-background-card-light dark:border-border-dark dark:bg-background-card-dark">
           <Table>
             <TableHeader>
               <TableRow>

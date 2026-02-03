@@ -208,7 +208,7 @@ export function ReceiveInventoryForm({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Receiving Form */}
-          <div className="rounded-lg border border-zinc-200 bg-background p-6 dark:border-zinc-800 dark:bg-background">
+          <div className="rounded-lg border border-zinc-200 bg-background-card-light p-6 dark:border-border-dark dark:bg-background-card-dark">
             <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
               Receiving Details
             </h2>
@@ -279,7 +279,7 @@ export function ReceiveInventoryForm({
           </div>
 
           {/* Line Items Table */}
-          <div className="rounded-lg border border-zinc-200 bg-background p-6 dark:border-zinc-800 dark:bg-background">
+          <div className="rounded-lg border border-zinc-200 bg-background-card-light p-6 dark:border-border-dark dark:bg-background-card-dark">
             <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
               Line Items
             </h2>

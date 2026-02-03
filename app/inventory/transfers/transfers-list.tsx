@@ -100,7 +100,7 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
       </div>
 
       {transfers.length === 0 ? (
-        <div className="rounded-lg border border-zinc-200 bg-background p-12 text-center dark:border-zinc-800 dark:bg-background">
+        <div className="rounded-lg border border-zinc-200 bg-background-card-light p-12 text-center dark:border-border-dark dark:bg-background-card-dark">
           <Package className="mx-auto mb-4 h-12 w-12 text-zinc-400" />
           <h3 className="mb-2 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
             No transfers yet
@@ -123,7 +123,7 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
               <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 Pending Transfers
               </h2>
-              <div className="rounded-lg border border-zinc-200 bg-background dark:border-zinc-800 dark:bg-background">
+              <div className="rounded-lg border border-zinc-200 bg-background-card-light dark:border-border-dark dark:bg-background-card-dark">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -226,7 +226,7 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
               <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 Completed Transfers
               </h2>
-              <div className="rounded-lg border border-zinc-200 bg-background dark:border-zinc-800 dark:bg-background">
+              <div className="rounded-lg border border-zinc-200 bg-background-card-light dark:border-border-dark dark:bg-background-card-dark">
                 <Table>
                   <TableHeader>
                     <TableRow>

@@ -85,7 +85,7 @@ function FormDescription({ className, ...props }: React.HTMLAttributes<HTMLParag
   return (
     <p
       id={formDescriptionId}
-      className={cn("text-sm text-zinc-500 dark:text-zinc-400", className)}
+      className={cn("text-sm text-text-secondary-light dark:text-text-secondary-dark", className)}
       {...props}
     />
   )

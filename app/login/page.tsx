@@ -216,9 +216,9 @@ function LoginContent() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 dark:bg-background">
+    <div className="flex min-h-screen items-center justify-center bg-background-light px-4 dark:bg-background-dark">
       <Toaster richColors position="top-right" />
-      <div className="w-full max-w-md space-y-8 rounded-xl border border-zinc-200 bg-background p-8 shadow-lg dark:border-zinc-800 dark:bg-background">
+      <div className="w-full max-w-md space-y-8 rounded-xl border border-zinc-200 bg-background-card-light p-8 shadow-lg dark:border-border-dark dark:bg-background-card-dark">
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
             VendoFlow
@@ -261,7 +261,7 @@ function LoginContent() {
         )}
 
         {savedStore && !showEmailPassword && (
-          <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-background/50">
+          <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-background-card-dark/50">
             <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
               Staff — enter your 6-digit PIN
             </p>
@@ -382,8 +382,8 @@ function LoginContent() {
 
 function LoginFallback() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 dark:bg-background">
-      <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-background p-8 shadow-lg dark:border-zinc-800 dark:bg-background">
+    <div className="flex min-h-screen items-center justify-center bg-background-light px-4 dark:bg-background-dark">
+      <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-background-card-light p-8 shadow-lg dark:border-border-dark dark:bg-background-card-dark">
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
             VendoFlow

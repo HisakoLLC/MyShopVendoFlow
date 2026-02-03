@@ -19,38 +19,92 @@ const config = {
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        /* VendoFlow design system */
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#6b0005",
+          hover: "#4d0003",
+          active: "#3a0002",
+          disabled: "rgba(107, 0, 5, 0.4)",
         },
+        background: {
+          DEFAULT: "#e6e1de",
+          light: "#e6e1de",
+          dark: "#25291c",
+          card: {
+            light: "#FFFFFF",
+            dark: "#2f3326",
+          },
+          hover: {
+            light: "#f5f5f5",
+            dark: "#3a3f2e",
+          },
+        },
+        "text-primary": {
+          light: "#25291c",
+          dark: "#e6e1de",
+        },
+        "text-secondary": {
+          light: "#6b6b6b",
+          dark: "#a8a8a8",
+        },
+        "text-tertiary": {
+          light: "#9ca3af",
+          dark: "#6b7280",
+        },
+        border: {
+          DEFAULT: "#d4d4d4",
+          light: "#d4d4d4",
+          dark: "#404040",
+          divider: {
+            light: "#e5e5e5",
+            dark: "#333333",
+          },
+        },
+        semantic: {
+          success: {
+            DEFAULT: "#2d5016",
+            light: "#dcfce7",
+          },
+          warning: {
+            DEFAULT: "#d97706",
+            light: "#fef3c7",
+          },
+          error: {
+            DEFAULT: "#dc2626",
+            light: "#fee2e2",
+          },
+          info: {
+            DEFAULT: "#1e3a8a",
+            light: "#dbeafe",
+          },
+        },
+        /* Legacy/shadcn compatibility */
+        input: "#d4d4d4",
+        ring: "#6b0005",
+        foreground: "#25291c",
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "#6b6b6b",
+          foreground: "#e6e1de",
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "#dc2626",
+          foreground: "#ffffff",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "#f5f5f5",
+          foreground: "#6b6b6b",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "#f5f5f5",
+          foreground: "#25291c",
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: "#FFFFFF",
+          foreground: "#25291c",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "#FFFFFF",
+          foreground: "#25291c",
         },
       },
       borderRadius: {

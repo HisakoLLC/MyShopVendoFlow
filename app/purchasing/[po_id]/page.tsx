@@ -176,7 +176,7 @@ export default async function PODetailPage({
         </div>
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-background p-6 dark:border-zinc-800 dark:bg-background">
+      <div className="rounded-xl border border-zinc-200 bg-background-card-light p-6 dark:border-border-dark dark:bg-background-card-dark">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
@@ -215,7 +215,7 @@ export default async function PODetailPage({
         </div>
       </div>
 
-      <div className="mt-6 rounded-xl border border-zinc-200 bg-background dark:border-zinc-800 dark:bg-background">
+      <div className="mt-6 rounded-xl border border-zinc-200 bg-background-card-light dark:border-border-dark dark:bg-background-card-dark">
         <div className="border-b border-zinc-200 px-6 py-4 dark:border-zinc-800">
           <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Line items</h2>
         </div>

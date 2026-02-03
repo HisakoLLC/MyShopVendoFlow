@@ -300,7 +300,7 @@ export function SalesReportClient({
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 dark:bg-background md:p-8">
+    <div className="min-h-screen bg-background-light p-4 dark:bg-background-dark md:p-8">
       <div className="mx-auto max-w-7xl space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">

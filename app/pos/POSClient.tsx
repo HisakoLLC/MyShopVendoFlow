@@ -75,10 +75,10 @@ export function POSClient({ defaultStoreId, storeName }: POSClientProps) {
   return (
     <CartProvider taxInclusive={taxInclusive} taxRatePercent={taxRatePercent}>
       {/* Desktop/Tablet Landscape: Split screen (60/40) */}
-      <div className="hidden h-screen overflow-hidden bg-background dark:bg-background lg:flex">
+      <div className="hidden h-screen overflow-hidden bg-background-light dark:bg-background-dark lg:flex">
         <div className="flex w-[60%] flex-col border-r border-zinc-200 dark:border-zinc-800">
           <div className="flex h-full flex-col">
-            <div className="border-b border-zinc-200 bg-background p-4 dark:border-zinc-800 dark:bg-background">
+            <div className="border-b border-zinc-200 bg-background-card-light p-4 dark:border-border-dark dark:bg-background-card-dark">
               <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Point of Sale</h1>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">Store: {storeName}</p>
             </div>
@@ -87,7 +87,7 @@ export function POSClient({ defaultStoreId, storeName }: POSClientProps) {
             </div>
           </div>
         </div>
-        <div className="flex w-[40%] flex-col border-l border-zinc-200 bg-background dark:border-zinc-800 dark:bg-background">
+        <div className="flex w-[40%] flex-col border-l border-zinc-200 bg-background-card-light dark:border-border-dark dark:bg-background-card-dark">
           <Cart defaultStoreId={defaultStoreId} />
         </div>
       </div>

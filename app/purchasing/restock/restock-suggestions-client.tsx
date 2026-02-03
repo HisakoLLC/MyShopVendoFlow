@@ -138,7 +138,7 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
   return (
     <div className="space-y-4">
       {/* Actions Bar */}
-      <div className="flex items-center justify-between rounded-lg border border-zinc-200 bg-background p-4 dark:border-zinc-800 dark:bg-background">
+      <div className="flex items-center justify-between rounded-lg border border-zinc-200 bg-background-card-light p-4 dark:border-border-dark dark:bg-background-card-dark">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <Checkbox

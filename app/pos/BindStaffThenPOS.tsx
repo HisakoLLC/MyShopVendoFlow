@@ -58,8 +58,8 @@ export function BindStaffThenPOS({
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center bg-background px-4 dark:bg-background">
-        <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-background p-8 shadow-lg dark:border-zinc-800 dark:bg-background">
+      <div className="flex h-screen items-center justify-center bg-background-light px-4 dark:bg-background-dark">
+        <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-background-card-light p-8 shadow-lg dark:border-border-dark dark:bg-background-card-dark">
           <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Session error</h2>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{error}</p>
           <button

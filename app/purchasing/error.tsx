@@ -32,7 +32,7 @@ export default function PurchasingError({ error, reset }: PurchasingErrorProps) 
                 {error.message}
               </p>
             )}
-            <div className="mt-4 rounded-lg border border-red-200 bg-background p-4 text-sm text-zinc-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-zinc-300">
+            <div className="mt-4 rounded-lg border border-red-200 bg-background-card-light p-4 text-sm dark:bg-background-card-dark text-text-primary-light dark:border-red-900/40 dark:bg-red-950/20 dark:text-text-primary-dark">
               <p className="font-medium text-zinc-900 dark:text-zinc-100">
                 Run these in Supabase SQL Editor (in order):
               </p>

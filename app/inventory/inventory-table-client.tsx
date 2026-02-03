@@ -213,7 +213,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
     <>
       <div className="space-y-4">
         {/* Filters */}
-        <div className="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-background p-4 dark:border-zinc-800 dark:bg-background sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-background-card-light p-4 dark:border-border-dark dark:bg-background-card-dark sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
             <Input
@@ -472,7 +472,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
       >
         <AlertDialog.Portal>
           <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
-          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-background p-5 shadow-lg outline-none dark:border-zinc-800 dark:bg-background">
+          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-background-card-light p-5 shadow-lg outline-none dark:border-border-dark dark:bg-background-card-dark">
             <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
               Delete this variant?
             </AlertDialog.Title>

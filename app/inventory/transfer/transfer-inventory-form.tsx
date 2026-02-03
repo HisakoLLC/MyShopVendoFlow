@@ -356,7 +356,7 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
                       />
                     </div>
                     {productResults.length > 0 && (
-                      <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-zinc-200 bg-background shadow-lg dark:border-zinc-800 dark:bg-background">
+                      <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-zinc-200 bg-background-card-light shadow-lg dark:border-border-dark dark:bg-background-card-dark">
                         {productResults.map((style) => (
                           <button
                             key={style.style_id}
@@ -501,7 +501,7 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
                         <div className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
                           After Transfer:
                         </div>
-                        <div className="space-y-3 rounded-lg border border-zinc-200 bg-background p-3 dark:border-zinc-800 dark:bg-background">
+                        <div className="space-y-3 rounded-lg border border-zinc-200 bg-background-card-light p-3 dark:border-border-dark dark:bg-background-card-dark">
                           <div>
                             <div className="text-xs text-zinc-600 dark:text-zinc-400">From Store</div>
                             <div className="text-base font-semibold text-zinc-900 dark:text-zinc-100">

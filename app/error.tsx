@@ -27,7 +27,7 @@ export default function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
   }, [error])
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 dark:bg-background">
+    <div className="flex min-h-screen items-center justify-center bg-background-light px-4 py-12 dark:bg-background-dark">
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex items-center gap-3">

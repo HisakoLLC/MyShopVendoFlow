@@ -46,7 +46,7 @@ export function EmptyState({
   )
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-background dark:border-zinc-800 dark:bg-background">
+    <div className="rounded-xl border border-zinc-200 bg-background-card-light dark:border-border-dark dark:bg-background-card-dark">
       {content}
     </div>
   )

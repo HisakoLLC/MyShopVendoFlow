@@ -272,7 +272,7 @@ function OnboardingContent() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 dark:bg-background">
+    <div className="flex min-h-screen items-center justify-center bg-background-light px-4 py-12 dark:bg-background-dark">
       <Toaster richColors position="top-right" />
       <div className="w-full max-w-2xl space-y-8">
         {/* Progress Indicator */}
@@ -547,7 +547,7 @@ function OnboardingContent() {
 export default function OnboardingPage() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 dark:bg-background">
+      <div className="flex min-h-screen items-center justify-center bg-background-light px-4 py-12 dark:bg-background-dark">
         <div className="text-center">
           <div className="text-lg font-semibold">Loading...</div>
         </div>

@@ -243,7 +243,7 @@ function Sidebar({
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-zinc-200 bg-background transition-[width] dark:border-zinc-800 dark:bg-background",
+        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-zinc-200 bg-background-card-light transition-[width] dark:border-border-dark dark:bg-background-card-dark",
         collapsed ? "w-[4rem]" : "w-56"
       )}
     >
@@ -356,7 +356,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const role = getRoleFromUser(user)
 
   return (
-    <div className="min-h-screen bg-background dark:bg-background">
+    <div className="min-h-screen bg-background-light dark:bg-background-dark">
       <Sidebar
         collapsed={collapsed}
         onToggle={() => setCollapsed((c) => !c)}

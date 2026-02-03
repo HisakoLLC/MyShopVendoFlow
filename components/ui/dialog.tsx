@@ -36,9 +36,9 @@ const DialogContent = React.forwardRef<
       ref={ref}
       className={cn(
         // Mobile: Full screen
-        "fixed left-0 top-0 z-50 grid w-screen h-screen max-w-none translate-x-0 translate-y-0 gap-4 border-0 bg-background p-4 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 dark:bg-background",
+        "fixed left-0 top-0 z-50 grid w-screen h-screen max-w-none translate-x-0 translate-y-0 gap-4 border-0 bg-background-card-light p-4 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 dark:bg-background-card-dark",
         // Desktop: Centered modal
-        "md:left-[50%] md:top-[50%] md:w-full md:h-auto md:max-w-lg md:translate-x-[-50%] md:translate-y-[-50%] md:rounded-lg md:border md:border-zinc-200 md:dark:border-zinc-800",
+        "md:left-[50%] md:top-[50%] md:w-full md:h-auto md:max-w-lg md:translate-x-[-50%] md:translate-y-[-50%] md:rounded-lg md:border md:border-border-light md:dark:border-border-dark",
         "max-h-[90vh] overflow-y-auto",
         "sm:p-6",
         className
@@ -46,7 +46,7 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-2 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 disabled:pointer-events-none data-[state=open]:bg-zinc-100 data-[state=open]:text-zinc-500 dark:focus:ring-zinc-100/10 dark:data-[state=open]:bg-zinc-800 dark:data-[state=open]:text-zinc-400">
+      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-2 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary disabled:pointer-events-none data-[state=open]:bg-background-hover-light data-[state=open]:text-text-secondary-light dark:focus:ring-primary dark:data-[state=open]:bg-background-hover-dark dark:data-[state=open]:text-text-secondary-dark">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
@@ -86,7 +86,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-zinc-500 dark:text-zinc-400", className)}
+    className={cn("text-sm text-text-secondary-light dark:text-text-secondary-dark", className)}
     {...props}
   />
 ))
