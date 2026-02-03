@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next"
+import type { Metadata } from "next"
 import "./globals.css"
 import { Toaster } from "sonner"
 import { OfflineBanner } from "@/components/OfflineBanner"
@@ -8,12 +8,6 @@ import { ThemeProvider } from "@/components/ThemeProvider"
 export const metadata: Metadata = {
   title: "VendoFlow - Fashion Boutique POS",
   description: "Manage your fashion boutique inventory, sales, and products",
-}
-
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 5,
 }
 
 export default function RootLayout({

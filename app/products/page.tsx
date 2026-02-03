@@ -158,10 +158,10 @@ async function ProductsPageContent() {
   // Show empty state if no products
   if (data.styles.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-6xl px-4 py-4 sm:py-6">
-        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0">
-            <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-2xl">
+      <div className="mx-auto w-full max-w-6xl px-4 py-6">
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
               Products
             </h1>
             <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
@@ -170,7 +170,7 @@ async function ProductsPageContent() {
           </div>
           <Link
             href="/products/new"
-            className="inline-flex h-11 min-h-[44px] w-full items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-white shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-white dark:hover:opacity-90 sm:w-auto"
+            className="hidden h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-primary-foreground dark:hover:opacity-90 md:inline-flex"
           >
             Add New Style
           </Link>
@@ -190,10 +190,10 @@ async function ProductsPageContent() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-4 sm:py-6">
-      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-2xl">
+    <div className="mx-auto w-full max-w-6xl px-4 py-6">
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
             Products
           </h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
@@ -202,7 +202,7 @@ async function ProductsPageContent() {
         </div>
         <Link
           href="/products/new"
-          className="inline-flex h-11 min-h-[44px] w-full items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-white shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-white dark:hover:opacity-90 sm:w-auto"
+          className="hidden h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-primary-foreground dark:hover:opacity-90 md:inline-flex"
         >
           Add New Style
         </Link>

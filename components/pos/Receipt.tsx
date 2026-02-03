@@ -214,6 +214,11 @@ export function Receipt({
         )}
       </div>
 
+      {/* Powered by */}
+      <p className="mt-4 text-center text-[10px] text-zinc-500">
+        Powered by <span style={{ color: "#6b0005" }}>VendoFlow</span>
+      </p>
+
       {/* Print Styles */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
