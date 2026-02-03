@@ -566,6 +566,12 @@ export function InventoryIntelligenceClient({
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {productStyles.length === 0 ? (
+                  <div className="py-12 text-center text-zinc-500 dark:text-zinc-400">
+                    No product styles yet. Add products to see the size/color heatmap.
+                  </div>
+                ) : (
+                <div>
                 <div className="mb-4">
                   <Select value={selectedStyleId} onValueChange={setSelectedStyleId}>
                     <SelectTrigger className="w-full md:w-[300px]">
@@ -657,7 +663,7 @@ export function InventoryIntelligenceClient({
                     </div>
                   </div>
                 )}
-                  </>
+                </div>
                 )}
               </CardContent>
             </Card>
