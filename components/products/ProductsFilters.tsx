@@ -93,12 +93,12 @@ export function ProductsFilters({ categories, seasons, onFilterChange }: Product
     <div className="flex flex-col gap-3 md:flex-row md:items-center">
       <div className="w-full md:basis-3/5">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary-light dark:text-text-secondary-dark" />
           <input
             value={search ?? ""}
             onChange={(e) => form.setValue("search", e.target.value, { shouldValidate: true })}
             placeholder="Search styles..."
-            className="h-11 w-full rounded-lg border border-zinc-200 bg-background pl-10 pr-3 text-sm outline-none ring-offset-2 transition focus:border-zinc-300 focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-800 dark:bg-background dark:text-zinc-50 dark:focus:ring-zinc-100/10"
+            className="h-11 w-full rounded-lg border border-border-light bg-background-card-light pl-10 pr-3 text-sm text-text-primary-light outline-none ring-offset-2 transition placeholder:text-text-secondary-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary dark:border-border-dark dark:bg-background-card-dark dark:text-white dark:placeholder:text-text-secondary-dark dark:focus:ring-primary"
           />
         </div>
       </div>
