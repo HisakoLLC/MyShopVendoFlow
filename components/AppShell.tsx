@@ -14,6 +14,7 @@ import {
   Settings,
   PanelLeftClose,
   PanelLeft,
+  Menu,
   Moon,
   Sun,
   Monitor,
@@ -35,6 +36,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { createClient } from "@/lib/supabase/client"
 import type { AuthChangeEvent, Session, User } from "@supabase/supabase-js"
 import { getRoleFromUser, canShowNavItem, getRoleLabel, type StaffRole } from "@/lib/auth/roles"
@@ -243,7 +245,7 @@ function Sidebar({
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-zinc-200 bg-background-card-light transition-[width] dark:border-border-dark dark:bg-background-card-dark",
+        "fixed left-0 top-0 z-40 hidden h-screen flex-col border-r border-zinc-200 bg-background-card-light transition-[width] dark:border-border-dark dark:bg-background-card-dark lg:flex",
         collapsed ? "w-[4rem]" : "w-56"
       )}
     >
@@ -354,6 +356,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   const role = getRoleFromUser(user)
+  const visibleNavItems = navItems.filter((item) => canShowNavItem(item.href, role))
+  const [mobileNavOpen, setMobileNavOpen] = React.useState(false)
+  React.useEffect(() => setMobileNavOpen(false), [pathname])
 
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark">
@@ -363,10 +368,60 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         user={user}
         role={role}
       />
+
+      {/* Mobile: Hamburger + slide-in nav */}
+      <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-zinc-200 bg-background-card-light px-4 dark:border-border-dark dark:bg-background-card-dark lg:hidden">
+        <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-11 min-h-[44px] w-11 min-w-[44px] shrink-0"
+              aria-label="Open menu"
+            >
+              <Menu className="h-6 w-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-64 border-r p-0 sm:max-w-[16rem]">
+            <div className="flex h-14 items-center border-b border-zinc-200 px-4 font-semibold text-zinc-900 dark:border-border-dark dark:text-zinc-100">
+              VendoFlow
+            </div>
+            <nav className="flex-1 space-y-0.5 overflow-y-auto p-2">
+              {visibleNavItems.map(({ href, label, icon: Icon }) => {
+                const isActive =
+                  pathname === href ||
+                  (href !== "/dashboard" && pathname.startsWith(href)) ||
+                  (href === "/purchasing" && pathname.startsWith("/purchasing")) ||
+                  (href === "/staff" && pathname.startsWith("/settings/staff"))
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={cn(
+                      "flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                      isActive
+                        ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
+                        : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                    )}
+                  >
+                    <Icon className="h-5 w-5 shrink-0" />
+                    <span>{label}</span>
+                  </Link>
+                )
+              })}
+            </nav>
+            <SidebarUser user={user} collapsed={false} />
+          </SheetContent>
+        </Sheet>
+        <Link href="/dashboard" className="font-semibold text-zinc-900 dark:text-zinc-100">
+          VendoFlow
+        </Link>
+      </div>
+
       <main
         className={cn(
-          "min-h-screen transition-[margin]",
-          collapsed ? "ml-16" : "ml-56"
+          "min-h-screen p-4 transition-[margin] md:p-6",
+          collapsed ? "lg:ml-16" : "lg:ml-56"
         )}
       >
         {children}

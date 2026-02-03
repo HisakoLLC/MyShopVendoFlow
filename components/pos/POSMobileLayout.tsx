@@ -27,86 +27,77 @@ export function POSMobileLayout({ defaultStoreId, storeName }: POSMobileLayoutPr
   const [activeTab, setActiveTab] = React.useState<"products" | "cart">("products")
   const [showCartSheet, setShowCartSheet] = React.useState(false)
 
-  // On tablet (md), use tabs. On mobile (< md), use bottom sheet for cart
-  const [isTablet, setIsTablet] = React.useState(false)
-
-  React.useEffect(() => {
-    const checkSize = () => {
-      setIsTablet(window.innerWidth >= 768)
-    }
-    checkSize()
-    window.addEventListener("resize", checkSize)
-    return () => window.removeEventListener("resize", checkSize)
-  }, [])
-
   return (
-    <div className="flex h-screen flex-col bg-background dark:bg-background">
+    <div className="flex h-screen flex-col bg-background-light dark:bg-background-dark">
       {/* Header */}
-      <div className="border-b border-zinc-200 bg-background p-4 dark:border-zinc-800 dark:bg-background">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 sm:text-2xl">
-              Point of Sale
-            </h1>
-            <p className="text-xs text-zinc-600 dark:text-zinc-400 sm:text-sm">{storeName}</p>
-          </div>
-          {/* Mobile: Cart button with badge */}
-          {!isTablet && (
-            <Sheet open={showCartSheet} onOpenChange={setShowCartSheet}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="relative">
-                  <ShoppingCart className="h-5 w-5" />
-                  {cart.length > 0 && (
-                    <Badge className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 text-xs">
-                      {cart.length}
-                    </Badge>
-                  )}
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="h-[85vh]">
-                <SheetHeader>
-                  <SheetTitle>Cart</SheetTitle>
-                  <SheetDescription>Review and checkout your items</SheetDescription>
-                </SheetHeader>
-                <div className="mt-4 h-full overflow-y-auto">
-                  <Cart defaultStoreId={defaultStoreId} />
-                </div>
-              </SheetContent>
-            </Sheet>
-          )}
+      <div className="flex shrink-0 items-center justify-between border-b border-zinc-200 bg-background-card-light px-4 py-3 dark:border-border-dark dark:bg-background-card-dark">
+        <div className="min-w-0">
+          <h1 className="truncate text-xl font-bold text-zinc-900 dark:text-zinc-100 sm:text-2xl">
+            Point of Sale
+          </h1>
+          <p className="truncate text-xs text-zinc-600 dark:text-zinc-400 sm:text-sm">{storeName}</p>
+        </div>
+        {/* Mobile (< md): Cart as bottom sheet trigger — min 44px touch target */}
+        <div className="md:hidden">
+          <Sheet open={showCartSheet} onOpenChange={setShowCartSheet}>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="relative h-11 min-h-[44px] w-11 min-w-[44px]"
+                aria-label="Open cart"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {cart.length > 0 && (
+                  <Badge className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 text-xs">
+                    {cart.length}
+                  </Badge>
+                )}
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[85vh] rounded-t-xl">
+              <SheetHeader>
+                <SheetTitle>Cart</SheetTitle>
+                <SheetDescription>Review and checkout your items</SheetDescription>
+              </SheetHeader>
+              <div className="mt-4 h-[calc(85vh-8rem)] overflow-y-auto">
+                <Cart defaultStoreId={defaultStoreId} />
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
 
-      {/* Tablet: Tabs */}
-      {isTablet ? (
+      {/* Tablet (md+): Tabs — Products | Cart */}
+      <div className="hidden flex-1 flex-col overflow-hidden md:flex">
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "products" | "cart")} className="flex flex-1 flex-col overflow-hidden">
-          <TabsList className="mx-4 mt-4 grid w-auto grid-cols-2">
-            <TabsTrigger value="products" className="gap-2">
+          <TabsList className="mx-4 mt-4 grid w-auto max-w-md grid-cols-2">
+            <TabsTrigger value="products" className="min-h-[44px] gap-2">
               <Package className="h-4 w-4" />
               Products
             </TabsTrigger>
-            <TabsTrigger value="cart" className="gap-2">
+            <TabsTrigger value="cart" className="min-h-[44px] gap-2">
               <ShoppingCart className="h-4 w-4" />
               Cart {cart.length > 0 && `(${cart.length})`}
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="products" className="flex-1 overflow-hidden">
+          <TabsContent value="products" className="flex-1 overflow-hidden data-[state=inactive]:hidden">
             <div className="h-full">
               <ProductSearch defaultStoreId={defaultStoreId} />
             </div>
           </TabsContent>
-          <TabsContent value="cart" className="flex-1 overflow-hidden">
+          <TabsContent value="cart" className="flex-1 overflow-hidden data-[state=inactive]:hidden">
             <div className="h-full overflow-y-auto">
               <Cart defaultStoreId={defaultStoreId} />
             </div>
           </TabsContent>
         </Tabs>
-      ) : (
-        // Mobile: Products only (cart in bottom sheet)
-        <div className="flex-1 overflow-hidden">
-          <ProductSearch defaultStoreId={defaultStoreId} />
-        </div>
-      )}
+      </div>
+
+      {/* Mobile (< md): Products only; cart in bottom sheet */}
+      <div className="flex-1 overflow-hidden md:hidden">
+        <ProductSearch defaultStoreId={defaultStoreId} />
+      </div>
     </div>
   )
 }
