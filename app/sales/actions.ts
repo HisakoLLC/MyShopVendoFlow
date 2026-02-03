@@ -33,9 +33,17 @@ export async function processRefund(
 
   const { sale_id, refund_method } = parsed.data
 
+  // Resolve account: staff (PIN login) use user_metadata.account_id; owner use get_account_id
+  const accountIdFromMeta = user.user_metadata?.account_id as string | undefined
   const accountIdRaw = await supabase.rpc("get_account_id")
-  const accountId = Array.isArray(accountIdRaw) ? accountIdRaw[0] : accountIdRaw
-  if (!accountId) {
+  const accountIdFromRpc = Array.isArray(accountIdRaw)
+    ? accountIdRaw[0]
+    : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
+      ? (accountIdRaw as { account_id: string }).account_id
+      : accountIdRaw
+  const accountId = accountIdFromMeta ?? accountIdFromRpc ?? null
+  const accountIdStr = accountId != null ? String(accountId) : null
+  if (!accountIdStr) {
     return { success: false, error: "Unable to resolve account." }
   }
 
@@ -45,7 +53,7 @@ export async function processRefund(
     const { data: staffRow } = await supabase
       .from("staff")
       .select("staff_id")
-      .eq("account_id", accountId)
+      .eq("account_id", accountIdStr)
       .ilike("email", user.email.trim())
       .eq("active", true)
       .limit(1)
@@ -68,7 +76,7 @@ export async function processRefund(
     .from("stores")
     .select("store_id")
     .eq("store_id", sale.store_id)
-    .eq("account_id", accountId)
+    .eq("account_id", accountIdStr)
     .single()
 
   if (!store) {
