@@ -109,18 +109,18 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
       toast.success(`Staff created. ${result.pin ? "Share the PIN with them." : ""}`)
       setIsSubmitting(false)
       form.reset()
-      const storeName = stores.length > 0 ? stores[0].name : null
+      const store = stores[0] ?? null
       const newStaff: NewStaffForList = {
         staff_id: result.staff_id,
         email: result.email,
         first_name: values.first_name.trim() || null,
         last_name: values.last_name.trim() || null,
         role: values.role,
-        assigned_store_id: values.assigned_store_id || null,
+        assigned_store_id: store?.store_id ?? null,
         active: true,
         has_pin: !!result.pin,
         last_login_at: null,
-        stores: storeName ? { name: storeName } : null,
+        stores: store ? { name: store.name } : null,
       }
       // Defer so any post–server-action behavior runs first and we avoid Server Components render error
       queueMicrotask(() => onSuccess(newStaff))
