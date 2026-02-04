@@ -100,6 +100,17 @@ WHERE pin_hash IS NOT NULL AND active = true;
 -- See: sql/MIGRATE_STAFF_AUTH_USER_ID.sql
 ```
 
+### Step 1b: Fix staff access to stores (POS / dashboard)
+
+So staff can see the store and use POS after PIN login, run:
+
+```sql
+-- Run in Supabase SQL Editor
+-- See: sql/FIX_GET_USER_ACCOUNT_IDS_FOR_STAFF_AUTH.sql
+```
+
+This updates `get_user_account_ids()` so staff (with `auth_user_id` in `staff` table) get their account_id; existing RLS policies that use this function will then allow staff to read stores and other data.
+
 ### Step 2: Migrate Existing Staff
 
 For existing staff members, you need to:

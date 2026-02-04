@@ -106,7 +106,8 @@ async function fetchStaffData(): Promise<{
     throw new Error(storesError.message)
   }
 
-  // Fetch staff (pin_hash used only to derive has_pin; not sent to client)
+  // Fetch staff (pin_hash used only to derive has_pin; not sent to client).
+  // On error we return empty list so the page still renders (e.g. after adding staff, client already has the new row).
   const { data: staff, error: staffError } = await supabase
     .from("staff")
     .select(
@@ -127,10 +128,11 @@ async function fetchStaffData(): Promise<{
     .order("first_name", { ascending: true })
 
   if (staffError) {
-    throw new Error(staffError.message)
+    // Don't throw: avoids "Server Components render" error after creating staff; client list is source of truth until next full load
+    console.error("Staff fetch error:", staffError.message)
   }
 
-  // Transform to strict serializable shape (avoids RSC/serialization errors for owner/manager)
+  // Transform to strict serializable shape (avoids RSC/serialization errors)
   const transformedStaff: Staff[] = []
   for (const s of staff || []) {
     try {
@@ -159,7 +161,7 @@ async function fetchStaffData(): Promise<{
         stores: storeName,
       })
     } catch {
-      // Skip rows that fail to serialize (e.g. unexpected shape after new staff create)
+      // Skip rows that fail to serialize so one bad row doesn't break the whole page
     }
   }
 

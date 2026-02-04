@@ -75,13 +75,13 @@ async function POSPageContent() {
   if (!stores || stores.length === 0) {
     return (
       <div className="flex h-screen items-center justify-center bg-background-light px-4 dark:bg-background-dark">
-        <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-background-card-light p-8 shadow-lg dark:border-border-dark dark:bg-background-card-dark">
-          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Store Not Set Up</h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Complete setup in Settings to create your store, then you can use the POS.
+        <div className="w-full max-w-md rounded-xl border border-amber-200 bg-amber-50 p-8 shadow-lg dark:border-amber-900/40 dark:bg-amber-950/30">
+          <h2 className="text-xl font-semibold text-amber-900 dark:text-amber-100">Store not set up yet</h2>
+          <p className="mt-2 text-sm text-amber-800 dark:text-amber-200">
+            Your account doesn&apos;t have a store configured yet. Ask your manager or account owner to complete store setup in <strong>Settings</strong>, then you can use the POS.
           </p>
-          <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
-            Go to Settings or contact your administrator.
+          <p className="mt-4 text-xs text-amber-700 dark:text-amber-300">
+            If you&apos;re the owner, go to Settings to add your store.
           </p>
         </div>
       </div>
