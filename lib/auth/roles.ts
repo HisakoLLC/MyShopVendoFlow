@@ -13,17 +13,27 @@ const ROLE_PATHS: Record<StaffRole, string[]> = {
 }
 
 /**
- * Resolve effective role for the current user.
- * - Staff (user_metadata.staff_id): use user_metadata.role (cashier | manager | owner).
- * - Owner (account_members, no staff_id): treat as "owner" (full access).
+ * Resolve effective role for the current user (client-side helper).
+ * Note: This is a simplified check for UI purposes. Real role enforcement happens
+ * server-side in middleware which queries the database.
+ * 
+ * - Staff (user_metadata.is_staff): return "cashier" as safe default (real role from DB)
+ * - Owner (no is_staff): treat as "owner" (full access)
  */
 export function getRoleFromUser(user: { user_metadata?: Record<string, unknown> } | null): StaffRole {
   if (!user?.user_metadata) return "owner"
-  const staffId = user.user_metadata.staff_id
-  const role = user.user_metadata.role as StaffRole | undefined
-  if (staffId && role && (role === "cashier" || role === "manager" || role === "owner")) {
-    return role
+  
+  // Check if user is staff (has is_staff metadata)
+  const isStaff = user.user_metadata.is_staff === true
+  
+  if (isStaff) {
+    // Staff user: return cashier as safe default
+    // Real role is checked server-side from database
+    // This is just for client-side UI filtering
+    return "cashier"
   }
+  
+  // Not staff = account owner
   return "owner"
 }
 

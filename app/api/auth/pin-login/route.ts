@@ -3,26 +3,13 @@ import { createClient } from "@supabase/supabase-js"
 import { getSupabaseUrl } from "@/lib/supabase/env"
 import { verifyPIN } from "@/lib/auth/pin-auth"
 
-const POS_STAFF_SHARED_EMAIL = "pos-staff@vendoflow.internal"
 const LOCKOUT_ATTEMPTS = 3
 const LOCKOUT_MINUTES = 5
-
-const UUID_REGEX =
-  /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
-
-function normalizeUuid(value: string): string {
-  const s = value.trim()
-  return UUID_REGEX.test(s) ? s.toLowerCase() : s
-}
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { store_id, account_id: bodyAccountId, pin } = body as {
-      store_id?: string
-      account_id?: string
-      pin?: string
-    }
+    const { pin } = body as { pin?: string }
 
     if (!pin || typeof pin !== "string") {
       return NextResponse.json(
@@ -30,20 +17,11 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
-    // Require either store_id or account_id (single store: account_id alone is enough)
-    const hasStoreId = typeof store_id === "string" && store_id.trim() !== ""
-    const hasAccountId = typeof bodyAccountId === "string" && bodyAccountId.trim() !== ""
-    if (!hasStoreId && !hasAccountId) {
-      return NextResponse.json(
-        { error: "Store or account context is required. Open POS from a device that has already signed in, or use your manager's link." },
-        { status: 400 }
-      )
-    }
 
     const trimmedPin = pin.trim()
-    if (trimmedPin.length < 6 || !/^\d{6,}$/.test(trimmedPin)) {
+    if (trimmedPin.length !== 6 || !/^\d{6}$/.test(trimmedPin)) {
       return NextResponse.json(
-        { error: "PIN must be 6 digits" },
+        { error: "PIN must be exactly 6 digits" },
         { status: 400 }
       )
     }
@@ -62,36 +40,25 @@ export async function POST(request: Request) {
       auth: { autoRefreshToken: false, persistSession: false },
     })
 
-    let accountId: string | null = hasAccountId ? (bodyAccountId as string).trim() : null
-
-    if (!accountId && hasStoreId) {
-      const { data: store, error: storeError } = await supabaseAdmin
-        .from("stores")
-        .select("account_id")
-        .eq("store_id", (store_id as string).trim())
-        .single()
-
-      if (storeError || !store?.account_id) {
-        return NextResponse.json(
-          { error: "Store not found" },
-          { status: 404 }
-        )
-      }
-      accountId = typeof store.account_id === "string" ? store.account_id : String(store.account_id)
-    }
-
-    const accountIdNorm = normalizeUuid(accountId!)
-
-    // Fetch active staff for this account that have a PIN (single store: no filter by assigned_store_id)
-    const { data: staffRows, error: staffError } = await supabaseAdmin
+    // Fetch ALL active staff with PINs (global search)
+    const { data: staffList, error: staffError } = await supabaseAdmin
       .from("staff")
-      .select("staff_id, account_id, email, pin_hash, active, failed_attempts, locked_until")
-      .eq("account_id", accountIdNorm)
+      .select(
+        "staff_id, auth_user_id, pin_hash, account_id, role, failed_attempts, locked_until, active"
+      )
       .eq("active", true)
       .not("pin_hash", "is", null)
-      .limit(100)
+      .not("auth_user_id", "is", null)
 
-    if (staffError || !staffRows?.length) {
+    if (staffError) {
+      console.error("Failed to fetch staff:", staffError)
+      return NextResponse.json(
+        { error: "Failed to verify PIN. Please try again." },
+        { status: 500 }
+      )
+    }
+
+    if (!staffList || staffList.length === 0) {
       return NextResponse.json(
         { error: "Invalid PIN. Try again." },
         { status: 401 }
@@ -99,116 +66,134 @@ export async function POST(request: Request) {
     }
 
     const now = new Date()
-    type StaffRow = (typeof staffRows)[0] & { failed_attempts?: number | null; locked_until?: string | null }
-    const withLock = (row: StaffRow) => {
-      const lockedUntil = row.locked_until ? new Date(row.locked_until) : null
-      if (lockedUntil && lockedUntil > now) {
-        const mins = Math.ceil((lockedUntil.getTime() - now.getTime()) / 60_000)
-        return { locked: true as const, mins }
+    let matchedStaff: (typeof staffList)[0] | null = null
+
+    // Try to match PIN against all active staff
+    for (const staff of staffList) {
+      // Skip if locked
+      if (staff.locked_until) {
+        const lockedUntil = new Date(staff.locked_until)
+        if (lockedUntil > now) {
+          continue // Skip locked staff
+        }
       }
-      return { locked: false as const }
+
+      // Verify PIN against hash
+      if (!staff.pin_hash) continue
+
+      const isMatch = await verifyPIN(trimmedPin, staff.pin_hash)
+      if (isMatch) {
+        matchedStaff = staff
+        break
+      }
     }
 
-    // Single store per account: match any staff for this account
-    const list = staffRows
+    // If no match found, increment failed attempts for all staff with similar PIN patterns
+    // (This prevents brute force attacks by making it expensive to try many PINs)
+    if (!matchedStaff) {
+      // Increment failed attempts for all staff (rate limiting)
+      // In a production system, you might want more sophisticated rate limiting
+      const failedStaff = staffList.filter((s) => {
+        if (!s.locked_until) return true
+        const lockedUntil = new Date(s.locked_until)
+        return lockedUntil <= now
+      })
 
-    for (const row of list as StaffRow[]) {
-      const lock = withLock(row)
-      if (lock.locked) {
-        return NextResponse.json(
-          { error: `Too many failed attempts. Try again in ${lock.mins} minute(s).` },
-          { status: 403 }
-        )
-      }
-      const hash = row.pin_hash
-      if (!hash) continue
-      const match = await verifyPIN(trimmedPin, hash)
-      if (match) {
-        // Reset failed attempts and record last login
+      for (const staff of failedStaff) {
+        const currentAttempts = Number(staff.failed_attempts) || 0
+        const nextAttempts = currentAttempts + 1
+
+        const updates: {
+          failed_attempts: number
+          locked_until?: string
+        } = {
+          failed_attempts: nextAttempts,
+        }
+
+        if (nextAttempts >= LOCKOUT_ATTEMPTS) {
+          const lockedUntil = new Date(now.getTime() + LOCKOUT_MINUTES * 60 * 1000)
+          updates.locked_until = lockedUntil.toISOString()
+        }
+
         await supabaseAdmin
           .from("staff")
-          .update({
-            failed_attempts: 0,
-            locked_until: null,
-            last_login_at: new Date().toISOString(),
+          .update(updates)
+          .eq("staff_id", staff.staff_id)
+          .catch(() => {
+            // Ignore update errors
           })
-          .eq("staff_id", row.staff_id)
-
-        // Ensure shared POS staff user exists
-        const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 })
-        let sharedUser = existingUsers?.users?.find((u) => u.email === POS_STAFF_SHARED_EMAIL)
-        if (!sharedUser) {
-          const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
-            email: POS_STAFF_SHARED_EMAIL,
-            password: crypto.randomUUID() + crypto.randomUUID(),
-            email_confirm: true,
-          })
-          if (createErr || !created.user) {
-            return NextResponse.json(
-              { error: "Could not create sign-in session. Try again." },
-              { status: 500 }
-            )
-          }
-          sharedUser = created.user
-        }
-
-        // Redirect to /auth/callback so the client can exchange #access_token for a session
-        // before loading /pos (middleware requires session cookie on first request).
-        let origin = request.headers.get("origin") || ""
-        if (!origin) {
-          try {
-            const referer = request.headers.get("referer")
-            if (referer) origin = new URL(referer).origin
-          } catch {
-            // ignore
-          }
-        }
-        const redirectPath = `/auth/callback?staff_id=${encodeURIComponent(row.staff_id)}&account_id=${encodeURIComponent(accountIdNorm)}`
-        const redirectTo = origin ? `${origin}${redirectPath}` : redirectPath
-
-        const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-          type: "magiclink",
-          email: POS_STAFF_SHARED_EMAIL,
-          options: { redirectTo },
-        })
-
-        if (linkError || !linkData?.properties?.action_link) {
-          return NextResponse.json(
-            { error: "Could not create sign-in link. Try again." },
-            { status: 500 }
-          )
-        }
-
-        const actionLink = linkData.properties.action_link as string
-        const baseUrl = supabaseUrl.replace(/\/$/, "")
-        const signInLink = actionLink.startsWith("http") ? actionLink : `${baseUrl}/${actionLink}`
-
-        return NextResponse.json({ sign_in_link: signInLink })
       }
+
+      return NextResponse.json(
+        { error: "Invalid PIN. Try again." },
+        { status: 401 }
+      )
     }
 
-    // No match: optionally increment failed_attempts only when single staff (so we know who tried)
-    if (list.length === 1) {
-      const row = list[0] as StaffRow
-      const current = Number(row.failed_attempts) || 0
-      const nextAttempts = current + 1
-      const updates: { failed_attempts: number; locked_until?: string } = {
-        failed_attempts: nextAttempts,
-      }
-      if (nextAttempts >= LOCKOUT_ATTEMPTS) {
-        const lockedUntil = new Date(now.getTime() + LOCKOUT_MINUTES * 60 * 1000)
-        updates.locked_until = lockedUntil.toISOString()
-      }
-      await supabaseAdmin.from("staff").update(updates).eq("staff_id", row.staff_id)
+    // PIN matched! Reset failed attempts and record login
+    await supabaseAdmin
+      .from("staff")
+      .update({
+        failed_attempts: 0,
+        locked_until: null,
+        last_login_at: new Date().toISOString(),
+      })
+      .eq("staff_id", matchedStaff.staff_id)
+
+    // Get auth user for this staff
+    if (!matchedStaff.auth_user_id) {
+      return NextResponse.json(
+        { error: "Staff account not properly configured. Contact administrator." },
+        { status: 500 }
+      )
     }
 
+    const { data: authUser, error: authUserError } =
+      await supabaseAdmin.auth.admin.getUserById(matchedStaff.auth_user_id)
+
+    if (authUserError || !authUser.user) {
+      return NextResponse.json(
+        { error: "Failed to retrieve staff account. Contact administrator." },
+        { status: 500 }
+      )
+    }
+
+    // Generate magic link for sign-in
+    const origin = request.headers.get("origin") || ""
+    const redirectTo = origin
+      ? `${origin}/auth/callback`
+      : "/auth/callback"
+
+    const { data: linkData, error: linkError } =
+      await supabaseAdmin.auth.admin.generateLink({
+        type: "magiclink",
+        email: authUser.user.email!,
+        options: { redirectTo },
+      })
+
+    if (linkError || !linkData?.properties?.action_link) {
+      return NextResponse.json(
+        { error: "Failed to create sign-in session. Try again." },
+        { status: 500 }
+      )
+    }
+
+    const actionLink = linkData.properties.action_link as string
+    const baseUrl = supabaseUrl.replace(/\/$/, "")
+    const signInLink = actionLink.startsWith("http")
+      ? actionLink
+      : `${baseUrl}/${actionLink}`
+
+    return NextResponse.json({
+      sign_in_link: signInLink,
+      staff_id: matchedStaff.staff_id,
+      account_id: matchedStaff.account_id,
+      role: matchedStaff.role,
+    })
+  } catch (error) {
+    console.error("PIN login error:", error)
     return NextResponse.json(
-      { error: "Invalid PIN. Try again." },
-      { status: 401 }
-    )
-  } catch {
-    return NextResponse.json(
-      { error: "Something went wrong" },
+      { error: "Something went wrong. Please try again." },
       { status: 500 }
     )
   }

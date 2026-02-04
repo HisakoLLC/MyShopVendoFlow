@@ -2,8 +2,11 @@
 
 import { revalidatePath } from "next/cache"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { createClient } from "@supabase/supabase-js"
+import { getSupabaseUrl } from "@/lib/supabase/env"
 import { z } from "zod"
-import { hashPIN as hashPINBcrypt } from "@/lib/auth/pin-auth"
+import { hashPIN as hashPINBcrypt, generateUniquePIN } from "@/lib/auth/pin-auth"
+import { v4 as uuidv4 } from "uuid"
 
 const staffSchema = z.object({
   first_name: z.string().min(1, "First name is required.").max(100, "First name is too long."),
@@ -22,21 +25,36 @@ export type UpdateStaffData = Omit<z.infer<typeof staffSchema>, "email" | "gener
 }
 
 /**
- * Generate a 6-digit PIN with an easy-to-remember pattern (same digits at start or end).
- * Examples: 33xxxx, 11xxxx, 00xxxx, xxxx00, xxxx11, xxxx33.
+ * Helper function to check if current user is owner.
+ * Checks both account_members.role and staff table (for staff users).
  */
-function generatePIN(): string {
-  const fourRandom = Math.floor(1000 + Math.random() * 9000).toString()
-  const patterns: Array<() => string> = [
-    () => "33" + fourRandom,
-    () => "11" + fourRandom,
-    () => "00" + fourRandom,
-    () => fourRandom + "00",
-    () => fourRandom + "11",
-    () => fourRandom + "33",
-  ]
-  const pick = patterns[Math.floor(Math.random() * patterns.length)]
-  return pick()
+async function isCurrentUserOwner(
+  supabase: ReturnType<typeof createServerSupabaseClient>,
+  accountId: string,
+  userId: string
+): Promise<boolean> {
+  // Check account_members first (for account owners)
+  const { data: member } = await supabase
+    .from("account_members")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("account_id", accountId)
+    .maybeSingle()
+
+  if (member?.role === "owner") {
+    return true
+  }
+
+  // Check staff table (for staff users)
+  const { data: staff } = await supabase
+    .from("staff")
+    .select("role")
+    .eq("auth_user_id", userId)
+    .eq("account_id", accountId)
+    .eq("active", true)
+    .maybeSingle()
+
+  return staff?.role === "owner"
 }
 
 function normalizeAssignedStoreId(v: string | undefined): string | null {
@@ -82,16 +100,9 @@ export async function createStaff(data: CreateStaffData) {
     throw new Error("Account not found. Please complete setup first.")
   }
 
-  // Verify current user is owner (account_members or staff with role owner)
-  const isStaffOwner = user.email === "pos-staff@vendoflow.internal" && user.user_metadata?.role === "owner"
-  const { data: currentMember, error: memberError } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("user_id", user.id)
-    .eq("account_id", accountId)
-    .maybeSingle()
-  const isAccountOwner = !memberError && currentMember?.role === "owner"
-  if (!isStaffOwner && !isAccountOwner) {
+  // Verify current user is owner
+  const isOwner = await isCurrentUserOwner(supabase, accountId, user.id)
+  if (!isOwner) {
     throw new Error("Only owners can manage staff.")
   }
 
@@ -161,18 +172,49 @@ export async function createStaff(data: CreateStaffData) {
     throw new Error("Staff member with this email already exists.")
   }
 
-  // Generate PIN if requested (bcrypt hash; staff sign in via PIN only, no separate auth user)
-  let pinHash: string | null = null
-  let generatedPIN: string | null = null
-  if (data.generate_pin) {
-    generatedPIN = generatePIN()
-    pinHash = await hashPINBcrypt(generatedPIN)
+  // Generate unique PIN (required for staff)
+  if (!data.generate_pin) {
+    throw new Error("PIN generation is required for staff members.")
   }
 
-  // Create staff record only (no auth.users or account_members for staff; they use shared PIN login)
+  const generatedPIN = await generateUniquePIN()
+  const pinHash = await hashPINBcrypt(generatedPIN)
+
+  // Generate unique staff email (internal-only, never shown to users)
+  const staffId = uuidv4()
+  const staffEmail = `staff-${staffId.replace(/-/g, "")}@vendoflow.internal`
+
+  // Create Supabase auth user with PIN as password
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
+  const supabaseUrl = getSupabaseUrl()
+  if (!serviceRoleKey || !supabaseUrl) {
+    throw new Error("Server configuration error: Missing Supabase service role key")
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false },
+  })
+
+  const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    email: staffEmail,
+    password: generatedPIN, // 6-digit PIN as password
+    email_confirm: true, // Skip email verification
+    user_metadata: {
+      is_staff: true,
+      staff_id: staffId, // For quick lookups
+    },
+  })
+
+  if (authError || !authUser.user) {
+    throw new Error(`Failed to create auth user: ${authError?.message ?? "Unknown error"}`)
+  }
+
+  // Create staff record with auth_user_id
   const { data: staff, error: staffError } = await supabase
     .from("staff")
     .insert({
+      staff_id: staffId,
+      auth_user_id: authUser.user.id,
       account_id: accountId,
       email: data.email.trim(),
       first_name: data.first_name.trim(),
@@ -186,7 +228,27 @@ export async function createStaff(data: CreateStaffData) {
     .single()
 
   if (staffError) {
+    // Cleanup: delete auth user if staff creation fails
+    await supabaseAdmin.auth.admin.deleteUser(authUser.user.id).catch(() => {
+      // Ignore cleanup errors
+    })
     throw new Error(`Failed to create staff record: ${staffError.message}`)
+  }
+
+  // Create account_members record linking staff to account
+  const memberId = uuidv4()
+  const { error: memberError } = await supabase.from("account_members").insert({
+    member_id: memberId,
+    account_id: accountId,
+    user_id: authUser.user.id,
+    role: data.role, // Same role as staff.role
+  })
+
+  if (memberError) {
+    // Cleanup: delete staff and auth user if account_members creation fails
+    await supabase.from("staff").delete().eq("staff_id", staffId).catch(() => {})
+    await supabaseAdmin.auth.admin.deleteUser(authUser.user.id).catch(() => {})
+    throw new Error(`Failed to link staff to account: ${memberError.message}`)
   }
 
   return {
@@ -215,16 +277,9 @@ export async function updateStaff(data: UpdateStaffData) {
     throw new Error("Account not found. Please complete setup first.")
   }
 
-  // Verify current user is owner (account_members or staff with role owner)
-  const isStaffOwner = user.email === "pos-staff@vendoflow.internal" && user.user_metadata?.role === "owner"
-  const { data: currentMember, error: memberError } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("user_id", user.id)
-    .eq("account_id", accountId)
-    .maybeSingle()
-  const isAccountOwner = !memberError && currentMember?.role === "owner"
-  if (!isStaffOwner && !isAccountOwner) {
+  // Verify current user is owner
+  const isOwner = await isCurrentUserOwner(supabase, accountId, user.id)
+  if (!isOwner) {
     throw new Error("Only owners can manage staff.")
   }
 
@@ -289,16 +344,9 @@ export async function deactivateStaff(staffId: string) {
     throw new Error("Account not found. Please complete setup first.")
   }
 
-  // Verify current user is owner (account_members or staff with role owner)
-  const isStaffOwner = user.email === "pos-staff@vendoflow.internal" && user.user_metadata?.role === "owner"
-  const { data: currentMember, error: memberError } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("user_id", user.id)
-    .eq("account_id", accountId)
-    .maybeSingle()
-  const isAccountOwner = !memberError && currentMember?.role === "owner"
-  if (!isStaffOwner && !isAccountOwner) {
+  // Verify current user is owner
+  const isOwner = await isCurrentUserOwner(supabase, accountId, user.id)
+  if (!isOwner) {
     throw new Error("Only owners can manage staff.")
   }
 
@@ -364,15 +412,9 @@ export async function reactivateStaff(staffId: string) {
     throw new Error("Account not found. Please complete setup first.")
   }
 
-  const isStaffOwner = user.email === "pos-staff@vendoflow.internal" && user.user_metadata?.role === "owner"
-  const { data: currentMember, error: memberError } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("user_id", user.id)
-    .eq("account_id", accountId)
-    .maybeSingle()
-  const isAccountOwner = !memberError && currentMember?.role === "owner"
-  if (!isStaffOwner && !isAccountOwner) {
+  // Verify current user is owner
+  const isOwner = await isCurrentUserOwner(supabase, accountId, user.id)
+  if (!isOwner) {
     throw new Error("Only owners can manage staff.")
   }
 
@@ -418,15 +460,9 @@ export async function deleteStaff(staffId: string) {
     throw new Error("Account not found. Please complete setup first.")
   }
 
-  const isStaffOwner = user.email === "pos-staff@vendoflow.internal" && user.user_metadata?.role === "owner"
-  const { data: currentMember, error: memberError } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("user_id", user.id)
-    .eq("account_id", accountId)
-    .maybeSingle()
-  const isAccountOwner = !memberError && currentMember?.role === "owner"
-  if (!isStaffOwner && !isAccountOwner) {
+  // Verify current user is owner
+  const isOwner = await isCurrentUserOwner(supabase, accountId, user.id)
+  if (!isOwner) {
     throw new Error("Only owners can manage staff.")
   }
 
@@ -491,22 +527,15 @@ export async function resetStaffPIN(staffId: string) {
   }
 
   // Verify current user is owner
-  const isStaffOwner = user.email === "pos-staff@vendoflow.internal" && user.user_metadata?.role === "owner"
-  const { data: currentMember, error: memberError } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("user_id", user.id)
-    .eq("account_id", accountId)
-    .maybeSingle()
-  const isAccountOwner = !memberError && currentMember?.role === "owner"
-  if (!isStaffOwner && !isAccountOwner) {
+  const isOwner = await isCurrentUserOwner(supabase, accountId, user.id)
+  if (!isOwner) {
     throw new Error("Only owners can reset PINs.")
   }
 
-  // Verify staff belongs to account and get email for auth update
+  // Verify staff belongs to account and get auth_user_id
   const { data: staffRow, error: verifyError } = await supabase
     .from("staff")
-    .select("staff_id")
+    .select("staff_id, auth_user_id")
     .eq("staff_id", staffId)
     .eq("account_id", accountId)
     .single()
@@ -515,9 +544,26 @@ export async function resetStaffPIN(staffId: string) {
     throw new Error("Staff member not found or access denied.")
   }
 
-  // Generate new PIN
-  const newPIN = generatePIN()
+  // Generate new unique PIN
+  const newPIN = await generateUniquePIN()
   const pinHash = await hashPINBcrypt(newPIN)
+
+  // Update auth user password if auth_user_id exists
+  if (staffRow.auth_user_id) {
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
+    const supabaseUrl = getSupabaseUrl()
+    if (serviceRoleKey && supabaseUrl) {
+      const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
+        auth: { persistSession: false },
+      })
+      await supabaseAdmin.auth.admin.updateUserById(staffRow.auth_user_id, {
+        password: newPIN, // Update password to new PIN
+      }).catch(() => {
+        // Log but don't fail - PIN hash is still updated
+        console.error("Failed to update auth user password")
+      })
+    }
+  }
 
   const { error: updateError } = await supabase
     .from("staff")

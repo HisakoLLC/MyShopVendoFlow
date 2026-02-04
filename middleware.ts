@@ -91,18 +91,39 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    // Staff (shared PIN user): allow paths by role; never show onboarding (first-time is for account owners only)
-    if (user.email === "pos-staff@vendoflow.internal") {
+    // Check if user is staff (has auth_user_id in staff table)
+    const { data: staffRecord } = await supabase
+      .from("staff")
+      .select("role, account_id, active")
+      .eq("auth_user_id", user.id)
+      .maybeSingle()
+
+    // If staff user, check role-based access
+    if (staffRecord) {
+      if (!staffRecord.active) {
+        // Staff is deactivated, sign them out
+        await supabase.auth.signOut()
+        const redirectUrl = new URL("/auth/pin-login", request.url)
+        redirectUrl.searchParams.set("error", "account_deactivated")
+        return NextResponse.redirect(redirectUrl)
+      }
+
+      // Staff cannot access onboarding (first-time is for account owners only)
       if (pathname === "/onboarding" || pathname.startsWith("/onboarding/")) {
         return NextResponse.redirect(new URL("/pos", request.url))
       }
-      const role: StaffRole = (user.user_metadata?.role === "owner" || user.user_metadata?.role === "manager" || user.user_metadata?.role === "cashier")
-        ? user.user_metadata.role
-        : "cashier"
+
+      // Get role from database (not user_metadata - more secure)
+      const role: StaffRole =
+        staffRecord.role === "owner" || staffRecord.role === "manager" || staffRecord.role === "cashier"
+          ? staffRecord.role
+          : "cashier"
+
       if (!canAccessPath(pathname, role)) {
         const redirectUrl = new URL("/pos", request.url)
         return NextResponse.redirect(redirectUrl)
       }
+
       return response
     }
 

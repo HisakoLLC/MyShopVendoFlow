@@ -19,13 +19,6 @@ function AuthCallbackContent() {
   React.useEffect(() => {
     let cancelled = false
     async function run() {
-      const staffId = searchParams.get("staff_id")
-      const accountId = searchParams.get("account_id")
-      if (!staffId || !accountId) {
-        if (!cancelled) setError("Missing staff_id or account_id")
-        return
-      }
-
       const hash = typeof window !== "undefined" ? window.location.hash : ""
       if (!hash) {
         if (!cancelled) setError("No auth token in URL. Try logging in again.")
@@ -51,8 +44,9 @@ function AuthCallbackContent() {
           setError(setErrorResult.message)
           return
         }
-        // Redirect to /pos with staff params; middleware will see session cookie and allow
-        router.replace(`/pos?staff_id=${encodeURIComponent(staffId)}&account_id=${encodeURIComponent(accountId)}`)
+        // Redirect to /pos; middleware will see session cookie and allow
+        const redirectTo = searchParams.get("redirect") || "/pos"
+        router.replace(redirectTo)
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Something went wrong")
       }

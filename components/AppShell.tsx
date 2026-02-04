@@ -53,10 +53,14 @@ const navItems = [
 
 function getUserDisplayName(user: User | null): string {
   if (!user) return "User"
-  if (user.email === "pos-staff@vendoflow.internal") {
-    const role = user.user_metadata?.role as string | undefined
-    return role ? `${getRoleLabel(role as StaffRole)}` : "Staff"
+  
+  // Check if user is staff (has is_staff metadata)
+  if (user.user_metadata?.is_staff === true) {
+    // Staff user - could fetch role from API, but for now just show "Staff"
+    return "Staff"
   }
+  
+  // Account owner
   const name =
     user.user_metadata?.full_name ??
     user.user_metadata?.name ??

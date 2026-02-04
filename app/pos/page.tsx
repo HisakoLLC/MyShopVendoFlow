@@ -2,9 +2,6 @@ import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { POSClient } from "./POSClient"
-import { BindStaffThenPOS } from "./BindStaffThenPOS"
-
-const POS_STAFF_SHARED_EMAIL = "pos-staff@vendoflow.internal"
 
 function LoadingState() {
   return (
@@ -17,13 +14,8 @@ function LoadingState() {
   )
 }
 
-async function POSPageContent({
-  searchParams,
-}: {
-  searchParams: Promise<{ staff_id?: string; account_id?: string }>
-}) {
+async function POSPageContent() {
   const supabase = await createServerSupabaseClient()
-  const params = await searchParams
 
   const {
     data: { user },
@@ -34,40 +26,34 @@ async function POSPageContent({
     redirect("/auth/pin-login?redirect=/pos")
   }
 
-  // Owner: account from RPC. Staff: account from user_metadata (set after bind-staff).
-  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
-  const accountIdFromRpc = Array.isArray(accountIdRaw)
-    ? accountIdRaw[0]
-    : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
-      ? (accountIdRaw as { account_id: string }).account_id
-      : accountIdRaw
-  const accountIdFromMeta = user?.user_metadata?.account_id as string | undefined
-  const accountId = accountIdFromRpc ?? accountIdFromMeta ?? null
+  // Check if user is staff (has auth_user_id in staff table)
+  const { data: staffRecord } = await supabase
+    .from("staff")
+    .select("account_id, active")
+    .eq("auth_user_id", user.id)
+    .maybeSingle()
 
-  // Staff with staff_id & account_id in URL: always run bind-staff so session gets correct staff + role.
-  // (URL params come from PIN login and identify the current staff; shared user may have had previous metadata.)
-  if (
-    user.email === POS_STAFF_SHARED_EMAIL &&
-    params.staff_id &&
-    params.account_id
-  ) {
-    return (
-      <BindStaffThenPOS staffId={params.staff_id} accountId={params.account_id} />
-    )
-  }
+  // Get account_id: from staff record if staff, otherwise from account_members (owner)
+  let accountId: string | null = null
 
-  // Staff already have session but no role in JWT — re-run bind-staff so nav/middleware get role.
-  const staffIdFromMeta = user?.user_metadata?.staff_id as string | undefined
-  const hasRole = Boolean(user?.user_metadata?.role)
-  if (
-    user?.email === POS_STAFF_SHARED_EMAIL &&
-    staffIdFromMeta &&
-    accountIdFromMeta &&
-    !hasRole
-  ) {
-    return (
-      <BindStaffThenPOS staffId={staffIdFromMeta} accountId={accountIdFromMeta} />
-    )
+  if (staffRecord) {
+    if (!staffRecord.active) {
+      // Staff is deactivated, sign them out
+      await supabase.auth.signOut()
+      redirect("/auth/pin-login?error=account_deactivated")
+    }
+    accountId = staffRecord.account_id
+  } else {
+    // Owner: get from account_members
+    const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+    accountId = Array.isArray(accountIdRaw)
+      ? accountIdRaw[0]
+      : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
+        ? (accountIdRaw as { account_id: string }).account_id
+        : accountIdRaw
+    if (accountIdError || !accountId) {
+      redirect("/onboarding?redirect=/pos")
+    }
   }
 
   if (!accountId) {
@@ -108,14 +94,10 @@ async function POSPageContent({
   return <POSClient defaultStoreId={defaultStoreId} storeName={storeName} />
 }
 
-export default async function POSPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ staff_id?: string; account_id?: string }>
-}) {
+export default async function POSPage() {
   return (
     <Suspense fallback={<LoadingState />}>
-      <POSPageContent searchParams={searchParams} />
+      <POSPageContent />
     </Suspense>
   )
 }
