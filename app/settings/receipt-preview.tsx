@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { StorageImage } from "@/components/StorageImage"
 
 type ReceiptPreviewProps = {
   businessName: string
@@ -34,7 +35,13 @@ export function ReceiptPreview({
         {/* Logo */}
         {logoUrl && (
           <div className="mb-2 flex justify-center">
-            <img src={logoUrl} alt="Logo" className="h-12 object-contain" />
+            <StorageImage
+              src={logoUrl}
+              alt="Logo"
+              width={48}
+              height={48}
+              className="h-12 object-contain"
+            />
           </div>
         )}
 

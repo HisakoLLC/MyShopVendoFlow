@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import { StorageImage } from "@/components/StorageImage"
 import { updateBusinessProfile, uploadLogo } from "./actions"
 import { Toaster } from "sonner"
 
@@ -134,9 +135,11 @@ export function BusinessProfileTab({ account, businessSettings }: BusinessProfil
               <div className="flex items-center gap-4">
                 {logoUrl ? (
                   <div className="relative">
-                    <img
+                    <StorageImage
                       src={logoUrl}
                       alt="Business logo"
+                      width={96}
+                      height={96}
                       className="h-24 w-24 rounded-lg border border-zinc-200 object-contain dark:border-zinc-800"
                     />
                     <Button

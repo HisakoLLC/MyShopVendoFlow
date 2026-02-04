@@ -4,6 +4,7 @@ import * as React from "react"
 import { CartItem } from "@/lib/cart-context"
 import { createClient } from "@/lib/supabase/client"
 import { formatCurrency } from "@/lib/format-currency"
+import { StorageImage } from "@/components/StorageImage"
 
 interface ReceiptProps {
   receiptNumber: string
@@ -46,12 +47,7 @@ export function Receipt({
   taxRatePercent = 16,
 }: ReceiptProps) {
   const [storeName, setStoreName] = React.useState<string>("Store")
-  const [resolvedLogoUrl, setResolvedLogoUrl] = React.useState<string | null>(null)
   const supabase = React.useMemo(() => createClient(), [])
-
-  const isSupabaseStorageLogo = Boolean(
-    logoUrl && typeof logoUrl === "string" && logoUrl.includes("/storage/v1/object/public/")
-  )
 
   React.useEffect(() => {
     async function fetchStoreName() {
@@ -71,30 +67,6 @@ export function Receipt({
     fetchStoreName()
   }, [storeId, supabase])
 
-  // Resolve logo URL: Supabase storage (often private) needs a signed URL to display
-  React.useEffect(() => {
-    if (!logoUrl) {
-      setResolvedLogoUrl(null)
-      return
-    }
-    if (!isSupabaseStorageLogo) {
-      setResolvedLogoUrl(logoUrl)
-      return
-    }
-    let cancelled = false
-    fetch(`/api/signed-url?url=${encodeURIComponent(logoUrl)}`)
-      .then((res) => res.json())
-      .then((data: { url?: string; error?: string }) => {
-        if (!cancelled && data.url) setResolvedLogoUrl(data.url)
-      })
-      .catch(() => {
-        if (!cancelled) setResolvedLogoUrl(logoUrl)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [logoUrl, isSupabaseStorageLogo])
-
   const formatPrice = (price: number) =>
     formatCurrency(price, currency, { maximumFractionDigits: 0 })
 
@@ -112,17 +84,17 @@ export function Receipt({
   const displayTax = taxInclusive ? total - displaySubtotal : taxAmount
   const displayTotal = total
 
-  const displayLogoUrl = isSupabaseStorageLogo ? resolvedLogoUrl : logoUrl ?? null
-
   return (
     <div className="mx-auto max-w-md bg-background-card-light p-6 print:p-4 print:bg-white dark:bg-background-card-dark" id="receipt">
-      {/* Logo - when enabled in settings; use signed URL for Supabase storage (private buckets) */}
-      {logoUrl && displayLogoUrl && (
+      {/* Logo - when enabled in settings; StorageImage handles signed URLs for Supabase storage */}
+      {logoUrl && (
         <div className="mb-4 flex justify-center border-b border-zinc-200 pb-4">
           <div className="relative h-20 w-40">
-            <img
-              src={displayLogoUrl}
+            <StorageImage
+              src={logoUrl}
               alt="Store logo"
+              width={160}
+              height={80}
               className="h-full w-full object-contain object-center"
             />
           </div>

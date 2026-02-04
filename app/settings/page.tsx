@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
-import { getSignedStorageUrl } from "@/lib/signed-storage-url"
+// Note: We pass public URLs to client - StorageImage component handles signing client-side
 import { SettingsTabs } from "./settings-tabs"
 
 export const dynamic = "force-dynamic"
@@ -102,14 +102,9 @@ async function fetchSettingsData(): Promise<{
     .eq("account_id", accountId)
     .maybeSingle()
 
-  const raw = settingsError ? null : businessSettings ?? null
-  let businessSettingsResolved: BusinessSettings | null = raw
-  if (raw?.logo_url) {
-    const signed = await getSignedStorageUrl(supabase, raw.logo_url)
-    if (signed) {
-      businessSettingsResolved = { ...raw, logo_url: signed }
-    }
-  }
+  // Pass public URL to client - StorageImage component will handle signing client-side
+  // This ensures fresh signed URLs on each page load and avoids expiration issues
+  const businessSettingsResolved: BusinessSettings | null = settingsError ? null : businessSettings ?? null
 
   return {
     account: account as Account,
