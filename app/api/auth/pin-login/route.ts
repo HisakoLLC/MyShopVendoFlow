@@ -115,13 +115,14 @@ export async function POST(request: Request) {
           updates.locked_until = lockedUntil.toISOString()
         }
 
-        await supabaseAdmin
-          .from("staff")
-          .update(updates)
-          .eq("staff_id", staff.staff_id)
-          .catch(() => {
-            // Ignore update errors
-          })
+        try {
+          await supabaseAdmin
+            .from("staff")
+            .update(updates)
+            .eq("staff_id", staff.staff_id)
+        } catch {
+          // Ignore update errors
+        }
       }
 
       return NextResponse.json(
