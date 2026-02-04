@@ -29,7 +29,7 @@ export type UpdateStaffData = Omit<z.infer<typeof staffSchema>, "email" | "gener
  * Checks both account_members.role and staff table (for staff users).
  */
 async function isCurrentUserOwner(
-  supabase: ReturnType<typeof createServerSupabaseClient>,
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
   accountId: string,
   userId: string
 ): Promise<boolean> {
