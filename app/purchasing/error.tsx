@@ -6,6 +6,7 @@ import Link from "next/link"
 import { AlertTriangle, RefreshCw } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { getFriendlyErrorMessage, isGenericProductionError } from "@/lib/friendly-errors"
 
 type PurchasingErrorProps = {
   error: Error & { digest?: string }
@@ -13,51 +14,41 @@ type PurchasingErrorProps = {
 }
 
 export default function PurchasingError({ error, reset }: PurchasingErrorProps) {
+  const friendlyMessage = getFriendlyErrorMessage(error, {
+    defaultMessage: "We couldn't load Purchasing. Try again or go back to the dashboard.",
+  })
+
   useEffect(() => {
     console.error("Purchasing error:", error)
   }, [error])
 
+  const showTechnical = !isGenericProductionError(error.message || "") && process.env.NODE_ENV !== "production"
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
-      <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-900 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-100">
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100">
         <div className="flex items-start gap-3">
-          <AlertTriangle className="h-6 w-6 shrink-0 text-red-600 dark:text-red-400" />
+          <AlertTriangle className="h-6 w-6 shrink-0 text-amber-600 dark:text-amber-400" />
           <div>
             <h2 className="text-lg font-semibold">Something went wrong</h2>
-            <p className="mt-1 text-sm opacity-90">
-              Purchasing could not load. This is often a database permission issue.
+            <p className="mt-1 text-sm opacity-90">{friendlyMessage}</p>
+            <p className="mt-3 text-sm opacity-90">
+              Click &quot;Try again&quot; to reload, or go back to Purchasing. If it keeps happening, sign out and back in.
             </p>
-            {error.message && (
-              <p className="mt-3 rounded bg-red-100/50 px-2 py-1.5 font-mono text-xs break-all dark:bg-red-900/30">
+            {error.digest && (
+              <p className="mt-2 text-xs opacity-80">Reference for support: <strong>{error.digest}</strong></p>
+            )}
+            {showTechnical && error.message && (
+              <p className="mt-3 rounded bg-amber-100/50 px-2 py-1.5 font-mono text-xs break-all dark:bg-amber-900/30">
                 {error.message}
               </p>
             )}
-            <div className="mt-4 rounded-lg border border-red-200 bg-background-card-light p-4 text-sm dark:bg-background-card-dark text-text-primary-light dark:border-red-900/40 dark:bg-red-950/20 dark:text-text-primary-dark">
-              <p className="font-medium text-zinc-900 dark:text-zinc-100">
-                Run these in Supabase SQL Editor (in order):
-              </p>
-              <ol className="mt-2 list-decimal list-inside space-y-1">
-                <li>
-                  <code className="rounded bg-zinc-200 px-1 dark:bg-zinc-800">
-                    sql/FIX_SUPPLIERS_ACCESS.sql
-                  </code>
-                </li>
-                <li>
-                  <code className="rounded bg-zinc-200 px-1 dark:bg-zinc-800">
-                    sql/FIX_PURCHASING_PO_ACCESS.sql
-                  </code>
-                </li>
-              </ol>
-              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                Then click Try again or go back to Purchasing.
-              </p>
-            </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              <Button onClick={reset} variant="outline" size="sm">
+              <Button onClick={reset} variant="outline" size="sm" className="bg-white dark:bg-amber-950/50">
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Try again
               </Button>
-              <Button asChild size="sm">
+              <Button asChild size="sm" className="bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700">
                 <Link href="/purchasing/restock">Back to Purchasing</Link>
               </Button>
             </div>

@@ -7,6 +7,7 @@ import { AlertTriangle, RefreshCw, Home } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { getFriendlyErrorMessage, isGenericProductionError } from "@/lib/friendly-errors"
 
 type DashboardErrorProps = {
   error: Error & { digest?: string }
@@ -14,9 +15,15 @@ type DashboardErrorProps = {
 }
 
 export default function DashboardError({ error, reset }: DashboardErrorProps) {
+  const friendlyMessage = getFriendlyErrorMessage(error, {
+    defaultMessage: "We couldn't load the dashboard. Try again or sign in again.",
+  })
+
   useEffect(() => {
     console.error("Dashboard error:", error)
   }, [error])
+
+  const showTechnical = !isGenericProductionError(error.message || "") && process.env.NODE_ENV !== "production"
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
@@ -27,50 +34,19 @@ export default function DashboardError({ error, reset }: DashboardErrorProps) {
             Something went wrong
           </CardTitle>
           <CardDescription>
-            The dashboard could not load. This often happens when the database still needs
-            permission setup for your account and dashboard tables.
+            {friendlyMessage}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded-lg bg-zinc-100 p-4 text-sm dark:bg-zinc-900">
-            <p className="font-medium mb-2">Fix it in Supabase (run in SQL Editor in this order):</p>
-            <ol className="list-decimal list-inside space-y-1 text-zinc-600 dark:text-zinc-400">
-              <li>
-                <code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">
-                  sql/AUTO_CREATE_ACCOUNT_ON_SIGNUP.sql
-                </code>{" "}
-                — creates account for every user
-              </li>
-              <li>
-                <code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">
-                  sql/FIX_ALL_RLS_ISSUES.sql
-                </code>{" "}
-                — accounts, stores, categories
-              </li>
-              <li>
-                <code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">
-                  sql/FIX_DASHBOARD_ACCESS.sql
-                </code>{" "}
-                — sales, dashboard tables
-              </li>
-              <li>
-                <code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">
-                  sql/FIX_PRODUCTS_PAGE_ACCESS.sql
-                </code>{" "}
-                — products, seasons
-              </li>
-              <li>
-                <code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">
-                  sql/FIX_INVENTORY_AND_SETTINGS_ACCESS.sql
-                </code>{" "}
-                — inventory, restock, settings
-              </li>
-            </ol>
-            <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-              Then click &quot;Try again&quot; below.
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            <strong>What you can do:</strong> Click &quot;Try again&quot; to reload, or go to the home page. If it keeps happening, sign out and back in.
+          </p>
+          {error.digest && (
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              Reference for support: <strong>{error.digest}</strong>
             </p>
-          </div>
-          {error.message && (
+          )}
+          {showTechnical && error.message && (
             <p className="text-xs font-mono text-zinc-500 dark:text-zinc-400 break-all">
               {error.message}
             </p>

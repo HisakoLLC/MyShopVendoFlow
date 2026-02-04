@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { getFriendlyErrorMessage } from "@/lib/friendly-errors"
 import { StaffList } from "./staff-list"
 
 export const dynamic = "force-dynamic"
@@ -190,9 +191,12 @@ function LoadingState() {
 function ErrorState({ message }: { message: string }) {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-10">
-      <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-100">
-        <div className="text-base font-semibold">Couldn't load staff</div>
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100">
+        <div className="text-base font-semibold">We couldn't load Staff</div>
         <div className="mt-1 text-sm opacity-90">{message}</div>
+        <p className="mt-3 text-sm opacity-80">
+          Try refreshing the page, or sign out and back in. If it keeps happening, contact support.
+        </p>
       </div>
     </div>
   )
@@ -214,7 +218,9 @@ async function StaffPageContent() {
       </div>
     )
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unable to load staff."
+    const message = getFriendlyErrorMessage(err, {
+      defaultMessage: "We couldn't load the staff list. Try refreshing the page or signing in again.",
+    })
     return <ErrorState message={message} />
   }
 }
