@@ -33,32 +33,38 @@ export async function processRefund(
 
   const { sale_id, refund_method } = parsed.data
 
-  // Resolve account: staff (PIN login) use user_metadata.account_id; owner use get_account_id
-  const accountIdFromMeta = user.user_metadata?.account_id as string | undefined
-  const accountIdRaw = await supabase.rpc("get_account_id")
-  const accountIdFromRpc = Array.isArray(accountIdRaw)
-    ? accountIdRaw[0]
-    : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
-      ? (accountIdRaw as { account_id: string }).account_id
-      : accountIdRaw
-  const accountId = accountIdFromMeta ?? accountIdFromRpc ?? null
+  // Resolve account_id: check if user is staff (has auth_user_id in staff table), otherwise owner
+  const { data: staffRecord } = await supabase
+    .from("staff")
+    .select("account_id, staff_id, active")
+    .eq("auth_user_id", user.id)
+    .maybeSingle()
+
+  let accountId: string | null = null
+  let processedBy: string | null = null
+
+  if (staffRecord) {
+    if (!staffRecord.active) {
+      return { success: false, error: "Your staff account is deactivated." }
+    }
+    accountId = staffRecord.account_id
+    processedBy = staffRecord.staff_id
+  } else {
+    // Owner: get from account_members via get_account_id RPC
+    const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+    accountId = Array.isArray(accountIdRaw)
+      ? accountIdRaw[0]
+      : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
+        ? (accountIdRaw as { account_id: string }).account_id
+        : accountIdRaw
+    if (accountIdError || !accountId) {
+      return { success: false, error: "Unable to resolve account." }
+    }
+  }
+
   const accountIdStr = accountId != null ? String(accountId) : null
   if (!accountIdStr) {
     return { success: false, error: "Unable to resolve account." }
-  }
-
-  // Resolve staff_id for processed_by (prefer user_metadata from PIN login)
-  let processedBy: string | null = (user.user_metadata?.staff_id as string) ?? null
-  if (!processedBy && user.email) {
-    const { data: staffRow } = await supabase
-      .from("staff")
-      .select("staff_id")
-      .eq("account_id", accountIdStr)
-      .ilike("email", user.email.trim())
-      .eq("active", true)
-      .limit(1)
-      .maybeSingle()
-    processedBy = staffRow?.staff_id ?? null
   }
 
   // Fetch sale and ensure it belongs to account (via store)
