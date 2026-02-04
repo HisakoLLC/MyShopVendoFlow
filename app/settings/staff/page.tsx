@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
+import { unstable_noStore as noStore } from "next/cache"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { getFriendlyErrorMessage } from "@/lib/friendly-errors"
@@ -32,152 +33,174 @@ async function fetchStaffData(): Promise<{
   account: Account
   stores: Array<{ store_id: string; name: string }>
 }> {
+  noStore() // Prevent caching to avoid stale data after staff creation
   const supabase = await createServerSupabaseClient()
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
+  try {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
 
-  if (userError || !user) {
-    redirect("/login")
-  }
-
-  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
-  if (accountIdError || accountIdRaw == null) {
-    redirect("/onboarding?redirect=/settings/staff")
-  }
-  const accountId =
-    typeof accountIdRaw === "string"
-      ? accountIdRaw
-      : Array.isArray(accountIdRaw)
-        ? accountIdRaw[0]
-        : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
-          ? (accountIdRaw as { account_id: string }).account_id
-          : null
-  const accountIdStr = accountId != null ? String(accountId) : ""
-  if (!accountIdStr) {
-    redirect("/onboarding?redirect=/settings/staff")
-  }
-
-  // Verify current user is owner (check both account_members and staff table)
-  const { data: currentMember } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("user_id", user.id)
-    .eq("account_id", accountIdStr)
-    .maybeSingle()
-
-  const { data: staffRecord } = await supabase
-    .from("staff")
-    .select("role")
-    .eq("auth_user_id", user.id)
-    .eq("account_id", accountIdStr)
-    .eq("active", true)
-    .maybeSingle()
-
-  const isAccountOwner = currentMember?.role === "owner"
-  const isStaffOwner = staffRecord?.role === "owner"
-  
-  if (!isAccountOwner && !isStaffOwner) {
-    throw new Error("Access denied. Only owners can manage staff.")
-  }
-
-  // Fetch account to get plan_tier
-  const { data: account, error: accountError } = await supabase
-    .from("accounts")
-    .select("account_id, plan_tier")
-    .eq("account_id", accountIdStr)
-    .single()
-
-  if (accountError || !account) {
-    throw new Error(accountError?.message ?? "Account not found.")
-  }
-
-  // Fetch stores (single-store app; do not filter by active so dropdown always has the store)
-  const { data: stores, error: storesError } = await supabase
-    .from("stores")
-    .select("store_id, name")
-    .eq("account_id", accountIdStr)
-    .order("name", { ascending: true })
-    .limit(10)
-
-  if (storesError) {
-    throw new Error(storesError.message)
-  }
-
-  // Fetch staff (pin_hash used only to derive has_pin; not sent to client).
-  // On error we return empty list so the page still renders (e.g. after adding staff, client already has the new row).
-  const { data: staff, error: staffError } = await supabase
-    .from("staff")
-    .select(
-      `
-      staff_id,
-      email,
-      first_name,
-      last_name,
-      role,
-      assigned_store_id,
-      active,
-      pin_hash,
-      last_login_at,
-      stores!staff_assigned_store_id_fkey(name)
-    `
-    )
-    .eq("account_id", accountIdStr)
-    .order("first_name", { ascending: true })
-
-  if (staffError) {
-    // Don't throw: avoids "Server Components render" error after creating staff; client list is source of truth until next full load
-    console.error("Staff fetch error:", staffError.message)
-  }
-
-  // Transform to strict serializable shape (avoids RSC/serialization errors)
-  const transformedStaff: Staff[] = []
-  for (const s of staff || []) {
-    try {
-      const raw = s as Record<string, unknown>
-      const rawStores = raw.stores
-      const storesValue =
-        rawStores == null
-          ? null
-          : Array.isArray(rawStores)
-            ? (rawStores[0] as { name?: string } | undefined)
-            : (rawStores as { name?: string })
-      const storeName =
-        storesValue && typeof storesValue === "object" && typeof storesValue.name === "string"
-          ? { name: storesValue.name }
-          : null
-      transformedStaff.push({
-        staff_id: String(raw.staff_id ?? ""),
-        email: String(raw.email ?? ""),
-        first_name: raw.first_name != null ? String(raw.first_name) : null,
-        last_name: raw.last_name != null ? String(raw.last_name) : null,
-        role: raw.role != null ? String(raw.role) : null,
-        assigned_store_id: raw.assigned_store_id != null ? String(raw.assigned_store_id) : null,
-        active: raw.active != null ? Boolean(raw.active) : null,
-        has_pin: !!(raw.pin_hash != null && raw.pin_hash !== ""),
-        last_login_at: raw.last_login_at != null ? String(raw.last_login_at) : null,
-        stores: storeName,
-      })
-    } catch {
-      // Skip rows that fail to serialize so one bad row doesn't break the whole page
+    if (userError || !user) {
+      redirect("/login")
     }
-  }
 
-  // Ensure serializable shape for RSC (no extra keys or non-serializable values)
-  const accountSafe: Account = {
-    account_id: String(account?.account_id ?? ""),
-    plan_tier: account?.plan_tier != null ? String(account.plan_tier) : null,
-  }
-  const storesSafe: Array<{ store_id: string; name: string }> = (stores || []).map((s: { store_id?: unknown; name?: unknown }) => ({
-    store_id: String(s.store_id ?? ""),
-    name: String(s.name ?? ""),
-  }))
-  return {
-    staff: transformedStaff,
-    account: accountSafe,
-    stores: storesSafe,
+    const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+    if (accountIdError || accountIdRaw == null) {
+      redirect("/onboarding?redirect=/settings/staff")
+    }
+    const accountId =
+      typeof accountIdRaw === "string"
+        ? accountIdRaw
+        : Array.isArray(accountIdRaw)
+          ? accountIdRaw[0]
+          : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
+            ? (accountIdRaw as { account_id: string }).account_id
+            : null
+    const accountIdStr = accountId != null ? String(accountId) : ""
+    if (!accountIdStr) {
+      redirect("/onboarding?redirect=/settings/staff")
+    }
+
+    // Verify current user is owner (check both account_members and staff table)
+    const { data: currentMember } = await supabase
+      .from("account_members")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("account_id", accountIdStr)
+      .maybeSingle()
+
+    const { data: staffRecord } = await supabase
+      .from("staff")
+      .select("role")
+      .eq("auth_user_id", user.id)
+      .eq("account_id", accountIdStr)
+      .eq("active", true)
+      .maybeSingle()
+
+    const isAccountOwner = currentMember?.role === "owner"
+    const isStaffOwner = staffRecord?.role === "owner"
+    
+    if (!isAccountOwner && !isStaffOwner) {
+      // Don't throw - return empty data so page renders (client will handle access control)
+      console.error("Access denied: Only owners can manage staff")
+      return {
+        staff: [],
+        account: { account_id: accountIdStr, plan_tier: null },
+        stores: [],
+      }
+    }
+
+    // Fetch account to get plan_tier (non-throwing: return safe default on error)
+    const { data: account, error: accountError } = await supabase
+      .from("accounts")
+      .select("account_id, plan_tier")
+      .eq("account_id", accountIdStr)
+      .single()
+
+    if (accountError || !account) {
+      console.error("Account fetch error:", accountError?.message ?? "Account not found")
+      // Return safe default so page still renders
+      return {
+        staff: [],
+        account: { account_id: accountIdStr, plan_tier: null },
+        stores: [],
+      }
+    }
+
+    // Fetch stores (non-throwing: return empty array on error)
+    const { data: stores, error: storesError } = await supabase
+      .from("stores")
+      .select("store_id, name")
+      .eq("account_id", accountIdStr)
+      .order("name", { ascending: true })
+      .limit(10)
+
+    if (storesError) {
+      console.error("Stores fetch error:", storesError.message)
+    }
+
+    // Fetch staff (non-throwing: return empty list on error; client already has new staff via onSuccess)
+    const { data: staff, error: staffError } = await supabase
+      .from("staff")
+      .select(
+        `
+        staff_id,
+        email,
+        first_name,
+        last_name,
+        role,
+        assigned_store_id,
+        active,
+        pin_hash,
+        last_login_at,
+        stores!staff_assigned_store_id_fkey(name)
+      `
+      )
+      .eq("account_id", accountIdStr)
+      .order("first_name", { ascending: true })
+
+    if (staffError) {
+      console.error("Staff fetch error:", staffError.message)
+    }
+
+    // Transform to strict serializable shape (avoids RSC/serialization errors)
+    const transformedStaff: Staff[] = []
+    for (const s of staff || []) {
+      try {
+        const raw = s as Record<string, unknown>
+        const rawStores = raw.stores
+        const storesValue =
+          rawStores == null
+            ? null
+            : Array.isArray(rawStores)
+              ? (rawStores[0] as { name?: string } | undefined)
+              : (rawStores as { name?: string })
+        const storeName =
+          storesValue && typeof storesValue === "object" && typeof storesValue.name === "string"
+            ? { name: storesValue.name }
+            : null
+        transformedStaff.push({
+          staff_id: String(raw.staff_id ?? ""),
+          email: String(raw.email ?? ""),
+          first_name: raw.first_name != null ? String(raw.first_name) : null,
+          last_name: raw.last_name != null ? String(raw.last_name) : null,
+          role: raw.role != null ? String(raw.role) : null,
+          assigned_store_id: raw.assigned_store_id != null ? String(raw.assigned_store_id) : null,
+          active: raw.active != null ? Boolean(raw.active) : null,
+          has_pin: !!(raw.pin_hash != null && raw.pin_hash !== ""),
+          last_login_at: raw.last_login_at != null ? String(raw.last_login_at) : null,
+          stores: storeName,
+        })
+      } catch {
+        // Skip rows that fail to serialize so one bad row doesn't break the whole page
+      }
+    }
+
+    // Ensure serializable shape for RSC (no extra keys or non-serializable values)
+    const accountSafe: Account = {
+      account_id: String(account?.account_id ?? ""),
+      plan_tier: account?.plan_tier != null ? String(account.plan_tier) : null,
+    }
+    const storesSafe: Array<{ store_id: string; name: string }> = (stores || []).map((s: { store_id?: unknown; name?: unknown }) => ({
+      store_id: String(s.store_id ?? ""),
+      name: String(s.name ?? ""),
+    }))
+    return {
+      staff: transformedStaff,
+      account: accountSafe,
+      stores: storesSafe,
+    }
+  } catch (err) {
+    // Catch-all: if anything unexpected throws, return safe defaults so page still renders
+    // Client already has the new staff via onSuccess, so this is just for initial load
+    console.error("fetchStaffData error:", err)
+    return {
+      staff: [],
+      account: { account_id: "", plan_tier: null },
+      stores: [],
+    }
   }
 }
 
