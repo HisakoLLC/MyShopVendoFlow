@@ -238,9 +238,10 @@ export async function createStaff(data: CreateStaffData) {
     throw new Error(`Failed to create staff record: ${staffError.message}`)
   }
 
-  // Create account_members record linking staff to account
+  // Create account_members record linking staff to account (service role bypasses RLS;
+  // we already verified the current user is an owner)
   const memberId = uuidv4()
-  const { error: memberError } = await supabase.from("account_members").insert({
+  const { error: memberError } = await supabaseAdmin.from("account_members").insert({
     member_id: memberId,
     account_id: accountId,
     user_id: authUser.user.id,
