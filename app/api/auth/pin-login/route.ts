@@ -207,26 +207,43 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Extract tokens from the magic link URL hash
-    // The link format is: https://...?token=...&type=magiclink#access_token=...&refresh_token=...
-    const actionLink = linkData.properties?.action_link as string | undefined
+    // Extract tokens from the magic link
+    // The properties object contains action_link with tokens in the URL hash
+    const properties = linkData.properties as Record<string, unknown> | undefined
+    const actionLink = properties?.action_link as string | undefined
+    
     if (!actionLink) {
-      console.error("Missing action_link in generateLink response")
+      console.error("Missing action_link in generateLink response", { properties })
       return NextResponse.json(
         { error: "Failed to create sign-in session. Try again." },
         { status: 500 }
       )
     }
 
-    // Parse tokens from URL hash
-    const url = new URL(actionLink)
-    const hash = url.hash.slice(1) // Remove leading #
-    const params = new URLSearchParams(hash)
-    const accessToken = params.get("access_token")
-    const refreshToken = params.get("refresh_token")
+    // Parse tokens from URL hash (format: #access_token=...&refresh_token=...)
+    let accessToken: string | null = null
+    let refreshToken: string | null = null
+
+    try {
+      const url = new URL(actionLink)
+      const hash = url.hash.slice(1) // Remove leading #
+      if (hash) {
+        const params = new URLSearchParams(hash)
+        accessToken = params.get("access_token")
+        refreshToken = params.get("refresh_token")
+      }
+      
+      // If not in hash, try query params (some formats use query params)
+      if (!accessToken || !refreshToken) {
+        accessToken = url.searchParams.get("access_token")
+        refreshToken = url.searchParams.get("refresh_token")
+      }
+    } catch (urlError) {
+      console.error("Failed to parse action link URL:", urlError, { actionLink })
+    }
 
     if (!accessToken || !refreshToken) {
-      console.error("Missing tokens in magic link URL:", actionLink)
+      console.error("Missing tokens in magic link URL. Link format:", actionLink.substring(0, 100))
       return NextResponse.json(
         { error: "Failed to create sign-in session. Try again." },
         { status: 500 }
