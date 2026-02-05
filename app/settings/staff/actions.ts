@@ -252,8 +252,8 @@ export async function createStaff(data: CreateStaffData) {
     throw new Error(`Failed to link staff to account: ${memberError.message}`)
   }
 
-  // Log staff creation
-  await logAuditEvent({
+  // Log staff creation (non-blocking - don't fail if audit logging fails)
+  logAuditEvent({
     account_id: accountId,
     user_id: user.id,
     staff_id: staff.staff_id,
@@ -268,7 +268,13 @@ export async function createStaff(data: CreateStaffData) {
       assigned_store_id: resolvedStoreId,
     },
     metadata: { created_by_owner: true },
+  }).catch((err) => {
+    // Don't block staff creation if audit logging fails
+    console.error("Audit log error (non-blocking):", err)
   })
+
+  // Revalidate path (this triggers page refresh to show new staff)
+  revalidatePath("/settings/staff")
 
   return {
     staff_id: staff.staff_id,
@@ -599,6 +605,7 @@ export async function resetStaffPIN(staffId: string) {
   const pinHash = await hashPINBcrypt(newPIN)
 
   // Update auth user password if auth_user_id exists
+  // CRITICAL: Both PIN hash and auth password must match for login to work
   if (staffRow.auth_user_id) {
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
     const supabaseUrl = getSupabaseUrl()
@@ -606,12 +613,17 @@ export async function resetStaffPIN(staffId: string) {
       const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
         auth: { persistSession: false },
       })
-      await supabaseAdmin.auth.admin.updateUserById(staffRow.auth_user_id, {
+      const { error: passwordUpdateError } = await supabaseAdmin.auth.admin.updateUserById(staffRow.auth_user_id, {
         password: newPIN, // Update password to new PIN
-      }).catch(() => {
-        // Log but don't fail - PIN hash is still updated
-        console.error("Failed to update auth user password")
       })
+      
+      if (passwordUpdateError) {
+        // This is critical - if password update fails, PIN login won't work
+        console.error("Failed to update auth user password:", passwordUpdateError)
+        throw new Error(`Failed to update staff password: ${passwordUpdateError.message}. PIN reset incomplete.`)
+      }
+    } else {
+      throw new Error("Server configuration error: Missing Supabase credentials for PIN reset")
     }
   }
 
