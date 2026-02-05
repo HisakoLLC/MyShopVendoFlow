@@ -51,10 +51,17 @@ USING (
 );
 
 -- Policy: System can insert audit logs (service role)
+-- Note: Service role bypasses RLS, but this policy ensures compatibility
 CREATE POLICY "System can insert audit logs"
 ON audit_logs
 FOR INSERT
 WITH CHECK (true);
+
+-- Also allow SELECT for service role (for testing/debugging)
+CREATE POLICY "System can select audit logs"
+ON audit_logs
+FOR SELECT
+USING (true);
 
 -- Retention policy: Keep logs for 1 year (run this as a scheduled job)
 -- DELETE FROM audit_logs WHERE created_at < NOW() - INTERVAL '1 year';

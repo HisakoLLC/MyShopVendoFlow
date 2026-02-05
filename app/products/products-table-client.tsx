@@ -356,7 +356,7 @@ export function ProductsTableClient(props: {
             {viewMode === "active" && (
               <Link
                 href="/products/new"
-                className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-primary-foreground dark:hover:opacity-90"
+                className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-white shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-white dark:hover:opacity-90"
               >
                 Add New Style
               </Link>
@@ -377,7 +377,7 @@ export function ProductsTableClient(props: {
             <div className="pt-2">
               <Link
                 href="/products/new"
-                className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-primary-foreground dark:hover:opacity-90"
+                className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-white shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-white dark:hover:opacity-90"
               >
                 Add New Style
               </Link>
@@ -554,7 +554,7 @@ export function ProductsTableClient(props: {
                                         <AlertDialog.Action asChild>
                                           <button
                                             type="button"
-                                            className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary dark:text-primary-foreground dark:hover:opacity-90"
+                                            className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary dark:text-white dark:hover:opacity-90"
                                             disabled={isPending}
                                             onClick={() => {
                                               setError(null)

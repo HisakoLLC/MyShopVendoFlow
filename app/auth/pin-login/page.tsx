@@ -169,7 +169,7 @@ function PinLoginContent() {
             <button
               type="submit"
               disabled={isLoading || pin.length !== 6}
-              className="flex-1 rounded-xl bg-primary py-3 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50 dark:bg-primary dark:text-primary-foreground dark:hover:bg-zinc-700"
+              className="flex-1 rounded-xl bg-primary py-3 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50 dark:bg-primary dark:text-white dark:hover:bg-zinc-700"
             >
               {isLoading ? "Signing in…" : "Login"}
             </button>

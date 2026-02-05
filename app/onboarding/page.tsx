@@ -283,7 +283,7 @@ function OnboardingContent() {
                 <div
                   className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
                     step >= s
-                      ? "border-primary bg-primary text-primary-foreground dark:border-primary dark:bg-primary dark:text-primary-foreground"
+                      ? "border-primary bg-primary text-white dark:border-primary dark:bg-primary dark:text-white"
                       : "border-zinc-300 text-zinc-400 dark:border-zinc-700 dark:text-zinc-600"
                   }`}
                 >
@@ -397,7 +397,7 @@ function OnboardingContent() {
                     disabled={isLoading}
                     className={`rounded-lg border p-3 text-left transition-colors ${
                       selectedCategories.includes(category)
-                        ? "border-primary bg-primary text-primary-foreground dark:border-primary dark:bg-primary dark:text-primary-foreground"
+                        ? "border-primary bg-primary text-white dark:border-primary dark:bg-primary dark:text-white"
                         : "border-zinc-200 hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-600"
                     }`}
                   >

@@ -525,7 +525,7 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
                   currentStep >= step
-                    ? "border-primary bg-primary text-primary-foreground dark:border-primary dark:bg-primary dark:text-primary-foreground"
+                    ? "border-primary bg-primary text-white dark:border-primary dark:bg-primary dark:text-white"
                     : "border-zinc-300 text-zinc-400 dark:border-zinc-700 dark:text-zinc-600"
                 }`}
               >

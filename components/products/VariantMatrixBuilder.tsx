@@ -309,7 +309,7 @@ export function VariantMatrixBuilder({
                 onClick={() => handleColorToggle(color.name)}
                 className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
                   selectedColors.has(color.name)
-                    ? "border-primary bg-primary text-primary-foreground dark:border-primary dark:bg-primary dark:text-primary-foreground"
+                    ? "border-primary bg-primary text-white dark:border-primary dark:bg-primary dark:text-white"
                     : "border-zinc-200 bg-background text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background dark:text-zinc-100 dark:hover:bg-zinc-900"
                 }`}
               >

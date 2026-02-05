@@ -126,7 +126,7 @@ function ErrorState({ message }: { message: string }) {
         <div className="mt-4">
           <Link
             href="/dashboard"
-            className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 dark:bg-primary dark:text-primary-foreground dark:hover:opacity-90"
+            className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-white hover:opacity-90 dark:bg-primary dark:text-white dark:hover:opacity-90"
           >
             Go to Dashboard
           </Link>
@@ -170,7 +170,7 @@ async function ProductsPageContent() {
           </div>
           <Link
             href="/products/new"
-            className="hidden h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-primary-foreground dark:hover:opacity-90 md:inline-flex"
+            className="hidden h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-white shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-white dark:hover:opacity-90 md:inline-flex"
           >
             Add New Style
           </Link>
@@ -202,7 +202,7 @@ async function ProductsPageContent() {
         </div>
         <Link
           href="/products/new"
-          className="hidden h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-primary-foreground dark:hover:opacity-90 md:inline-flex"
+          className="hidden h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-white shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-white dark:hover:opacity-90 md:inline-flex"
         >
           Add New Style
         </Link>

@@ -25,6 +25,7 @@ const config = {
           hover: "#4d0003",
           active: "#3a0002",
           disabled: "rgba(107, 0, 5, 0.4)",
+          foreground: "#ffffff",
         },
         background: {
           DEFAULT: "#e6e1de",

@@ -76,7 +76,7 @@ export function PrintPOClient({
             <button
               type="button"
               onClick={handlePrint}
-              className="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+              className="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-white hover:opacity-90"
             >
               Print
             </button>
