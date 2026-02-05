@@ -239,13 +239,15 @@ export async function createStaff(data: CreateStaffData) {
   }
 
   // Create account_members record linking staff to account (service role bypasses RLS;
-  // we already verified the current user is an owner)
+  // we already verified the current user is an owner).
+  // account_members.role has CHECK (owner|member); staff roles cashier/manager map to "member".
+  const accountMemberRole = data.role === "owner" ? "owner" : "member"
   const memberId = uuidv4()
   const { error: memberError } = await supabaseAdmin.from("account_members").insert({
     member_id: memberId,
     account_id: accountId,
     user_id: authUser.user.id,
-    role: data.role, // Same role as staff.role
+    role: accountMemberRole,
   })
 
   if (memberError) {
