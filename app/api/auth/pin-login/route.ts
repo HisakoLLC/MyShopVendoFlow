@@ -215,8 +215,9 @@ export async function POST(request: NextRequest) {
 
     // Sign in with PIN as password using regular client
     console.log(`[PIN Login] Attempting sign-in for ${staffEmail}`)
-    let sessionData: { session: { access_token: string; refresh_token: string } | null; user: { id: string; email: string | undefined } | null } | null = null
-    let signInError: { message?: string; status?: number } | null = null
+    let accessToken: string | null = null
+    let refreshToken: string | null = null
+    let userId: string | null = null
     
     // Try regular sign-in first
     const signInResult = await supabaseClient.auth.signInWithPassword({
@@ -224,11 +225,14 @@ export async function POST(request: NextRequest) {
       password: trimmedPin,
     })
     
-    signInError = signInResult.error
-    sessionData = signInResult.data
+    if (!signInResult.error && signInResult.data?.session && signInResult.data?.user) {
+      accessToken = signInResult.data.session.access_token
+      refreshToken = signInResult.data.session.refresh_token
+      userId = signInResult.data.user.id
+    }
 
     // If regular sign-in fails, try using admin API to generate a session token
-    if (signInError || !sessionData?.session) {
+    if (!accessToken || !refreshToken) {
       console.log("[PIN Login] Regular sign-in failed, trying admin API fallback...")
       
       try {
@@ -268,17 +272,9 @@ export async function POST(request: NextRequest) {
             if (verifyResponse.ok) {
               const verifyData = await verifyResponse.json()
               if (verifyData.access_token && verifyData.refresh_token) {
-                sessionData = {
-                  session: {
-                    access_token: verifyData.access_token,
-                    refresh_token: verifyData.refresh_token,
-                  },
-                  user: {
-                    id: authUser.user.id,
-                    email: authUser.user.email,
-                  },
-                }
-                signInError = null
+                accessToken = verifyData.access_token
+                refreshToken = verifyData.refresh_token
+                userId = authUser.user.id
                 console.log("[PIN Login] Admin API fallback succeeded")
               }
             }
@@ -289,17 +285,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (signInError || !sessionData?.session) {
+    if (!accessToken || !refreshToken || !userId) {
+      const errorMsg = signInResult.error?.message || "Unknown error"
       console.error("[PIN Login] Sign in error:", {
-        error: signInError,
-        message: signInError?.message,
-        status: signInError?.status,
+        error: signInResult.error,
+        message: errorMsg,
+        status: signInResult.error?.status,
         email: staffEmail,
-        hasSession: !!sessionData?.session,
+        hasTokens: !!(accessToken && refreshToken),
       })
       
       // Provide more specific error message
-      if (signInError?.message?.includes("Invalid login credentials") || signInError?.message?.includes("Email not confirmed")) {
+      if (errorMsg.includes("Invalid login credentials") || errorMsg.includes("Email not confirmed")) {
         return NextResponse.json(
           { error: "Invalid PIN. The PIN may have been reset. Contact your administrator." },
           { status: 401 }
@@ -307,7 +304,7 @@ export async function POST(request: NextRequest) {
       }
       
       return NextResponse.json(
-        { error: `Failed to create sign-in session: ${signInError?.message || "Unknown error"}` },
+        { error: `Failed to create sign-in session: ${errorMsg}` },
         { status: 500 }
       )
     }
@@ -323,7 +320,7 @@ export async function POST(request: NextRequest) {
     // Log successful login
     await logAuditEvent({
       account_id: matchedStaff.account_id,
-      user_id: sessionData.user.id,
+      user_id: userId,
       staff_id: matchedStaff.staff_id,
       action_type: "staff_login",
       ip_address: ipAddress,
@@ -335,11 +332,11 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({
-      access_token: sessionData.session.access_token,
-      refresh_token: sessionData.session.refresh_token,
+      access_token: accessToken,
+      refresh_token: refreshToken,
       user: {
-        id: sessionData.user.id,
-        email: sessionData.user.email,
+        id: userId,
+        email: authUser.user.email,
       },
     })
   } catch (error) {
