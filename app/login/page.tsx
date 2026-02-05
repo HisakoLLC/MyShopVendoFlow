@@ -23,7 +23,17 @@ function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const deletedParam = searchParams.get("deleted") === "1"
+  const timeout = searchParams.get("timeout")
   const [supabaseError, setSupabaseError] = React.useState<string | null>(null)
+  const [timeoutMessage, setTimeoutMessage] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    if (timeout === "idle") {
+      setTimeoutMessage("Your session expired due to inactivity. Please log in again.")
+    } else if (timeout === "expired") {
+      setTimeoutMessage("Your session has expired. Please log in again.")
+    }
+  }, [timeout])
   const supabase = React.useMemo(() => {
     try {
       return createClient()
@@ -239,6 +249,14 @@ function LoginContent() {
             </p>
           )}
         </div>
+
+        {timeoutMessage && (
+          <div className="rounded-lg border-l-4 border-amber-500 bg-amber-50 p-4 dark:bg-amber-950/30">
+            <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+              {timeoutMessage}
+            </p>
+          </div>
+        )}
 
         {deletedParam && (
           <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/40 dark:bg-blue-950/30">

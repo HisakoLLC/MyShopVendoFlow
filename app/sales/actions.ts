@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { z } from "zod"
 import { v4 as uuidv4 } from "uuid"
+import { logAuditEvent, getIpAddress, getUserAgent } from "@/lib/audit/logger"
 
 const processRefundSchema = z.object({
   sale_id: z.string().uuid(),
@@ -199,6 +200,22 @@ export async function processRefund(
     .from("sales")
     .update({ status: "refunded" })
     .eq("sale_id", sale_id)
+
+  // Log refund event (server action - no request headers available)
+  await logAuditEvent({
+    account_id: accountIdStr,
+    user_id: user.id,
+    staff_id: processedBy || undefined,
+    action_type: "sale_refunded",
+    entity_type: "sale",
+    entity_id: sale_id,
+    old_values: { status: sale.status },
+    new_values: { status: "refunded", refund_amount: refundAmount },
+    metadata: {
+      refund_method: refund_method,
+      refund_id: refundId,
+    },
+  })
 
   revalidatePath("/sales")
   revalidatePath("/inventory")

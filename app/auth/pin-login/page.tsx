@@ -13,8 +13,18 @@ function PinLoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get("redirect") ?? "/pos"
+  const timeout = searchParams.get("timeout")
   const [pin, setPin] = React.useState("")
   const [isLoading, setIsLoading] = React.useState(false)
+  const [timeoutMessage, setTimeoutMessage] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    if (timeout === "idle") {
+      setTimeoutMessage("Your session expired due to inactivity. Please log in again.")
+    } else if (timeout === "expired") {
+      setTimeoutMessage("Your session has expired. Please log in again.")
+    }
+  }, [timeout])
 
   const handleDigit = (d: string) => {
     if (d === "⌫") {
@@ -36,6 +46,9 @@ function PinLoginContent() {
     }
 
     setIsLoading(true)
+    setError(null)
+    setTimeoutMessage(null)
+
     try {
       const res = await fetch("/api/auth/pin-login", {
         method: "POST",
@@ -45,27 +58,50 @@ function PinLoginContent() {
 
       const data = (await res.json().catch(() => ({}))) as {
         error?: string
-        sign_in_link?: string
+        access_token?: string
+        refresh_token?: string
+        locked_until?: string
       }
 
       if (!res.ok) {
-        toast.error(data.error ?? "Invalid PIN. Try again.")
+        if (res.status === 429 && data.locked_until) {
+          toast.error(data.error || "Too many failed attempts. Please wait before trying again.")
+        } else {
+          toast.error(data.error ?? "Invalid PIN. Try again.")
+        }
+        setPin("")
         setIsLoading(false)
         return
       }
 
-      if (data.sign_in_link) {
-        window.location.href = data.sign_in_link
+      if (!data.access_token || !data.refresh_token) {
+        toast.error("Login failed. Try again.")
+        setIsLoading(false)
         return
       }
 
-      toast.error("Login failed. Try again.")
+      // Set session with returned tokens
+      const supabase = createClient()
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      })
+
+      if (sessionError) {
+        toast.error("Failed to establish session")
+        setIsLoading(false)
+        return
+      }
+
+      // Redirect to POS
+      router.push(redirectTo)
     } catch {
-      toast.error("Something went wrong")
-    } finally {
+      toast.error("Network error. Please try again.")
       setIsLoading(false)
     }
   }
+
+  const [error, setError] = React.useState<string | null>(null)
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background-light px-4 dark:bg-background-card-dark-dark">
@@ -76,6 +112,14 @@ function PinLoginContent() {
             Enter your 6-digit PIN to sign in
           </p>
         </div>
+
+        {timeoutMessage && (
+          <div className="mb-6 rounded-lg border-l-4 border-amber-500 bg-amber-50 p-4 dark:bg-amber-950/30">
+            <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+              {timeoutMessage}
+            </p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex justify-center">

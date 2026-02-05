@@ -7,6 +7,7 @@ import { getSupabaseUrl } from "@/lib/supabase/env"
 import { z } from "zod"
 import { hashPIN as hashPINBcrypt, generateUniquePIN } from "@/lib/auth/pin-auth"
 import { v4 as uuidv4 } from "uuid"
+import { logAuditEvent } from "@/lib/audit/logger"
 
 const staffSchema = z.object({
   first_name: z.string().min(1, "First name is required.").max(100, "First name is too long."),
@@ -251,6 +252,24 @@ export async function createStaff(data: CreateStaffData) {
     throw new Error(`Failed to link staff to account: ${memberError.message}`)
   }
 
+  // Log staff creation
+  await logAuditEvent({
+    account_id: accountId,
+    user_id: user.id,
+    staff_id: staff.staff_id,
+    action_type: "staff_created",
+    entity_type: "staff",
+    entity_id: staff.staff_id,
+    new_values: {
+      email: staff.email,
+      first_name: staff.first_name,
+      last_name: staff.last_name,
+      role: data.role,
+      assigned_store_id: resolvedStoreId,
+    },
+    metadata: { created_by_owner: true },
+  })
+
   return {
     staff_id: staff.staff_id,
     email: staff.email,
@@ -306,6 +325,9 @@ export async function updateStaff(data: UpdateStaffData) {
     if (accountStores?.[0]?.store_id) assignedStoreId = accountStores[0].store_id
   }
 
+  // Track role change for audit
+  const roleChanged = existingStaff.role !== data.role
+
   // Update staff
   const { error: updateError } = await supabase
     .from("staff")
@@ -319,6 +341,21 @@ export async function updateStaff(data: UpdateStaffData) {
 
   if (updateError) {
     throw new Error(`Failed to update staff: ${updateError.message}`)
+  }
+
+  // Log role change if it occurred
+  if (roleChanged) {
+    await logAuditEvent({
+      account_id: accountId,
+      user_id: user.id,
+      staff_id: data.staff_id,
+      action_type: "staff_role_changed",
+      entity_type: "staff",
+      entity_id: data.staff_id,
+      old_values: { role: existingStaff.role },
+      new_values: { role: data.role },
+      metadata: { changed_by_owner: true },
+    })
   }
 
   // Staff no longer have account_members; role is only in staff table (already updated above)
@@ -389,6 +426,19 @@ export async function deactivateStaff(staffId: string) {
   if (updateError) {
     throw new Error(`Failed to deactivate staff: ${updateError.message}`)
   }
+
+  // Log staff deactivation
+  await logAuditEvent({
+    account_id: accountId,
+    user_id: user.id,
+    staff_id: staffId,
+    action_type: "staff_deactivated",
+    entity_type: "staff",
+    entity_id: staffId,
+    old_values: { active: true },
+    new_values: { active: false },
+    metadata: { deactivated_by_owner: true },
+  })
 
   revalidatePath("/settings/staff")
   return { success: true }
@@ -567,12 +617,23 @@ export async function resetStaffPIN(staffId: string) {
 
   const { error: updateError } = await supabase
     .from("staff")
-    .update({ pin_hash: pinHash, failed_attempts: 0, locked_until: null })
+    .update({ pin_hash: pinHash })
     .eq("staff_id", staffId)
 
   if (updateError) {
     throw new Error(`Failed to reset PIN: ${updateError.message}`)
   }
+
+  // Log PIN reset
+  await logAuditEvent({
+    account_id: accountId,
+    user_id: user.id,
+    staff_id: staffId,
+    action_type: "staff_pin_reset",
+    entity_type: "staff",
+    entity_id: staffId,
+    metadata: { reset_by_owner: true },
+  })
 
   revalidatePath("/settings/staff")
   return { success: true, pin: newPIN }

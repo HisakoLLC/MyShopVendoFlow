@@ -1,12 +1,13 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { getSupabaseUrl } from "@/lib/supabase/env"
 import { verifyPIN } from "@/lib/auth/pin-auth"
+import { logAuditEvent, getIpAddress, getUserAgent } from "@/lib/audit/logger"
 
-const LOCKOUT_ATTEMPTS = 3
+const MAX_ATTEMPTS = 5
 const LOCKOUT_MINUTES = 5
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { pin } = body as { pin?: string }
@@ -40,11 +41,48 @@ export async function POST(request: Request) {
       auth: { autoRefreshToken: false, persistSession: false },
     })
 
+    // Get IP address for rate limiting
+    const ipAddress = getIpAddress(request)
+    if (!ipAddress) {
+      return NextResponse.json(
+        { error: "Could not determine IP address" },
+        { status: 400 }
+      )
+    }
+
+    // Check IP-based rate limiting
+    const { data: ipAttempt, error: ipAttemptError } = await supabaseAdmin
+      .from("pin_login_attempts")
+      .select("*")
+      .eq("ip_address", ipAddress)
+      .maybeSingle()
+
+    if (ipAttemptError && ipAttemptError.code !== "PGRST116") {
+      console.error("Failed to check IP attempts:", ipAttemptError)
+    }
+
+    // Check if IP is locked
+    if (ipAttempt?.locked_until) {
+      const lockedUntil = new Date(ipAttempt.locked_until)
+      if (lockedUntil > new Date()) {
+        const remainingSeconds = Math.ceil(
+          (lockedUntil.getTime() - Date.now()) / 1000
+        )
+        return NextResponse.json(
+          {
+            error: `Too many failed attempts. Try again in ${remainingSeconds} seconds.`,
+            locked_until: ipAttempt.locked_until,
+          },
+          { status: 429 }
+        )
+      }
+    }
+
     // Fetch ALL active staff with PINs (global search)
     const { data: staffList, error: staffError } = await supabaseAdmin
       .from("staff")
       .select(
-        "staff_id, auth_user_id, pin_hash, account_id, role, failed_attempts, locked_until, active"
+        "staff_id, auth_user_id, pin_hash, account_id, role, assigned_store_id, active"
       )
       .eq("active", true)
       .not("pin_hash", "is", null)
@@ -65,20 +103,10 @@ export async function POST(request: Request) {
       )
     }
 
-    const now = new Date()
+    // Find matching staff by PIN
     let matchedStaff: (typeof staffList)[0] | null = null
 
-    // Try to match PIN against all active staff
     for (const staff of staffList) {
-      // Skip if locked
-      if (staff.locked_until) {
-        const lockedUntil = new Date(staff.locked_until)
-        if (lockedUntil > now) {
-          continue // Skip locked staff
-        }
-      }
-
-      // Verify PIN against hash
       if (!staff.pin_hash) continue
 
       const isMatch = await verifyPIN(trimmedPin, staff.pin_hash)
@@ -88,63 +116,59 @@ export async function POST(request: Request) {
       }
     }
 
-    // If no match found, increment failed attempts for all staff with similar PIN patterns
-    // (This prevents brute force attacks by making it expensive to try many PINs)
+    // If no match found, increment IP attempt counter
     if (!matchedStaff) {
-      // Increment failed attempts for all staff (rate limiting)
-      // In a production system, you might want more sophisticated rate limiting
-      const failedStaff = staffList.filter((s) => {
-        if (!s.locked_until) return true
-        const lockedUntil = new Date(s.locked_until)
-        return lockedUntil <= now
+      const newAttemptCount = (ipAttempt?.attempt_count || 0) + 1
+      const shouldLock = newAttemptCount >= MAX_ATTEMPTS
+      const lockDuration = LOCKOUT_MINUTES * 60 * 1000 // Convert to milliseconds
+
+      await supabaseAdmin.from("pin_login_attempts").upsert({
+        ip_address: ipAddress,
+        attempt_count: newAttemptCount,
+        locked_until: shouldLock
+          ? new Date(Date.now() + lockDuration).toISOString()
+          : null,
+        last_attempt_at: new Date().toISOString(),
       })
 
-      for (const staff of failedStaff) {
-        const currentAttempts = Number(staff.failed_attempts) || 0
-        const nextAttempts = currentAttempts + 1
+      // Log failed attempt
+      await logAuditEvent({
+        account_id: "00000000-0000-0000-0000-000000000000", // System-level event
+        action_type: "pin_login_failed",
+        ip_address: ipAddress,
+        user_agent: getUserAgent(request),
+        metadata: {
+          reason: "invalid_pin",
+          attempt_count: newAttemptCount,
+          locked: shouldLock,
+        },
+      })
 
-        const updates: {
-          failed_attempts: number
-          locked_until?: string
-        } = {
-          failed_attempts: nextAttempts,
-        }
-
-        if (nextAttempts >= LOCKOUT_ATTEMPTS) {
-          const lockedUntil = new Date(now.getTime() + LOCKOUT_MINUTES * 60 * 1000)
-          updates.locked_until = lockedUntil.toISOString()
-        }
-
-        try {
-          await supabaseAdmin
-            .from("staff")
-            .update(updates)
-            .eq("staff_id", staff.staff_id)
-        } catch {
-          // Ignore update errors
-        }
+      if (shouldLock) {
+        return NextResponse.json(
+          { error: "Too many failed attempts. Try again in 5 minutes." },
+          { status: 429 }
+        )
       }
 
       return NextResponse.json(
-        { error: "Invalid PIN. Try again." },
+        { error: "Invalid PIN. Please try again." },
         { status: 401 }
       )
     }
 
-    // PIN matched! Reset failed attempts and record login
+    // PIN is correct - clear IP attempts
     await supabaseAdmin
-      .from("staff")
-      .update({
-        failed_attempts: 0,
-        locked_until: null,
-        last_login_at: new Date().toISOString(),
-      })
-      .eq("staff_id", matchedStaff.staff_id)
+      .from("pin_login_attempts")
+      .delete()
+      .eq("ip_address", ipAddress)
 
     // Get auth user for this staff
     if (!matchedStaff.auth_user_id) {
       return NextResponse.json(
-        { error: "Staff account not properly configured. Contact administrator." },
+        {
+          error: "Staff account not properly configured. Contact administrator.",
+        },
         { status: 500 }
       )
     }
@@ -154,42 +178,57 @@ export async function POST(request: Request) {
 
     if (authUserError || !authUser.user) {
       return NextResponse.json(
-        { error: "Failed to retrieve staff account. Contact administrator." },
+        {
+          error: "Failed to retrieve staff account. Contact administrator.",
+        },
         { status: 500 }
       )
     }
 
-    // Generate magic link for sign-in
-    const origin = request.headers.get("origin") || ""
-    const redirectTo = origin
-      ? `${origin}/auth/callback`
-      : "/auth/callback"
+    const staffEmail = authUser.user.email!
 
-    const { data: linkData, error: linkError } =
-      await supabaseAdmin.auth.admin.generateLink({
-        type: "magiclink",
-        email: authUser.user.email!,
-        options: { redirectTo },
+    // Sign in directly using password (PIN is the password)
+    const { data: sessionData, error: signInError } =
+      await supabaseAdmin.auth.signInWithPassword({
+        email: staffEmail,
+        password: trimmedPin,
       })
 
-    if (linkError || !linkData?.properties?.action_link) {
+    if (signInError || !sessionData.session) {
+      console.error("Sign in error:", signInError)
       return NextResponse.json(
-        { error: "Failed to create sign-in session. Try again." },
+        { error: "Authentication failed" },
         { status: 500 }
       )
     }
 
-    const actionLink = linkData.properties.action_link as string
-    const baseUrl = supabaseUrl.replace(/\/$/, "")
-    const signInLink = actionLink.startsWith("http")
-      ? actionLink
-      : `${baseUrl}/${actionLink}`
+    // Update staff last login
+    await supabaseAdmin
+      .from("staff")
+      .update({ last_login_at: new Date().toISOString() })
+      .eq("staff_id", matchedStaff.staff_id)
+
+    // Log successful login
+    await logAuditEvent({
+      account_id: matchedStaff.account_id,
+      user_id: sessionData.user.id,
+      staff_id: matchedStaff.staff_id,
+      action_type: "staff_login",
+      ip_address: ipAddress,
+      user_agent: getUserAgent(request),
+      metadata: {
+        login_method: "pin",
+        success: true,
+      },
+    })
 
     return NextResponse.json({
-      sign_in_link: signInLink,
-      staff_id: matchedStaff.staff_id,
-      account_id: matchedStaff.account_id,
-      role: matchedStaff.role,
+      access_token: sessionData.session.access_token,
+      refresh_token: sessionData.session.refresh_token,
+      user: {
+        id: sessionData.user.id,
+        email: sessionData.user.email,
+      },
     })
   } catch (error) {
     console.error("PIN login error:", error)

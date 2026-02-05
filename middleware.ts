@@ -91,6 +91,74 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
+    // SESSION TIMEOUT LOGIC
+    const now = Date.now()
+    const lastActivityCookie = request.cookies.get("last_activity")?.value
+    const sessionStartCookie = request.cookies.get("session_start")?.value
+
+    // Determine if user is staff (has @vendoflow.internal email)
+    const isStaff = user.email?.includes("@vendoflow.internal") ?? false
+
+    // Idle timeout: 8 hours for staff, 24 hours for owners
+    const maxIdleMs = isStaff ? 8 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
+
+    // Absolute timeout: 7 days
+    const maxSessionMs = 7 * 24 * 60 * 60 * 1000
+
+    // Check idle timeout
+    if (lastActivityCookie) {
+      const idleMs = now - parseInt(lastActivityCookie)
+      if (idleMs > maxIdleMs) {
+        await supabase.auth.signOut()
+
+        const redirectUrl = new URL(
+          isStaff ? "/auth/pin-login?timeout=idle" : "/login?timeout=idle",
+          request.url
+        )
+
+        const timeoutResponse = NextResponse.redirect(redirectUrl)
+        timeoutResponse.cookies.delete("last_activity")
+        timeoutResponse.cookies.delete("session_start")
+        timeoutResponse.cookies.delete("user_role")
+        return timeoutResponse
+      }
+    }
+
+    // Check absolute timeout
+    if (sessionStartCookie) {
+      const sessionAge = now - parseInt(sessionStartCookie)
+      if (sessionAge > maxSessionMs) {
+        await supabase.auth.signOut()
+
+        const redirectUrl = new URL(
+          isStaff ? "/auth/pin-login?timeout=expired" : "/login?timeout=expired",
+          request.url
+        )
+
+        const timeoutResponse = NextResponse.redirect(redirectUrl)
+        timeoutResponse.cookies.delete("last_activity")
+        timeoutResponse.cookies.delete("session_start")
+        timeoutResponse.cookies.delete("user_role")
+        return timeoutResponse
+      }
+    } else {
+      // Set session start if it doesn't exist
+      response.cookies.set("session_start", now.toString(), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: Math.floor(maxSessionMs / 1000), // Convert to seconds
+      })
+    }
+
+    // Update last activity
+    response.cookies.set("last_activity", now.toString(), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: Math.floor(maxIdleMs / 1000), // Convert to seconds
+    })
+
     // Check if user is staff (has auth_user_id in staff table)
     const { data: staffRecord } = await supabase
       .from("staff")
