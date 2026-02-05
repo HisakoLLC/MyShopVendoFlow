@@ -312,12 +312,12 @@ export async function POST(request: NextRequest) {
     console.log(`[PIN Login] Successfully signed in staff ${matchedStaff.staff_id}`)
 
     // Update staff last login (don't block response on this)
-    supabaseAdmin
-      .from("staff")
-      .update({ last_login_at: new Date().toISOString() })
-      .eq("staff_id", matchedStaff.staff_id)
-      .then(() => {})
-      .catch((err) => console.error("[PIN Login] Failed to update last_login_at:", err))
+    void Promise.resolve(
+      supabaseAdmin
+        .from("staff")
+        .update({ last_login_at: new Date().toISOString() })
+        .eq("staff_id", matchedStaff.staff_id)
+    ).catch((err) => console.error("[PIN Login] Failed to update last_login_at:", err))
 
     // Log successful login (fire-and-forget so permission errors never block login)
     logAuditEvent({
