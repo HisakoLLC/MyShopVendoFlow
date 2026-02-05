@@ -97,8 +97,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (!staffList || staffList.length === 0) {
+      console.log("[PIN Login] No active staff members found with PINs")
       return NextResponse.json(
-        { error: "Invalid PIN. Try again." },
+        { error: "No staff accounts found. Contact your administrator." },
         { status: 401 }
       )
     }
@@ -106,11 +107,17 @@ export async function POST(request: NextRequest) {
     // Find matching staff by PIN
     let matchedStaff: (typeof staffList)[0] | null = null
 
+    console.log(`[PIN Login] Checking PIN for ${staffList.length} active staff members`)
+
     for (const staff of staffList) {
-      if (!staff.pin_hash) continue
+      if (!staff.pin_hash) {
+        console.log(`[PIN Login] Staff ${staff.staff_id} has no PIN hash, skipping`)
+        continue
+      }
 
       const isMatch = await verifyPIN(trimmedPin, staff.pin_hash)
       if (isMatch) {
+        console.log(`[PIN Login] PIN matched for staff ${staff.staff_id}`)
         matchedStaff = staff
         break
       }
@@ -118,6 +125,7 @@ export async function POST(request: NextRequest) {
 
     // If no match found, increment IP attempt counter
     if (!matchedStaff) {
+      console.log(`[PIN Login] No matching staff found for PIN. Total staff checked: ${staffList.length}`)
       const newAttemptCount = (ipAttempt?.attempt_count || 0) + 1
       const shouldLock = newAttemptCount >= MAX_ATTEMPTS
       const lockDuration = LOCKOUT_MINUTES * 60 * 1000 // Convert to milliseconds
@@ -206,19 +214,105 @@ export async function POST(request: NextRequest) {
     })
 
     // Sign in with PIN as password using regular client
-    const { data: sessionData, error: signInError } =
-      await supabaseClient.auth.signInWithPassword({
-        email: staffEmail,
-        password: trimmedPin,
-      })
+    console.log(`[PIN Login] Attempting sign-in for ${staffEmail}`)
+    let sessionData: { session: { access_token: string; refresh_token: string } | null; user: { id: string; email: string | undefined } | null } | null = null
+    let signInError: { message?: string; status?: number } | null = null
+    
+    // Try regular sign-in first
+    const signInResult = await supabaseClient.auth.signInWithPassword({
+      email: staffEmail,
+      password: trimmedPin,
+    })
+    
+    signInError = signInResult.error
+    sessionData = signInResult.data
 
-    if (signInError || !sessionData.session) {
-      console.error("Sign in error:", signInError)
+    // If regular sign-in fails, try using admin API to generate a session token
+    if (signInError || !sessionData?.session) {
+      console.log("[PIN Login] Regular sign-in failed, trying admin API fallback...")
+      
+      try {
+        // Use admin API to generate a magic link and extract tokens
+        const { data: linkData, error: linkError } =
+          await supabaseAdmin.auth.admin.generateLink({
+            type: "magiclink",
+            email: staffEmail,
+            options: {
+              redirectTo: `${supabaseUrl.replace(/\/$/, "")}/auth/callback`,
+            },
+          })
+
+        if (!linkError && linkData?.properties?.action_link) {
+          const actionLink = linkData.properties.action_link as string
+          const url = new URL(actionLink)
+          
+          // Extract token from the magic link
+          const token = url.searchParams.get("token")
+          
+          if (token) {
+            // Exchange token for session using GoTrue verify endpoint
+            const verifyUrl = `${supabaseUrl.replace(/\/$/, "")}/auth/v1/verify`
+            const verifyResponse = await fetch(verifyUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${serviceRoleKey}`,
+                apikey: serviceRoleKey,
+              },
+              body: JSON.stringify({
+                token,
+                type: "magiclink",
+              }),
+            })
+
+            if (verifyResponse.ok) {
+              const verifyData = await verifyResponse.json()
+              if (verifyData.access_token && verifyData.refresh_token) {
+                sessionData = {
+                  session: {
+                    access_token: verifyData.access_token,
+                    refresh_token: verifyData.refresh_token,
+                  },
+                  user: {
+                    id: authUser.user.id,
+                    email: authUser.user.email,
+                  },
+                }
+                signInError = null
+                console.log("[PIN Login] Admin API fallback succeeded")
+              }
+            }
+          }
+        }
+      } catch (fallbackError) {
+        console.error("[PIN Login] Admin API fallback failed:", fallbackError)
+      }
+    }
+
+    if (signInError || !sessionData?.session) {
+      console.error("[PIN Login] Sign in error:", {
+        error: signInError,
+        message: signInError?.message,
+        status: signInError?.status,
+        email: staffEmail,
+        hasSession: !!sessionData?.session,
+      })
+      
+      // Provide more specific error message
+      if (signInError?.message?.includes("Invalid login credentials") || signInError?.message?.includes("Email not confirmed")) {
+        return NextResponse.json(
+          { error: "Invalid PIN. The PIN may have been reset. Contact your administrator." },
+          { status: 401 }
+        )
+      }
+      
       return NextResponse.json(
-        { error: "Failed to create sign-in session. Try again." },
+        { error: `Failed to create sign-in session: ${signInError?.message || "Unknown error"}` },
         { status: 500 }
       )
     }
+    
+    console.log(`[PIN Login] Successfully signed in staff ${matchedStaff.staff_id}`)
 
     // Update staff last login
     await supabaseAdmin
