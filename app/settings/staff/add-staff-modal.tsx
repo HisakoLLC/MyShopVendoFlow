@@ -123,7 +123,13 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
         stores: store ? { name: store.name } : null,
       }
       // Defer so any post–server-action behavior runs first and we avoid Server Components render error
-      queueMicrotask(() => onSuccess(newStaff))
+      queueMicrotask(() => {
+        onSuccess(newStaff)
+        // Refresh the page data after a short delay to ensure server action completes
+        setTimeout(() => {
+          window.location.reload()
+        }, 500)
+      })
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to create staff member.")
       setIsSubmitting(false)

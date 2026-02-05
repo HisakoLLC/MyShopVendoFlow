@@ -253,6 +253,7 @@ export async function createStaff(data: CreateStaffData) {
   }
 
   // Log staff creation (non-blocking - don't fail if audit logging fails)
+  // Fire and forget - don't await to avoid blocking the response
   logAuditEvent({
     account_id: accountId,
     user_id: user.id,
@@ -273,8 +274,8 @@ export async function createStaff(data: CreateStaffData) {
     console.error("Audit log error (non-blocking):", err)
   })
 
-  // Revalidate path (this triggers page refresh to show new staff)
-  revalidatePath("/settings/staff")
+  // Return immediately - let client handle revalidation via router.refresh()
+  // This prevents Server Components render errors during revalidation
 
   return {
     staff_id: staff.staff_id,

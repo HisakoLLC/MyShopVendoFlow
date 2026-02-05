@@ -62,13 +62,19 @@ export async function logAuditEvent(params: AuditLogParams): Promise<void> {
 
     if (error) {
       // Log error but don't throw - audit logging failures shouldn't break functionality
-      // Common errors: table doesn't exist (42P01), permission denied, etc.
+      // Common errors: table doesn't exist (42P01), permission denied (42501), etc.
       if (error.code === '42P01') {
         // Table doesn't exist - user needs to run migration
         console.warn('Audit logs table does not exist. Run sql/CREATE_AUDIT_LOGS_TABLE.sql')
+      } else if (error.code === '42501') {
+        // Permission denied - RLS policy issue
+        console.error('Audit log RLS error: Permission denied. Check RLS policies. Error:', error.message)
       } else {
-        console.error('Audit log error:', error.message, error.code)
+        console.error('Audit log error:', error.message, 'Code:', error.code, 'Details:', error)
       }
+    } else {
+      // Success - log for debugging (remove in production if too verbose)
+      console.log('Audit log inserted successfully:', params.action_type)
     }
   } catch (err) {
     // Never throw - logging shouldn't break app functionality
