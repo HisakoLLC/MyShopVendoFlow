@@ -103,12 +103,17 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
       }
 
       const result = await createStaff(data)
-      if (result.pin) {
-        setGeneratedPIN(result.pin)
-      }
-      toast.success(`Staff created. ${result.pin ? "Share the PIN with them." : ""}`)
       setIsSubmitting(false)
       form.reset()
+
+      // Show PIN first so user sees it even if a revalidation error occurs
+      if (result.pin) {
+        setGeneratedPIN(result.pin)
+        toast.success("Staff created. Share the PIN with them — it’s shown below.")
+      } else {
+        toast.success("Staff created.")
+      }
+
       const store = stores[0] ?? null
       const newStaff: NewStaffForList = {
         staff_id: result.staff_id,
@@ -122,8 +127,8 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
         last_login_at: null,
         stores: store ? { name: store.name } : null,
       }
-      // Defer so any post–server-action behavior runs first and we avoid Server Components render error
-      queueMicrotask(() => {
+      // Defer list update so PIN dialog can render first; reduces chance of Server Components error hiding the PIN
+      requestAnimationFrame(() => {
         onSuccess(newStaff)
       })
     } catch (e) {

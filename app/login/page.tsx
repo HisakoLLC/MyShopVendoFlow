@@ -195,6 +195,9 @@ function LoginContent() {
         error?: string
         email?: string
         sign_in_link?: string
+        access_token?: string
+        refresh_token?: string
+        user?: { id: string; email?: string }
       }
       if (!res.ok) {
         toast.error(data.error || "Invalid PIN. Try again.")
@@ -204,6 +207,21 @@ function LoginContent() {
         window.location.href = data.sign_in_link
         return
       }
+      // New API: returns tokens directly
+      if (data.access_token && data.refresh_token) {
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+        })
+        if (sessionError) {
+          toast.error("Failed to establish session. Try again.")
+          return
+        }
+        router.push("/dashboard")
+        router.refresh()
+        return
+      }
+      // Legacy: API returned email, sign in with password
       if (!data.email) {
         toast.error("Invalid PIN. Try again.")
         return
