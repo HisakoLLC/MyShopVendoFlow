@@ -16,6 +16,7 @@ interface Sale {
   grand_total: number | null
   payment_method: string | null
   sale_date: string | null
+  status?: string | null
 }
 
 interface RecentSalesProps {
@@ -73,7 +74,13 @@ export function RecentSales({
                 </Link>
               </TableCell>
               <TableCell>{itemsPerSale[sale.sale_id] || 0} items</TableCell>
-              <TableCell className="font-medium">{formatPrice(sale.grand_total ?? 0)}</TableCell>
+              <TableCell className="font-medium">
+                {sale.status === "refunded" ? (
+                  <span className="text-zinc-500 dark:text-zinc-400 italic">Refunded</span>
+                ) : (
+                  formatPrice(sale.grand_total ?? 0)
+                )}
+              </TableCell>
               <TableCell>
                 <span className="capitalize">{sale.payment_method || "N/A"}</span>
               </TableCell>

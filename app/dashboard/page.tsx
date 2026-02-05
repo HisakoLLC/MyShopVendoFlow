@@ -354,12 +354,12 @@ async function DashboardContent() {
   }
 
   // Fetch recent sales - non-fatal
-  let recentSales: Array<{ sale_id: string; receipt_number: string | null; grand_total: number | null; payment_method: string | null; sale_date: string | null; store_id: string | null }> = []
+  let recentSales: Array<{ sale_id: string; receipt_number: string | null; grand_total: number | null; payment_method: string | null; sale_date: string | null; store_id: string | null; status: string | null }> = []
   let itemsPerSale: Record<string, number> = {}
   try {
     const { data: recentSalesData } = await supabase
       .from("sales")
-      .select("sale_id, receipt_number, grand_total, payment_method, sale_date, store_id")
+      .select("sale_id, receipt_number, grand_total, payment_method, sale_date, store_id, status")
       .in("store_id", storeIds)
       .order("sale_date", { ascending: false })
       .limit(10)

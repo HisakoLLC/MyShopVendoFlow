@@ -225,6 +225,20 @@ export function SalesReportClient({
     }
   }, [sales, totalUnitsSold, refunds])
 
+  // Helper to check if a sale is refunded
+  const isSaleRefunded = React.useCallback(
+    (saleId: string): boolean => {
+      // Check sale status first
+      const sale = sales.find((s) => s.sale_id === saleId)
+      if (sale?.status === "refunded") {
+        return true
+      }
+      // Also check if there's a refund record
+      return refunds.some((r) => r.sale_id === saleId)
+    },
+    [sales, refunds]
+  )
+
   // Pagination
   const totalPages = Math.ceil(sales.length / itemsPerPage)
   const paginatedSales = sales.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
@@ -512,7 +526,11 @@ export function SalesReportClient({
                             <span className="capitalize">{sale.payment_method || "N/A"}</span>
                           </TableCell>
                           <TableCell className="text-right font-medium">
-                            {formatPrice(sale.grand_total ?? 0)}
+                            {isSaleRefunded(sale.sale_id) ? (
+                              <span className="text-zinc-500 dark:text-zinc-400 italic">Refunded</span>
+                            ) : (
+                              formatPrice(sale.grand_total ?? 0)
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}
