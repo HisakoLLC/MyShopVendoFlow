@@ -188,7 +188,7 @@ export async function POST(request: NextRequest) {
     const staffEmail = authUser.user.email!
 
     // Generate magic link to get session tokens (admin API)
-    // This is faster than client-side signInWithPassword and works server-side
+    // The link contains tokens in the URL hash, which we'll extract
     const origin = request.headers.get("origin") || request.headers.get("referer") || ""
     const redirectTo = origin ? `${origin}/auth/callback` : "/auth/callback"
 
@@ -199,7 +199,7 @@ export async function POST(request: NextRequest) {
         options: { redirectTo },
       })
 
-    if (linkError || !linkData?.properties) {
+    if (linkError || !linkData) {
       console.error("Failed to generate sign-in link:", linkError)
       return NextResponse.json(
         { error: "Failed to create sign-in session. Try again." },
@@ -207,12 +207,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Extract tokens from the magic link properties
-    const accessToken = linkData.properties.access_token as string | undefined
-    const refreshToken = linkData.properties.refresh_token as string | undefined
+    // Extract tokens from the magic link URL hash
+    // The link format is: https://...?token=...&type=magiclink#access_token=...&refresh_token=...
+    const actionLink = linkData.properties?.action_link as string | undefined
+    if (!actionLink) {
+      console.error("Missing action_link in generateLink response")
+      return NextResponse.json(
+        { error: "Failed to create sign-in session. Try again." },
+        { status: 500 }
+      )
+    }
+
+    // Parse tokens from URL hash
+    const url = new URL(actionLink)
+    const hash = url.hash.slice(1) // Remove leading #
+    const params = new URLSearchParams(hash)
+    const accessToken = params.get("access_token")
+    const refreshToken = params.get("refresh_token")
 
     if (!accessToken || !refreshToken) {
-      console.error("Missing tokens in magic link response")
+      console.error("Missing tokens in magic link URL:", actionLink)
       return NextResponse.json(
         { error: "Failed to create sign-in session. Try again." },
         { status: 500 }
