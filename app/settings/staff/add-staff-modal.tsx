@@ -33,7 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { createStaff, type CreateStaffData } from "./actions"
+import type { CreateStaffData } from "./actions"
 
 // Single store per account: no store selection; server assigns the account's store
 const staffSchema = z.object({
@@ -95,15 +95,21 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
   const onSubmit = async (values: StaffFormValues) => {
     setIsSubmitting(true)
     try {
-      const data: CreateStaffData = {
-        first_name: values.first_name,
-        last_name: values.last_name,
-        email: values.email,
-        role: values.role,
-        generate_pin: values.generate_pin,
+      const res = await fetch("/api/staff/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: values.first_name,
+          last_name: values.last_name,
+          email: values.email,
+          role: values.role,
+          generate_pin: values.generate_pin,
+        }),
+      })
+      const result = await res.json()
+      if (!res.ok) {
+        throw new Error(result.error || "Failed to create staff member.")
       }
-
-      const result = await createStaff(data)
       setIsSubmitting(false)
       form.reset()
 
@@ -223,6 +229,7 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        className="border-2 border-primary focus-visible:ring-primary"
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
