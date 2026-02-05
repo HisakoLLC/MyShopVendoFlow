@@ -187,17 +187,34 @@ export async function POST(request: NextRequest) {
 
     const staffEmail = authUser.user.email!
 
-    // Sign in directly using password (PIN is the password)
-    const { data: sessionData, error: signInError } =
-      await supabaseAdmin.auth.signInWithPassword({
+    // Generate magic link to get session tokens (admin API)
+    // This is faster than client-side signInWithPassword and works server-side
+    const origin = request.headers.get("origin") || request.headers.get("referer") || ""
+    const redirectTo = origin ? `${origin}/auth/callback` : "/auth/callback"
+
+    const { data: linkData, error: linkError } =
+      await supabaseAdmin.auth.admin.generateLink({
+        type: "magiclink",
         email: staffEmail,
-        password: trimmedPin,
+        options: { redirectTo },
       })
 
-    if (signInError || !sessionData.session) {
-      console.error("Sign in error:", signInError)
+    if (linkError || !linkData?.properties) {
+      console.error("Failed to generate sign-in link:", linkError)
       return NextResponse.json(
-        { error: "Authentication failed" },
+        { error: "Failed to create sign-in session. Try again." },
+        { status: 500 }
+      )
+    }
+
+    // Extract tokens from the magic link properties
+    const accessToken = linkData.properties.access_token as string | undefined
+    const refreshToken = linkData.properties.refresh_token as string | undefined
+
+    if (!accessToken || !refreshToken) {
+      console.error("Missing tokens in magic link response")
+      return NextResponse.json(
+        { error: "Failed to create sign-in session. Try again." },
         { status: 500 }
       )
     }
@@ -211,7 +228,7 @@ export async function POST(request: NextRequest) {
     // Log successful login
     await logAuditEvent({
       account_id: matchedStaff.account_id,
-      user_id: sessionData.user.id,
+      user_id: authUser.user.id,
       staff_id: matchedStaff.staff_id,
       action_type: "staff_login",
       ip_address: ipAddress,
@@ -223,11 +240,11 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({
-      access_token: sessionData.session.access_token,
-      refresh_token: sessionData.session.refresh_token,
+      access_token: accessToken,
+      refresh_token: refreshToken,
       user: {
-        id: sessionData.user.id,
-        email: sessionData.user.email,
+        id: authUser.user.id,
+        email: authUser.user.email,
       },
     })
   } catch (error) {
