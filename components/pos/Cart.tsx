@@ -19,9 +19,10 @@ import {
 
 interface CartProps {
   defaultStoreId: string | null
+  accountId?: string | null
 }
 
-export function Cart({ defaultStoreId }: CartProps) {
+export function Cart({ defaultStoreId, accountId }: CartProps) {
   const { cart, removeFromCart, clearCart, updateQuantity, subtotal, taxAmount, total, taxRatePercent, taxInclusive } = useCart()
   const [showCheckout, setShowCheckout] = React.useState(false)
   const [showClearConfirm, setShowClearConfirm] = React.useState(false)
@@ -270,6 +271,7 @@ export function Cart({ defaultStoreId }: CartProps) {
       {showCheckout && (
         <CheckoutModal
           storeId={defaultStoreId}
+          accountId={accountId}
           onClose={() => setShowCheckout(false)}
         />
       )}

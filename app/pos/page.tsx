@@ -91,7 +91,13 @@ async function POSPageContent() {
   const defaultStoreId = stores[0].store_id
   const storeName = stores[0].name
 
-  return <POSClient defaultStoreId={defaultStoreId} storeName={storeName} />
+  return (
+    <POSClient
+      defaultStoreId={defaultStoreId}
+      storeName={storeName}
+      accountId={accountId}
+    />
+  )
 }
 
 export default async function POSPage() {

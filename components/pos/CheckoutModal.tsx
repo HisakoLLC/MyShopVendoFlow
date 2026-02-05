@@ -20,6 +20,7 @@ import { formatCurrency } from "@/lib/format-currency"
 
 interface CheckoutModalProps {
   storeId: string | null
+  accountId?: string | null
   onClose: () => void
 }
 
@@ -43,7 +44,7 @@ type ReceiptSnapshot = {
   total: number
 }
 
-export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
+export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: CheckoutModalProps) {
   const { cart, subtotal, taxAmount, total, clearCart } = useCart()
   const [currentStep, setCurrentStep] = React.useState<Step>(1)
   const [paymentMethod, setPaymentMethod] = React.useState<PaymentMethod>("cash")
@@ -71,12 +72,16 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
   const supabase = React.useMemo(() => createClient(), [])
 
   // Fetch business_settings and store tax_rate for receipt and sale calculation
+  // Use accountId from server when provided (staff); otherwise resolve via get_account_id (owner)
   React.useEffect(() => {
     if (!storeId) return
     let cancelled = false
     async function load() {
-      const { data: accountId } = await supabase.rpc("get_account_id")
-      const aid = Array.isArray(accountId) ? accountId[0] : accountId
+      let aid: string | null = accountIdProp ?? null
+      if (!aid) {
+        const { data: accountId } = await supabase.rpc("get_account_id")
+        aid = Array.isArray(accountId) ? accountId[0] : (accountId && typeof accountId === "object" && "account_id" in accountId ? (accountId as { account_id: string }).account_id : accountId)
+      }
       if (!aid) return
       const [settingsRes, storeRes] = await Promise.all([
         supabase.from("business_settings").select("logo_url, logo_on_receipt, receipt_header, receipt_footer, return_policy, currency, tax_inclusive").eq("account_id", aid).single(),
@@ -97,7 +102,7 @@ export function CheckoutModal({ storeId, onClose }: CheckoutModalProps) {
     }
     load()
     return () => { cancelled = true }
-  }, [storeId, supabase])
+  }, [storeId, accountIdProp, supabase])
 
   // Cart context already computes correct subtotal/tax/total for both tax-inclusive and -exclusive
   const displaySubtotal = subtotal

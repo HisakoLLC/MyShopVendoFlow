@@ -76,6 +76,7 @@ type AddStaffModalProps = {
 export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModalProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [generatedPIN, setGeneratedPIN] = React.useState<string | null>(null)
+  const [pendingNewStaff, setPendingNewStaff] = React.useState<NewStaffForList | null>(null)
 
   const form = useForm<StaffFormValues>({
     resolver: zodResolver(staffSchema),
@@ -106,14 +107,6 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
       setIsSubmitting(false)
       form.reset()
 
-      // Show PIN first so user sees it even if a revalidation error occurs
-      if (result.pin) {
-        setGeneratedPIN(result.pin)
-        toast.success("Staff created. Share the PIN with them — it’s shown below.")
-      } else {
-        toast.success("Staff created.")
-      }
-
       const store = stores[0] ?? null
       const newStaff: NewStaffForList = {
         staff_id: result.staff_id,
@@ -127,10 +120,14 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
         last_login_at: null,
         stores: store ? { name: store.name } : null,
       }
-      // Defer list update so PIN dialog can render first; reduces chance of Server Components error hiding the PIN
-      requestAnimationFrame(() => {
+
+      toast.success("New staff created. Share the PIN with them below.")
+      if (result.pin) {
+        setGeneratedPIN(result.pin)
+        setPendingNewStaff(newStaff)
+      } else {
         onSuccess(newStaff)
-      })
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to create staff member.")
       setIsSubmitting(false)
@@ -251,12 +248,23 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
         </DialogContent>
       </Dialog>
 
-      {/* PIN Display Dialog */}
+      {/* PIN Display Dialog - call onSuccess only when Done so list update doesn't trigger revalidation during success message */}
       {generatedPIN && (
-        <Dialog open={!!generatedPIN} onOpenChange={(open) => !open && setGeneratedPIN(null)}>
+        <Dialog
+          open={!!generatedPIN}
+          onOpenChange={(open) => {
+            if (!open) {
+              if (pendingNewStaff) {
+                onSuccess(pendingNewStaff)
+                setPendingNewStaff(null)
+              }
+              setGeneratedPIN(null)
+            }
+          }}
+        >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>PIN Generated</DialogTitle>
+              <DialogTitle>New staff created</DialogTitle>
               <DialogDescription>
                 Copy this PIN and share it with the staff member. It will not be shown again.
               </DialogDescription>
@@ -279,7 +287,17 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
               >
                 Copy PIN
               </Button>
-              <Button onClick={() => setGeneratedPIN(null)}>Done</Button>
+              <Button
+                onClick={() => {
+                  if (pendingNewStaff) {
+                    onSuccess(pendingNewStaff)
+                    setPendingNewStaff(null)
+                  }
+                  setGeneratedPIN(null)
+                }}
+              >
+                Done
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

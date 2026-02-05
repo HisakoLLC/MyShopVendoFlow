@@ -102,35 +102,39 @@ async function DashboardContent() {
       redirect("/login")
     }
 
+    // Resolve account_id: staff from staff table, owner from get_account_id
     let accountId: string | null = null
-    try {
-      const res = await supabase.rpc("get_account_id")
-      accountId = res.data ?? null
-      // If no account (e.g. trigger not installed or old user), create one automatically
-      if (res.error || !accountId) {
-        const ensured = await ensureAccountForCurrentUser()
-        if (ensured.success) {
-          accountId = ensured.accountId
-        } else {
-          redirect("/onboarding?redirect=/dashboard")
+    const { data: staffRecord } = await supabase
+      .from("staff")
+      .select("account_id, active")
+      .eq("auth_user_id", user.id)
+      .maybeSingle()
+
+    if (staffRecord?.active && staffRecord.account_id) {
+      accountId = staffRecord.account_id
+    }
+    if (!accountId) {
+      try {
+        const res = await supabase.rpc("get_account_id")
+        const raw = res.data
+        accountId =
+          typeof raw === "string"
+            ? raw
+            : Array.isArray(raw)
+              ? raw[0]
+              : raw && typeof raw === "object" && "account_id" in raw
+                ? (raw as { account_id: string }).account_id
+                : null
+        if (res.error || !accountId) {
+          const ensured = await ensureAccountForCurrentUser()
+          if (ensured.success) accountId = ensured.accountId ?? null
         }
+      } catch {
+        // fall through
       }
-      if (!accountId) {
-        redirect("/onboarding?redirect=/dashboard")
-      }
-    } catch (rpcErr: unknown) {
-      const d = rpcErr && typeof rpcErr === "object" && (rpcErr as { digest?: string }).digest
-      if (typeof d === "string" && d.includes("NEXT_REDIRECT")) {
-        throw rpcErr
-      }
-      const msg = rpcErr instanceof Error ? rpcErr.message : String(rpcErr)
-      console.error("get_account_id failed:", rpcErr)
-      return (
-        <DashboardErrorCard
-          description="Account lookup failed. Run the SQL files in Supabase (same project as your app)."
-          detail={msg}
-        />
-      )
+    }
+    if (!accountId) {
+      redirect("/onboarding?redirect=/dashboard")
     }
 
     // Get all stores for this account

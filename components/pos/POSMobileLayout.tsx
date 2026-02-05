@@ -20,9 +20,10 @@ import { Badge } from "@/components/ui/badge"
 type POSMobileLayoutProps = {
   defaultStoreId: string | null
   storeName: string
+  accountId?: string | null
 }
 
-export function POSMobileLayout({ defaultStoreId, storeName }: POSMobileLayoutProps) {
+export function POSMobileLayout({ defaultStoreId, storeName, accountId }: POSMobileLayoutProps) {
   const { cart } = useCart()
   const [activeTab, setActiveTab] = React.useState<"products" | "cart">("products")
   const [showCartSheet, setShowCartSheet] = React.useState(false)
@@ -69,7 +70,7 @@ export function POSMobileLayout({ defaultStoreId, storeName }: POSMobileLayoutPr
                   <SheetDescription>Review and checkout your items</SheetDescription>
                 </SheetHeader>
                 <div className="mt-4 h-full overflow-y-auto">
-                  <Cart defaultStoreId={defaultStoreId} />
+                  <Cart defaultStoreId={defaultStoreId} accountId={accountId} />
                 </div>
               </SheetContent>
             </Sheet>
@@ -97,7 +98,7 @@ export function POSMobileLayout({ defaultStoreId, storeName }: POSMobileLayoutPr
           </TabsContent>
           <TabsContent value="cart" className="flex-1 overflow-hidden">
             <div className="h-full overflow-y-auto">
-              <Cart defaultStoreId={defaultStoreId} />
+              <Cart defaultStoreId={defaultStoreId} accountId={accountId} />
             </div>
           </TabsContent>
         </Tabs>

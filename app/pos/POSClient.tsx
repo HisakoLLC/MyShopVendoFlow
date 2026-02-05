@@ -10,9 +10,10 @@ import { POSMobileLayout } from "@/components/pos/POSMobileLayout"
 interface POSClientProps {
   defaultStoreId: string
   storeName: string
+  accountId?: string | null
 }
 
-export function POSClient({ defaultStoreId, storeName }: POSClientProps) {
+export function POSClient({ defaultStoreId, storeName, accountId: accountIdProp }: POSClientProps) {
   const [taxInclusive, setTaxInclusive] = React.useState(false)
   const [taxRatePercent, setTaxRatePercent] = React.useState(16)
   const supabase = React.useMemo(() => createClient(), [])
@@ -88,11 +89,11 @@ export function POSClient({ defaultStoreId, storeName }: POSClientProps) {
           </div>
         </div>
         <div className="flex w-[40%] flex-col border-l border-zinc-200 bg-background-card-light dark:border-border-dark dark:bg-background-card-dark">
-          <Cart defaultStoreId={defaultStoreId} />
+          <Cart defaultStoreId={defaultStoreId} accountId={accountIdProp} />
         </div>
       </div>
       <div className="lg:hidden">
-        <POSMobileLayout defaultStoreId={defaultStoreId} storeName={storeName} />
+        <POSMobileLayout defaultStoreId={defaultStoreId} storeName={storeName} accountId={accountIdProp} />
       </div>
     </CartProvider>
   )
