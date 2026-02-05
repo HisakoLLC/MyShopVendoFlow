@@ -15,8 +15,8 @@ DROP POLICY IF EXISTS "Users can view their account audit logs" ON audit_logs;
 -- Create permissive INSERT policy (allows service role and system inserts)
 CREATE POLICY "System can insert audit logs"
 ON audit_logs
-FOR SELECT
-USING (true);
+FOR INSERT
+WITH CHECK (true);
 
 -- Create SELECT policy for users to view their account logs
 CREATE POLICY "Users can view their account audit logs"
@@ -33,6 +33,11 @@ USING (
     WHERE auth_user_id = auth.uid() AND active = true
   )
 );
+
+-- Explicit table-level grants (required for Supabase API / service role)
+GRANT ALL ON audit_logs TO service_role;
+GRANT ALL ON audit_logs TO authenticated;
+GRANT SELECT ON audit_logs TO anon;
 
 -- Verify the policies exist
 SELECT 

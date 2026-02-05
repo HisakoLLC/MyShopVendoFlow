@@ -42,6 +42,10 @@ ON pin_login_attempts
 FOR SELECT
 USING (true);
 
+-- Explicit table-level grants (required for Supabase API / service role)
+GRANT ALL ON pin_login_attempts TO service_role;
+GRANT ALL ON pin_login_attempts TO authenticated;
+
 -- Verify policies were created
 SELECT 
   policyname,
