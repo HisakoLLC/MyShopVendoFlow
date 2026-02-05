@@ -139,18 +139,8 @@ export async function POST(request: NextRequest) {
         last_attempt_at: new Date().toISOString(),
       })
 
-      // Log failed attempt
-      await logAuditEvent({
-        account_id: "00000000-0000-0000-0000-000000000000", // System-level event
-        action_type: "pin_login_failed",
-        ip_address: ipAddress,
-        user_agent: getUserAgent(request),
-        metadata: {
-          reason: "invalid_pin",
-          attempt_count: newAttemptCount,
-          locked: shouldLock,
-        },
-      })
+      // Skip audit log for failed PIN: audit_logs.account_id has FK to accounts,
+      // and we don't have a real account_id for unknown failed attempts
 
       if (shouldLock) {
         return NextResponse.json(
@@ -160,7 +150,10 @@ export async function POST(request: NextRequest) {
       }
 
       return NextResponse.json(
-        { error: "Invalid PIN. Please try again." },
+        {
+          error:
+            "Invalid PIN. Check the 6-digit PIN you were given, or ask an owner to reset your PIN in Settings → Staff.",
+        },
         { status: 401 }
       )
     }
