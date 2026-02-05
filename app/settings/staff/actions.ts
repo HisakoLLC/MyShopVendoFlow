@@ -230,9 +230,11 @@ export async function createStaff(data: CreateStaffData) {
 
   if (staffError) {
     // Cleanup: delete auth user if staff creation fails
-    await supabaseAdmin.auth.admin.deleteUser(authUser.user.id).catch(() => {
+    try {
+      await supabaseAdmin.auth.admin.deleteUser(authUser.user.id)
+    } catch {
       // Ignore cleanup errors
-    })
+    }
     throw new Error(`Failed to create staff record: ${staffError.message}`)
   }
 
@@ -247,13 +249,20 @@ export async function createStaff(data: CreateStaffData) {
 
   if (memberError) {
     // Cleanup: delete staff and auth user if account_members creation fails
-    await supabase.from("staff").delete().eq("staff_id", staffId).catch(() => {})
-    await supabaseAdmin.auth.admin.deleteUser(authUser.user.id).catch(() => {})
+    try {
+      await supabase.from("staff").delete().eq("staff_id", staffId)
+    } catch {
+      // Ignore cleanup errors
+    }
+    try {
+      await supabaseAdmin.auth.admin.deleteUser(authUser.user.id)
+    } catch {
+      // Ignore cleanup errors
+    }
     throw new Error(`Failed to link staff to account: ${memberError.message}`)
   }
 
   // Log staff creation (non-blocking - don't fail if audit logging fails)
-  // Fire and forget - don't await to avoid blocking the response
   logAuditEvent({
     account_id: accountId,
     user_id: user.id,
@@ -269,10 +278,12 @@ export async function createStaff(data: CreateStaffData) {
       assigned_store_id: resolvedStoreId,
     },
     metadata: { created_by_owner: true },
-  }).catch((err) => {
-    // Don't block staff creation if audit logging fails
-    console.error("Audit log error (non-blocking):", err)
-  })
+  }).then(
+    () => {},
+    (err) => {
+      console.error("Audit log error (non-blocking):", err)
+    }
+  )
 
   // Return immediately - let client handle revalidation via router.refresh()
   // This prevents Server Components render errors during revalidation
