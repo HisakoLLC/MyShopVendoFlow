@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import { getSupabaseUrl } from "@/lib/supabase/env"
+import { getSupabaseUrl, getSupabaseAnonKey } from "@/lib/supabase/env"
 import { verifyPIN } from "@/lib/auth/pin-auth"
 import { logAuditEvent, getIpAddress, getUserAgent } from "@/lib/audit/logger"
 
@@ -187,63 +187,33 @@ export async function POST(request: NextRequest) {
 
     const staffEmail = authUser.user.email!
 
-    // Generate magic link to get session tokens (admin API)
-    // The link contains tokens in the URL hash, which we'll extract
-    const origin = request.headers.get("origin") || request.headers.get("referer") || ""
-    const redirectTo = origin ? `${origin}/auth/callback` : "/auth/callback"
+    // Create a regular Supabase client (not admin) to sign in with password
+    // The PIN is stored as the password for the auth user
+    const supabaseAnonKey = getSupabaseAnonKey()
+    if (!supabaseAnonKey) {
+      return NextResponse.json(
+        { error: "Server configuration error: Missing Supabase anon key" },
+        { status: 500 }
+      )
+    }
 
-    const { data: linkData, error: linkError } =
-      await supabaseAdmin.auth.admin.generateLink({
-        type: "magiclink",
+    // Create a regular client for user sign-in (not admin client)
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    })
+
+    // Sign in with PIN as password using regular client
+    const { data: sessionData, error: signInError } =
+      await supabaseClient.auth.signInWithPassword({
         email: staffEmail,
-        options: { redirectTo },
+        password: trimmedPin,
       })
 
-    if (linkError || !linkData) {
-      console.error("Failed to generate sign-in link:", linkError)
-      return NextResponse.json(
-        { error: "Failed to create sign-in session. Try again." },
-        { status: 500 }
-      )
-    }
-
-    // Extract tokens from the magic link
-    // The properties object contains action_link with tokens in the URL hash
-    const properties = linkData.properties as Record<string, unknown> | undefined
-    const actionLink = properties?.action_link as string | undefined
-    
-    if (!actionLink) {
-      console.error("Missing action_link in generateLink response", { properties })
-      return NextResponse.json(
-        { error: "Failed to create sign-in session. Try again." },
-        { status: 500 }
-      )
-    }
-
-    // Parse tokens from URL hash (format: #access_token=...&refresh_token=...)
-    let accessToken: string | null = null
-    let refreshToken: string | null = null
-
-    try {
-      const url = new URL(actionLink)
-      const hash = url.hash.slice(1) // Remove leading #
-      if (hash) {
-        const params = new URLSearchParams(hash)
-        accessToken = params.get("access_token")
-        refreshToken = params.get("refresh_token")
-      }
-      
-      // If not in hash, try query params (some formats use query params)
-      if (!accessToken || !refreshToken) {
-        accessToken = url.searchParams.get("access_token")
-        refreshToken = url.searchParams.get("refresh_token")
-      }
-    } catch (urlError) {
-      console.error("Failed to parse action link URL:", urlError, { actionLink })
-    }
-
-    if (!accessToken || !refreshToken) {
-      console.error("Missing tokens in magic link URL. Link format:", actionLink.substring(0, 100))
+    if (signInError || !sessionData.session) {
+      console.error("Sign in error:", signInError)
       return NextResponse.json(
         { error: "Failed to create sign-in session. Try again." },
         { status: 500 }
@@ -259,7 +229,7 @@ export async function POST(request: NextRequest) {
     // Log successful login
     await logAuditEvent({
       account_id: matchedStaff.account_id,
-      user_id: authUser.user.id,
+      user_id: sessionData.user.id,
       staff_id: matchedStaff.staff_id,
       action_type: "staff_login",
       ip_address: ipAddress,
@@ -271,11 +241,11 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({
-      access_token: accessToken,
-      refresh_token: refreshToken,
+      access_token: sessionData.session.access_token,
+      refresh_token: sessionData.session.refresh_token,
       user: {
-        id: authUser.user.id,
-        email: authUser.user.email,
+        id: sessionData.user.id,
+        email: sessionData.user.email,
       },
     })
   } catch (error) {

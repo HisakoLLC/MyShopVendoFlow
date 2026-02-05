@@ -36,12 +36,13 @@ export interface AuditLogParams {
 /**
  * Log an action to the audit logs table
  * This function never throws - logging failures are logged to console
+ * If the audit_logs table doesn't exist, it fails silently
  */
 export async function logAuditEvent(params: AuditLogParams): Promise<void> {
   try {
     const supabaseAdmin = getSupabaseAdmin()
     if (!supabaseAdmin) {
-      console.error('Cannot log audit event: Supabase admin client not available')
+      // Silently fail if admin client not available (e.g. missing env vars)
       return
     }
 
@@ -60,11 +61,19 @@ export async function logAuditEvent(params: AuditLogParams): Promise<void> {
     })
 
     if (error) {
-      console.error('Audit log error:', error)
+      // Log error but don't throw - audit logging failures shouldn't break functionality
+      // Common errors: table doesn't exist (42P01), permission denied, etc.
+      if (error.code === '42P01') {
+        // Table doesn't exist - user needs to run migration
+        console.warn('Audit logs table does not exist. Run sql/CREATE_AUDIT_LOGS_TABLE.sql')
+      } else {
+        console.error('Audit log error:', error.message, error.code)
+      }
     }
   } catch (err) {
     // Never throw - logging shouldn't break app functionality
-    console.error('Audit log exception:', err)
+    // This catches any unexpected errors (network, parsing, etc.)
+    console.error('Audit log exception:', err instanceof Error ? err.message : String(err))
   }
 }
 
