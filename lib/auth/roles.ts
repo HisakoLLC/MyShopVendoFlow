@@ -1,15 +1,19 @@
 /**
  * Role-based access for staff (cashier, manager, owner).
  * Owners via account_members are treated as full access.
+ *
+ * Cashier: POS only (process sales at register). No reports, inventory, or other pages.
+ * Manager: Cashier + edit inventory, view reports, manage customers.
+ * Owner: Full access to all features.
  */
 
 export type StaffRole = "cashier" | "manager" | "owner"
 
 /** Paths allowed per role. Owner has full access (no list = all). */
 const ROLE_PATHS: Record<StaffRole, string[]> = {
-  cashier: ["/dashboard", "/pos"],
+  cashier: ["/pos"],
   manager: ["/dashboard", "/pos", "/sales", "/products", "/inventory", "/customers"],
-  owner: [], // empty = all paths allowed
+  owner: [], // empty = all paths allowed (includes /purchasing, /staff, /settings)
 }
 
 /**
@@ -52,9 +56,9 @@ export function canAccessPath(pathname: string, role: StaffRole): boolean {
  * Used by AppShell to filter sidebar.
  */
 const ROLE_NAV_HREFS: Record<StaffRole, string[]> = {
-  cashier: ["/dashboard", "/pos"],
+  cashier: ["/pos"],
   manager: ["/dashboard", "/pos", "/sales", "/products", "/inventory", "/customers"],
-  owner: [], // empty = show all
+  owner: [], // empty = show all (dashboard, pos, sales, products, inventory, purchasing, customers, staff, settings)
 }
 
 export function canShowNavItem(href: string, role: StaffRole): boolean {

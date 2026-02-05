@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
+import type { StaffRole } from "@/lib/auth/roles"
 
 /**
  * GET /api/current-store
- * Returns the current user's first store and account_id (for persisting to localStorage
- * so staff can use 4-digit PIN login on this device). Requires authentication.
+ * Returns the current user's first store, account_id, and role (for sidebar and access).
+ * Requires authentication.
  */
 export async function GET() {
   const supabase = await createServerSupabaseClient()
@@ -15,6 +16,18 @@ export async function GET() {
 
   if (userError || !user) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 })
+  }
+
+  // Resolve role: staff get role from DB, otherwise owner
+  let role: StaffRole = "owner"
+  const { data: staffRow } = await supabase
+    .from("staff")
+    .select("role")
+    .eq("auth_user_id", user.id)
+    .eq("active", true)
+    .maybeSingle()
+  if (staffRow?.role === "cashier" || staffRow?.role === "manager" || staffRow?.role === "owner") {
+    role = staffRow.role
   }
 
   const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
@@ -54,5 +67,6 @@ export async function GET() {
     store_id: store.store_id,
     store_name: store.name ?? "",
     account_id: accountIdStr,
+    role,
   })
 }

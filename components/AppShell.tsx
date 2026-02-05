@@ -326,23 +326,36 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe()
   }, [supabase])
 
-  // Persist current store/account to localStorage when any user (owner or staff) is logged in,
-  // so staff can use 4-digit PIN login on this device.
+  // Persist current store/account and role when any user (owner or staff) is logged in.
+  const [role, setRole] = React.useState<StaffRole | null>(null)
   React.useEffect(() => {
-    if (!user) return
+    if (!user) {
+      setRole(null)
+      return
+    }
     let cancelled = false
     fetch("/api/current-store")
       .then((res) => (res.ok ? res.json() : null))
-      .then((data: { store_id?: string; store_name?: string; account_id?: string } | null) => {
-        if (cancelled || !data?.store_id) return
-        try {
-          localStorage.setItem(STORE_ID_KEY, data.store_id)
-          if (data.store_name) localStorage.setItem(STORE_NAME_KEY, data.store_name)
-          if (data.account_id) localStorage.setItem(ACCOUNT_ID_KEY, data.account_id)
-        } catch {
-          // ignore
+      .then(
+        (data: {
+          store_id?: string
+          store_name?: string
+          account_id?: string
+          role?: StaffRole
+        } | null) => {
+          if (cancelled) return
+          if (data?.role) setRole(data.role)
+          if (data?.store_id) {
+            try {
+              localStorage.setItem(STORE_ID_KEY, data.store_id)
+              if (data.store_name) localStorage.setItem(STORE_NAME_KEY, data.store_name)
+              if (data.account_id) localStorage.setItem(ACCOUNT_ID_KEY, data.account_id)
+            } catch {
+              // ignore
+            }
+          }
         }
-      })
+      )
       .catch(() => {})
     return () => {
       cancelled = true
@@ -357,7 +370,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return <>{children}</>
   }
 
-  const role = getRoleFromUser(user)
+  // Use role from API when available; fallback to getRoleFromUser for initial render
+  const effectiveRole: StaffRole = role ?? getRoleFromUser(user)
 
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark">
@@ -365,7 +379,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         collapsed={collapsed}
         onToggle={() => setCollapsed((c) => !c)}
         user={user}
-        role={role}
+        role={effectiveRole}
       />
       <main
         className={cn(

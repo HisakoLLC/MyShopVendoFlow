@@ -220,8 +220,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
         </h3>
         <div className="grid gap-2 text-sm text-blue-800 dark:text-blue-200 md:grid-cols-3">
           <div>
-            <strong>Cashier:</strong> Can process sales, returns. Cannot edit inventory or view
-            reports.
+            <strong>Cashier:</strong> POS only. Can process sales at the register. No other pages.
           </div>
           <div>
             <strong>Manager:</strong> Cashier permissions + edit inventory, view reports, manage
