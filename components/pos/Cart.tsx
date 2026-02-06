@@ -86,8 +86,8 @@ export function Cart({ defaultStoreId, accountId }: CartProps) {
     <>
       <div className="flex h-full flex-col">
         {/* Cart Header */}
-        <div className="border-b border-zinc-200 p-4 dark:border-zinc-300">
-          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-900">
+        <div className="border-b border-zinc-200 p-4 dark:border-zinc-800">
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
             Cart ({cart.length} {cart.length === 1 ? "item" : "items"})
           </h2>
         </div>
@@ -109,10 +109,10 @@ export function Cart({ defaultStoreId, accountId }: CartProps) {
                   d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                 />
               </svg>
-              <p className="mb-1 text-lg font-medium text-zinc-700 dark:text-zinc-700">
+              <p className="mb-1 text-lg font-medium text-zinc-700 dark:text-zinc-300">
                 Cart is empty
               </p>
-              <p className="text-sm text-zinc-500 dark:text-zinc-700">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
                 Start adding products to create a sale
               </p>
             </div>
@@ -121,12 +121,12 @@ export function Cart({ defaultStoreId, accountId }: CartProps) {
               {cart.map((item) => (
                 <div
                   key={item.cartItemId}
-                  className="group relative rounded-lg border border-zinc-200 bg-white p-3 transition-colors hover:border-zinc-300 dark:border-zinc-300 dark:bg-white dark:hover:border-zinc-400"
+                  className="group relative rounded-lg border border-zinc-200 bg-background p-3 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-background dark:hover:border-zinc-700"
                 >
                   {/* Remove Button */}
                   <button
                     onClick={() => removeFromCart(item.cartItemId)}
-                    className="absolute right-2 top-2 rounded p-1 text-zinc-400 opacity-0 transition-opacity hover:text-red-600 group-hover:opacity-100 dark:text-zinc-600 dark:hover:text-red-600"
+                    className="absolute right-2 top-2 rounded p-1 text-zinc-400 opacity-0 transition-opacity hover:text-red-600 group-hover:opacity-100 dark:text-zinc-500 dark:hover:text-red-500"
                     aria-label="Remove item"
                   >
                     <svg
@@ -146,36 +146,36 @@ export function Cart({ defaultStoreId, accountId }: CartProps) {
 
                   {/* Item Details */}
                   <div className="pr-8">
-                    <h3 className="font-medium text-zinc-900 dark:text-zinc-900">
+                    <h3 className="font-medium text-zinc-900 dark:text-zinc-100">
                       {item.styleName}
                     </h3>
-                    <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-700">
+                    <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
                       {item.size} / {item.color}
                     </p>
-                    <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-600">
+                    <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
                       SKU: {item.sku}
                     </p>
                     <div className="mt-2 flex flex-col gap-1.5">
                       <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 dark:border-zinc-300 dark:bg-zinc-100">
+                        <div className="flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
                           <Button
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 shrink-0 rounded-r-none text-zinc-600 hover:bg-zinc-200 dark:text-zinc-700 dark:hover:bg-zinc-200"
+                            className="h-8 w-8 shrink-0 rounded-r-none text-zinc-600 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-700"
                             onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
                             aria-label="Decrease quantity"
                           >
                             <Minus className="h-4 w-4" />
                           </Button>
-                          <span className="min-w-[2rem] text-center text-sm font-medium tabular-nums text-zinc-900 dark:text-zinc-900">
+                          <span className="min-w-[2rem] text-center text-sm font-medium tabular-nums text-zinc-900 dark:text-zinc-100">
                             {item.quantity}
                           </span>
                           <Button
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 shrink-0 rounded-l-none text-zinc-600 hover:bg-zinc-200 dark:text-zinc-700 dark:hover:bg-zinc-200"
+                            className="h-8 w-8 shrink-0 rounded-l-none text-zinc-600 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-700"
                             onClick={() => {
                               const available = defaultStoreId
                                 ? (stockByVariant[item.variantId] ?? 0)
@@ -191,12 +191,12 @@ export function Cart({ defaultStoreId, accountId }: CartProps) {
                             <Plus className="h-4 w-4" />
                           </Button>
                         </div>
-                        <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-900 shrink-0">
+                        <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 shrink-0">
                           {formatPrice(item.price * item.quantity)}
                         </span>
                       </div>
                       {defaultStoreId && stockByVariant[item.variantId] != null && (
-                        <p className="text-xs text-zinc-500 dark:text-zinc-700">
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
                           Max in stock: {stockByVariant[item.variantId]}
                         </p>
                       )}
@@ -210,33 +210,33 @@ export function Cart({ defaultStoreId, accountId }: CartProps) {
 
         {/* Footer - Sticky Bottom */}
         {cart.length > 0 && (
-          <div className="border-t border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-300 dark:bg-zinc-100">
+          <div className="border-t border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
             <div className="space-y-2">
               {/* Subtotal */}
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-600 dark:text-zinc-700">
+                <span className="text-zinc-600 dark:text-zinc-400">
                   {taxInclusive ? "Subtotal (ex tax)" : "Subtotal"}
                 </span>
-                <span className="font-medium text-zinc-900 dark:text-zinc-900">
+                <span className="font-medium text-zinc-900 dark:text-zinc-100">
                   {formatPrice(subtotal)}
                 </span>
               </div>
 
               {/* Tax */}
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-600 dark:text-zinc-700">Tax ({taxRatePercent}%)</span>
-                <span className="font-medium text-zinc-900 dark:text-zinc-900">
+                <span className="text-zinc-600 dark:text-zinc-400">Tax ({taxRatePercent}%)</span>
+                <span className="font-medium text-zinc-900 dark:text-zinc-100">
                   {formatPrice(taxAmount)}
                 </span>
               </div>
 
               {/* Total */}
-              <div className="border-t border-zinc-200 pt-2 dark:border-zinc-300">
+              <div className="border-t border-zinc-200 pt-2 dark:border-zinc-800">
                 <div className="flex justify-between">
-                  <span className="text-base font-semibold text-zinc-900 dark:text-zinc-900">
+                  <span className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
                     Total
                   </span>
-                  <span className="text-lg font-bold text-zinc-900 dark:text-zinc-900">
+                  <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
                     {formatPrice(total)}
                   </span>
                 </div>

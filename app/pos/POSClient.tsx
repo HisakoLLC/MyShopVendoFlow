@@ -77,18 +77,18 @@ export function POSClient({ defaultStoreId, storeName, accountId: accountIdProp 
     <CartProvider taxInclusive={taxInclusive} taxRatePercent={taxRatePercent}>
       {/* Desktop/Tablet Landscape: Split screen (60/40) */}
       <div className="hidden h-screen overflow-hidden bg-background-light dark:bg-background-dark lg:flex">
-        <div className="flex w-[60%] flex-col border-r border-zinc-200 dark:border-zinc-300">
+        <div className="flex w-[60%] flex-col border-r border-zinc-200 dark:border-zinc-800">
           <div className="flex h-full flex-col">
-            <div className="border-b border-zinc-200 bg-white p-4 dark:border-zinc-300 dark:bg-white">
-              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-900">Point of Sale</h1>
-              <p className="text-sm text-zinc-600 dark:text-zinc-700">Store: {storeName}</p>
+            <div className="border-b border-zinc-200 bg-background-card-light p-4 dark:border-border-dark dark:bg-background-card-dark">
+              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Point of Sale</h1>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">Store: {storeName}</p>
             </div>
-            <div className="flex-1 overflow-hidden bg-white dark:bg-white">
+            <div className="flex-1 overflow-hidden">
               <ProductSearch defaultStoreId={defaultStoreId} />
             </div>
           </div>
         </div>
-        <div className="flex w-[40%] flex-col border-l border-zinc-200 bg-white dark:border-zinc-300 dark:bg-white">
+        <div className="flex w-[40%] flex-col border-l border-zinc-200 bg-background-card-light dark:border-border-dark dark:bg-background-card-dark">
           <Cart defaultStoreId={defaultStoreId} accountId={accountIdProp} />
         </div>
       </div>
