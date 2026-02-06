@@ -514,11 +514,11 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                       </div>
                     </div>
                   </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="mt-3 flex flex-nowrap gap-1.5">
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 text-xs"
+                      className="h-7 flex-1 px-1.5 text-[10px] font-medium"
                       onClick={() =>
                         setEditingVariant({
                           variant_id: item.variant_id,
@@ -532,17 +532,16 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                       }
                       title="Edit price, cost, SKU"
                     >
-                      <Pencil className="mr-1 h-3.5 w-3.5" />
-                      Edit
+                      <Pencil className="h-3 w-3" />
                     </Button>
-                    {stores.map((store) => {
-                      const level = item.stores.find((s) => s.store_id === store.store_id)
+                    {stores.length > 0 && (() => {
+                      const firstStore = stores[0]
+                      const level = item.stores.find((s) => s.store_id === firstStore.store_id)
                       return (
                         <Button
-                          key={store.store_id}
                           variant="outline"
                           size="sm"
-                          className="h-8 text-xs"
+                          className="h-7 flex-1 px-1.5 text-[10px] font-medium"
                           onClick={() =>
                             setAdjustingVariant({
                               variant: {
@@ -553,21 +552,22 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                                 sku: item.sku,
                               },
                               store: {
-                                store_id: store.store_id,
-                                name: store.name,
+                                store_id: firstStore.store_id,
+                                name: firstStore.name,
                               },
                               currentStock: level?.quantity_on_hand ?? 0,
                             })
                           }
+                          title={hasMultipleStores ? `Adjust ${firstStore.name}` : "Adjust stock"}
                         >
-                          {hasMultipleStores ? store.name : "Adjust"}
+                          <Layers className="h-3 w-3" />
                         </Button>
                       )
-                    })}
+                    })()}
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30"
+                      className="h-7 flex-1 px-1.5 text-[10px] font-medium text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30"
                       title="Delete this variant"
                       disabled={deletePending}
                       onClick={() =>
@@ -579,8 +579,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                         })
                       }
                     >
-                      <Trash2 className="mr-1 h-3.5 w-3.5" />
-                      Delete
+                      <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>

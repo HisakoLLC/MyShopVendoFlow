@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import * as AlertDialog from "@radix-ui/react-alert-dialog"
-import { Archive, ArchiveRestore, LayoutGrid, LayoutList, Pencil, Percent, Trash2 } from "lucide-react"
+import { Archive, ArchiveRestore, Pencil, Percent, Trash2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -91,7 +91,6 @@ export function ProductsTableClient(props: {
 }) {
   const router = useRouter()
   const [viewMode, setViewMode] = React.useState<"active" | "archived">("active")
-  const [layoutView, setLayoutView] = React.useState<"list" | "grid">("list")
   const [filters, setFilters] = React.useState<{ search: string; category: string; season: string }>(
     { search: "", category: "all", season: "all" }
   )
@@ -354,35 +353,6 @@ export function ProductsTableClient(props: {
               </div>
             )}
 
-            <div className="flex items-center rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 dark:border-zinc-700 dark:bg-zinc-800/50">
-              <button
-                type="button"
-                onClick={() => setLayoutView("list")}
-                className={`rounded-md p-2 transition-colors ${
-                  layoutView === "list"
-                    ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
-                    : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-                }`}
-                title="List view"
-                aria-label="List view"
-              >
-                <LayoutList className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setLayoutView("grid")}
-                className={`rounded-md p-2 transition-colors ${
-                  layoutView === "grid"
-                    ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
-                    : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-                }`}
-                title="Grid view"
-                aria-label="Grid view"
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </button>
-            </div>
-
             {viewMode === "active" && (
               <Link
                 href="/products/new"
@@ -416,8 +386,8 @@ export function ProductsTableClient(props: {
         </div>
       ) : (
         <>
-          {/* List: Table View */}
-          <div className={`overflow-hidden rounded-xl border border-zinc-200 bg-background-card-light shadow-sm dark:border-border-dark dark:bg-background-card-dark ${layoutView === "grid" ? "hidden" : "block"}`}>
+          {/* Desktop: Table View */}
+          <div className="hidden overflow-hidden rounded-xl border border-zinc-200 bg-background-card-light shadow-sm dark:border-border-dark dark:bg-background-card-dark md:block">
             <div className="overflow-x-auto">
               <table className="w-full">
               <thead className="bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:bg-background/40 dark:text-zinc-400">
@@ -709,9 +679,9 @@ export function ProductsTableClient(props: {
           </div>
         </div>
 
-          {/* Grid: Card View */}
-          <div className={layoutView === "list" ? "hidden" : "block"}>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {/* Mobile: Card View */}
+          <div className="md:hidden">
+            <div className="space-y-3">
               {filtered.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-zinc-200 bg-background p-10 text-center dark:border-zinc-800 dark:bg-background">
                   <p className="text-sm text-zinc-500 dark:text-zinc-400">
