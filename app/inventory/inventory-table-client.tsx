@@ -214,7 +214,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
     <>
       <div className="space-y-4">
         {/* Filters */}
-        <div className="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-background-card-light p-4 dark:border-border-dark dark:bg-background-card-dark sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-background-card-light p-4 dark:border-zinc-300 dark:bg-white dark:text-zinc-900 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
             <Input
@@ -251,14 +251,14 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
             </SelectContent>
           </Select>
 
-          <div className="flex items-center rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 dark:border-zinc-700 dark:bg-zinc-800/50">
+          <div className="flex items-center rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 dark:border-zinc-300 dark:bg-zinc-100">
             <button
               type="button"
               onClick={() => setLayoutView("list")}
               className={`rounded-md p-2 transition-colors ${
                 layoutView === "list"
-                  ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
-                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                  ? "bg-white text-zinc-900 shadow-sm dark:bg-white dark:text-zinc-900"
+                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-600 dark:hover:text-zinc-900"
               }`}
               title="List view"
               aria-label="List view"
@@ -270,8 +270,8 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
               onClick={() => setLayoutView("grid")}
               className={`rounded-md p-2 transition-colors ${
                 layoutView === "grid"
-                  ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
-                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                  ? "bg-white text-zinc-900 shadow-sm dark:bg-white dark:text-zinc-900"
+                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-600 dark:hover:text-zinc-900"
               }`}
               title="Grid view"
               aria-label="Grid view"
@@ -294,7 +294,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
         </div>
 
         {/* List: Table */}
-        <div className={`rounded-xl border border-zinc-200 bg-background-card-light dark:border-zinc-800 dark:bg-background-card-light ${layoutView === "grid" ? "hidden" : "block"}`}>
+        <div className={`rounded-xl border border-zinc-200 bg-white dark:border-zinc-300 dark:bg-white dark:text-zinc-900 ${layoutView === "grid" ? "hidden" : "block"}`}>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -319,7 +319,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={hasMultipleStores ? stores.length + 7 : 8} className="h-24 text-center">
+                    <TableCell colSpan={hasMultipleStores ? stores.length + 7 : 8} className="h-24 text-center text-zinc-600 dark:text-zinc-700">
                       No inventory found matching your filters.
                     </TableCell>
                   </TableRow>
@@ -339,7 +339,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
+                            <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-100 dark:ring-zinc-300">
                               {item.style_image_url ? (
                                 <Image
                                   src={item.style_image_url}
@@ -348,20 +348,20 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                                   className="object-cover"
                                 />
                               ) : (
-                                <div className="flex h-full w-full items-center justify-center text-xs text-zinc-500">
+                                <div className="flex h-full w-full items-center justify-center text-xs text-zinc-500 dark:text-zinc-600">
                                   No image
                                 </div>
                               )}
                             </div>
-                            <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                            <div className="font-medium text-zinc-900 dark:text-zinc-900">
                               {item.style_name}
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-zinc-700 dark:text-zinc-300">
+                        <TableCell className="text-zinc-700 dark:text-zinc-700">
                           {item.size} / {item.color}
                         </TableCell>
-                        <TableCell className="font-mono text-sm text-zinc-600 dark:text-zinc-400">
+                        <TableCell className="font-mono text-sm text-zinc-600 dark:text-zinc-600">
                           {item.sku}
                         </TableCell>
                         {hasMultipleStores
@@ -471,7 +471,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
         {/* Grid: Cards */}
         <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${layoutView === "list" ? "hidden" : "block"}`}>
           {filtered.length === 0 ? (
-            <div className="col-span-full rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 py-12 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800/30 dark:text-zinc-400">
+            <div className="col-span-full rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 py-12 text-center text-sm text-zinc-500 dark:border-zinc-300 dark:bg-white dark:text-zinc-700">
               No inventory found matching your filters.
             </div>
           ) : (
@@ -481,10 +481,10 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
               return (
                 <div
                   key={item.variant_id}
-                  className={`rounded-xl border border-zinc-200 bg-background-card-light p-4 dark:border-border-dark dark:bg-background-card-dark ${rowBg}`}
+                  className={`rounded-xl border border-zinc-200 bg-background-card-light p-4 dark:border-zinc-300 dark:bg-white dark:text-zinc-900 ${rowBg}`}
                 >
                   <div className="flex gap-3">
-                    <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
+                    <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-100 dark:ring-zinc-300">
                       {item.style_image_url ? (
                         <Image
                           src={item.style_image_url}
@@ -499,13 +499,13 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium text-zinc-900 dark:text-zinc-100 truncate">
+                      <div className="font-medium text-zinc-900 dark:text-zinc-900 truncate">
                         {item.style_name}
                       </div>
-                      <div className="mt-0.5 text-sm text-zinc-600 dark:text-zinc-400">
+                      <div className="mt-0.5 text-sm text-zinc-600 dark:text-zinc-700">
                         {item.size} / {item.color}
                       </div>
-                      <div className="mt-1 font-mono text-xs text-zinc-500 dark:text-zinc-500">
+                      <div className="mt-1 font-mono text-xs text-zinc-500 dark:text-zinc-600">
                         {item.sku}
                       </div>
                       <div className={`mt-2 text-sm font-semibold ${getStockColor(item.total_stock)}`}>

@@ -201,7 +201,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
   return (
     <div className="flex h-full flex-col">
       {/* Search Bar */}
-      <div className="border-b border-zinc-200 p-4 dark:border-zinc-800">
+      <div className="border-b border-zinc-200 p-4 dark:border-zinc-300">
         <div className="relative">
           <input
             ref={inputRef}
@@ -209,10 +209,10 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
             placeholder="Search products by name or SKU..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-border-light bg-background-card-light px-4 py-3 pl-10 text-sm text-text-primary-light placeholder:text-text-secondary-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary dark:border-border-dark dark:bg-background-card-dark dark:text-white dark:placeholder:text-text-secondary-dark dark:focus:ring-primary"
+            className="w-full rounded-lg border border-border-light bg-white px-4 py-3 pl-10 text-sm text-text-primary-light placeholder:text-text-secondary-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary dark:border-zinc-300 dark:bg-white dark:text-zinc-900 dark:placeholder:text-zinc-500 dark:focus:ring-primary"
           />
           <svg
-            className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400"
+            className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400 dark:text-zinc-500"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -231,15 +231,15 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
       <div className="flex-1 overflow-y-auto p-4">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="text-zinc-500 dark:text-zinc-400">Searching...</div>
+            <div className="text-zinc-500 dark:text-zinc-700">Searching...</div>
           </div>
         ) : !hasSearched ? (
           <div className="flex items-center justify-center py-12">
-            <p className="text-zinc-500 dark:text-zinc-400">Start typing to search products</p>
+            <p className="text-zinc-500 dark:text-zinc-700">Start typing to search products</p>
           </div>
         ) : products.length === 0 ? (
           <div className="flex items-center justify-center py-12">
-            <p className="text-zinc-500 dark:text-zinc-400">
+            <p className="text-zinc-500 dark:text-zinc-700">
               No products found for &quot;{searchQuery}&quot;
             </p>
           </div>
@@ -249,7 +249,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
               <button
                 key={product.style_id}
                 onClick={() => handleProductSelect(product.style_id)}
-                className="group relative overflow-hidden rounded-lg border border-zinc-200 bg-background-card-light p-4 text-left transition-all hover:scale-105 hover:shadow-lg dark:border-zinc-800 dark:bg-background-card-light"
+                className="group relative overflow-hidden rounded-lg border border-zinc-200 bg-white p-4 text-left transition-all hover:scale-105 hover:shadow-lg dark:border-zinc-300 dark:bg-white"
               >
                 {/* Product Image */}
                 <div className="relative mb-3 aspect-square w-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-100">
@@ -262,7 +262,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
                       sizes="(max-width: 768px) 50vw, 33vw"
                     />
                   ) : (
-                    <div className="flex h-full items-center justify-center text-zinc-500 dark:text-zinc-500">
+                    <div className="flex h-full items-center justify-center text-zinc-400 dark:text-zinc-500">
                       <svg
                         className="h-12 w-12"
                         fill="none"
