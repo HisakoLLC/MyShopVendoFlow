@@ -4,7 +4,7 @@ import * as React from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import * as AlertDialog from "@radix-ui/react-alert-dialog"
-import { Download, Search, AlertTriangle, Pencil, Layers, Trash2 } from "lucide-react"
+import { Download, LayoutGrid, LayoutList, Search, AlertTriangle, Pencil, Layers, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -78,6 +78,7 @@ function getRowBgColor(totalStock: number, hasNegative: boolean): string {
 
 export function InventoryTableClient({ stores, inventory }: InventoryTableClientProps) {
   const router = useRouter()
+  const [layoutView, setLayoutView] = React.useState<"list" | "grid">("list")
   const [searchQuery, setSearchQuery] = React.useState("")
   const [selectedStore, setSelectedStore] = React.useState<string>("all")
   const [stockStatus, setStockStatus] = React.useState<StockStatus>("all")
@@ -250,6 +251,35 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
             </SelectContent>
           </Select>
 
+          <div className="flex items-center rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 dark:border-zinc-700 dark:bg-zinc-800/50">
+            <button
+              type="button"
+              onClick={() => setLayoutView("list")}
+              className={`rounded-md p-2 transition-colors ${
+                layoutView === "list"
+                  ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
+                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+              }`}
+              title="List view"
+              aria-label="List view"
+            >
+              <LayoutList className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setLayoutView("grid")}
+              className={`rounded-md p-2 transition-colors ${
+                layoutView === "grid"
+                  ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
+                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+              }`}
+              title="Grid view"
+              aria-label="Grid view"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+          </div>
+
           <Button variant="outline" onClick={handleExportCSV} className="w-full sm:w-auto">
             <Download className="mr-2 h-4 w-4" />
             Export CSV
@@ -263,8 +293,8 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
           )}
         </div>
 
-        {/* Table */}
-        <div className="rounded-xl border border-zinc-200 bg-background dark:border-zinc-800 dark:bg-background">
+        {/* List: Table */}
+        <div className={`rounded-xl border border-zinc-200 bg-background dark:border-zinc-800 dark:bg-background ${layoutView === "grid" ? "hidden" : "block"}`}>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -436,6 +466,127 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
               </TableBody>
             </Table>
           </div>
+        </div>
+
+        {/* Grid: Cards */}
+        <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${layoutView === "list" ? "hidden" : "block"}`}>
+          {filtered.length === 0 ? (
+            <div className="col-span-full rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 py-12 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800/30 dark:text-zinc-400">
+              No inventory found matching your filters.
+            </div>
+          ) : (
+            filtered.map((item) => {
+              const hasNegative = item.stores.some((s) => (s.quantity_on_hand ?? 0) < 0)
+              const rowBg = getRowBgColor(item.total_stock, hasNegative)
+              return (
+                <div
+                  key={item.variant_id}
+                  className={`rounded-xl border border-zinc-200 bg-background-card-light p-4 dark:border-border-dark dark:bg-background-card-dark ${rowBg}`}
+                >
+                  <div className="flex gap-3">
+                    <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
+                      {item.style_image_url ? (
+                        <Image
+                          src={item.style_image_url}
+                          alt={item.style_name}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs text-zinc-500">
+                          No image
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-zinc-900 dark:text-zinc-100 truncate">
+                        {item.style_name}
+                      </div>
+                      <div className="mt-0.5 text-sm text-zinc-600 dark:text-zinc-400">
+                        {item.size} / {item.color}
+                      </div>
+                      <div className="mt-1 font-mono text-xs text-zinc-500 dark:text-zinc-500">
+                        {item.sku}
+                      </div>
+                      <div className={`mt-2 text-sm font-semibold ${getStockColor(item.total_stock)}`}>
+                        Total: {item.total_stock}
+                        {item.total_stock < 0 && <AlertTriangle className="ml-1 inline h-3.5 w-3.5" />}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs"
+                      onClick={() =>
+                        setEditingVariant({
+                          variant_id: item.variant_id,
+                          style_name: item.style_name,
+                          size: item.size,
+                          color: item.color,
+                          sku: item.sku,
+                          price: item.price,
+                          cost: item.cost,
+                        })
+                      }
+                      title="Edit price, cost, SKU"
+                    >
+                      <Pencil className="mr-1 h-3.5 w-3.5" />
+                      Edit
+                    </Button>
+                    {stores.map((store) => {
+                      const level = item.stores.find((s) => s.store_id === store.store_id)
+                      return (
+                        <Button
+                          key={store.store_id}
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-xs"
+                          onClick={() =>
+                            setAdjustingVariant({
+                              variant: {
+                                variant_id: item.variant_id,
+                                style_name: item.style_name,
+                                size: item.size,
+                                color: item.color,
+                                sku: item.sku,
+                              },
+                              store: {
+                                store_id: store.store_id,
+                                name: store.name,
+                              },
+                              currentStock: level?.quantity_on_hand ?? 0,
+                            })
+                          }
+                        >
+                          {hasMultipleStores ? store.name : "Adjust"}
+                        </Button>
+                      )
+                    })}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30"
+                      title="Delete this variant"
+                      disabled={deletePending}
+                      onClick={() =>
+                        setDeletingVariant({
+                          variant_id: item.variant_id,
+                          style_name: item.style_name,
+                          size: item.size,
+                          color: item.color,
+                        })
+                      }
+                    >
+                      <Trash2 className="mr-1 h-3.5 w-3.5" />
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              )
+            })
+          )}
         </div>
       </div>
 

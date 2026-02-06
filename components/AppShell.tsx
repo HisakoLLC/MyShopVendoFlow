@@ -334,7 +334,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       return
     }
     let cancelled = false
-    fetch("/api/current-store")
+    fetch("/api/current-store", { cache: "no-store" })
       .then((res) => (res.ok ? res.json() : null))
       .then(
         (data: {

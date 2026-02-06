@@ -4,8 +4,8 @@ import type { StaffRole } from "@/lib/auth/roles"
 
 /**
  * GET /api/current-store
- * Returns the current user's role and optionally store/account (for sidebar and PIN login).
- * Always returns 200 with `role` when authenticated so the sidebar shows the correct nav.
+ * Returns the current user's first store, account_id, and role (for sidebar and access).
+ * Requires authentication.
  */
 export async function GET() {
   const supabase = await createServerSupabaseClient()
@@ -18,7 +18,7 @@ export async function GET() {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 })
   }
 
-  // Resolve role first so client always gets it (staff from DB, otherwise owner)
+  // Resolve role: staff get role from DB, otherwise owner
   let role: StaffRole = "owner"
   const { data: staffRow } = await supabase
     .from("staff")
@@ -32,7 +32,7 @@ export async function GET() {
 
   const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
   if (accountIdError || accountIdRaw == null) {
-    return NextResponse.json({ role, error: "No account" }, { status: 200 })
+    return NextResponse.json({ role, store_id: null, store_name: null, account_id: null })
   }
 
   const accountId =
@@ -47,9 +47,10 @@ export async function GET() {
           : String(accountIdRaw)
   const accountIdStr = accountId != null ? String(accountId).trim() : ""
   if (!accountIdStr) {
-    return NextResponse.json({ role, error: "No account" }, { status: 200 })
+    return NextResponse.json({ role, store_id: null, store_name: null, account_id: null })
   }
 
+  // Single store per account; include rows where active is true or null
   const { data: stores, error: storesError } = await supabase
     .from("stores")
     .select("store_id, name")
@@ -58,7 +59,7 @@ export async function GET() {
     .limit(1)
 
   if (storesError || !stores || stores.length === 0) {
-    return NextResponse.json({ role, account_id: accountIdStr, error: "No store" }, { status: 200 })
+    return NextResponse.json({ role, store_id: null, store_name: null, account_id: accountIdStr })
   }
 
   const store = stores[0]
