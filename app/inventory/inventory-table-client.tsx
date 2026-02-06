@@ -294,7 +294,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
         </div>
 
         {/* List: Table */}
-        <div className={`rounded-xl border border-zinc-200 bg-background dark:border-zinc-800 dark:bg-background ${layoutView === "grid" ? "hidden" : "block"}`}>
+        <div className={`rounded-xl border border-zinc-200 bg-background-card-light dark:border-zinc-800 dark:bg-background-card-light ${layoutView === "grid" ? "hidden" : "block"}`}>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>

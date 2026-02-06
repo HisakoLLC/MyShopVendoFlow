@@ -249,10 +249,10 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
               <button
                 key={product.style_id}
                 onClick={() => handleProductSelect(product.style_id)}
-                className="group relative overflow-hidden rounded-lg border border-zinc-200 bg-background p-4 text-left transition-all hover:scale-105 hover:shadow-lg dark:border-zinc-800 dark:bg-background"
+                className="group relative overflow-hidden rounded-lg border border-zinc-200 bg-background-card-light p-4 text-left transition-all hover:scale-105 hover:shadow-lg dark:border-zinc-800 dark:bg-background-card-light"
               >
                 {/* Product Image */}
-                <div className="relative mb-3 aspect-square w-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-700">
+                <div className="relative mb-3 aspect-square w-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-100">
                   {product.image_url ? (
                     <StorageImage
                       src={product.image_url}
@@ -262,7 +262,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
                       sizes="(max-width: 768px) 50vw, 33vw"
                     />
                   ) : (
-                    <div className="flex h-full items-center justify-center text-zinc-400">
+                    <div className="flex h-full items-center justify-center text-zinc-500 dark:text-zinc-500">
                       <svg
                         className="h-12 w-12"
                         fill="none"
@@ -281,15 +281,15 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
                 </div>
 
                 {/* Product Info */}
-                <h3 className="mb-1 line-clamp-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                <h3 className="mb-1 line-clamp-2 text-sm font-medium text-zinc-900 dark:text-zinc-900">
                   {product.name}
                 </h3>
-                <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-700">
                   {isDiscountActive(product.discount_percent, product.discount_ends_at)
                     ? formatPrice(Math.round(product.base_price * (1 - (Number(product.discount_percent) || 0) / 100)))
                     : formatPrice(product.base_price)}
                   {isDiscountActive(product.discount_percent, product.discount_ends_at) && (
-                    <span className="ml-1 text-xs text-green-600 dark:text-green-400">
+                    <span className="ml-1 text-xs text-green-600 dark:text-green-600">
                       {product.discount_percent}% off
                     </span>
                   )}
