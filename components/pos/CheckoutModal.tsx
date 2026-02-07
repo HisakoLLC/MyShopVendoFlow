@@ -179,17 +179,28 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
   }
 
   const generateReceiptNumber = async (storeId: string): Promise<string> => {
-    const today = new Date()
-    const dateStr = today.toISOString().split("T")[0].replace(/-/g, "")
-    const storePrefix = "STORE"
+    const today = new Date();
+    const dateStr = today.toISOString().split("T")[0].replace(/-/g, "");
+    const storePrefix = "STORE"; // Optional: make dynamic per store
   
-    // Get the next sequence value from Postgres
-    const { data, error } = await supabase.rpc('nextval', { sequence_name: 'sales_receipt_seq' })
-    if (error || !data) throw new Error('Failed to generate receipt number')
+    // Call the Supabase RPC function
+    const { data, error } = await supabase.rpc("get_next_receipt_number");
   
-    const nextNumber = Number(data)
-    return `${storePrefix}-${dateStr}-${String(nextNumber).padStart(5, "0")}`
-  }
+    if (error) {
+      console.error("Error calling get_next_receipt_number:", error);
+      throw new Error("Failed to generate receipt");
+    }
+  
+    const nextNumber = Number(data);
+    if (isNaN(nextNumber)) {
+      console.error("Invalid receipt number generated:", data);
+      throw new Error("Failed to generate receipt");
+    }
+  
+    // Format: STORE-20260207-00001
+    return `${storePrefix}-${dateStr}-${String(nextNumber).padStart(5, "0")}`;
+  };
+  
   
 
   const handleNext = () => {
