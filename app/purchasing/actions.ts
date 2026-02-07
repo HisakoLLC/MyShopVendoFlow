@@ -141,8 +141,15 @@ export async function createPurchaseOrder(data: CreatePOData) {
   }
 
   // Generate PO number
-  const poNumber = await generatePONumber(accountId)
-
+  const { data: poNumber, error } = await supabase.rpc(
+    "next_po_number",
+    { p_account_id: accountId }
+  )
+  
+  if (error || !poNumber) {
+    throw new Error("Failed to generate PO number")
+  }
+  
   // Calculate total cost
   const totalCost = data.line_items.reduce(
     (sum, item) => sum + item.quantity_ordered * item.unit_cost,
