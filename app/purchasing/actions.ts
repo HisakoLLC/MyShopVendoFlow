@@ -214,12 +214,137 @@ export async function receiveInventory(data: ReceiveInventoryData) {
   const accountId = typeof accountIdRaw === "string" ? accountIdRaw : accountIdRaw?.account_id
   if (!accountId) throw new Error("Invalid account ID returned.")
 
-  // The rest of your receiveInventory logic remains unchanged...
-  // (update po_line_items, inventory_levels, create inventory_receipts, update PO status)
+ 
+  // Update po_line_items.quantity_received
+  // Filter items to receive
+const itemsToReceive = data.line_items.filter(item => item.quantity > 0)
+if (itemsToReceive.length === 0) throw new Error("No items to receive")
 
-  // Revalidate paths after receiving
+// Fetch line items from DB
+const lineItemIds = itemsToReceive.map(i => i.line_item_id)
+const { data: lineItems, error: lineItemsError } = await supabase
+  .from("po_line_items")
+  .select("line_item_id, variant_id, quantity_ordered, quantity_received")
+  .in("line_item_id", lineItemIds)
+  .eq("po_id", data.po_id)
+
+if (lineItemsError || !lineItems) throw new Error("Failed to fetch line items")
+
+// Prepare line items for inventory_receipts table
+if (!lineItems || lineItems.length === 0) throw new Error("Line items not found for this PO")
+
+  const receiptLineItems = itemsToReceive.map(item => {
+    const li = lineItems.find(
+      (l: { line_item_id: string; variant_id: string | null }) => l.line_item_id === item.line_item_id
+    )
+  
+    if (!li) throw new Error(`Line item not found: ${item.line_item_id}`)
+  
+    return {
+      variant_id: li.variant_id,
+      quantity: item.quantity,
+    }
+  })
+  
+  
+  for (const receiveItem of itemsToReceive) {
+    const lineItem = lineItems.find((li: { line_item_id: string; variant_id: string | null; quantity_ordered: number; quantity_received: number | null }) => li.line_item_id === receiveItem.line_item_id)!
+    const newQtyReceived = (lineItem.quantity_received || 0) + receiveItem.quantity
+
+    const { error: updateError } = await supabase
+      .from("po_line_items")
+      .update({ quantity_received: newQtyReceived })
+      .eq("line_item_id", receiveItem.line_item_id)
+
+    if (updateError) {
+      throw new Error(`Failed to update line item: ${updateError.message}`)
+    }
+  }
+
+  // Update inventory_levels
+  for (const receiveItem of itemsToReceive) {
+    const lineItem = lineItems.find((li: { line_item_id: string; variant_id: string | null; quantity_ordered: number; quantity_received: number | null }) => li.line_item_id === receiveItem.line_item_id)!
+    if (!lineItem.variant_id) continue
+
+    // Get current inventory level
+    const { data: currentLevel, error: levelError } = await supabase
+      .from("inventory_levels")
+      .select("inventory_id, quantity_on_hand")
+      .eq("variant_id", lineItem.variant_id)
+      .eq("store_id", data.store_id)
+      .single()
+
+    const newQuantity = (currentLevel?.quantity_on_hand || 0) + receiveItem.quantity
+
+    if (currentLevel) {
+      // Update existing inventory level
+      const { error: updateError } = await supabase
+        .from("inventory_levels")
+        .update({
+          quantity_on_hand: newQuantity,
+          last_counted_date: new Date().toISOString(),
+        })
+        .eq("inventory_id", currentLevel.inventory_id)
+
+      if (updateError) {
+        throw new Error(`Failed to update inventory: ${updateError.message}`)
+      }
+    } else {
+      // Create new inventory level
+      const { error: insertError } = await supabase.from("inventory_levels").insert({
+        variant_id: lineItem.variant_id,
+        store_id: data.store_id,
+        quantity_on_hand: newQuantity,
+        quantity_reserved: 0,
+        last_counted_date: new Date().toISOString(),
+      })
+
+      if (insertError) {
+        throw new Error(`Failed to create inventory level: ${insertError.message}`)
+      }
+    }
+  }
+
+  // Create inventory_receipts record (received_by is FK to staff; use null if user not in staff)
+  const { error: receiptError } = await supabase.from("inventory_receipts").insert({
+    po_id: data.po_id,
+    store_id: data.store_id,
+    received_by: null,
+    received_date: data.received_date,
+    line_items_received: receiptLineItems,
+  })
+
+  if (receiptError) {
+    throw new Error(`Failed to create receipt record: ${receiptError.message}`)
+  }
+
+  // Check if all line items are fully received
+  const { data: allLineItems, error: allLineItemsError } = await supabase
+    .from("po_line_items")
+    .select("quantity_ordered, quantity_received")
+    .eq("po_id", data.po_id)
+
+  if (!allLineItemsError && allLineItems) {
+    const allFullyReceived = allLineItems.every(
+      (item: { quantity_ordered: number; quantity_received: number | null }) => (item.quantity_received || 0) >= item.quantity_ordered
+    )
+
+    // Update PO status
+    const newStatus = allFullyReceived ? "received" : "partially_received"
+    const { error: statusError } = await supabase
+      .from("purchase_orders")
+      .update({ status: newStatus })
+      .eq("po_id", data.po_id)
+
+    if (statusError) {
+      console.error("Error updating PO status:", statusError)
+      // Don't throw - receipt was successful, status update is secondary
+    }
+  }
+
   revalidatePath(`/purchasing/${data.po_id}`)
   revalidatePath("/purchasing")
   revalidatePath("/inventory")
   return { success: true }
 }
+
