@@ -179,47 +179,59 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
   }
 
   const generateReceiptNumber = async (storeId: string): Promise<string> => {
-    const today = new Date();
-    const dateStr = today.toISOString().split("T")[0].replace(/-/g, "");
-    const storePrefix = "STORE";
+    const today = new Date()
+    const dateStr = today.toISOString().split("T")[0].replace(/-/g, "")
+    const storePrefix = "STORE"
   
     try {
-      const { data, error } = await supabase.rpc("get_next_receipt_number", { store_id: storeId });
+      console.log("Generating receipt number for storeId:", storeId)
+  
+      const { data, error } = await supabase.rpc("get_next_receipt_number", { store_id: storeId })
   
       if (error) {
-        console.error("Supabase RPC error:", error);
-        throw new Error("Failed to generate receipt");
+        console.error("Supabase RPC error:", error)
+        throw new Error("Failed to generate receipt")
       }
   
-      console.log("RPC raw data:", data);
+      console.log("Raw RPC result:", data)
   
-      // Handle number, array of numbers, or array of object
-      let nextNumber: number;
-      if (Array.isArray(data)) {
-        if (typeof data[0] === "number") {
-          nextNumber = data[0];
-        } else if (typeof data[0] === "object" && data[0] !== null) {
-          const val = Object.values(data[0])[0];
-          nextNumber = Number(val);
-        } else {
-          nextNumber = Number(data[0]);
-        }
+      let nextNumber: number | null = null
+  
+      if (data == null) {
+        throw new Error("RPC returned null or undefined")
+      }
+  
+      if (typeof data === "number") {
+        nextNumber = data
+      } else if (Array.isArray(data)) {
+        if (data.length === 0) throw new Error("RPC returned empty array")
+        const first = data[0]
+        if (typeof first === "number") nextNumber = first
+        else if (typeof first === "object" && first !== null) nextNumber = Number(Object.values(first)[0])
+        else nextNumber = Number(first)
+      } else if (typeof data === "object") {
+        // e.g., { get_next_receipt_number: 5 }
+        nextNumber = Number(Object.values(data)[0])
       } else {
-        nextNumber = Number(data);
+        nextNumber = Number(data)
       }
   
       if (isNaN(nextNumber)) {
-        console.error("Invalid receipt number from RPC:", data);
-        throw new Error("Failed to generate receipt");
+        console.error("Cannot parse receipt number from RPC result:", data)
+        throw new Error("Failed to generate receipt")
       }
   
-      return `${storePrefix}-${dateStr}-${String(nextNumber).padStart(5, "0")}`;
-    } catch (err) {
-      console.error("generateReceiptNumber failed:", err);
-      throw new Error("Failed to generate receipt");
-    }
-  };
+      const paddedNumber = String(nextNumber).padStart(5, "0")
+      const receiptNumber = `${storePrefix}-${dateStr}-${paddedNumber}`
   
+      console.log("Generated receipt number:", receiptNumber)
+  
+      return receiptNumber
+    } catch (err) {
+      console.error("generateReceiptNumber failed:", err)
+      throw new Error("Failed to generate receipt")
+    }
+  }
   
 
   const handleNext = () => {
