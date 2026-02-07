@@ -181,33 +181,16 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
   const generateReceiptNumber = async (storeId: string): Promise<string> => {
     const today = new Date()
     const dateStr = today.toISOString().split("T")[0].replace(/-/g, "")
-    const storePrefix = "STORE" // Could be dynamic based on store name/code
-
-    // Get today's sales count for this store
-    const { data: todaySales, error } = await supabase
-      .from("sales")
-      .select("receipt_number")
-      .eq("store_id", storeId)
-      .gte("sale_date", today.toISOString().split("T")[0])
-      .order("receipt_number", { ascending: false })
-      .limit(1)
-
-    if (error) {
-      console.error("Error fetching sales:", error)
-    }
-
-    // Extract the last number from today's receipts
-    let nextNumber = 1
-    if (todaySales && todaySales.length > 0) {
-      const lastReceipt = todaySales[0].receipt_number
-      const match = lastReceipt.match(/-(\d{5})$/)
-      if (match) {
-        nextNumber = parseInt(match[1], 10) + 1
-      }
-    }
-
+    const storePrefix = "STORE"
+  
+    // Get the next sequence value from Postgres
+    const { data, error } = await supabase.rpc('nextval', { sequence_name: 'sales_receipt_seq' })
+    if (error || !data) throw new Error('Failed to generate receipt number')
+  
+    const nextNumber = Number(data)
     return `${storePrefix}-${dateStr}-${String(nextNumber).padStart(5, "0")}`
   }
+  
 
   const handleNext = () => {
     if (currentStep === 1) {
