@@ -107,17 +107,27 @@ export async function createPurchaseOrder(data: CreatePOData) {
   if (userError || !user) {
     throw new Error("You must be signed in to create a purchase order.")
   }
-
   const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
-  const accountId = Array.isArray(accountIdRaw)
-    ? accountIdRaw[0]
-    : typeof accountIdRaw === "object" && accountIdRaw !== null && "account_id" in accountIdRaw
-      ? (accountIdRaw as { account_id: string }).account_id
-      : accountIdRaw
+  console.log("get_account_id RPC result:", accountIdRaw)
+  
+  const accountId = (() => {
+    if (!accountIdRaw) return null
+    if (Array.isArray(accountIdRaw) && accountIdRaw.length > 0 && "account_id" in accountIdRaw[0]) {
+      return accountIdRaw[0].account_id
+    }
+    if (typeof accountIdRaw === "object" && "account_id" in accountIdRaw) {
+      return (accountIdRaw as { account_id: string }).account_id
+    }
+    if (typeof accountIdRaw === "string") {
+      return accountIdRaw
+    }
+    return null
+  })()
+  
   if (accountIdError || !accountId) {
-    throw new Error("Account not found. Please complete setup first.")
+      throw new Error("Account ID is invalid or missing. Please complete setup first.")
   }
-
+  
   // Validate
   if (!data.supplier_id) {
     throw new Error("Supplier is required.")
