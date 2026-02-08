@@ -228,16 +228,17 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
           ? `M-Pesa Confirmation: ${mpesaConfirmationCode.trim()}${mpesaPhoneNumber.trim() ? ` (Phone: ${mpesaPhoneNumber.trim()})` : ""}`
           : null
 
-      const { data: saleData, error: rpcError } = await supabase.rpc("create_sale_atomic", {
-        p_account_id: storeId,
-        p_cashier_id: cashierId,
-        p_customer_id: selectedCustomer,
-        p_subtotal: displaySubtotal,
-        p_tax_total: displayTax,
-        p_grand_total: displayTotal,
-        p_payment_method: paymentMethod,
-        p_notes: saleNotes,
-      })
+          const { data: saleData, error: rpcError } = await supabase.rpc("create_sale_atomic", {
+            p_store_id: storeId,        // <-- storeId here, not accountId
+            p_cashier_id: cashierId,
+            p_customer_id: selectedCustomer,
+            p_subtotal: displaySubtotal,
+            p_tax_total: displayTax,
+            p_grand_total: displayTotal,
+            p_payment_method: paymentMethod,
+            p_notes: saleNotes,
+          })
+          
 
       if (rpcError || !saleData || !saleData[0]?.sale_id || !saleData[0]?.receipt_number) {
         throw new Error(rpcError?.message || "Failed to create sale")
