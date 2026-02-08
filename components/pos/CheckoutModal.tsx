@@ -232,12 +232,12 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
       // 3. Map CartItem fields to RPC p_items
       // ----------------------------
       const lineItemsForRpc = cart.map((item) => ({
-        product_id: item.variantId, // CartItem.variantId → RPC product_id
-        quantity: item.quantity,
+        variant_id: item.variantId, // ✅ CORRECT FIELD
+
         unit_price: item.price,
         size: item.size,
         color: item.color,
-        sku: item.sku, // optional
+        sku: item.sku,
       }))
   
       // ----------------------------
