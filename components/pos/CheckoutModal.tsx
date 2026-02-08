@@ -17,6 +17,7 @@ import { Receipt } from "./Receipt"
 import { toast } from "sonner"
 import { ensureStaffForCurrentUser } from "@/app/pos/actions"
 import { formatCurrency } from "@/lib/format-currency"
+import { createServerSupabaseClient } from "@/lib/supabase/server"
 
 interface CheckoutModalProps {
   storeId: string | null
@@ -178,56 +179,57 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
     return staffRow?.staff_id ?? null
   }
 
-  const generateReceiptNumber = async (storeId: string): Promise<string> => {
-    const storePrefix = "STORE"
-    const today = new Date()
-    const dateStr = today.toISOString().split("T")[0].replace(/-/g, "")
+  async function generateReceiptNumber(accountId: string) {
+    const supabase = await createServerSupabaseClient()
   
     try {
-      // Call the RPC
-      const { data, error } = await supabase.rpc("get_next_receipt_number", { p_store_id: storeId })
+      console.log("[Receipt] Generating receipt for account:", accountId)
+  
+      const { data, error } = await supabase.rpc(
+        "get_next_receipt_number",
+        { p_account_id: accountId }
+      )
+  
+      console.log("[Receipt] RPC raw response:", { data, error })
   
       if (error) {
-        console.error("[generateReceiptNumber] RPC returned error:", error)
-        throw new Error("Failed to generate receipt")
+        console.error("[Receipt] RPC error:", error)
+        throw new Error("RPC failed")
       }
   
-      console.log("[generateReceiptNumber] RPC raw data:", data)
+      let nextNumber: number | null = null
   
-      // Handle all possible return types
-      let nextNumber: number
-  
-      if (data == null) {
-        throw new Error("RPC returned null for receipt number")
-      } else if (typeof data === "number") {
+      /**
+       * Supabase can return:
+       * - number
+       * - bigint
+       * - [{ get_next_receipt_number: number }]
+       */
+      if (typeof data === "number") {
         nextNumber = data
-      } else if (Array.isArray(data)) {
-        if (data.length === 0) {
-          nextNumber = 1
-        } else if (typeof data[0] === "number") {
-          nextNumber = data[0]
-        } else if (typeof data[0] === "object" && data[0] !== null) {
-          const val = Object.values(data[0])[0]
-          nextNumber = Number(val)
-        } else {
-          nextNumber = Number(data[0])
-        }
-      } else if (typeof data === "object") {
-        const val = Object.values(data)[0]
-        nextNumber = Number(val)
-      } else {
+      } else if (typeof data === "bigint") {
         nextNumber = Number(data)
+      } else if (typeof data === "string") {
+        nextNumber = Number(data)
+      } else if (Array.isArray(data) && data.length > 0) {
+        const value = Object.values(data[0])[0]
+        nextNumber = Number(value)
+      }
+      
+  
+      if (!nextNumber || Number.isNaN(nextNumber)) {
+        console.error("[Receipt] Invalid receipt number:", data)
+        throw new Error("Invalid receipt number")
       }
   
-      if (isNaN(nextNumber)) {
-        console.error("[generateReceiptNumber] Invalid number parsed:", data)
-        throw new Error("Failed to generate receipt")
-      }
+      const year = new Date().getFullYear()
+      const formatted = `RC-${year}-${String(nextNumber).padStart(5, "0")}`
   
-      // Format final receipt number
-      return `${storePrefix}-${dateStr}-${String(nextNumber).padStart(5, "0")}`
+      console.log("[Receipt] Generated receipt number:", formatted)
+  
+      return formatted
     } catch (err) {
-      console.error("[generateReceiptNumber] Unexpected error:", err)
+      console.error("[Receipt] FAILED to generate receipt:", err)
       throw new Error("Failed to generate receipt")
     }
   }
