@@ -116,9 +116,14 @@ export async function processRefund(
     .select("line_item_id, variant_id, quantity, unit_price, line_total")
     .eq("sale_id", sale_id)
 
-  if (lineError || !lineItems?.length) {
-    return { success: false, error: "Could not load sale line items." }
-  }
+    if (lineError) {
+      console.error("SALE LINE ITEMS ERROR:", lineError)
+      return { success: false, error: lineError.message }
+    }
+    
+    if (!lineItems || lineItems.length === 0) {
+      return { success: false, error: "No line items found for this sale." }
+    }
 
   const refundedLineItems = lineItems.map((item: { line_item_id: string; variant_id: string | null; quantity: number | null; unit_price: number; line_total: number }) => ({
     line_item_id: item.line_item_id,
