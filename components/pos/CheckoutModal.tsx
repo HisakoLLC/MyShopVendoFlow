@@ -233,12 +233,13 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
       // ----------------------------
       const lineItemsForRpc = cart.map((item) => ({
         variant_id: item.variantId, // ✅ CORRECT FIELD
-
+        quantity: item.quantity,
         unit_price: item.price,
-        size: item.size,
-        color: item.color,
-        sku: item.sku,
+        discount_amount: 0,
+        tax_amount: 0,
+        line_total: item.price * item.quantity,
       }))
+      
   
       // ----------------------------
       // 4. Call RPC to create sale
