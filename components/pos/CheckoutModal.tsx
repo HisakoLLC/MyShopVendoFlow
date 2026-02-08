@@ -229,7 +229,7 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
           : null
 
       const { data: saleData, error: rpcError } = await supabase.rpc("create_sale_atomic", {
-        p_store_id: storeId,
+        p_account_id: storeId,
         p_cashier_id: cashierId,
         p_customer_id: selectedCustomer,
         p_subtotal: displaySubtotal,
