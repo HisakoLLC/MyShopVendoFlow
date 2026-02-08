@@ -17,7 +17,6 @@ import { Receipt } from "./Receipt"
 import { toast } from "sonner"
 import { ensureStaffForCurrentUser } from "@/app/pos/actions"
 import { formatCurrency } from "@/lib/format-currency"
-import { createServerSupabaseClient } from "@/lib/supabase/server"
 
 interface CheckoutModalProps {
   storeId: string | null
@@ -179,60 +178,35 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
     return staffRow?.staff_id ?? null
   }
 
-  async function generateReceiptNumber(accountId: string) {
-    const supabase = await createServerSupabaseClient()
+  const generateReceiptNumber = async (storeId: string): Promise<string> => {
+    const today = new Date();
+    const dateStr = today.toISOString().split("T")[0].replace(/-/g, "");
+    const storePrefix = "STORE"; // Can be dynamic per store
   
     try {
-      console.log("[Receipt] Generating receipt for account:", accountId)
-  
-      const { data, error } = await supabase.rpc(
-        "get_next_receipt_number",
-        { p_account_id: accountId }
-      )
-  
-      console.log("[Receipt] RPC raw response:", { data, error })
+      const { data, error } = await supabase.rpc("get_next_receipt_number");
   
       if (error) {
-        console.error("[Receipt] RPC error:", error)
-        throw new Error("RPC failed")
+        console.error("Supabase RPC error:", error);
+        throw new Error("Failed to generate receipt");
       }
   
-      let nextNumber: number | null = null
+      // Supabase RPC sometimes returns array
+      const nextNumber = Array.isArray(data) ? Number(data[0]) : Number(data);
   
-      /**
-       * Supabase can return:
-       * - number
-       * - bigint
-       * - [{ get_next_receipt_number: number }]
-       */
-      if (typeof data === "number") {
-        nextNumber = data
-      } else if (typeof data === "bigint") {
-        nextNumber = Number(data)
-      } else if (typeof data === "string") {
-        nextNumber = Number(data)
-      } else if (Array.isArray(data) && data.length > 0) {
-        const value = Object.values(data[0])[0]
-        nextNumber = Number(value)
-      }
-      
-  
-      if (!nextNumber || Number.isNaN(nextNumber)) {
-        console.error("[Receipt] Invalid receipt number:", data)
-        throw new Error("Invalid receipt number")
+      if (isNaN(nextNumber)) {
+        console.error("Invalid receipt number from RPC:", data);
+        throw new Error("Failed to generate receipt");
       }
   
-      const year = new Date().getFullYear()
-      const formatted = `RC-${year}-${String(nextNumber).padStart(5, "0")}`
-  
-      console.log("[Receipt] Generated receipt number:", formatted)
-  
-      return formatted
+      return `${storePrefix}-${dateStr}-${String(nextNumber).padStart(5, "0")}`;
     } catch (err) {
-      console.error("[Receipt] FAILED to generate receipt:", err)
-      throw new Error("Failed to generate receipt")
+      console.error("generateReceiptNumber failed:", err);
+      throw new Error("Failed to generate receipt");
     }
-  }
+  };
+  
+  
   
 
   const handleNext = () => {
