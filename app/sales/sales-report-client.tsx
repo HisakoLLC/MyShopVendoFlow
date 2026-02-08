@@ -134,9 +134,9 @@ export function SalesReportClient({
           "sale_id, receipt_number, sale_date, grand_total, payment_method, store_id, cashier_id, customer_id, notes, status, stores(name), staff(first_name, last_name), customers(first_name, last_name, phone)"
         )
         .in("store_id", storeIds)
-        .gte("sale_date", `${from}T00:00:00.000Z`)
-        .lte("sale_date", `${to}T23:59:59.999Z`)
-        .order("sale_date", { ascending: false })
+        .gte("created_at", `${from}T00:00:00.000Z`)
+        .lte("created_at", `${to}T23:59:59.999Z`)
+        .order("created_at", { ascending: false })
 
       // Apply filters
       if (selectedStore !== "all") {
