@@ -71,8 +71,19 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
 
   const supabase = React.useMemo(() => createClient(), [])
 
-  // Fetch business_settings and store tax_rate for receipt and sale calculation
-  // Use accountId from server when provided (staff); otherwise resolve via get_account_id (owner)
+  const displaySubtotal = subtotal
+  const displayTax = taxAmount
+  const displayTotal = total
+
+  const change = React.useMemo(() => {
+    if (paymentMethod === "cash" && amountTendered) {
+      const tendered = parseFloat(amountTendered)
+      return tendered >= displayTotal ? tendered - displayTotal : 0
+    }
+    return 0
+  }, [paymentMethod, amountTendered, displayTotal])
+
+  // Fetch business settings and store tax rate
   React.useEffect(() => {
     if (!storeId) return
     let cancelled = false
@@ -104,20 +115,6 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
     return () => { cancelled = true }
   }, [storeId, accountIdProp, supabase])
 
-  // Cart context already computes correct subtotal/tax/total for both tax-inclusive and -exclusive
-  const displaySubtotal = subtotal
-  const displayTax = taxAmount
-  const displayTotal = total
-
-  const change = React.useMemo(() => {
-    if (paymentMethod === "cash" && amountTendered) {
-      const tendered = parseFloat(amountTendered)
-      return tendered >= displayTotal ? tendered - displayTotal : 0
-    }
-    return 0
-  }, [paymentMethod, amountTendered, displayTotal])
-
-  // Search customers as user types
   React.useEffect(() => {
     if (!customerSearch.trim() || customerSearch.length < 2) {
       setCustomerResults([])
@@ -153,14 +150,9 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
   const formatPrice = (price: number) =>
     formatCurrency(price, receiptSettings.currency, { maximumFractionDigits: 0 })
 
-  // Resolve cashier_id: prefer user_metadata.staff_id (set after PIN login / bind-staff) so the actual cashier is recorded
   const getCashierIdForCurrentUser = async (): Promise<string | null> => {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) return null
-    // PIN login sets user_metadata.staff_id via bind-staff — use it so sales show the real cashier
     const metaStaffId = user.user_metadata?.staff_id as string | undefined
     if (metaStaffId && typeof metaStaffId === "string") return metaStaffId
     if (!user.email) return null
@@ -178,67 +170,11 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
     return staffRow?.staff_id ?? null
   }
 
-  const generateReceiptNumber = async (accountId: string): Promise<string> => {
-    const today = new Date()
-    const dateStr = today.toISOString().split("T")[0].replace(/-/g, "")
-    const storePrefix = "VF" // optional: make dynamic per store later
-  
-    try {
-      console.log("[Receipt] Generating receipt for account:", accountId)
-  
-      // Call RPC with accountId
-      const { data, error } = await supabase.rpc("get_next_receipt_number", { p_account_id: accountId })
-      console.log("[Receipt] RPC raw response:", { data, error })
-  
-      if (error) {
-        console.error("[Receipt] RPC error:", error)
-        throw new Error("Failed to generate receipt")
-      }
-  
-      let nextNumber: number | null = null
-  
-      // Handle all possible return shapes
-      if (typeof data === "number") {
-        nextNumber = data
-      } else if (typeof data === "bigint") {
-        nextNumber = Number(data)
-      } else if (Array.isArray(data) && data.length > 0) {
-        const value = Object.values(data[0])[0]
-        nextNumber = typeof value === "bigint" ? Number(value) : Number(value)
-      }
-  
-      if (!nextNumber || Number.isNaN(nextNumber)) {
-        console.error("[Receipt] Invalid receipt number from RPC:", data)
-        throw new Error("Failed to generate receipt")
-      }
-  
-      const formatted = `${storePrefix}-${dateStr}-${String(nextNumber).padStart(5, "0")}`
-      console.log("[Receipt] Generated receipt number:", formatted)
-      return formatted
-    } catch (err) {
-      console.error("[Receipt] generateReceiptNumber failed:", err)
-      throw new Error("Failed to generate receipt")
-    }
-  }
-  
-  
-  
-  
-
   const handleNext = () => {
     if (currentStep === 1) {
-      // Validate payment method
-      if (!paymentMethod) {
-        toast.error("Please select a payment method")
-        return
-      }
+      if (!paymentMethod) { toast.error("Please select a payment method"); return }
       if (paymentMethod === "mpesa") {
-        // Manual M-Pesa: require a confirmation code (no STK push configured yet)
-        if (!mpesaConfirmationCode.trim()) {
-          toast.error("Please enter the M-Pesa confirmation code")
-          return
-        }
-        // Phone number optional, but validate if provided
+        if (!mpesaConfirmationCode.trim()) { toast.error("Please enter the M-Pesa confirmation code"); return }
         if (mpesaPhoneNumber.trim()) {
           const phoneRegex = /^254\d{9}$/
           if (!phoneRegex.test(mpesaPhoneNumber.trim())) {
@@ -249,8 +185,7 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
       }
       if (paymentMethod === "cash") {
         const tendered = parseFloat(amountTendered)
-        const minTendered = Math.round(total)
-        if (!amountTendered || isNaN(tendered) || tendered < minTendered) {
+        if (!amountTendered || isNaN(tendered) || tendered < displayTotal) {
           toast.error(`Amount tendered must be at least ${formatPrice(displayTotal)}`)
           return
         }
@@ -262,235 +197,64 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
   }
 
   const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep((prev) => (prev - 1) as Step)
-    }
+    if (currentStep > 1) setCurrentStep((prev) => (prev - 1) as Step)
   }
 
-  // M-Pesa is currently handled as a manual payment (no STK push configured).
-
-  // Complete sale after payment confirmation
-  const completeSale = async (saleId: string, receiptNum: string) => {
-    try {
-      // Decrement inventory
-      const { data: lineItems } = await supabase
-        .from("sale_line_items")
-        .select("variant_id, quantity")
-        .eq("sale_id", saleId)
-
-      if (lineItems && storeId) {
-        for (const item of lineItems) {
-          if (!item.variant_id || !item.quantity) continue
-          
-          const { data: inventory } = await supabase
-            .from("inventory_levels")
-            .select("inventory_id, quantity_on_hand")
-            .eq("variant_id", item.variant_id)
-            .eq("store_id", storeId)
-            .single()
-
-          if (inventory) {
-            const newQuantity = Math.max(0, (inventory.quantity_on_hand || 0) - item.quantity)
-            await supabase
-              .from("inventory_levels")
-              .update({ quantity_on_hand: newQuantity })
-              .eq("inventory_id", inventory.inventory_id)
-          }
-        }
-      }
-
-      // Update customer stats
-      if (selectedCustomer) {
-        const { data: customer } = await supabase
-          .from("customers")
-          .select("total_spend, transaction_count, first_purchase_date")
-          .eq("customer_id", selectedCustomer)
-          .single()
-
-        if (customer) {
-          const newTotalSpend = (customer.total_spend || 0) + total
-          const newTransactionCount = (customer.transaction_count || 0) + 1
-          const firstPurchaseDate = customer.first_purchase_date || new Date().toISOString()
-
-          await supabase
-            .from("customers")
-            .update({
-              total_spend: newTotalSpend,
-              transaction_count: newTransactionCount,
-              last_purchase_date: new Date().toISOString(),
-              first_purchase_date: firstPurchaseDate,
-            })
-            .eq("customer_id", selectedCustomer)
-        }
-      }
-
-      // Success! Capture receipt data before clearing cart so the receipt shows correct items and totals
-      setReceiptSnapshot({
-        cart: [...cart],
-        subtotal: displaySubtotal,
-        taxAmount: displayTax,
-        total: displayTotal,
-      })
-      setReceiptNumber(receiptNum)
-      clearCart()
-      setShowReceipt(true)
-      setIsProcessing(false)
-    } catch (error) {
-      console.error("Error completing sale:", error)
-      toast.error("Sale completed but there was an error updating inventory/customer stats")
-    }
-  }
-
+  // -------------------------
+  // NEW: Handle sale using atomic RPC
+  // -------------------------
   const handleProcessSale = async () => {
-    if (!storeId) {
-      toast.error("Store ID is required")
-      return
-    }
-
+    if (!storeId) { toast.error("Store ID is required"); return }
     setIsProcessing(true)
 
     try {
-      // Get current user
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser()
-
-      if (userError || !user) {
-        throw new Error("User not authenticated")
-      }
-
       let cashierId = await getCashierIdForCurrentUser()
       if (!cashierId) cashierId = await ensureStaffForCurrentUser()
 
-      // Generate receipt number
-// Resolve accountId for RPC
-let aid = accountIdProp ?? null
-if (!aid) {
-  const { data: accountIdData } = await supabase.rpc("get_account_id")
-  aid = Array.isArray(accountIdData)
-    ? accountIdData[0]
-    : accountIdData && typeof accountIdData === "object" && "account_id" in accountIdData
-    ? (accountIdData as { account_id: string }).account_id
-    : accountIdData
-}
-
-if (!aid) {
-  throw new Error("Cannot generate receipt: account ID not found")
-}
-
-// Generate receipt number
-const receiptNum = await generateReceiptNumber(aid)
-      setReceiptNumber(receiptNum)
+      // Resolve accountId for RPC
+      let aid = accountIdProp ?? null
+      if (!aid) {
+        const { data: accountIdData } = await supabase.rpc("get_account_id")
+        aid = Array.isArray(accountIdData)
+          ? accountIdData[0]
+          : accountIdData && typeof accountIdData === "object" && "account_id" in accountIdData
+          ? (accountIdData as { account_id: string }).account_id
+          : accountIdData
+      }
+      if (!aid) throw new Error("Cannot process sale: account ID not found")
 
       const saleNotes =
         paymentMethod === "mpesa"
           ? `M-Pesa Confirmation: ${mpesaConfirmationCode.trim()}${mpesaPhoneNumber.trim() ? ` (Phone: ${mpesaPhoneNumber.trim()})` : ""}`
           : null
 
-      // Create sale record (use display values for tax_inclusive correctness)
-      const { data: sale, error: saleError } = await supabase
-        .from("sales")
-        .insert({
-          store_id: storeId,
-          cashier_id: cashierId,
-          customer_id: selectedCustomer,
-          subtotal: displaySubtotal,
-          tax_total: displayTax,
-          grand_total: displayTotal,
-          payment_method: paymentMethod,
-          receipt_number: receiptNum,
-          notes: saleNotes,
-          status: "completed",
-          sale_date: new Date().toISOString(),
-        })
-        .select("sale_id")
-        .single()
-
-      if (saleError || !sale) {
-        throw new Error(saleError?.message || "Failed to create sale")
-      }
-
-      const rate = receiptSettings.taxRatePercent / 100
-      const lineItems = cart.map((item) => {
-        const lineTotal = item.price * item.quantity
-        const lineTax = receiptSettings.taxInclusive ? lineTotal - lineTotal / (1 + rate) : lineTotal * rate
-        return {
-          sale_id: sale.sale_id,
-          variant_id: item.variantId,
-          quantity: item.quantity,
-          unit_price: item.price,
-          tax_amount: lineTax,
-          line_total: lineTotal,
-        }
+      const { data: saleData, error: rpcError } = await supabase.rpc("create_sale_atomic", {
+        p_store_id: storeId,
+        p_cashier_id: cashierId,
+        p_customer_id: selectedCustomer,
+        p_subtotal: displaySubtotal,
+        p_tax_total: displayTax,
+        p_grand_total: displayTotal,
+        p_payment_method: paymentMethod,
+        p_notes: saleNotes,
       })
 
-      const { error: lineItemsError } = await supabase
-        .from("sale_line_items")
-        .insert(lineItems)
-
-      if (lineItemsError) {
-        throw new Error(lineItemsError.message || "Failed to create line items")
+      if (rpcError || !saleData || !saleData[0]?.sale_id || !saleData[0]?.receipt_number) {
+        throw new Error(rpcError?.message || "Failed to create sale")
       }
 
-      // Decrement inventory for each variant
-      for (const item of cart) {
-        const { data: inventory, error: invError } = await supabase
-          .from("inventory_levels")
-          .select("inventory_id, quantity_on_hand")
-          .eq("variant_id", item.variantId)
-          .eq("store_id", storeId)
-          .single()
+      const receiptNum = saleData[0].receipt_number
+      const saleId = saleData[0].sale_id
+      setReceiptNumber(receiptNum)
 
-        if (invError && invError.code !== "PGRST116") {
-          // PGRST116 = no rows returned, which is okay (inventory might not exist)
-          console.warn(`Inventory not found for variant ${item.variantId}:`, invError)
-        } else if (inventory) {
-          const newQuantity = Math.max(0, (inventory.quantity_on_hand || 0) - item.quantity)
-          const { error: updateError } = await supabase
-            .from("inventory_levels")
-            .update({ quantity_on_hand: newQuantity })
-            .eq("inventory_id", inventory.inventory_id)
-
-          if (updateError) {
-            console.warn(`Failed to update inventory for variant ${item.variantId}:`, updateError)
-            // Continue processing - fashion boutiques often oversell
-          }
-        }
-      }
-
-      // Update customer stats if customer is linked
-      if (selectedCustomer) {
-        const { data: customer, error: custError } = await supabase
-          .from("customers")
-          .select("total_spend, transaction_count, first_purchase_date")
-          .eq("customer_id", selectedCustomer)
-          .single()
-
-        if (!custError && customer) {
-          const newTotalSpend = (customer.total_spend || 0) + total
-          const newTransactionCount = (customer.transaction_count || 0) + 1
-          const firstPurchaseDate = customer.first_purchase_date || new Date().toISOString()
-
-          await supabase
-            .from("customers")
-            .update({
-              total_spend: newTotalSpend,
-              transaction_count: newTransactionCount,
-              last_purchase_date: new Date().toISOString(),
-              first_purchase_date: firstPurchaseDate,
-            })
-            .eq("customer_id", selectedCustomer)
-        }
-      }
-
-      // Success! Capture receipt data before clearing cart so the receipt shows correct items and totals
+      // Capture receipt snapshot before clearing cart
       setReceiptSnapshot({
         cart: [...cart],
         subtotal: displaySubtotal,
         taxAmount: displayTax,
         total: displayTotal,
       })
+
       clearCart()
       setShowReceipt(true)
     } catch (error) {
@@ -501,10 +265,11 @@ const receiptNum = await generateReceiptNumber(aid)
     }
   }
 
-  const handlePrintReceipt = () => {
-    window.print()
-  }
+  const handlePrintReceipt = () => window.print()
 
+  // -------------------------
+  // Render receipt view if sale completed
+  // -------------------------
   if (showReceipt && receiptNumber) {
     return (
       <Dialog open={true} onOpenChange={onClose}>
@@ -548,6 +313,9 @@ const receiptNum = await generateReceiptNumber(aid)
     )
   }
 
+  // -------------------------
+  // Render checkout modal steps (1-3)
+  // -------------------------
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -819,3 +587,7 @@ const receiptNum = await generateReceiptNumber(aid)
     </Dialog>
   )
 }
+
+
+        
+    
