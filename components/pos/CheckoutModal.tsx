@@ -178,33 +178,49 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
     return staffRow?.staff_id ?? null
   }
 
-  const generateReceiptNumber = async (storeId: string): Promise<string> => {
-    const today = new Date();
-    const dateStr = today.toISOString().split("T")[0].replace(/-/g, "");
-    const storePrefix = "STORE"; // Can be dynamic per store
+  const generateReceiptNumber = async (accountId: string): Promise<string> => {
+    const today = new Date()
+    const dateStr = today.toISOString().split("T")[0].replace(/-/g, "")
+    const storePrefix = "VF" // optional: make dynamic per store later
   
     try {
-      const { data, error } = await supabase.rpc("get_next_receipt_number");
+      console.log("[Receipt] Generating receipt for account:", accountId)
+  
+      // Call RPC with accountId
+      const { data, error } = await supabase.rpc("get_next_receipt_number", { p_account_id: accountId })
+      console.log("[Receipt] RPC raw response:", { data, error })
   
       if (error) {
-        console.error("Supabase RPC error:", error);
-        throw new Error("Failed to generate receipt");
+        console.error("[Receipt] RPC error:", error)
+        throw new Error("Failed to generate receipt")
       }
   
-      // Supabase RPC sometimes returns array
-      const nextNumber = Array.isArray(data) ? Number(data[0]) : Number(data);
+      let nextNumber: number | null = null
   
-      if (isNaN(nextNumber)) {
-        console.error("Invalid receipt number from RPC:", data);
-        throw new Error("Failed to generate receipt");
+      // Handle all possible return shapes
+      if (typeof data === "number") {
+        nextNumber = data
+      } else if (typeof data === "bigint") {
+        nextNumber = Number(data)
+      } else if (Array.isArray(data) && data.length > 0) {
+        const value = Object.values(data[0])[0]
+        nextNumber = typeof value === "bigint" ? Number(value) : Number(value)
       }
   
-      return `${storePrefix}-${dateStr}-${String(nextNumber).padStart(5, "0")}`;
+      if (!nextNumber || Number.isNaN(nextNumber)) {
+        console.error("[Receipt] Invalid receipt number from RPC:", data)
+        throw new Error("Failed to generate receipt")
+      }
+  
+      const formatted = `${storePrefix}-${dateStr}-${String(nextNumber).padStart(5, "0")}`
+      console.log("[Receipt] Generated receipt number:", formatted)
+      return formatted
     } catch (err) {
-      console.error("generateReceiptNumber failed:", err);
-      throw new Error("Failed to generate receipt");
+      console.error("[Receipt] generateReceiptNumber failed:", err)
+      throw new Error("Failed to generate receipt")
     }
-  };
+  }
+  
   
   
   
@@ -348,7 +364,23 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
       if (!cashierId) cashierId = await ensureStaffForCurrentUser()
 
       // Generate receipt number
-      const receiptNum = await generateReceiptNumber(storeId)
+// Resolve accountId for RPC
+let aid = accountIdProp ?? null
+if (!aid) {
+  const { data: accountIdData } = await supabase.rpc("get_account_id")
+  aid = Array.isArray(accountIdData)
+    ? accountIdData[0]
+    : accountIdData && typeof accountIdData === "object" && "account_id" in accountIdData
+    ? (accountIdData as { account_id: string }).account_id
+    : accountIdData
+}
+
+if (!aid) {
+  throw new Error("Cannot generate receipt: account ID not found")
+}
+
+// Generate receipt number
+const receiptNum = await generateReceiptNumber(aid)
       setReceiptNumber(receiptNum)
 
       const saleNotes =
