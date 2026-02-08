@@ -204,67 +204,86 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
   // NEW: Handle sale using atomic RPC
   // -------------------------
   const handleProcessSale = async () => {
-    if (!storeId) { toast.error("Store ID is required"); return }
-    setIsProcessing(true)
-
+    if (!storeId) {
+      toast.error("Store ID is required");
+      return;
+    }
+    setIsProcessing(true);
+  
     try {
-      let cashierId = await getCashierIdForCurrentUser()
-      if (!cashierId) cashierId = await ensureStaffForCurrentUser()
-
-      // Resolve accountId for RPC
-      let aid = accountIdProp ?? null
+      // 1. Get the cashier ID
+      let cashierId = await getCashierIdForCurrentUser();
+      if (!cashierId) cashierId = await ensureStaffForCurrentUser();
+  
+      // 2. Resolve account ID for RPC
+      let aid = accountIdProp ?? null;
       if (!aid) {
-        const { data: accountIdData } = await supabase.rpc("get_account_id")
+        const { data: accountIdData } = await supabase.rpc("get_account_id");
         aid = Array.isArray(accountIdData)
           ? accountIdData[0]
           : accountIdData && typeof accountIdData === "object" && "account_id" in accountIdData
           ? (accountIdData as { account_id: string }).account_id
-          : accountIdData
+          : accountIdData;
       }
-      if (!aid) throw new Error("Cannot process sale: account ID not found")
-
+      if (!aid) throw new Error("Cannot process sale: account ID not found");
+  
+      // 3. Prepare sale notes
       const saleNotes =
         paymentMethod === "mpesa"
-          ? `M-Pesa Confirmation: ${mpesaConfirmationCode.trim()}${mpesaPhoneNumber.trim() ? ` (Phone: ${mpesaPhoneNumber.trim()})` : ""}`
-          : null
-
-          const { data: saleData, error: rpcError } = await supabase.rpc("create_sale_atomic", {
-            p_store_id: storeId,        // <-- storeId here, not accountId
-            p_cashier_id: cashierId,
-            p_customer_id: selectedCustomer,
-            p_subtotal: displaySubtotal,
-            p_tax_total: displayTax,
-            p_grand_total: displayTotal,
-            p_payment_method: paymentMethod,
-            p_notes: saleNotes,
-          })
-          
-
+          ? `M-Pesa Confirmation: ${mpesaConfirmationCode.trim()}${
+              mpesaPhoneNumber.trim() ? ` (Phone: ${mpesaPhoneNumber.trim()})` : ""
+            }`
+          : null;
+  
+      // 4. Map cart items to sale_line_items fields
+      const saleLineItems = cart.map((item) => ({
+        product_id: item.cartItemId, // <-- replace with actual product ID if different
+        quantity: item.quantity,
+        unit_price: item.price,
+        size: item.size,
+        color: item.color,
+      }));
+  
+      // 5. Call the RPC to create sale + line items atomically
+      const { data: saleData, error: rpcError } = await supabase.rpc("create_sale_atomic", {
+        p_store_id: storeId,
+        p_cashier_id: cashierId,
+        p_customer_id: selectedCustomer,
+        p_subtotal: displaySubtotal,
+        p_tax_total: displayTax,
+        p_grand_total: displayTotal,
+        p_payment_method: paymentMethod,
+        p_notes: saleNotes,
+        p_line_items: saleLineItems,
+      });
+  
       if (rpcError || !saleData || !saleData[0]?.sale_id || !saleData[0]?.receipt_number) {
-        throw new Error(rpcError?.message || "Failed to create sale")
+        throw new Error(rpcError?.message || "Failed to create sale");
       }
-
-      const receiptNum = saleData[0].receipt_number
-      const saleId = saleData[0].sale_id
-      setReceiptNumber(receiptNum)
-
-      // Capture receipt snapshot before clearing cart
+  
+      const receiptNum = saleData[0].receipt_number;
+      const saleId = saleData[0].sale_id;
+      setReceiptNumber(receiptNum);
+  
+      // 6. Capture receipt snapshot
       setReceiptSnapshot({
         cart: [...cart],
         subtotal: displaySubtotal,
         taxAmount: displayTax,
         total: displayTotal,
-      })
-
-      clearCart()
-      setShowReceipt(true)
+      });
+  
+      // 7. Clear cart and show receipt
+      clearCart();
+      setShowReceipt(true);
     } catch (error) {
-      console.error("Checkout error:", error)
-      toast.error(error instanceof Error ? error.message : "Failed to process sale")
+      console.error("Checkout error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to process sale");
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
+  
 
   const handlePrintReceipt = () => window.print()
 
