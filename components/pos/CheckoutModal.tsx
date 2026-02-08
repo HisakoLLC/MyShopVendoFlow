@@ -205,46 +205,44 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
   // -------------------------
   const handleProcessSale = async () => {
     if (!storeId) {
-      toast.error("Store ID is required");
-      return;
+      toast.error("Store ID is required")
+      return
     }
-    setIsProcessing(true);
+    setIsProcessing(true)
   
     try {
-      // 1. Get the cashier ID
-      let cashierId = await getCashierIdForCurrentUser();
-      if (!cashierId) cashierId = await ensureStaffForCurrentUser();
+      // ----------------------------
+      // 1. Get cashier ID
+      // ----------------------------
+      let cashierId = await getCashierIdForCurrentUser()
+      if (!cashierId) cashierId = await ensureStaffForCurrentUser()
+      if (!cashierId) throw new Error("Cannot process sale: cashier ID not found")
   
-      // 2. Resolve account ID for RPC
-      let aid = accountIdProp ?? null;
-      if (!aid) {
-        const { data: accountIdData } = await supabase.rpc("get_account_id");
-        aid = Array.isArray(accountIdData)
-          ? accountIdData[0]
-          : accountIdData && typeof accountIdData === "object" && "account_id" in accountIdData
-          ? (accountIdData as { account_id: string }).account_id
-          : accountIdData;
-      }
-      if (!aid) throw new Error("Cannot process sale: account ID not found");
-  
-      // 3. Prepare sale notes
+      // ----------------------------
+      // 2. Prepare sale notes
+      // ----------------------------
       const saleNotes =
         paymentMethod === "mpesa"
           ? `M-Pesa Confirmation: ${mpesaConfirmationCode.trim()}${
               mpesaPhoneNumber.trim() ? ` (Phone: ${mpesaPhoneNumber.trim()})` : ""
             }`
-          : null;
+          : null
   
-      // 4. Map cart items to sale_line_items fields
-      const saleLineItems = cart.map((item) => ({
-        product_id: item.cartItemId, // <-- replace with actual product ID if different
+      // ----------------------------
+      // 3. Map CartItem fields to RPC p_items
+      // ----------------------------
+      const lineItemsForRpc = cart.map((item) => ({
+        product_id: item.variantId, // CartItem.variantId → RPC product_id
         quantity: item.quantity,
         unit_price: item.price,
         size: item.size,
         color: item.color,
-      }));
+        sku: item.sku, // optional
+      }))
   
-      // 5. Call the RPC to create sale + line items atomically
+      // ----------------------------
+      // 4. Call RPC to create sale
+      // ----------------------------
       const { data: saleData, error: rpcError } = await supabase.rpc("create_sale_atomic", {
         p_store_id: storeId,
         p_cashier_id: cashierId,
@@ -254,35 +252,40 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
         p_grand_total: displayTotal,
         p_payment_method: paymentMethod,
         p_notes: saleNotes,
-        p_line_items: saleLineItems,
-      });
+        p_items: lineItemsForRpc, // <-- mapped cart items
+      })
   
       if (rpcError || !saleData || !saleData[0]?.sale_id || !saleData[0]?.receipt_number) {
-        throw new Error(rpcError?.message || "Failed to create sale");
+        throw new Error(rpcError?.message || "Failed to create sale")
       }
   
-      const receiptNum = saleData[0].receipt_number;
-      const saleId = saleData[0].sale_id;
-      setReceiptNumber(receiptNum);
+      const receiptNum = saleData[0].receipt_number
+      const saleId = saleData[0].sale_id
+      setReceiptNumber(receiptNum)
   
-      // 6. Capture receipt snapshot
+      // ----------------------------
+      // 5. Capture receipt snapshot
+      // ----------------------------
       setReceiptSnapshot({
         cart: [...cart],
         subtotal: displaySubtotal,
         taxAmount: displayTax,
         total: displayTotal,
-      });
+      })
   
-      // 7. Clear cart and show receipt
-      clearCart();
-      setShowReceipt(true);
+      // ----------------------------
+      // 6. Clear cart & show receipt
+      // ----------------------------
+      clearCart()
+      setShowReceipt(true)
     } catch (error) {
-      console.error("Checkout error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to process sale");
+      console.error("Checkout error:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to process sale")
     } finally {
-      setIsProcessing(false);
+      setIsProcessing(false)
     }
-  };
+  }
+  
   
 
   const handlePrintReceipt = () => window.print()
