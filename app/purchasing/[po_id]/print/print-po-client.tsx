@@ -129,11 +129,11 @@ export function PrintPOClient({
           <table className="w-full border-collapse text-sm table-fixed">
             <thead>
               <tr className="border-b-2 border-zinc-900">
-                <th className="py-2 text-left font-semibold text-zinc-900" style={{ width: '20%' }}>
+                <th className="py-2 text-left font-semibold text-zinc-900" style={{ width: '30%' }}>
                   Product
                 </th>
-                <th className="py-2 text-left font-semibold text-zinc-900" style={{ width: '35%' }}>
-                  Variant / SKU
+                <th className="py-2 text-left font-semibold text-zinc-900" style={{ width: '25%' }}>
+                  Variant
                 </th>
                 <th className="py-2 text-right font-semibold text-zinc-900" style={{ width: '10%' }}>
                   Qty
@@ -153,35 +153,27 @@ export function PrintPOClient({
                 const variant = item.product_variants
                   ? `${item.product_variants.size} / ${item.product_variants.color}`
                   : "—"
-                const sku = item.product_variants?.sku ?? "—"
 
                 return (
                   <tr key={item.line_item_id} className="border-b border-zinc-200">
-                    <td className="py-2 text-zinc-900 overflow-hidden">
-                      <div className="break-words">{styleName}</div>
+                    <td className="py-2 text-zinc-900">
+                      {styleName}
                     </td>
-                    <td className="py-2 text-zinc-700 overflow-hidden">
-                      <div className="break-words leading-tight">
-                        <div className="text-sm">{variant}</div>
-                        <div className="text-xs text-zinc-500 break-all mt-0.5">{sku}</div>
-                      </div>
+                    <td className="py-2 text-zinc-700">
+                      {variant}
                     </td>
                     <td className="py-2 text-right text-zinc-900">
                       {item.quantity_ordered}
                     </td>
-                    <td className="py-2 text-right text-zinc-900 overflow-hidden">
-                      <div className="break-words">
-                        {formatCurrency(item.unit_cost, currency, {
-                          maximumFractionDigits: 2,
-                        })}
-                      </div>
+                    <td className="py-2 text-right text-zinc-900">
+                      {formatCurrency(item.unit_cost, currency, {
+                        maximumFractionDigits: 2,
+                      })}
                     </td>
-                    <td className="py-2 text-right font-medium text-zinc-900 overflow-hidden">
-                      <div className="break-words">
-                        {formatCurrency(item.line_total, currency, {
-                          maximumFractionDigits: 2,
-                        })}
-                      </div>
+                    <td className="py-2 text-right font-medium text-zinc-900">
+                      {formatCurrency(item.line_total, currency, {
+                        maximumFractionDigits: 2,
+                      })}
                     </td>
                   </tr>
                 )
