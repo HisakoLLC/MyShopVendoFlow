@@ -118,79 +118,87 @@ export function PrintPOClient({
             <h2 className="mb-2 text-sm font-semibold uppercase text-zinc-500">
               Dates
             </h2>
-            <p className="text-sm text-zinc-700">Order date: {orderDate}</p>
+            <p className="text-sm text-zinc-700">Order: {orderDate}</p>
             <p className="text-sm text-zinc-700">
-              Expected delivery: {expectedDate}
+              Expected: {expectedDate}
             </p>
           </div>
         </div>
 
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="border-b-2 border-zinc-900">
-              <th className="py-2 text-left font-semibold text-zinc-900 w-[25%]">
-                Product
-              </th>
-              <th className="py-2 text-left font-semibold text-zinc-900 w-[30%]">
-                Variant / SKU
-              </th>
-              <th className="py-2 text-right font-semibold text-zinc-900 w-[10%]">
-                Qty
-              </th>
-              <th className="py-2 text-right font-semibold text-zinc-900 w-[17.5%]">
-                Unit cost
-              </th>
-              <th className="py-2 text-right font-semibold text-zinc-900 w-[17.5%]">
-                Total
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {lineItems.map((item) => {
-              const styleName =
-                item.product_variants?.product_styles?.name ?? "—"
-              const variant = item.product_variants
-                ? `${item.product_variants.size} / ${item.product_variants.color}`
-                : "—"
-              const sku = item.product_variants?.sku ?? "—"
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-sm table-fixed">
+            <thead>
+              <tr className="border-b-2 border-zinc-900">
+                <th className="py-2 text-left font-semibold text-zinc-900" style={{ width: '20%' }}>
+                  Product
+                </th>
+                <th className="py-2 text-left font-semibold text-zinc-900" style={{ width: '35%' }}>
+                  Variant / SKU
+                </th>
+                <th className="py-2 text-right font-semibold text-zinc-900" style={{ width: '10%' }}>
+                  Qty
+                </th>
+                <th className="py-2 text-right font-semibold text-zinc-900" style={{ width: '17.5%' }}>
+                  Unit cost
+                </th>
+                <th className="py-2 text-right font-semibold text-zinc-900" style={{ width: '17.5%' }}>
+                  Total
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {lineItems.map((item) => {
+                const styleName =
+                  item.product_variants?.product_styles?.name ?? "—"
+                const variant = item.product_variants
+                  ? `${item.product_variants.size} / ${item.product_variants.color}`
+                  : "—"
+                const sku = item.product_variants?.sku ?? "—"
 
-              return (
-                <tr key={item.line_item_id} className="border-b border-zinc-200">
-                  <td className="py-2 text-zinc-900">{styleName}</td>
-                  <td className="py-2 text-zinc-700">
-                    <div className="break-words">
-                      <div>{variant}</div>
-                      <div className="text-xs text-zinc-500 break-all">{sku}</div>
-                    </div>
-                  </td>
-                  <td className="py-2 text-right text-zinc-900">
-                    {item.quantity_ordered}
-                  </td>
-                  <td className="py-2 text-right text-zinc-900">
-                    {formatCurrency(item.unit_cost, currency, {
-                      maximumFractionDigits: 2,
-                    })}
-                  </td>
-                  <td className="py-2 text-right font-medium text-zinc-900">
-                    {formatCurrency(item.line_total, currency, {
-                      maximumFractionDigits: 2,
-                    })}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-          <tfoot>
-            <tr className="border-t-2 border-zinc-900">
-              <td colSpan={4} className="py-3 text-right font-semibold text-zinc-900">
-                Total:
-              </td>
-              <td className="py-3 text-right text-lg font-bold text-zinc-900">
-                {total}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+                return (
+                  <tr key={item.line_item_id} className="border-b border-zinc-200">
+                    <td className="py-2 text-zinc-900 overflow-hidden">
+                      <div className="break-words">{styleName}</div>
+                    </td>
+                    <td className="py-2 text-zinc-700 overflow-hidden">
+                      <div className="break-words leading-tight">
+                        <div className="text-sm">{variant}</div>
+                        <div className="text-xs text-zinc-500 break-all mt-0.5">{sku}</div>
+                      </div>
+                    </td>
+                    <td className="py-2 text-right text-zinc-900">
+                      {item.quantity_ordered}
+                    </td>
+                    <td className="py-2 text-right text-zinc-900 overflow-hidden">
+                      <div className="break-words">
+                        {formatCurrency(item.unit_cost, currency, {
+                          maximumFractionDigits: 2,
+                        })}
+                      </div>
+                    </td>
+                    <td className="py-2 text-right font-medium text-zinc-900 overflow-hidden">
+                      <div className="break-words">
+                        {formatCurrency(item.line_total, currency, {
+                          maximumFractionDigits: 2,
+                        })}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+            <tfoot>
+              <tr className="border-t-2 border-zinc-900">
+                <td colSpan={4} className="py-3 text-right font-semibold text-zinc-900">
+                  Total:
+                </td>
+                <td className="py-3 text-right text-lg font-bold text-zinc-900">
+                  {total}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
 
         <div className="mt-12 text-center text-xs text-zinc-500">
           Generated from VendoFlow — PO #{po.po_number}
