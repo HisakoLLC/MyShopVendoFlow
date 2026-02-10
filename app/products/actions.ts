@@ -480,124 +480,127 @@ export async function createProductVariants(
     error: userError,
   } = await supabase.auth.getUser()
 
-  if (userError || !user) {
-    throw new Error("You must be signed in to create variants.")
-  }
+  if (userError || !user) throw new Error("You must be signed in to create variants.")
 
   const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
-  if (accountIdError || !accountId) {
-    throw new Error("Unable to resolve account.")
-  }
+  if (accountIdError || !accountId) throw new Error("Unable to resolve account.")
 
   // Verify style belongs to account
   const { data: style, error: styleError } = await supabase
     .from("product_styles")
-    .select("style_id, base_price, cost")
+    .select("style_id, name, base_price, cost")
     .eq("style_id", styleId)
     .eq("account_id", accountId)
     .single()
 
-  if (styleError || !style) {
-    throw new Error("Style not found or access denied.")
-  }
+  if (styleError || !style) throw new Error("Style not found or access denied.")
 
   // Validate all variants
   const validatedVariants = variants.map((v) => {
     const parsed = variantInsertSchema.safeParse({ ...v, style_id: styleId })
-    if (!parsed.success) {
-      throw new Error(`Invalid variant: ${parsed.error.errors[0]?.message}`)
-    }
+    if (!parsed.success) throw new Error(`Invalid variant: ${parsed.error.errors[0]?.message}`)
     return parsed.data
   })
 
-  // Check for duplicate SKUs
-  const skus = validatedVariants.map((v) => v.sku)
-  const duplicateSkus = skus.filter((sku, index) => skus.indexOf(sku) !== index)
-  if (duplicateSkus.length > 0) {
-    throw new Error(`Duplicate SKUs found: ${duplicateSkus.join(", ")}`)
+  // Check for duplicates in batch (size/color)
+  const batchComboSet = new Set()
+  for (const v of validatedVariants) {
+    const comboKey = `${v.size}-${v.color}`.toLowerCase()
+    if (batchComboSet.has(comboKey)) throw new Error(`Duplicate variant in batch: ${v.size}/${v.color}`)
+    batchComboSet.add(comboKey)
   }
 
-  // Check for existing SKUs in database
-  const { data: existingVariants, error: checkError } = await supabase
-    .from("product_variants")
-    .select("sku")
-    .in("sku", skus)
-
-  if (checkError) {
-    throw new Error(`Error checking existing SKUs: ${checkError.message}`)
+  // Check for existing SKUs in DB
+  const skus = validatedVariants.map((v) => v.sku).filter(Boolean)
+  if (skus.length > 0) {
+    const { data: existingSkusData } = await supabase
+      .from("product_variants")
+      .select("sku")
+      .in("sku", skus)
+    if (existingSkusData && existingSkusData.length > 0) {
+      const existingSkus = existingSkusData.map((v: { sku: string }) => v.sku).join(", ")
+      throw new Error(`SKU(s) already exist in DB: ${existingSkus}`)
+    }
   }
 
-  if (existingVariants && existingVariants.length > 0) {
-    const existingSkus = existingVariants.map((v: { sku: string }) => v.sku).join(", ")
-    throw new Error(`SKU(s) already exist: ${existingSkus}. Please use unique SKUs.`)
-  }
-
-  // Check for duplicate size/color combinations for this style
-  const { data: existingCombos, error: comboError } = await supabase
+  // Check for existing size/color combos in DB
+  const { data: existingCombos } = await supabase
     .from("product_variants")
     .select("size, color")
     .eq("style_id", styleId)
 
-  if (comboError) {
-    throw new Error(`Error checking existing combinations: ${comboError.message}`)
-  }
-
   const existingSet = new Set(
     (existingCombos ?? []).map((c: { size: string; color: string }) => `${c.size}-${c.color}`.toLowerCase())
   )
+
   const duplicates = validatedVariants.filter((v) =>
     existingSet.has(`${v.size}-${v.color}`.toLowerCase())
   )
-
   if (duplicates.length > 0) {
     const dupList = duplicates.map((d: { size: string; color: string }) => `${d.size}/${d.color}`).join(", ")
     throw new Error(`Size/color combinations already exist: ${dupList}`)
   }
 
-  // Batch insert variants
-  const payload = []
-for (const v of validatedVariants) {
-  let sku
-  let attempts = 0
+  // Generate SKUs and prepare payload
+  const payload: {
+    style_id: string
+    size: string
+    color: string
+    sku: string
+    price: number
+    cost: number
+    barcode: string | null
+    color_image_url: string | null
+  }[] = []
+  
+  for (const v of validatedVariants) {
+    let sku: string | undefined
+    let attempts = 0
 
-  // Try generating a unique SKU up to 10 times
-  while (!sku && attempts < 10) {
-    sku = generateSKU(accountId, style.name, v.size, v.color)
-    const { data: exists } = await supabase
-      .from("product_variants")
-      .select("variant_id")
-      .eq("sku", sku)
-      .limit(1)
+    while (!sku && attempts < 50) {
+      sku = generateSKU(accountId, style.name, v.size, v.color)
 
-    if (!exists || exists.length === 0) break
-    sku = undefined
-    attempts++
+      const dbCheck = await supabase
+        .from("product_variants")
+        .select("variant_id")
+        .eq("sku", sku)
+        .limit(1)
+
+      const batchDuplicate = payload.find((p) => p.sku?.toLowerCase() === sku!.toLowerCase())
+
+      if ((!dbCheck.data || dbCheck.data.length === 0) && !batchDuplicate) break
+      sku = undefined
+      attempts++
+    }
+
+    if (!sku) throw new Error(`Failed to generate unique SKU for ${v.size}/${v.color} after 50 attempts`)
+
+    payload.push({
+      style_id: styleId,
+      size: v.size,
+      color: v.color,
+      sku,
+      price: v.price,
+      cost: v.cost,
+      barcode: null,
+      color_image_url: null,
+    })
   }
 
-  if (!sku) throw new Error("Failed to generate unique SKU after 10 attempts")
+  // Insert into DB
+  const { data: insertedVariants, error } = await supabase
+    .from("product_variants")
+    .insert(payload)
+    .select("variant_id")
 
-  payload.push({
-    style_id: styleId,
-    size: v.size,
-    color: v.color,
-    sku, // always use the generated SKU
-    price: v.price,
-    cost: v.cost,
-    barcode: null,
-    color_image_url: null,
-  })
-}
-
-  const { data, error } = await supabase.from("product_variants").insert(payload).select("variant_id")
-
-  if (error) {
-    throw new Error(error.message)
-  }
+  if (error) throw new Error(error.message)
 
   revalidatePath(`/products/${styleId}`)
   revalidatePath("/products")
-  return { count: data.length, variant_ids: data.map((v: { variant_id: string }) => v.variant_id) }
+
+  return { count: insertedVariants.length, variant_ids: insertedVariants.map((v: { variant_id: string }) => v.variant_id) }
 }
+
 
 const variantUpdateSchema = z
   .object({
