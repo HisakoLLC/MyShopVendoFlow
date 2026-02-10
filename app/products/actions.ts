@@ -555,17 +555,39 @@ export async function createProductVariants(
   }
 
   // Batch insert variants
-  const payload = validatedVariants.map((v) => ({
+  const payload = []
+for (const v of validatedVariants) {
+  let sku
+  let attempts = 0
+
+  // Try generating a unique SKU up to 10 times
+  while (!sku && attempts < 10) {
+    sku = generateSKU(accountId, style.name, v.size, v.color)
+    const { data: exists } = await supabase
+      .from("product_variants")
+      .select("variant_id")
+      .eq("sku", sku)
+      .limit(1)
+
+    if (!exists || exists.length === 0) break
+    sku = undefined
+    attempts++
+  }
+
+  if (!sku) throw new Error("Failed to generate unique SKU after 10 attempts")
+
+  payload.push({
     style_id: styleId,
     size: v.size,
     color: v.color,
-    sku: v.sku ?? generateSKU(accountId, style.name, v.size, v.color), // NEW
+    sku, // always use the generated SKU
     price: v.price,
     cost: v.cost,
     barcode: null,
     color_image_url: null,
-  }))
-  
+  })
+}
+
   const { data, error } = await supabase.from("product_variants").insert(payload).select("variant_id")
 
   if (error) {
