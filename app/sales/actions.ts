@@ -149,35 +149,6 @@ export async function processRefund(
     return { success: false, error: insertRefundError.message }
   }
 
-  // Restore inventory for each line item at the sale's store
-  for (const item of lineItems) {
-    const variantId = item.variant_id
-    const qty = item.quantity ?? 0
-    if (!variantId || qty <= 0) continue
-
-    const { data: inv } = await supabase
-      .from("inventory_levels")
-      .select("inventory_id, quantity_on_hand")
-      .eq("variant_id", variantId)
-      .eq("store_id", sale.store_id)
-      .single()
-
-    const newQty = (inv?.quantity_on_hand ?? 0) + qty
-
-    if (inv) {
-      await supabase
-        .from("inventory_levels")
-        .update({ quantity_on_hand: newQty })
-        .eq("inventory_id", inv.inventory_id)
-    } else {
-      await supabase.from("inventory_levels").insert({
-        variant_id: variantId,
-        store_id: sale.store_id,
-        quantity_on_hand: newQty,
-        quantity_reserved: 0,
-      })
-    }
-  }
 
   // Update customer stats if sale had a customer
   if (sale.customer_id) {
