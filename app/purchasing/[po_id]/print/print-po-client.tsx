@@ -13,7 +13,9 @@ type POLineItem = {
     size: string
     color: string
     sku: string
-    product_styles: { name: string } | null
+    product_styles: {
+      name: string
+    } | null
   } | null
 }
 
@@ -23,7 +25,11 @@ type PurchaseOrder = {
   expected_delivery_date: string | null
   status: string | null
   total_cost: number | null
-  suppliers: { name: string; email?: string | null; phone?: string | null } | null
+  suppliers: {
+    name: string
+    email?: string | null
+    phone?: string | null
+  } | null
 }
 
 export function PrintPOClient({
@@ -48,6 +54,7 @@ export function PrintPOClient({
         day: "numeric",
       })
     : "—"
+
   const expectedDate = po.expected_delivery_date
     ? new Date(po.expected_delivery_date).toLocaleDateString("en-US", {
         year: "numeric",
@@ -55,119 +62,140 @@ export function PrintPOClient({
         day: "numeric",
       })
     : "—"
-  const total = formatCurrency(po.total_cost ?? 0, currency, { maximumFractionDigits: 2 })
+
+  const total = formatCurrency(po.total_cost ?? 0, currency, {
+    maximumFractionDigits: 2,
+  })
 
   return (
-    <div className="min-h-screen bg-background-light text-text-primary-light dark:bg-background-dark dark:text-text-primary-dark print:bg-white print:text-black">
+    <>
       {/* Toolbar - hidden when printing */}
-      <div className="no-print fixed top-0 left-0 right-0 z-50 border-b border-border-light bg-background-card-light px-4 py-3 dark:border-border-dark dark:bg-background-card-dark shadow-sm">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <span className="text-sm font-medium text-zinc-600">
-            PO #{po.po_number} — Print or save as PDF
-          </span>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => window.close()}
-              className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-            >
-              Close
-            </button>
-            <button
-              type="button"
-              onClick={handlePrint}
-              className="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-white hover:opacity-90"
-            >
-              Print
-            </button>
-          </div>
+      <div className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between border-b border-zinc-200 bg-white px-6 py-3 print:hidden">
+        <h1 className="text-lg font-semibold text-zinc-900">
+          PO #{po.po_number} — Print or save as PDF
+        </h1>
+        <div className="flex gap-2">
+          <button
+            onClick={() => window.close()}
+            className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+          >
+            Close
+          </button>
+          <button
+            onClick={handlePrint}
+            className="rounded-lg bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800"
+          >
+            Print
+          </button>
         </div>
       </div>
 
       {/* Document - with top padding so toolbar doesn't overlap */}
-      <div className="mx-auto max-w-3xl px-8 pb-16 pt-24">
-        <header className="mb-10 border-b-2 border-zinc-900 pb-6">
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
-            Purchase Order
-          </h1>
-          <p className="mt-1 text-xl font-semibold text-zinc-700">PO #{po.po_number}</p>
-        </header>
+      <div className="mx-auto max-w-4xl px-6 pb-12 pt-20 print:pt-0">
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-bold text-zinc-900">Purchase Order</h1>
+          <p className="mt-1 text-lg font-semibold text-zinc-700">
+            PO #{po.po_number}
+          </p>
+        </div>
 
-        <section className="mb-10 grid grid-cols-2 gap-6 text-sm">
+        <div className="mb-8 grid grid-cols-2 gap-8">
           <div>
-            <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+            <h2 className="mb-2 text-sm font-semibold uppercase text-zinc-500">
               Supplier
             </h2>
-            <p className="font-semibold text-zinc-900">{po.suppliers?.name ?? "—"}</p>
+            <p className="font-semibold text-zinc-900">
+              {po.suppliers?.name ?? "—"}
+            </p>
             {po.suppliers?.email && (
-              <p className="mt-0.5 text-zinc-600">{po.suppliers.email}</p>
+              <p className="text-sm text-zinc-600">{po.suppliers.email}</p>
             )}
             {po.suppliers?.phone && (
-              <p className="text-zinc-600">{po.suppliers.phone}</p>
+              <p className="text-sm text-zinc-600">{po.suppliers.phone}</p>
             )}
           </div>
           <div>
-            <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+            <h2 className="mb-2 text-sm font-semibold uppercase text-zinc-500">
               Dates
             </h2>
-            <p className="text-zinc-900">
-              <span className="text-zinc-500">Order date:</span> {orderDate}
-            </p>
-            <p className="mt-0.5 text-zinc-900">
-              <span className="text-zinc-500">Expected delivery:</span> {expectedDate}
+            <p className="text-sm text-zinc-700">Order date: {orderDate}</p>
+            <p className="text-sm text-zinc-700">
+              Expected delivery: {expectedDate}
             </p>
           </div>
-        </section>
+        </div>
 
-        <section>
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b-2 border-zinc-900 bg-zinc-100">
-                <th className="py-3 pr-4 text-left font-semibold text-zinc-900">Product</th>
-                <th className="py-3 pr-4 text-left font-semibold text-zinc-900">Variant / SKU</th>
-                <th className="py-3 pr-4 text-right font-semibold text-zinc-900">Qty</th>
-                <th className="py-3 pr-4 text-right font-semibold text-zinc-900">Unit cost</th>
-                <th className="py-3 text-right font-semibold text-zinc-900">Line total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lineItems.map((item) => {
-                const styleName = item.product_variants?.product_styles?.name ?? "—"
-                const variant = item.product_variants
-                  ? `${item.product_variants.size} / ${item.product_variants.color}`
-                  : "—"
-                const sku = item.product_variants?.sku ?? "—"
-                return (
-                  <tr key={item.line_item_id} className="border-b border-zinc-200">
-                    <td className="py-3 pr-4 font-medium text-zinc-900">{styleName}</td>
-                    <td className="py-3 pr-4 text-zinc-700">
-                      {variant}
-                      <span className="ml-1 font-mono text-zinc-500">{sku}</span>
-                    </td>
-                    <td className="py-3 pr-4 text-right text-zinc-900">
-                      {item.quantity_ordered}
-                    </td>
-                    <td className="py-3 pr-4 text-right text-zinc-900">
-                      {formatCurrency(item.unit_cost, currency, { maximumFractionDigits: 2 })}
-                    </td>
-                    <td className="py-3 text-right font-medium text-zinc-900">
-                      {formatCurrency(item.line_total, currency, { maximumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="border-b-2 border-zinc-900">
+              <th className="py-2 text-left font-semibold text-zinc-900 w-[25%]">
+                Product
+              </th>
+              <th className="py-2 text-left font-semibold text-zinc-900 w-[30%]">
+                Variant / SKU
+              </th>
+              <th className="py-2 text-right font-semibold text-zinc-900 w-[10%]">
+                Qty
+              </th>
+              <th className="py-2 text-right font-semibold text-zinc-900 w-[17.5%]">
+                Unit cost
+              </th>
+              <th className="py-2 text-right font-semibold text-zinc-900 w-[17.5%]">
+                Total
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {lineItems.map((item) => {
+              const styleName =
+                item.product_variants?.product_styles?.name ?? "—"
+              const variant = item.product_variants
+                ? `${item.product_variants.size} / ${item.product_variants.color}`
+                : "—"
+              const sku = item.product_variants?.sku ?? "—"
 
-          <div className="mt-6 flex justify-end border-t-2 border-zinc-900 pt-4">
-            <p className="text-lg font-bold text-zinc-900">Total: {total}</p>
-          </div>
-        </section>
+              return (
+                <tr key={item.line_item_id} className="border-b border-zinc-200">
+                  <td className="py-2 text-zinc-900">{styleName}</td>
+                  <td className="py-2 text-zinc-700">
+                    <div className="break-words">
+                      <div>{variant}</div>
+                      <div className="text-xs text-zinc-500 break-all">{sku}</div>
+                    </div>
+                  </td>
+                  <td className="py-2 text-right text-zinc-900">
+                    {item.quantity_ordered}
+                  </td>
+                  <td className="py-2 text-right text-zinc-900">
+                    {formatCurrency(item.unit_cost, currency, {
+                      maximumFractionDigits: 2,
+                    })}
+                  </td>
+                  <td className="py-2 text-right font-medium text-zinc-900">
+                    {formatCurrency(item.line_total, currency, {
+                      maximumFractionDigits: 2,
+                    })}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+          <tfoot>
+            <tr className="border-t-2 border-zinc-900">
+              <td colSpan={4} className="py-3 text-right font-semibold text-zinc-900">
+                Total:
+              </td>
+              <td className="py-3 text-right text-lg font-bold text-zinc-900">
+                {total}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
 
-        <footer className="mt-12 border-t border-zinc-200 pt-6 text-center text-xs text-zinc-500">
+        <div className="mt-12 text-center text-xs text-zinc-500">
           Generated from VendoFlow — PO #{po.po_number}
-        </footer>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
