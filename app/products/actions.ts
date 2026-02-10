@@ -4,6 +4,16 @@ import { revalidatePath } from "next/cache"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { z } from "zod"
 
+function generateSKU(accountId: string, styleName: string, size: string, color: string) {
+  // Uppercase letters, remove spaces, add random digits
+  const stylePart = styleName.replace(/\s+/g, "").toUpperCase().slice(0, 4)
+  const sizePart = size.replace(/\s+/g, "").toUpperCase().slice(0, 2)
+  const colorPart = color.replace(/\s+/g, "").toUpperCase().slice(0, 2)
+  const randomPart = Math.floor(1000 + Math.random() * 9000) // 4-digit random
+  return `${accountId.slice(-4)}-${stylePart}${sizePart}${colorPart}-${randomPart}`
+}
+
+
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024 // 2MB
 
 const createStyleServerSchema = z.object({
@@ -454,7 +464,7 @@ const variantInsertSchema = z.object({
   style_id: z.string().uuid(),
   size: z.string().min(1),
   color: z.string().min(1),
-  sku: z.string().min(1),
+  sku: z.string().min(1).optional(),
   price: z.number().min(0.01),
   cost: z.number().min(0.01),
 })
@@ -549,13 +559,13 @@ export async function createProductVariants(
     style_id: styleId,
     size: v.size,
     color: v.color,
-    sku: v.sku,
+    sku: v.sku ?? generateSKU(accountId, style.name, v.size, v.color), // NEW
     price: v.price,
     cost: v.cost,
     barcode: null,
     color_image_url: null,
   }))
-
+  
   const { data, error } = await supabase.from("product_variants").insert(payload).select("variant_id")
 
   if (error) {
