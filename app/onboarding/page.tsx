@@ -26,28 +26,34 @@ type Plan = {
   recommended?: boolean
 }
 
+const PLAN_LIMITS: Record<string, number> = {
+  starter: 1,
+  core: 3,
+  scale: 10,
+}
+
 const plans: Plan[] = [
   {
     id: "starter",
     name: "Starter",
     price: 10000,
     stores: 1,
-    features: ["Basic inventory", "Sales tracking", "Customer management"],
+    features: ["Basic inventory", "Sales tracking", "Customer management", "1 store included"],
   },
   {
     id: "core",
     name: "Core",
     price: 16500,
-    stores: 1,
-    features: ["Full inventory", "Advanced reports", "Multi-rate tax", "Staff management"],
+    stores: 3,
+    features: ["Full inventory", "Advanced reports", "Multi-rate tax", "Staff management", "Up to 3 stores"],
     recommended: true,
   },
   {
     id: "scale",
     name: "Scale",
     price: 29000,
-    stores: 1,
-    features: ["Everything in Core", "Unlimited staff", "Priority support", "API access"],
+    stores: 10,
+    features: ["Everything in Core", "Unlimited staff", "Priority support", "API access", "Up to 10 stores"],
   },
 ]
 
@@ -116,6 +122,37 @@ function OnboardingContent() {
       }
       if (!accountId) {
         toast.error("Account not found")
+        return
+      }
+
+      // Enforce store limits based on current plan
+      const { data: account, error: accountError } = await supabase
+        .from("accounts")
+        .select("plan_tier, account_id")
+        .eq("account_id", accountId)
+        .single()
+      if (accountError) {
+        toast.error(accountError.message || "Unable to load account.")
+        return
+      }
+
+      const { count, error: countError } = await supabase
+        .from("stores")
+        .select("store_id", { count: "exact", head: true })
+        .eq("account_id", accountId)
+
+      if (countError) {
+        toast.error(countError.message || "Unable to check store limit.")
+        return
+      }
+
+      const tierKey = (account?.plan_tier || "starter").toLowerCase()
+      const limit = PLAN_LIMITS[tierKey] ?? 1
+
+      if ((count ?? 0) >= limit) {
+        toast.error(
+          `Store limit reached. Your ${tierKey} plan allows up to ${limit} store(s). Upgrade to add more stores.`
+        )
         return
       }
 

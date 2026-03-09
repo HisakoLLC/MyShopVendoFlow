@@ -82,13 +82,11 @@ async function fetchSettingsData(): Promise<{
     throw new Error("Account not found.")
   }
 
-  // Fetch the account's single store (one store per account)
   const { data: storesRows, error: storesError } = await supabase
     .from("stores")
     .select("store_id, name, tax_rate")
     .eq("account_id", accountId)
     .order("name", { ascending: true })
-    .limit(1)
 
   if (storesError) {
     throw new Error(storesError.message)
