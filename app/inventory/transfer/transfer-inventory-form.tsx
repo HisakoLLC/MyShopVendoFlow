@@ -28,6 +28,14 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { createInventoryTransfer, type CreateTransferData } from "@/app/inventory/actions"
 import { createClient } from "@/lib/supabase/client"
 
@@ -64,6 +72,9 @@ const transferSchema = z
     to_store_id: z.string().min(1, "Destination store is required."),
     variant_id: z.string().min(1, "Variant is required."),
     quantity: z.coerce.number().int().min(1, "Quantity must be at least 1."),
+    reason: z.enum(["rebalance", "stockout", "customer", "other"], {
+      required_error: "Reason is required.",
+    }),
     notes: z.string().max(500).optional(),
   })
   .refine((data) => data.from_store_id !== data.to_store_id, {
@@ -86,6 +97,8 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
   const [fromStock, setFromStock] = React.useState<number | null>(null)
   const [toStock, setToStock] = React.useState<number | null>(null)
   const [isLoadingStock, setIsLoadingStock] = React.useState(false)
+  const [confirmOpen, setConfirmOpen] = React.useState(false)
+  const [pendingValues, setPendingValues] = React.useState<TransferFormValues | null>(null)
 
   const form = useForm<TransferFormValues>({
     resolver: zodResolver(transferSchema),
@@ -94,6 +107,7 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
       to_store_id: "",
       variant_id: "",
       quantity: 1,
+      reason: "rebalance",
       notes: "",
     },
     mode: "onChange",
@@ -104,7 +118,7 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
   const watchedVariantId = form.watch("variant_id")
   const watchedQuantity = form.watch("quantity")
 
-  // Product search debounced
+  // Product search debounced (server-side Supabase; API is available but this keeps latency low)
   React.useEffect(() => {
     if (!productSearchQuery.trim() || productSearchQuery.length < 2) {
       setProductResults([])
@@ -231,8 +245,7 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
     }
   }, [fromStock, watchedQuantity, form])
 
-  // Form submission
-  const onSubmit = async (values: TransferFormValues) => {
+  const openConfirm = (values: TransferFormValues) => {
     if (!selectedVariant) {
       toast.error("Please select a variant.")
       return
@@ -243,14 +256,37 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
       return
     }
 
+    setPendingValues(values)
+    setConfirmOpen(true)
+  }
+
+  const performTransfer = async () => {
+    if (!pendingValues || !selectedVariant) return
+    const values = pendingValues
+
     setIsSubmitting(true)
     try {
+      const reasonLabel =
+        values.reason === "rebalance"
+          ? "Rebalance inventory"
+          : values.reason === "stockout"
+            ? "Stockout at destination"
+            : values.reason === "customer"
+              ? "Customer request"
+              : "Other"
+      const combinedNotes = [
+        reasonLabel ? `[Reason: ${reasonLabel}]` : "",
+        values.notes?.trim() || "",
+      ]
+        .filter(Boolean)
+        .join(" ")
+
       const data: CreateTransferData = {
         from_store_id: values.from_store_id,
         to_store_id: values.to_store_id,
         variant_id: values.variant_id,
         quantity: values.quantity,
-        notes: values.notes || undefined,
+        notes: combinedNotes || undefined,
       }
 
       const result = await createInventoryTransfer(data)
@@ -260,6 +296,9 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to create transfer.")
       setIsSubmitting(false)
+    } finally {
+      setConfirmOpen(false)
+      setPendingValues(null)
     }
   }
 
@@ -270,7 +309,7 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
     <>
       <Toaster richColors position="top-right" />
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(openConfirm)} className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Main Form */}
             <div className="lg:col-span-2 space-y-6">
@@ -448,6 +487,31 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
                     )}
                   />
 
+                  {/* Reason */}
+                  <FormField
+                    control={form.control}
+                    name="reason"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Reason *</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select reason" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="rebalance">Rebalance inventory</SelectItem>
+                            <SelectItem value="stockout">Stockout at destination</SelectItem>
+                            <SelectItem value="customer">Customer request</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   {/* Current Stock Display */}
                   {watchedVariantId && watchedFromStore && watchedToStore && (
                     <div className="grid gap-4 rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900 md:grid-cols-2">
@@ -504,8 +568,27 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
                         <div className="space-y-3 rounded-lg border border-zinc-200 bg-background-card-light p-3 dark:border-border-dark dark:bg-background-card-dark">
                           <div>
                             <div className="text-xs text-zinc-600 dark:text-zinc-400">From Store</div>
-                            <div className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                              {afterTransferFrom !== null ? `${afterTransferFrom} units` : "—"}
+                            <div className="flex items-baseline justify-between gap-2">
+                              <div className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                                {afterTransferFrom !== null ? `${afterTransferFrom} units` : "—"}
+                              </div>
+                              {afterTransferFrom !== null && (
+                                <span
+                                  className={
+                                    afterTransferFrom < 0
+                                      ? "rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/40 dark:text-red-200"
+                                      : afterTransferFrom <= 2
+                                        ? "rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-200"
+                                        : "rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200"
+                                  }
+                                >
+                                  {afterTransferFrom < 0
+                                    ? "Insufficient"
+                                    : afterTransferFrom <= 2
+                                      ? "Low stock"
+                                      : "Healthy"}
+                                </span>
+                              )}
                             </div>
                           </div>
                           <div>
@@ -543,6 +626,83 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
           </div>
         </form>
       </Form>
+
+      <Dialog open={confirmOpen} onOpenChange={(open) => !isSubmitting && setConfirmOpen(open)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm transfer</DialogTitle>
+            <DialogDescription>
+              Review the details below before moving stock between stores.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 text-sm">
+            <div>
+              <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                {selectedVariant?.product_styles?.name ?? "Selected product"}
+              </div>
+              <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                {selectedVariant ? `${selectedVariant.size}, ${selectedVariant.color}` : ""}
+              </div>
+            </div>
+            {pendingValues && (
+              <>
+                <p className="text-sm text-zinc-700 dark:text-zinc-300">
+                  Transfer{" "}
+                  <span className="font-semibold">{pendingValues.quantity} units</span>{" "}
+                  from{" "}
+                  <span className="font-semibold">
+                    {stores.find((s) => s.store_id === pendingValues.from_store_id)?.name ??
+                      "Source"}
+                  </span>{" "}
+                  to{" "}
+                  <span className="font-semibold">
+                    {stores.find((s) => s.store_id === pendingValues.to_store_id)?.name ??
+                      "Destination"}
+                  </span>
+                  ?
+                </p>
+                <div className="mt-2 grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs dark:border-zinc-800 dark:bg-zinc-900 md:grid-cols-2">
+                  <div>
+                    <div className="mb-1 font-medium text-zinc-800 dark:text-zinc-200">
+                      Source after transfer
+                    </div>
+                    <div className="text-sm">
+                      {afterTransferFrom !== null ? `${afterTransferFrom} units` : "—"}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="mb-1 font-medium text-zinc-800 dark:text-zinc-200">
+                      Destination after transfer
+                    </div>
+                    <div className="text-sm">
+                      {afterTransferTo !== null ? `${afterTransferTo} units` : "—"}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+          <DialogFooter className="mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => !isSubmitting && setConfirmOpen(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              className="gap-2"
+              onClick={performTransfer}
+              disabled={isSubmitting || !pendingValues}
+            >
+              <Package className="h-4 w-4" />
+              {isSubmitting ? "Processing..." : "Confirm Transfer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
