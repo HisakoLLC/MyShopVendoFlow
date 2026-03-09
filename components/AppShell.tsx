@@ -38,9 +38,17 @@ import {
 import { createClient } from "@/lib/supabase/client"
 import type { AuthChangeEvent, Session, User } from "@supabase/supabase-js"
 import { getRoleFromUser, canShowNavItem, getRoleLabel, type StaffRole } from "@/lib/auth/roles"
+import { StoreSelector } from "@/components/store-selector"
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, hideForOwner: true },
+  {
+    href: "/dashboard",
+    label: "Multi-Store Dashboard",
+    icon: LayoutDashboard,
+    ownerOnly: true,
+    badge: "storeCount" as const,
+  },
   { href: "/pos", label: "POS", icon: ShoppingCart },
   { href: "/sales", label: "Sales", icon: Receipt },
   { href: "/products", label: "Products", icon: Package },
@@ -235,14 +243,20 @@ function Sidebar({
   onToggle,
   user,
   role,
+  storeCount,
 }: {
   collapsed: boolean
   onToggle: () => void
   user: User | null
   role: StaffRole
+  storeCount: number
 }) {
   const pathname = usePathname()
-  const visibleNavItems = navItems.filter((item) => canShowNavItem(item.href, role))
+  const visibleNavItems = navItems.filter((item) => {
+    if (item.ownerOnly) return role === "owner"
+    if (item.hideForOwner && role === "owner") return false
+    return canShowNavItem(item.href, role)
+  })
 
   return (
     <aside
@@ -251,11 +265,16 @@ function Sidebar({
         collapsed ? "w-[4rem]" : "w-56"
       )}
     >
-      <div className="flex h-14 items-center border-b border-zinc-200 px-3 dark:border-zinc-800">
+      <div className="flex h-14 items-center gap-2 border-b border-zinc-200 px-3 dark:border-zinc-800">
         {!collapsed && (
-          <Link href="/dashboard" className="font-semibold text-zinc-900 dark:text-zinc-100">
-            VendoFlow
-          </Link>
+          <>
+            <Link href="/dashboard" className="font-semibold text-zinc-900 dark:text-zinc-100">
+              VendoFlow
+            </Link>
+            <div className="ml-3 flex-1">
+              <StoreSelector />
+            </div>
+          </>
         )}
         <Button
           variant="ghost"
@@ -278,9 +297,10 @@ function Sidebar({
             (href !== "/dashboard" && pathname.startsWith(href)) ||
             (href === "/purchasing" && pathname.startsWith("/purchasing")) ||
             (href === "/staff" && pathname.startsWith("/settings/staff"))
+          const showBadge = label === "Multi-Store Dashboard" && storeCount > 0 && role === "owner"
           return (
             <Link
-              key={href}
+              key={`${href}:${label}`}
               href={href}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
@@ -292,7 +312,16 @@ function Sidebar({
               title={collapsed ? label : undefined}
             >
               <Icon className="h-5 w-5 shrink-0" />
-              {!collapsed && <span>{label}</span>}
+              {!collapsed && (
+                <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                  <span className="truncate">{label}</span>
+                  {showBadge && (
+                    <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                      {storeCount}
+                    </span>
+                  )}
+                </div>
+              )}
             </Link>
           )
         })}
@@ -328,9 +357,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   // Persist current store/account and role when any user (owner or staff) is logged in.
   const [role, setRole] = React.useState<StaffRole | null>(null)
+  const [storeCount, setStoreCount] = React.useState(0)
   React.useEffect(() => {
     if (!user) {
       setRole(null)
+      setStoreCount(0)
       return
     }
     let cancelled = false
@@ -338,18 +369,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       .then((res) => (res.ok ? res.json() : null))
       .then(
         (data: {
-          store_id?: string
-          store_name?: string
-          account_id?: string
+          current_store?: { store_id: string; name: string } | null
+          all_stores?: { store_id: string; name: string }[]
+          account_id?: string | null
           role?: StaffRole
         } | null) => {
-          if (cancelled) return
-          if (data?.role) setRole(data.role)
-          if (data?.store_id) {
+          if (cancelled || !data) return
+          if (data.role) setRole(data.role)
+          if (Array.isArray(data.all_stores)) setStoreCount(data.all_stores.length)
+          if (data.current_store) {
             try {
-              localStorage.setItem(STORE_ID_KEY, data.store_id)
-              if (data.store_name) localStorage.setItem(STORE_NAME_KEY, data.store_name)
-              if (data.account_id) localStorage.setItem(ACCOUNT_ID_KEY, data.account_id)
+              localStorage.setItem(STORE_ID_KEY, data.current_store.store_id)
+              if (data.current_store.name) {
+                localStorage.setItem(STORE_NAME_KEY, data.current_store.name)
+              }
+              if (data.account_id) {
+                localStorage.setItem(ACCOUNT_ID_KEY, data.account_id)
+              }
             } catch {
               // ignore
             }
@@ -380,6 +416,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         onToggle={() => setCollapsed((c) => !c)}
         user={user}
         role={effectiveRole}
+        storeCount={storeCount}
       />
       <main
         className={cn(

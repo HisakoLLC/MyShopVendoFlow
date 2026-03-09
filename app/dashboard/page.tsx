@@ -1,26 +1,26 @@
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import {
+  ArrowLeft,
+  AlertTriangle,
+  Receipt,
+  ShoppingCart,
+  Store,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react"
+
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { ensureAccountForCurrentUser } from "@/app/onboarding/actions"
+import { getMultiStoreDashboardData } from "@/lib/dashboard/multi-store"
 
-export const dynamic = "force-dynamic"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { DashboardCharts } from "@/components/dashboard/DashboardCharts"
-import { DashboardMetrics } from "@/components/dashboard/DashboardMetrics"
-import { RecentSales } from "@/components/dashboard/RecentSales"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { RetryButton } from "@/components/dashboard/RetryButton"
-import {
-  TrendingUp,
-  TrendingDown,
-  ShoppingCart,
-  Package,
-  AlertTriangle,
-  Plus,
-  Box,
-  ShoppingBag,
-} from "lucide-react"
+import { StoreFilterSelect } from "@/components/dashboard/multi-store/StoreFilterSelect"
+import { StoreComparisonTable } from "@/components/dashboard/multi-store/StoreComparisonTable"
+import { MultiStoreSalesChart } from "@/components/dashboard/multi-store/MultiStoreSalesChart"
 
 function LoadingState() {
   return (
@@ -32,6 +32,8 @@ function LoadingState() {
     </div>
   )
 }
+
+export const dynamic = "force-dynamic"
 
 function DashboardErrorCard({
   title = "Something went wrong",
@@ -87,7 +89,35 @@ function DashboardErrorCard({
   )
 }
 
-async function DashboardContent() {
+function formatPrice(value: number) {
+  return new Intl.NumberFormat("en-KE", {
+    style: "currency",
+    currency: "KES",
+    maximumFractionDigits: 0,
+  }).format(value || 0)
+}
+
+function utcMidnight(d = new Date()): Date {
+  const x = new Date(d)
+  x.setUTCHours(0, 0, 0, 0)
+  return x
+}
+
+function addUtcDays(d: Date, days: number): Date {
+  const x = new Date(d)
+  x.setUTCDate(x.getUTCDate() + days)
+  return x
+}
+
+function toIsoDate(d: Date): string {
+  return d.toISOString().slice(0, 10)
+}
+
+async function DashboardContent({
+  searchParams,
+}: {
+  searchParams: Promise<{ store?: string }>
+}) {
   let supabase
   try {
     supabase = await createServerSupabaseClient()
@@ -102,17 +132,31 @@ async function DashboardContent() {
       redirect("/login")
     }
 
-    // Resolve account_id: staff from staff table, owner from get_account_id
+    const params = await searchParams
+    const requestedStoreId = typeof params.store === "string" ? params.store : undefined
+
+    // Resolve account_id and role: staff from staff table, owner from get_account_id
     let accountId: string | null = null
+    let role: "owner" | "manager" | "cashier" = "owner"
     const { data: staffRecord } = await supabase
       .from("staff")
-      .select("account_id, active")
+      .select("account_id, active, role")
       .eq("auth_user_id", user.id)
       .maybeSingle()
 
     if (staffRecord?.active && staffRecord.account_id) {
       accountId = staffRecord.account_id
     }
+    if (staffRecord?.active && (staffRecord.role === "cashier" || staffRecord.role === "manager" || staffRecord.role === "owner")) {
+      role = staffRecord.role
+    } else if (staffRecord) {
+      role = "cashier"
+    }
+
+    if (role === "cashier") {
+      redirect("/pos")
+    }
+
     if (!accountId) {
       try {
         const res = await supabase.rpc("get_account_id")
@@ -137,11 +181,11 @@ async function DashboardContent() {
       redirect("/onboarding?redirect=/dashboard")
     }
 
-    // Get all stores for this account
     const { data: stores, error: storesError } = await supabase
-    .from("stores")
-    .select("store_id")
-    .eq("account_id", accountId)
+      .from("stores")
+      .select("store_id, name")
+      .eq("account_id", accountId)
+      .order("name", { ascending: true })
 
     // Handle RLS/permission errors gracefully - never throw so Next.js doesn't show generic error
     if (storesError) {
@@ -154,7 +198,15 @@ async function DashboardContent() {
       )
     }
 
-  const storeIds = stores?.map((s: { store_id: string }) => s.store_id) || []
+    const storeRows = (stores || []) as Array<{ store_id: string | null; name: string | null }>
+    const storeList: Array<{ store_id: string; name: string }> = storeRows
+      .filter(
+        (s): s is { store_id: string; name: string | null } =>
+          typeof s.store_id === "string" && s.store_id.trim().length > 0
+      )
+      .map((s) => ({ store_id: s.store_id, name: s.name ?? "" }))
+
+    const storeIds = storeList.map((s) => s.store_id)
 
   // If no stores exist, show a helpful message (onboarding is first-time only; complete setup in Settings)
   if (storeIds.length === 0) {
@@ -180,401 +232,195 @@ async function DashboardContent() {
     )
   }
 
-  // Fetch has_demo_data for "Delete demo data" button
-  let hasDemoData = false
-  try {
-    const { data: accountRow } = await supabase
-      .from("accounts")
-      .select("has_demo_data")
-      .eq("account_id", accountId)
-      .single()
-    hasDemoData = !!accountRow?.has_demo_data
-  } catch {
-    // Column may not exist or RLS may block; show button only when we know we have demo data
-  }
+    const selectedStore =
+      requestedStoreId && requestedStoreId !== "all"
+        ? storeList.find((s) => s.store_id === requestedStoreId) ?? null
+        : null
 
-  // Get today and yesterday dates
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
+    const viewStoreIds = selectedStore ? [selectedStore.store_id] : storeIds
+    const storeNameById = new Map<string, string>(storeList.map((s) => [s.store_id, s.name]))
 
-  const todayStr = today.toISOString().split("T")[0]
-  const yesterdayStr = yesterday.toISOString().split("T")[0]
+    const today = utcMidnight(new Date())
+    const yesterday = addUtcDays(today, -1)
+    const todayStr = toIsoDate(today)
+    const yesterdayStr = toIsoDate(yesterday)
 
-  // Fetch today's and yesterday's metrics - wrap in try so permission errors don't crash the page
-  let todayRevenue = 0
-  let todayTransactions = 0
-  let todayUnitsSold = 0
-  let yesterdayRevenue = 0
-  let yesterdayTransactions = 0
-  let revenueChange = 0
-  let transactionChange = 0
+    let todayRevenue = 0
+    let yesterdayRevenue = 0
+    try {
+      const { data: daily } = await supabase
+        .from("daily_sales_metrics")
+        .select("date, total_revenue, store_id")
+        .in("store_id", viewStoreIds)
+        .gte("date", yesterdayStr)
+        .lte("date", todayStr)
+      for (const r of daily || []) {
+        if (r.date === todayStr) todayRevenue += r.total_revenue ?? 0
+        if (r.date === yesterdayStr) yesterdayRevenue += r.total_revenue ?? 0
+      }
+    } catch {
+      // ignore
+    }
 
-  try {
-    const tomorrowStr = new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString().split("T")[0]
-    const { data: todaySales } = await supabase
-      .from("sales")
-      .select("grand_total, sale_id, sale_date")
-      .in("store_id", storeIds)
-      .gte("sale_date", todayStr)
-      .lt("sale_date", tomorrowStr)
+    const data30 = await getMultiStoreDashboardData({
+      supabase,
+      storeIds: viewStoreIds,
+      storeNameById,
+      period: "30d",
+    })
 
-    const { data: todayLineItems } = await supabase
-      .from("sale_line_items")
-      .select("quantity, sale_id, sales!inner(store_id, sale_date)")
-      .in("sales.store_id", storeIds)
-      .gte("sales.sale_date", todayStr)
-      .lt("sales.sale_date", tomorrowStr)
+    const data7 = await getMultiStoreDashboardData({
+      supabase,
+      storeIds: viewStoreIds,
+      storeNameById,
+      period: "7d",
+    })
 
-    const { data: yesterdaySales } = await supabase
-      .from("sales")
-      .select("grand_total, sale_id")
-      .in("store_id", storeIds)
-      .gte("sale_date", yesterdayStr)
-      .lt("sale_date", todayStr)
-
-    const { data: yesterdayLineItems } = await supabase
-      .from("sale_line_items")
-      .select("quantity, sale_id, sales!inner(store_id, sale_date)")
-      .in("sales.store_id", storeIds)
-      .gte("sales.sale_date", yesterdayStr)
-      .lt("sales.sale_date", todayStr)
-
-    todayRevenue = (todaySales || []).reduce((sum: number, s: { grand_total: number | null }) => sum + (s.grand_total || 0), 0)
-    todayTransactions = (todaySales || []).length
-    todayUnitsSold = (todayLineItems || []).reduce((sum: number, item: { quantity: number | null }) => sum + (item.quantity || 0), 0)
-    yesterdayRevenue = (yesterdaySales || []).reduce((sum: number, s: { grand_total: number | null }) => sum + (s.grand_total || 0), 0)
-    yesterdayTransactions = (yesterdaySales || []).length
-    revenueChange =
+    const revenueChange =
       yesterdayRevenue > 0 ? ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100 : 0
-    transactionChange = yesterdayTransactions > 0 ? todayTransactions - yesterdayTransactions : 0
-  } catch {
-    // sales/sale_line_items permission or RLS failure; show zeros and friendly card hint below
-  }
 
-  // Fetch low stock count (variants with days_of_inventory < 7) - non-fatal
-  let lowStockCount = 0
-  try {
-    const { data: lowStockVariants } = await supabase
-      .from("variant_metrics")
-      .select("variant_id, days_of_inventory")
-      .lt("days_of_inventory", 7)
-      .not("days_of_inventory", "is", null)
-    lowStockCount = (lowStockVariants || []).length
-  } catch {
-    // variant_metrics may be missing or restricted; show 0
-  }
-
-  // Fetch last 7 days sales data
-  const sevenDaysAgo = new Date(today)
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-  const sevenDaysAgoStr = sevenDaysAgo.toISOString().split("T")[0]
-
-  // Try to use daily_sales_metrics first, fallback to aggregating sales - non-fatal
-  let salesChartData: Array<{ date: string; revenue: number }> = []
-  try {
-    const { data: dailyMetrics } = await supabase
-      .from("daily_sales_metrics")
-      .select("date, total_revenue")
-      .in("store_id", storeIds)
-      .gte("date", sevenDaysAgoStr)
-      .lte("date", todayStr)
-      .order("date", { ascending: true })
-
-    if (dailyMetrics && dailyMetrics.length > 0) {
-      salesChartData = dailyMetrics.map((m: { date: string; total_revenue: number | null }): { date: string; revenue: number } => ({
-        date: new Date(m.date).toLocaleDateString("en-KE", { month: "short", day: "numeric" }),
-        revenue: m.total_revenue ?? 0,
-      }))
-    } else {
-      const { data: salesData, error: salesDataError } = await supabase
-        .from("sales")
-        .select("sale_date, grand_total")
-        .in("store_id", storeIds)
-        .gte("sale_date", sevenDaysAgoStr)
-        .lte("sale_date", todayStr)
-
-      if (!salesDataError && salesData) {
-        const grouped = salesData.reduce((acc: Record<string, number>, sale: { sale_date: string | null; grand_total: number | null }) => {
-          const date = sale.sale_date?.split("T")[0] || ""
-          if (!acc[date]) {
-            acc[date] = 0
-          }
-          acc[date] += sale.grand_total || 0
-          return acc
-        }, {} as Record<string, number>)
-
-        salesChartData = Object.entries(grouped)
-          .map(([date, revenue]) => ({
-            date: new Date(date).toLocaleDateString("en-KE", { month: "short", day: "numeric" }),
-            revenue: revenue as number,
-          }))
-          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      }
-    }
-  } catch {
-    // daily_sales_metrics or sales aggregate may fail; keep empty chart
-  }
-
-  // Fetch top sellers (last 7 days) - non-fatal (needs product_styles/product_variants)
-  let topSellers: Array<{ name: string; revenue: number }> = []
-  try {
-    const { data: salesInRange } = await supabase
-      .from("sales")
-      .select("sale_id")
-      .in("store_id", storeIds)
-      .gte("sale_date", sevenDaysAgoStr)
-      .lte("sale_date", todayStr)
-
-    const saleIdsInRange = (salesInRange || []).map((s: { sale_id: string }) => s.sale_id)
-
-    const { data: topSellersData } = saleIdsInRange.length
-      ? await supabase
-          .from("sale_line_items")
-          .select(
-            "line_total, variant_id, product_variants!inner(style_id, product_styles!inner(style_id, name))"
-          )
-          .in("sale_id", saleIdsInRange)
-      : { data: [] }
-
-    const topSellersMap = new Map<string, { name: string; revenue: number }>()
-    if (topSellersData) {
-      topSellersData.forEach((item: { line_total: number | null; product_variants: { product_styles: { style_id: string; name: string } | null } | null }) => {
-        const style = item.product_variants?.product_styles as { style_id?: string; name?: string } | null
-        if (style?.style_id && style?.name) {
-          const current = topSellersMap.get(style.style_id) || { name: style.name, revenue: 0 }
-          current.revenue += item.line_total || 0
-          topSellersMap.set(style.style_id, current)
-        }
-      })
-    }
-
-    topSellers = Array.from(topSellersMap.values())
-      .sort((a, b) => b.revenue - a.revenue)
-      .slice(0, 5)
-  } catch {
-    // product_styles/product_variants permissions or missing tables; show empty list
-  }
-
-  // Fetch recent sales - non-fatal
-  let recentSales: Array<{ sale_id: string; receipt_number: string | null; grand_total: number | null; payment_method: string | null; sale_date: string | null; store_id: string | null; status: string | null }> = []
-  let itemsPerSale: Record<string, number> = {}
-  try {
-    const { data: recentSalesData } = await supabase
-      .from("sales")
-      .select("sale_id, receipt_number, grand_total, payment_method, sale_date, store_id, status")
-      .in("store_id", storeIds)
-      .order("sale_date", { ascending: false })
-      .limit(10)
-
-    recentSales = recentSalesData || []
-
-    const recentSaleIds = recentSales.map((s: { sale_id: string }) => s.sale_id)
-    let recentLineItems: Array<{ sale_id: string | null }> | null = []
-    if (recentSaleIds.length > 0) {
-      const result = await supabase
-        .from("sale_line_items")
-        .select("sale_id")
-        .in("sale_id", recentSaleIds)
-      recentLineItems = result.data
-    }
-
-    itemsPerSale = (recentLineItems || []).reduce((acc: Record<string, number>, item: { sale_id: string | null }) => {
-      if (item.sale_id) {
-        acc[item.sale_id] = (acc[item.sale_id] || 0) + 1
-      }
-      return acc
-    }, {} as Record<string, number>)
-  } catch {
-    // recent sales or line items may fail; show empty list
-  }
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-KE", {
-      style: "currency",
-      currency: "KES",
-      maximumFractionDigits: 0,
-    }).format(price)
-  }
-
-  const formatTime = (dateStr: string | null) => {
-    if (!dateStr) return "N/A"
-    const date = new Date(dateStr)
-    return date.toLocaleTimeString("en-KE", { hour: "2-digit", minute: "2-digit" })
-  }
-
-  return (
-    <div className="min-h-screen bg-background-light p-4 dark:bg-background-dark md:p-8">
-      <div className="mx-auto max-w-7xl space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100">Dashboard</h1>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-              Welcome back! Here's what's happening today.
-            </p>
-          </div>
-        </div>
-
-        {/* Hero Stats */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {/* Today's Revenue */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Today's Revenue</CardTitle>
-              <ShoppingCart className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatPrice(todayRevenue)}</div>
-              <div className="flex items-center gap-1 text-xs">
-                {revenueChange >= 0 ? (
-                  <>
-                    <TrendingUp className="h-3 w-3 text-green-600" />
-                    <span className="text-green-600">
-                      {revenueChange.toFixed(1)}% vs yesterday
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <TrendingDown className="h-3 w-3 text-red-600" />
-                    <span className="text-red-600">{Math.abs(revenueChange).toFixed(1)}% vs yesterday</span>
-                  </>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Today's Transactions */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Today's Transactions</CardTitle>
-              <ShoppingBag className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{todayTransactions}</div>
-              <div className="flex items-center gap-1 text-xs">
-                {transactionChange >= 0 ? (
-                  <>
-                    <TrendingUp className="h-3 w-3 text-green-600" />
-                    <span className="text-green-600">
-                      +{transactionChange} vs yesterday
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <TrendingDown className="h-3 w-3 text-red-600" />
-                    <span className="text-red-600">{transactionChange} vs yesterday</span>
-                  </>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Today's Units Sold */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Today's Units Sold</CardTitle>
-              <Package className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{todayUnitsSold}</div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Items sold today</p>
-            </CardContent>
-          </Card>
-
-          {/* Low Stock Alerts */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Low Stock Alerts</CardTitle>
-              <AlertTriangle
-                className={`h-4 w-4 ${
-                  lowStockCount > 5 ? "text-red-600" : "text-zinc-600 dark:text-zinc-400"
-                }`}
-              />
-            </CardHeader>
-            <CardContent>
-              <div
-                className={`text-2xl font-bold ${lowStockCount > 5 ? "text-red-600" : "text-zinc-900 dark:text-zinc-100"}`}
-              >
-                {lowStockCount}
-              </div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                Variants with &lt;7 days inventory
+    return (
+      <div className="min-h-screen bg-background-light p-4 dark:bg-background-dark md:p-8">
+        <div className="mx-auto max-w-7xl space-y-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100">
+                {selectedStore ? selectedStore.name : "Multi-Store Dashboard"}
+              </h1>
+              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                {selectedStore
+                  ? "Store performance and trends."
+                  : "Performance across all stores with comparisons."}
               </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Charts Section */}
-        <div className="grid gap-4 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Sales Trend (Last 7 Days)</CardTitle>
-              <CardDescription>Daily revenue over the past week</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DashboardCharts salesData={salesChartData} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Sellers (Last 7 Days)</CardTitle>
-              <CardDescription>Top 5 styles by revenue</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DashboardMetrics topSellers={topSellers} />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Common tasks and shortcuts</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild>
-                <Link href="/pos">
-                  <Plus className="mr-2 h-4 w-4" />
-                  New Sale
-                </Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/inventory/intelligence?tab=deadstock">
-                  <Box className="mr-2 h-4 w-4" />
-                  View Dead Stock
-                </Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/purchasing/restock">
-                  <ShoppingBag className="mr-2 h-4 w-4" />
-                  Restock Suggestions
-                </Link>
-              </Button>
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex items-center gap-3">
+              {selectedStore && (
+                <Button variant="outline" asChild className="hidden sm:inline-flex">
+                  <Link href="/dashboard">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    All stores
+                  </Link>
+                </Button>
+              )}
+              <StoreFilterSelect stores={storeList} selectedStoreId={selectedStore?.store_id ?? null} />
+            </div>
+          </div>
 
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Sales</CardTitle>
-            <CardDescription>Last 10 transactions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <RecentSales
-              sales={recentSales || []}
-              itemsPerSale={itemsPerSale}
-            />
-          </CardContent>
-        </Card>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Revenue (Today)</CardTitle>
+                <ShoppingCart className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatPrice(todayRevenue)}</div>
+                <div className="flex items-center gap-1 text-xs">
+                  {revenueChange >= 0 ? (
+                    <>
+                      <TrendingUp className="h-3 w-3 text-emerald-600" />
+                      <span className="text-emerald-600">{revenueChange.toFixed(1)}% vs yesterday</span>
+                    </>
+                  ) : (
+                    <>
+                      <TrendingDown className="h-3 w-3 text-red-600" />
+                      <span className="text-red-600">{Math.abs(revenueChange).toFixed(1)}% vs yesterday</span>
+                    </>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Revenue (Yesterday)</CardTitle>
+                <Receipt className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatPrice(yesterdayRevenue)}</div>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Previous day total</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Revenue (Last 7 Days)</CardTitle>
+                <TrendingUp className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatPrice(data7.aggregated.total_revenue)}</div>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Across selected stores</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Revenue (Last 30 Days)</CardTitle>
+                <TrendingUp className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatPrice(data30.aggregated.total_revenue)}</div>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Across selected stores</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Transactions (30 Days)</CardTitle>
+                <Receipt className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold tabular-nums">{data30.aggregated.total_transactions}</div>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Avg basket: {formatPrice(data30.aggregated.avg_basket)}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Stores</CardTitle>
+                <Store className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold tabular-nums">
+                  {selectedStore ? 1 : storeList.length}
+                </div>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {selectedStore ? "Current store view" : "Total stores in account"}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {!selectedStore && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Store Comparison</CardTitle>
+                <CardDescription>Compare performance across stores (last 30 days)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <StoreComparisonTable rows={data30.by_store} periodLabel="Last 30 days" />
+              </CardContent>
+            </Card>
+          )}
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Sales Trend</CardTitle>
+              <CardDescription>
+                Daily revenue {selectedStore ? "for this store" : "per store"} (last 30 days)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <MultiStoreSalesChart
+                stores={selectedStore ? [selectedStore] : storeList}
+                dailyRevenue={data30.daily_revenue}
+              />
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
-  )
+    )
   } catch (err: unknown) {
     const digest = err && typeof err === "object" && (err as { digest?: string }).digest
     if (typeof digest === "string" && digest.includes("NEXT_REDIRECT")) {
@@ -589,10 +435,14 @@ async function DashboardContent() {
   }
 }
 
-export default function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ store?: string }>
+}) {
   return (
     <Suspense fallback={<LoadingState />}>
-      <DashboardContent />
+      <DashboardContent searchParams={searchParams} />
     </Suspense>
   )
 }

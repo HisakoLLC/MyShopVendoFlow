@@ -6,6 +6,7 @@ import { ProductSearch } from "@/components/pos/ProductSearch"
 import { Cart } from "@/components/pos/Cart"
 import { CartProvider } from "@/lib/cart-context"
 import { POSMobileLayout } from "@/components/pos/POSMobileLayout"
+import { StoreSelector } from "@/components/store-selector"
 
 interface POSClientProps {
   defaultStoreId: string
@@ -80,8 +81,15 @@ export function POSClient({ defaultStoreId, storeName, accountId: accountIdProp 
         <div className="flex w-[60%] flex-col border-r border-zinc-200 dark:border-zinc-800">
           <div className="flex h-full flex-col">
             <div className="border-b border-zinc-200 bg-background-card-light p-4 dark:border-border-dark dark:bg-background-card-dark">
-              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Point of Sale</h1>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">Store: {storeName}</p>
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Point of Sale</h1>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400">Store: {storeName}</p>
+                </div>
+                <div className="hidden md:flex">
+                  <StoreSelector />
+                </div>
+              </div>
             </div>
             <div className="flex-1 overflow-hidden">
               <ProductSearch defaultStoreId={defaultStoreId} />
