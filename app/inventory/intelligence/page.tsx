@@ -1,7 +1,10 @@
 import { Suspense } from "react"
+import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { InventoryIntelligenceClient } from "./intelligence-client"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -96,11 +99,21 @@ async function IntelligenceContent() {
   }
 
   return (
-    <InventoryIntelligenceClient
-      variantMetrics={variantMetrics || []}
-      inventoryByVariant={inventoryByVariant}
-      productStyles={productStyles || []}
-    />
+    <div className="mx-auto w-full max-w-7xl px-4 py-6">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/inventory">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to inventory
+          </Link>
+        </Button>
+      </div>
+      <InventoryIntelligenceClient
+        variantMetrics={variantMetrics || []}
+        inventoryByVariant={inventoryByVariant}
+        productStyles={productStyles || []}
+      />
+    </div>
   )
 }
 

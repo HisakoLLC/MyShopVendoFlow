@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation"
+import Link from "next/link"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowRightLeft } from "lucide-react"
+import { ArrowLeft, ArrowRightLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { TransferInventoryForm } from "./transfer-inventory-form"
 import { TransferHistoryClient } from "./TransferHistoryClient"
 
@@ -59,17 +61,27 @@ export default async function TransferInventoryPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-8">
-      <div className="mb-6 flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800">
-          <ArrowRightLeft className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
+      <div className="mb-6 flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800">
+            <ArrowRightLeft className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              Transfer Inventory
+            </h1>
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+              Move stock between stores when one location is low and another has excess.
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-            Transfer Inventory
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Move stock between stores when one location is low and another has excess.
-          </p>
+        <div className="shrink-0">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/inventory">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to inventory
+            </Link>
+          </Button>
         </div>
       </div>
 

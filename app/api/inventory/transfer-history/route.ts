@@ -71,6 +71,14 @@ export async function GET(request: NextRequest) {
       .limit(50)
 
     if (transfersError) {
+      const msg = transfersError.message || ""
+      if (msg.toLowerCase().includes("permission denied")) {
+        return NextResponse.json({
+          transfers: [],
+          error:
+            "Inventory transfers history is not yet accessible. In Supabase SQL Editor, run sql/FIX_INVENTORY_AND_SETTINGS_ACCESS.sql from this repo for your project, then redeploy.",
+        })
+      }
       return NextResponse.json({ error: transfersError.message }, { status: 500 })
     }
 
