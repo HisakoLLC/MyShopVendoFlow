@@ -7,6 +7,7 @@ import { toast, Toaster } from "sonner"
 
 import { createProductVariants } from "@/app/products/actions"
 import { VariantCellEditor } from "@/components/products/VariantCellEditor"
+import { ProductCreatedInventoryModal, type BulkInventoryUpdate } from "@/components/products/ProductCreatedInventoryModal"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
@@ -98,6 +99,19 @@ export function VariantMatrixBuilder({
   const [editingCellKey, setEditingCellKey] = React.useState<string | null>(null)
   const [variantCells, setVariantCells] = React.useState<Map<string, VariantCell>>(new Map())
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [inventoryModalState, setInventoryModalState] = React.useState<{
+    open: boolean
+    variantCount: number
+    storeCount: number
+    variants: { variant_id: string; size: string; color: string }[]
+    stores: { store_id: string; name: string }[]
+  }>({
+    open: false,
+    variantCount: 0,
+    storeCount: 0,
+    variants: [],
+    stores: [],
+  })
 
   // Update selected sizes when preset or custom changes
   React.useEffect(() => {
@@ -214,15 +228,52 @@ export function VariantMatrixBuilder({
         cost: cell.cost,
       }))
 
-      const { count } = await createProductVariants(styleId, variants)
+      const response = await createProductVariants(styleId, variants)
 
-      toast.success(`${count} variant${count === 1 ? "" : "s"} created successfully!`)
-      router.push("/products")
+      const variantCount = response.variant_count ?? response.count ?? 0
+      const storeCount = response.store_count ?? 0
+
+      toast.success(
+        response.message ??
+          `${variantCount} variant${variantCount === 1 ? "" : "s"} created successfully!`
+      )
+
+      setInventoryModalState({
+        open: storeCount > 0 && variantCount > 0,
+        variantCount,
+        storeCount,
+        variants: (response.variant_ids ?? []).map((id: string, index: number) => {
+          const v = variants[index]
+          return {
+            variant_id: id,
+            size: v.size,
+            color: v.color,
+          }
+        }),
+        stores: (response.stores ?? []) as { store_id: string; name: string }[],
+      })
+
+      router.push(`/products/${styleId}`)
       router.refresh()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to create variants.")
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleInventorySave = async (updates: BulkInventoryUpdate[]) => {
+    if (updates.length === 0) return
+    const res = await fetch("/api/inventory/bulk-set", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ updates }),
+    })
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      throw new Error(data.error ?? "Failed to save inventory.")
     }
   }
 
@@ -480,6 +531,20 @@ export function VariantMatrixBuilder({
           onCancel={handleCellCancel}
         />
       )}
+
+      <ProductCreatedInventoryModal
+        open={inventoryModalState.open}
+        onClose={() =>
+          setInventoryModalState((prev) => ({
+            ...prev,
+            open: false,
+          }))
+        }
+        onSave={handleInventorySave}
+        styleName={styleName}
+        variants={inventoryModalState.variants}
+        stores={inventoryModalState.stores}
+      />
     </>
   )
 }

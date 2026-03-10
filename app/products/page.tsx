@@ -7,6 +7,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server"
 import type { Tables } from "@/types/database"
 import { getSignedStorageUrl } from "@/lib/signed-storage-url"
 import { ProductsTableClient, type ProductStyleListRow } from "./products-table-client"
+import { ProductsInventoryHint } from "@/components/products/ProductsInventoryHint"
 import { EmptyState } from "@/components/EmptyState"
 import { ProductsListSkeleton } from "./products-list-skeleton"
 import { logError, getErrorMessage, handleSupabaseError } from "@/lib/errors"
@@ -199,6 +200,7 @@ async function ProductsPageContent() {
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
             Manage your styles, pricing, and margins.
           </p>
+          {data.styles.length === 1 && <ProductsInventoryHint />}
         </div>
         <Link
           href="/products/new"

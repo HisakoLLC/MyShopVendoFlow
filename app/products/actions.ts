@@ -482,8 +482,10 @@ export async function createProductVariants(
 
   if (userError || !user) throw new Error("You must be signed in to create variants.")
 
-  const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
-  if (accountIdError || !accountId) throw new Error("Unable to resolve account.")
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  if (accountIdError || !accountIdRaw) throw new Error("Unable to resolve account.")
+  const accountId = Array.isArray(accountIdRaw) ? accountIdRaw[0] ?? null : accountIdRaw
+  if (accountId == null || accountId === "") throw new Error("Unable to resolve account.")
 
   // Verify style belongs to account
   const { data: style, error: styleError } = await supabase
@@ -542,6 +544,7 @@ export async function createProductVariants(
   }
 
   // Generate SKUs and prepare payload
+  const accountIdStr = typeof accountId === "string" ? accountId : String(accountId)
   const payload: {
     style_id: string
     size: string
@@ -558,7 +561,7 @@ export async function createProductVariants(
     let attempts = 0
 
     while (!sku && attempts < 50) {
-      sku = generateSKU(accountId, style.name, v.size, v.color)
+      sku = generateSKU(accountIdStr, style.name, v.size, v.color)
 
       const dbCheck = await supabase
         .from("product_variants")
@@ -595,10 +598,76 @@ export async function createProductVariants(
 
   if (error) throw new Error(error.message)
 
+  // Auto-create inventory levels for each variant × store for this account
+  const { data: stores, error: storesError } = await supabase
+    .from("stores")
+    .select("store_id, name")
+    .eq("account_id", accountIdStr)
+    .order("name")
+
+  if (storesError) {
+    throw new Error(storesError.message)
+  }
+
+  let normalizedStores:
+    | {
+        store_id: string
+        name: string
+      }[]
+    | null = null
+
+  if (stores && stores.length > 0 && insertedVariants && insertedVariants.length > 0) {
+    normalizedStores = (stores as { store_id: string; name: string | null }[]).map((s) => ({
+      store_id: s.store_id,
+      name: s.name ?? "Store",
+    }))
+
+    const nowIso = new Date().toISOString()
+    const inventoryRecords: {
+      variant_id: string
+      store_id: string
+      quantity_on_hand: number
+      quantity_reserved: number
+      last_counted_date: string
+    }[] = []
+
+    for (const variant of insertedVariants as { variant_id: string }[]) {
+      for (const store of normalizedStores) {
+        inventoryRecords.push({
+          variant_id: variant.variant_id,
+          store_id: store.store_id,
+          quantity_on_hand: 0,
+          quantity_reserved: 0,
+          last_counted_date: nowIso,
+        })
+      }
+    }
+
+    const { error: inventoryError } = await supabase
+      .from("inventory_levels")
+      .insert(inventoryRecords)
+
+    if (inventoryError) {
+      throw new Error(inventoryError.message)
+    }
+  }
+
   revalidatePath(`/products/${styleId}`)
   revalidatePath("/products")
 
-  return { count: insertedVariants.length, variant_ids: insertedVariants.map((v: { variant_id: string }) => v.variant_id) }
+  const variantCount = insertedVariants?.length ?? 0
+  const storeCount = normalizedStores?.length ?? 0
+
+  return {
+    success: true,
+    style_id: styleId,
+    variant_count: variantCount,
+    store_count: storeCount,
+    message: `Product created with ${variantCount} variants across ${storeCount} stores. Set inventory for each store.`,
+    count: variantCount,
+    variant_ids: (insertedVariants ?? []).map((v: { variant_id: string }) => v.variant_id),
+    stores: normalizedStores ?? [],
+  }
 }
 
 
