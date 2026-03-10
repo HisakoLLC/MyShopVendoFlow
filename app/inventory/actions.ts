@@ -354,31 +354,40 @@ export async function completeInventoryTransfer(transferId: string) {
     throw new Error("Account not found. Please complete setup first.")
   }
 
-  // Fetch transfer
+  // Fetch transfer (without complex joins to avoid RLS/join issues)
   const { data: transfer, error: transferError } = await supabase
     .from("inventory_transfers")
-    .select(
-      `
-      transfer_id,
-      from_store_id,
-      to_store_id,
-      variant_id,
-      quantity,
-      status,
-      stores!inventory_transfers_from_store_id_fkey(account_id),
-      stores!inventory_transfers_to_store_id_fkey(account_id)
-    `
-    )
+    .select("transfer_id, from_store_id, to_store_id, variant_id, quantity, status")
     .eq("transfer_id", transferId)
     .single()
 
-  if (transferError || !transfer) {
+  if (transferError) {
+    // Surface permission problems separately from simple "not found"
+    if ((transferError as any).code === "PGRST116") {
+      throw new Error("Transfer not found.")
+    }
+    throw new Error(`Failed to load transfer: ${transferError.message}`)
+  }
+  if (!transfer) {
     throw new Error("Transfer not found.")
   }
 
-  // Verify stores belong to account
-  const fromStore = transfer.stores as unknown as { account_id: string } | null
-  const toStore = transfer.stores as unknown as { account_id: string } | null
+  // Verify stores belong to this account
+  const { data: storesForTransfer, error: storesForTransferError } = await supabase
+    .from("stores")
+    .select("store_id, account_id")
+    .in("store_id", [transfer.from_store_id, transfer.to_store_id] as string[])
+
+  if (storesForTransferError) {
+    throw new Error(`Failed to verify stores for transfer: ${storesForTransferError.message}`)
+  }
+
+  const fromStore = storesForTransfer?.find((s) => s.store_id === transfer.from_store_id) as
+    | { store_id: string; account_id: string }
+    | undefined
+  const toStore = storesForTransfer?.find((s) => s.store_id === transfer.to_store_id) as
+    | { store_id: string; account_id: string }
+    | undefined
 
   if (!fromStore || !toStore || fromStore.account_id !== accountId || toStore.account_id !== accountId) {
     throw new Error("Transfer stores do not belong to your account.")
