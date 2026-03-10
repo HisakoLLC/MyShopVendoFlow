@@ -6,6 +6,7 @@ import { BusinessProfileTab } from "./business-profile-tab"
 import { TaxSettingsTab } from "./tax-settings-tab"
 import { ReceiptCustomizationTab } from "./receipt-customization-tab"
 import { AccountBillingTab } from "./account-billing-tab"
+import { StoreLimitIndicator } from "@/components/settings/StoreLimitIndicator"
 
 type Account = {
   account_id: string
@@ -47,9 +48,10 @@ export function SettingsTabs({ account, stores, businessSettings }: SettingsTabs
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <TabsList className="grid w-full grid-cols-4">
+      <TabsList className="grid w-full grid-cols-5">
         <TabsTrigger value="profile">Business Profile</TabsTrigger>
         <TabsTrigger value="tax">Tax Settings</TabsTrigger>
+        <TabsTrigger value="stores">Stores</TabsTrigger>
         <TabsTrigger value="receipt">Receipt</TabsTrigger>
         <TabsTrigger value="billing">Account & Billing</TabsTrigger>
       </TabsList>
@@ -60,6 +62,10 @@ export function SettingsTabs({ account, stores, businessSettings }: SettingsTabs
 
       <TabsContent value="tax" className="mt-6">
         <TaxSettingsTab stores={stores} planTier={account.plan_tier || "starter"} />
+      </TabsContent>
+
+      <TabsContent value="stores" className="mt-6 space-y-4">
+        <StoreLimitIndicator planTier={account.plan_tier} stores={stores} />
       </TabsContent>
 
       <TabsContent value="receipt" className="mt-6">

@@ -8,6 +8,7 @@ import { Check, Plus, X, Sparkles } from "lucide-react"
 
 import { createClient } from "@/lib/supabase/client"
 import { ensureAccountForCurrentUser } from "./actions"
+import { PLAN_LIMITS } from "@/lib/plans"
 
 export const dynamic = "force-dynamic"
 import { Button } from "@/components/ui/button"
@@ -24,12 +25,6 @@ type Plan = {
   stores: number
   features: string[]
   recommended?: boolean
-}
-
-const PLAN_LIMITS: Record<string, number> = {
-  starter: 1,
-  core: 3,
-  scale: 10,
 }
 
 const plans: Plan[] = [

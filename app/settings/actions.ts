@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { z } from "zod"
 import { v4 as uuidv4 } from "uuid"
+import { getPlanLimit } from "@/lib/plans"
 
 const businessProfileSchema = z.object({
   business_name: z.string().min(1, "Business name is required.").max(200),
@@ -25,6 +26,14 @@ const taxRateSchema = z.object({
   store_id: z.string().uuid(),
   tax_rate: z.number().min(0).max(100).optional(),
 })
+
+const createStoreSchema = z.object({
+  name: z.string().min(1, "Store name is required.").max(200),
+  address: z.string().max(500).optional(),
+  tax_rate: z.number().min(0).max(100).optional(),
+})
+
+export type CreateStoreData = z.infer<typeof createStoreSchema>
 
 export type BusinessProfileData = z.infer<typeof businessProfileSchema>
 export type ReceiptSettingsData = z.infer<typeof receiptSettingsSchema>
@@ -312,6 +321,131 @@ export async function updateStoreTaxRate(data: TaxRateData) {
 
   if (updateError) {
     throw new Error(`Failed to update tax rate: ${updateError.message}`)
+  }
+
+  revalidatePath("/settings")
+  return { success: true }
+}
+
+export async function createStore(data: CreateStoreData): Promise<
+  | { success: true }
+  | { success: false; error: string }
+> {
+  const supabase = await createServerSupabaseClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    return { success: false, error: "You must be signed in to create a store." }
+  }
+
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = toAccountId(accountIdRaw)
+  if (accountIdError || !accountId) {
+    return { success: false, error: "Account not found. Please complete setup first." }
+  }
+
+  const parsed = createStoreSchema.safeParse(data)
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: parsed.error.errors[0]?.message || "Validation failed.",
+    }
+  }
+
+  const { data: account, error: accountError } = await supabase
+    .from("accounts")
+    .select("plan_tier, account_id")
+    .eq("account_id", accountId)
+    .single()
+
+  if (accountError) {
+    return { success: false, error: accountError.message }
+  }
+
+  const { count, error: countError } = await supabase
+    .from("stores")
+    .select("store_id", { count: "exact", head: true })
+    .eq("account_id", accountId)
+
+  if (countError) {
+    return { success: false, error: countError.message }
+  }
+
+  const limit = getPlanLimit(account?.plan_tier)
+  const tierLabel = (account?.plan_tier || "starter").toLowerCase()
+
+  if ((count ?? 0) >= limit) {
+    return {
+      success: false,
+      error: `Store limit reached. Your ${tierLabel} plan allows up to ${limit} store(s). Upgrade to add more stores.`,
+    }
+  }
+
+  const taxRateNum =
+    parsed.data.tax_rate != null
+      ? Math.min(100, Math.max(0, parsed.data.tax_rate))
+      : 16
+  const taxRateRounded = Math.round(taxRateNum * 100) / 100
+
+  const { error: insertError } = await supabase.from("stores").insert({
+    account_id: accountId,
+    name: parsed.data.name.trim(),
+    address: parsed.data.address?.trim() || null,
+    tax_rate: taxRateRounded,
+    active: true,
+  })
+
+  if (insertError) {
+    return { success: false, error: insertError.message }
+  }
+
+  revalidatePath("/settings")
+  return { success: true }
+}
+
+export async function deleteStore(storeId: string): Promise<
+  | { success: true }
+  | { success: false; error: string }
+> {
+  const supabase = await createServerSupabaseClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    return { success: false, error: "You must be signed in to delete a store." }
+  }
+
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const accountId = toAccountId(accountIdRaw)
+  if (accountIdError || !accountId) {
+    return { success: false, error: "Account not found. Please complete setup first." }
+  }
+
+  const { data: store, error: storeError } = await supabase
+    .from("stores")
+    .select("store_id")
+    .eq("store_id", storeId)
+    .eq("account_id", accountId)
+    .maybeSingle()
+
+  if (storeError || !store) {
+    return { success: false, error: "Store not found or access denied." }
+  }
+
+  const { error: deleteError } = await supabase
+    .from("stores")
+    .delete()
+    .eq("store_id", storeId)
+
+  if (deleteError) {
+    return { success: false, error: deleteError.message }
   }
 
   revalidatePath("/settings")

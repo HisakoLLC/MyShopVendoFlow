@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { CreditCard, AlertTriangle, Trash2 } from "lucide-react"
+import { CreditCard, AlertTriangle, Trash2, Store } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { requestAccountDeletion } from "./actions"
 import { Button } from "@/components/ui/button"
@@ -40,6 +40,12 @@ const planNames: Record<string, string> = {
   starter: "Starter",
   core: "Core",
   scale: "Scale",
+}
+
+const planStoreCopy: Record<string, string> = {
+  starter: "1 store included",
+  core: "Up to 3 stores included",
+  scale: "Up to 10 stores included",
 }
 
 export function AccountBillingTab({ account }: AccountBillingTabProps) {
@@ -135,6 +141,15 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
                 <div className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Plan</div>
                 <div className="mt-1">
                   <Badge variant="default">{planName}</Badge>
+                </div>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                  Stores Included
+                </div>
+                <div className="mt-1 flex items-center gap-2 text-sm text-zinc-900 dark:text-zinc-100">
+                  <Store className="h-3.5 w-3.5" />
+                  <span>{planStoreCopy[account.plan_tier || "starter"]}</span>
                 </div>
               </div>
               <div>
