@@ -29,7 +29,7 @@ async function POSPageContent() {
   // Check if user is staff (has auth_user_id in staff table)
   const { data: staffRecord } = await supabase
     .from("staff")
-    .select("account_id, active")
+    .select("account_id, active, role, assigned_store_id")
     .eq("auth_user_id", user.id)
     .maybeSingle()
 
@@ -60,13 +60,26 @@ async function POSPageContent() {
     redirect("/onboarding?redirect=/pos")
   }
 
-  // Fetch the account's single store (one store per account)
-  const { data: stores, error: storesError } = await supabase
-    .from("stores")
-    .select("store_id, name")
-    .eq("account_id", accountId)
-    .order("name", { ascending: true })
-    .limit(1)
+  // Resolve default store:
+  // - For cashiers (and any staff with assigned_store_id): use assigned store directly.
+  // - Otherwise (owner/manager): fall back to first store for the account.
+  const assignedStoreId =
+    staffRecord?.assigned_store_id && typeof staffRecord.assigned_store_id === "string"
+      ? staffRecord.assigned_store_id
+      : null
+
+  const { data: stores, error: storesError } = assignedStoreId
+    ? await supabase
+        .from("stores")
+        .select("store_id, name")
+        .eq("store_id", assignedStoreId)
+        .limit(1)
+    : await supabase
+        .from("stores")
+        .select("store_id, name")
+        .eq("account_id", accountId)
+        .order("name", { ascending: true })
+        .limit(1)
 
   if (storesError) {
     throw new Error(`Failed to load store: ${storesError.message}`)
