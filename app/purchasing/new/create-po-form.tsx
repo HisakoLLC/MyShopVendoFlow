@@ -108,10 +108,11 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [showSupplierModal, setShowSupplierModal] = React.useState(false)
   const [supplierList, setSupplierList] = React.useState<Supplier[]>(suppliers)
-  const [productSearchQuery, setProductSearchQuery] = React.useState<Record<number, string>>({})
-  const [productResults, setProductResults] = React.useState<Record<number, ProductStyle[]>>({})
-  const [variantOptions, setVariantOptions] = React.useState<Record<number, Variant[]>>({})
-  const [isSearching, setIsSearching] = React.useState<Record<number, boolean>>({})
+  // Key search state by stable field.id (not index) so reordering rows doesn’t mix up state.
+  const [productSearchQuery, setProductSearchQuery] = React.useState<Record<string, string>>({})
+  const [productResults, setProductResults] = React.useState<Record<string, ProductStyle[]>>({})
+  const [variantOptions, setVariantOptions] = React.useState<Record<string, Variant[]>>({})
+  const [isSearching, setIsSearching] = React.useState<Record<string, boolean>>({})
   const [currency, setCurrency] = React.useState<string>("KES")
 
   React.useEffect(() => {
@@ -181,45 +182,37 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
     }, 0)
   }, [watchedLineItems])
 
-  // Product search debounced
+  // Product search debounced (lightweight: no image signing while typing)
   React.useEffect(() => {
-    const timeouts: Record<number, NodeJS.Timeout> = {}
+    const timeouts: Record<string, NodeJS.Timeout> = {}
 
-    Object.entries(productSearchQuery).forEach(([indexStr, query]) => {
-      const index = parseInt(indexStr, 10)
-      if (timeouts[index]) {
-        clearTimeout(timeouts[index])
+    Object.entries(productSearchQuery).forEach(([key, query]) => {
+      if (timeouts[key]) {
+        clearTimeout(timeouts[key])
       }
 
       if (!query || query.trim().length < 2) {
-        setProductResults((prev) => ({ ...prev, [index]: [] }))
+        setProductResults((prev) => ({ ...prev, [key]: [] }))
         return
       }
 
-      timeouts[index] = setTimeout(async () => {
-        setIsSearching((prev) => ({ ...prev, [index]: true }))
+      timeouts[key] = setTimeout(async () => {
+        setIsSearching((prev) => ({ ...prev, [key]: true }))
         try {
           const { data: styles, error } = await supabase
             .from("product_styles")
-            .select("style_id, name, image_url")
+            .select("style_id, name") // omit image_url to keep search snappy
             .ilike("name", `%${query.trim()}%`)
             .eq("archived", false)
             .limit(10)
 
           if (!error && styles) {
-            const typed = styles as ProductStyle[]
-            const urls = typed.map((s: ProductStyle) => s.image_url)
-            const signed = await signStorageUrls(urls)
-            const withSigned = typed.map((s: ProductStyle, i: number) => ({
-              ...s,
-              image_url: signed[i] ?? s.image_url,
-            }))
-            setProductResults((prev) => ({ ...prev, [index]: withSigned }))
+            setProductResults((prev) => ({ ...prev, [key]: styles as ProductStyle[] }))
           }
         } catch (err) {
           console.error("Error searching products:", err)
         } finally {
-          setIsSearching((prev) => ({ ...prev, [index]: false }))
+          setIsSearching((prev) => ({ ...prev, [key]: false }))
         }
       }, 300)
     })
@@ -230,7 +223,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
   }, [productSearchQuery, supabase])
 
   // Fetch variants when style is selected
-  const handleStyleSelect = async (index: number, styleId: string) => {
+  const handleStyleSelect = async (fieldId: string, index: number, styleId: string) => {
     form.setValue(`line_items.${index}.style_id`, styleId)
     form.setValue(`line_items.${index}.variant_id`, null)
     form.setValue(`line_items.${index}.unit_cost`, 0)
@@ -257,15 +250,8 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
         .order("color")
 
       if (!error && variants) {
-        const urls = (variants as Variant[]).map((v) => v.product_styles?.image_url ?? null)
-        const signed = await signStorageUrls(urls)
-        const withSigned = (variants as Variant[]).map((v, i) => ({
-          ...v,
-          product_styles: v.product_styles
-            ? { ...v.product_styles, image_url: signed[i] ?? v.product_styles.image_url }
-            : null,
-        }))
-        setVariantOptions((prev) => ({ ...prev, [index]: withSigned }))
+        // We don't need signed URLs for PO variants; keep it lightweight.
+        setVariantOptions((prev) => ({ ...prev, [fieldId]: variants as Variant[] }))
       }
     } catch (err) {
       console.error("Error fetching variants:", err)
@@ -273,8 +259,8 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
   }
 
   // Handle variant selection
-  const handleVariantSelect = (index: number, variantId: string) => {
-    const variants = variantOptions[index] || []
+  const handleVariantSelect = (fieldId: string, index: number, variantId: string) => {
+    const variants = variantOptions[fieldId] || []
     const variant = variants.find((v) => v.variant_id === variantId)
     if (variant) {
       form.setValue(`line_items.${index}.variant_id`, variantId)
@@ -543,9 +529,10 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                     <TableBody>
                       {fields.map((field, index) => {
                         const lineItem = watchedLineItems[index]
+                        const fieldKey = field.id
                         const selectedVariant =
-                          lineItem.variant_id && variantOptions[index]
-                            ? variantOptions[index].find((v) => v.variant_id === lineItem.variant_id)
+                          lineItem.variant_id && variantOptions[fieldKey]
+                            ? variantOptions[fieldKey].find((v) => v.variant_id === lineItem.variant_id)
                             : null
                         const lineTotal = (lineItem.quantity || 0) * (lineItem.unit_cost || 0)
 
@@ -553,10 +540,10 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                           <TableRow key={field.id}>
                             <TableCell className="align-top">
                               <Popover
-                                open={!!(productResults[index]?.length)}
+                                open={!!(productResults[fieldKey]?.length)}
                                 onOpenChange={(open) => {
                                   if (!open)
-                                    setProductResults((prev) => ({ ...prev, [index]: [] }))
+                                    setProductResults((prev) => ({ ...prev, [fieldKey]: [] }))
                                 }}
                               >
                                 <PopoverAnchor asChild>
@@ -564,11 +551,11 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                     <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
                                     <Input
                                       placeholder="Search product..."
-                                      value={productSearchQuery[index] || ""}
+                                      value={productSearchQuery[fieldKey] || ""}
                                       onChange={(e) => {
                                         setProductSearchQuery((prev) => ({
                                           ...prev,
-                                          [index]: e.target.value,
+                                          [fieldKey]: e.target.value,
                                         }))
                                       }}
                                       className="pl-8"
@@ -582,19 +569,19 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                   sideOffset={4}
                                 >
                                   <div className="max-h-60 overflow-auto">
-                                    {productResults[index]?.map((style) => (
+                                    {productResults[fieldKey]?.map((style) => (
                                       <button
                                         key={style.style_id}
                                         type="button"
                                         onClick={() => {
-                                          handleStyleSelect(index, style.style_id)
+                                          handleStyleSelect(fieldKey, index, style.style_id)
                                           setProductSearchQuery((prev) => ({
                                             ...prev,
-                                            [index]: style.name,
+                                            [fieldKey]: style.name,
                                           }))
                                           setProductResults((prev) => ({
                                             ...prev,
-                                            [index]: [],
+                                            [fieldKey]: [],
                                           }))
                                         }}
                                         className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-zinc-100 dark:hover:bg-zinc-900"
@@ -620,7 +607,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                               {lineItem.style_id ? (
                                 <Select
                                   value={lineItem.variant_id || ""}
-                                  onValueChange={(value) => handleVariantSelect(index, value)}
+                                  onValueChange={(value) => handleVariantSelect(fieldKey, index, value)}
                                 >
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select variant" />
