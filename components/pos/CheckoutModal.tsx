@@ -29,6 +29,9 @@ type PaymentMethod = "cash" | "mpesa" | "card"
 type Step = 1 | 2 | 3
 
 type ReceiptSettings = {
+  businessName: string | null
+  businessAddress: string | null
+  businessPhone: string | null
   logoUrl: string | null
   receiptHeader: string | null
   receiptFooter: string | null
@@ -60,6 +63,9 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
   const [receiptNumber, setReceiptNumber] = React.useState<string | null>(null)
   const [showReceipt, setShowReceipt] = React.useState(false)
   const [receiptSettings, setReceiptSettings] = React.useState<ReceiptSettings>({
+    businessName: null,
+    businessAddress: null,
+    businessPhone: null,
     logoUrl: null,
     receiptHeader: null,
     receiptFooter: null,
@@ -114,13 +120,39 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
       }
       if (!aid) return
       const [settingsRes, storeRes] = await Promise.all([
-        supabase.from("business_settings").select("logo_url, logo_on_receipt, receipt_header, receipt_footer, return_policy, currency, tax_inclusive").eq("account_id", aid).single(),
+        supabase
+          .from("business_settings")
+          .select(
+            "logo_url, logo_on_receipt, receipt_header, receipt_footer, return_policy, currency, tax_inclusive, business_address, business_phone"
+          )
+          .eq("account_id", aid)
+          .single(),
         supabase.from("stores").select("tax_rate").eq("store_id", storeId).single(),
       ])
+      const accountRes = await supabase
+        .from("accounts")
+        .select("business_name")
+        .eq("account_id", aid)
+        .maybeSingle()
       if (cancelled) return
       const taxRate = (storeRes.data as { tax_rate: number | null } | null)?.tax_rate ?? 16
-      const bs = settingsRes.data as { logo_url?: string | null; logo_on_receipt?: boolean | null; receipt_header?: string | null; receipt_footer?: string | null; return_policy?: string | null; currency?: string | null; tax_inclusive?: boolean | null } | null
+      const bs = settingsRes.data as {
+        logo_url?: string | null
+        logo_on_receipt?: boolean | null
+        receipt_header?: string | null
+        receipt_footer?: string | null
+        return_policy?: string | null
+        currency?: string | null
+        tax_inclusive?: boolean | null
+        business_address?: string | null
+        business_phone?: string | null
+      } | null
+      const businessName =
+        (accountRes.data as { business_name?: string | null } | null)?.business_name ?? null
       setReceiptSettings({
+        businessName: businessName?.trim() || null,
+        businessAddress: bs?.business_address?.trim() || null,
+        businessPhone: bs?.business_phone?.trim() || null,
         logoUrl: bs?.logo_on_receipt && bs?.logo_url ? bs.logo_url : null,
         receiptHeader: bs?.receipt_header ?? null,
         receiptFooter: bs?.receipt_footer ?? null,
@@ -333,6 +365,10 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
                 total={receiptSnapshot?.total ?? 0}
                 paymentMethod={paymentMethod}
                 storeId={storeId}
+                storeName={storeName}
+                businessName={receiptSettings.businessName}
+                businessAddress={receiptSettings.businessAddress}
+                businessPhone={receiptSettings.businessPhone}
                 logoUrl={receiptSettings.logoUrl}
                 receiptHeader={receiptSettings.receiptHeader}
                 receiptFooter={receiptSettings.receiptFooter}

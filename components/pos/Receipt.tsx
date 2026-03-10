@@ -14,6 +14,10 @@ interface ReceiptProps {
   total: number
   paymentMethod: string
   storeId: string | null
+  storeName?: string | null
+  businessName?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
   /** When true, show logo at top (from settings) */
   logoUrl?: string | null
   /** Custom header line (e.g. "Thank you for your purchase!") */
@@ -38,6 +42,10 @@ export function Receipt({
   total,
   paymentMethod,
   storeId,
+  storeName: storeNameProp,
+  businessName,
+  businessAddress,
+  businessPhone,
   logoUrl,
   receiptHeader,
   receiptFooter,
@@ -46,11 +54,12 @@ export function Receipt({
   taxInclusive = false,
   taxRatePercent = 16,
 }: ReceiptProps) {
-  const [storeName, setStoreName] = React.useState<string>("Store")
+  const [storeName, setStoreName] = React.useState<string>(storeNameProp?.trim() || "Store")
   const supabase = React.useMemo(() => createClient(), [])
 
   React.useEffect(() => {
     async function fetchStoreName() {
+      if (storeNameProp?.trim()) return
       if (!storeId) return
 
       const { data, error } = await supabase
@@ -65,7 +74,7 @@ export function Receipt({
     }
 
     fetchStoreName()
-  }, [storeId, supabase])
+  }, [storeId, storeNameProp, supabase])
 
   const formatPrice = (price: number) =>
     formatCurrency(price, currency, { maximumFractionDigits: 0 })
@@ -103,7 +112,13 @@ export function Receipt({
 
       {/* Receipt Header */}
       <div className={`border-b-2 border-zinc-900 pb-4 text-center ${logoUrl ? "" : "mb-4"}`}>
-        <h1 className="text-xl font-bold text-zinc-900">VendoFlow Receipt</h1>
+        <h1 className="text-xl font-bold text-zinc-900">{businessName?.trim() || "VendoFlow"}</h1>
+        {(businessAddress?.trim() || businessPhone?.trim()) && (
+          <div className="mt-1 text-xs text-zinc-600 space-y-0.5">
+            {businessAddress?.trim() && <p>{businessAddress.trim()}</p>}
+            {businessPhone?.trim() && <p>{businessPhone.trim()}</p>}
+          </div>
+        )}
         <p className="mt-1 text-sm text-zinc-600">
           {receiptHeader?.trim() || "Thank you for your purchase!"}
         </p>
