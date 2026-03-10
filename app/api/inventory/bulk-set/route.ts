@@ -87,7 +87,8 @@ export async function POST(req: Request) {
     }
 
     const invalidStore =
-      (stores ?? []).some((s) => s.account_id !== accountId) || (stores ?? []).length !== storeIds.length
+      (stores ?? []).some((s: { account_id: string }) => s.account_id !== accountId) ||
+      (stores ?? []).length !== storeIds.length
 
     if (invalidStore) {
       return NextResponse.json({ error: "Invalid stores for this account." }, { status: 403 })
