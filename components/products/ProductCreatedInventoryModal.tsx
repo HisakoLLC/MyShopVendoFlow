@@ -141,20 +141,6 @@ export function ProductCreatedInventoryModal({
     form.setValue("quantities", updated, { shouldDirty: true, shouldValidate: true })
   }
 
-  const copyFromFirstStore = () => {
-    if (stores.length < 2) return
-    const sourceId = stores[0].store_id
-    const sourceValues = quantities[sourceId]
-    if (!sourceValues) return
-
-    const updated: Record<string, Record<string, string>> = { ...quantities }
-    for (let i = 1; i < stores.length; i++) {
-      const targetId = stores[i].store_id
-      updated[targetId] = { ...sourceValues }
-    }
-    form.setValue("quantities", updated, { shouldDirty: true, shouldValidate: true })
-  }
-
   const handleSave = async (values: FormValues) => {
     const parsed = quantitySchema.safeParse(values.quantities)
     if (!parsed.success) {
@@ -203,7 +189,7 @@ export function ProductCreatedInventoryModal({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && !isSaving && onClose()}>
-      <DialogContent className="max-h-[85vh] w-full max-w-3xl overflow-hidden p-0">
+      <DialogContent className="max-h-[85vh] w-full max-w-3xl p-0">
         <DialogHeader className="space-y-1 px-6 pt-6">
           <DialogTitle>Product Created Successfully!</DialogTitle>
           <DialogDescription>
@@ -237,17 +223,12 @@ export function ProductCreatedInventoryModal({
                 Apply
               </Button>
             </div>
-            {stores.length > 1 && (
-              <Button type="button" size="sm" variant="outline" onClick={copyFromFirstStore}>
-                Copy from {stores[0].name} to all stores
-              </Button>
-            )}
           </div>
         </div>
 
         <form
           onSubmit={form.handleSubmit(handleSave)}
-          className="flex max-h-[45vh] flex-col overflow-hidden"
+          className="flex max-h-[60vh] flex-col"
         >
           <div className="flex-1 overflow-auto px-6">
             {stores.map((store) => (

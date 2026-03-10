@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { z } from "zod"
+import { ensureStaffForCurrentUser } from "@/app/pos/actions"
 
 const adjustmentSchema = z.object({
   variant_id: z.string().uuid(),
@@ -293,6 +294,25 @@ export async function createInventoryTransfer(data: CreateTransferData) {
     )
   }
 
+  // Resolve staff_id for created_by (works for owners/managers/cashiers)
+  let staffId: string | null = null
+  const { data: staffRow } = await supabase
+    .from("staff")
+    .select("staff_id")
+    .eq("auth_user_id", user.id)
+    .eq("active", true)
+    .maybeSingle()
+
+  if (staffRow?.staff_id) {
+    staffId = staffRow.staff_id
+  } else {
+    staffId = await ensureStaffForCurrentUser()
+  }
+
+  if (!staffId) {
+    throw new Error("Cannot create transfer: staff record not found for current user.")
+  }
+
   // Create transfer with status='pending'
   const { data: transfer, error: transferError } = await supabase
     .from("inventory_transfers")
@@ -302,7 +322,7 @@ export async function createInventoryTransfer(data: CreateTransferData) {
       variant_id,
       quantity,
       status: "pending",
-      created_by: user.id,
+      created_by: staffId,
       created_date: new Date().toISOString(),
     })
     .select("transfer_id")
