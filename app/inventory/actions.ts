@@ -373,7 +373,10 @@ export async function completeInventoryTransfer(transferId: string) {
   }
 
   // Verify stores belong to this account
-  const { data: storesForTransfer, error: storesForTransferError } = await supabase
+  const {
+    data: storesForTransfer,
+    error: storesForTransferError,
+  } = await supabase
     .from("stores")
     .select("store_id, account_id")
     .in("store_id", [transfer.from_store_id, transfer.to_store_id] as string[])
@@ -382,10 +385,16 @@ export async function completeInventoryTransfer(transferId: string) {
     throw new Error(`Failed to verify stores for transfer: ${storesForTransferError.message}`)
   }
 
-  const fromStore = storesForTransfer?.find((s) => s.store_id === transfer.from_store_id) as
+  type StoreRow = { store_id: string; account_id: string }
+
+  const fromStore = (storesForTransfer || []).find(
+    (s: StoreRow) => s.store_id === transfer.from_store_id
+  ) as
     | { store_id: string; account_id: string }
     | undefined
-  const toStore = storesForTransfer?.find((s) => s.store_id === transfer.to_store_id) as
+  const toStore = (storesForTransfer || []).find(
+    (s: StoreRow) => s.store_id === transfer.to_store_id
+  ) as
     | { store_id: string; account_id: string }
     | undefined
 
