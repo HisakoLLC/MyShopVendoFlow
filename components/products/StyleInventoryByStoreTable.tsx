@@ -191,14 +191,14 @@ export function StyleInventoryByStoreTable({ stores, inventory, styleName }: Pro
                             onChange={(e) => setValue(e.target.value)}
                           />
                           <Button
-                            size="xs"
+                            size="sm"
                             variant="outline"
                             onClick={handleCancel}
                             disabled={saving}
                           >
                             Cancel
                           </Button>
-                          <Button size="xs" onClick={handleSave} disabled={saving}>
+                          <Button size="sm" onClick={handleSave} disabled={saving}>
                             Save
                           </Button>
                         </div>
