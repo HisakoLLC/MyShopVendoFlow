@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+import { toast } from "sonner"
+import { CheckCircle2 } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -9,6 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { completeInventoryTransfer } from "@/app/inventory/actions"
 
 type HistoryRow = {
   transfer_id: string
@@ -35,6 +39,7 @@ export function TransferHistoryClient() {
   const [rows, setRows] = React.useState<HistoryRow[] | null>(null)
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
+  const [completingId, setCompletingId] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     let cancelled = false
@@ -67,6 +72,28 @@ export function TransferHistoryClient() {
       cancelled = true
     }
   }, [])
+
+  const handleMarkReceived = async (transferId: string) => {
+    setCompletingId(transferId)
+    try {
+      await completeInventoryTransfer(transferId)
+      toast.success("Transfer marked as received.")
+      setRows((prev) =>
+        (prev || []).map((t) =>
+          t.transfer_id === transferId
+            ? {
+                ...t,
+                status: "completed",
+              }
+            : t
+        )
+      )
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to complete transfer.")
+    } finally {
+      setCompletingId(null)
+    }
+  }
 
   if (loading) {
     return <TransferHistorySkeleton />
@@ -132,9 +159,19 @@ export function TransferHistoryClient() {
               {t.status}
             </TableCell>
             <TableCell className="text-right text-sm">
-              <span className="cursor-pointer text-xs font-medium text-zinc-700 underline underline-offset-2 dark:text-zinc-300">
-                View details
-              </span>
+              {t.status === "pending" ? (
+                <Button
+                  size="sm"
+                  onClick={() => handleMarkReceived(t.transfer_id)}
+                  disabled={completingId === t.transfer_id}
+                  className="gap-2"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  {completingId === t.transfer_id ? "Processing..." : "Mark Received"}
+                </Button>
+              ) : (
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">—</span>
+              )}
             </TableCell>
           </TableRow>
         ))}
