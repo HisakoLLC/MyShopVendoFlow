@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { v4 as uuidv4 } from "uuid"
+import { Buffer } from "buffer"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
+
+export const runtime = "nodejs"
 
 export async function POST(request: NextRequest) {
   try {
