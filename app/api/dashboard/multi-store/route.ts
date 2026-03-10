@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createServerSupabaseClient } from "@/lib/supabase/server"
 import type { StaffRole } from "@/lib/auth/roles"
 import { getMultiStoreDashboardData, parsePeriod } from "@/lib/dashboard/multi-store"
+import { requireAccountAccess, requireAuth, requireStaffRole } from "@/lib/api/auth-helper"
 
 function normalizeAccountId(raw: unknown): string | null {
   if (raw == null) return null
@@ -21,56 +21,19 @@ function normalizeAccountId(raw: unknown): string | null {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient()
+    const { user, supabase, error: authError } = await requireAuth(request)
+    if (authError) return authError
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+    const { role, error: roleError } = await requireStaffRole(supabase, user!.id, ["owner", "manager"])
+    if (roleError) return roleError
+    const _role: StaffRole = role
 
-    if (userError || !user) {
-      return NextResponse.json({ error: "Not signed in" }, { status: 401 })
-    }
-
-    let role: StaffRole = "owner"
-    let accountId: string | null = null
-
-    const { data: staffRow, error: staffError } = await supabase
-      .from("staff")
-      .select("role, account_id, active")
-      .eq("auth_user_id", user.id)
-      .maybeSingle()
-
-    if (staffError) {
-      return NextResponse.json({ error: staffError.message }, { status: 500 })
-    }
-
-    if (staffRow) {
-      if (staffRow.active === false) {
-        return NextResponse.json({ error: "Staff account deactivated" }, { status: 403 })
-      }
-      if (staffRow.role === "cashier" || staffRow.role === "manager" || staffRow.role === "owner") {
-        role = staffRow.role
-      } else {
-        role = "cashier"
-      }
-      if (staffRow.account_id) accountId = String(staffRow.account_id).trim() || null
-    }
-
-    if (role === "cashier") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-    }
-
+    const { accountId: accountIdRaw, error: accountError } = await requireAccountAccess(supabase, user!.id)
+    if (accountError) return accountError
+    const accountId = normalizeAccountId(accountIdRaw)
     if (!accountId) {
-      const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
-      if (accountIdError) {
-        return NextResponse.json({ error: accountIdError.message }, { status: 500 })
-      }
-      accountId = normalizeAccountId(accountIdRaw)
-    }
-
-    if (!accountId) {
-      return NextResponse.json({ error: "Account not found" }, { status: 400 })
+      console.warn("[api][dashboard][multi-store] account not found", { userId: user!.id, role: _role })
+      return NextResponse.json({ error: "Account not found" }, { status: 403 })
     }
 
     const { searchParams } = new URL(request.url)

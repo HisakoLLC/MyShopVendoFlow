@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { requireAccountAccess, requireAuth } from "@/lib/api/auth-helper"
 
 function normalizeAccountId(raw: unknown): string | null {
   if (raw == null) return null
@@ -17,24 +17,16 @@ function normalizeAccountId(raw: unknown): string | null {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient()
+    const { user, supabase, error: authError } = await requireAuth(request)
+    if (authError) return authError
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+    const { accountId: accountIdRaw, error: accountError } = await requireAccountAccess(supabase, user!.id)
+    if (accountError) return accountError
 
-    if (userError || !user) {
-      return NextResponse.json({ error: "Not signed in" }, { status: 401 })
-    }
-
-    const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
-    if (accountIdError) {
-      return NextResponse.json({ error: accountIdError.message }, { status: 500 })
-    }
     const accountId = normalizeAccountId(accountIdRaw)
     if (!accountId) {
-      return NextResponse.json({ error: "Account not found" }, { status: 400 })
+      console.warn("[api][inventory][variants-with-stock] account not found", { userId: user!.id })
+      return NextResponse.json({ error: "Account not found" }, { status: 403 })
     }
 
     const { searchParams } = new URL(request.url)

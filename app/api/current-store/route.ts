@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createServerSupabaseClient } from "@/lib/supabase/server"
 import type { StaffRole } from "@/lib/auth/roles"
+import { requireAccountAccess, requireAuth } from "@/lib/api/auth-helper"
 
 /**
  * GET /api/current-store
@@ -12,32 +12,23 @@ import type { StaffRole } from "@/lib/auth/roles"
  * Requires authentication.
  */
 export async function GET(request: NextRequest) {
-  const supabase = await createServerSupabaseClient()
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-
-  if (userError || !user) {
-    return NextResponse.json({ error: "Not signed in" }, { status: 401 })
-  }
+  const { user, supabase, error: authError } = await requireAuth(request)
+  if (authError) return authError
 
   // Resolve role: staff get role from DB, otherwise owner
   let role: StaffRole = "owner"
   const { data: staffRow } = await supabase
     .from("staff")
     .select("role, assigned_store_id")
-    .eq("auth_user_id", user.id)
+    .eq("auth_user_id", user!.id)
     .eq("active", true)
     .maybeSingle()
   if (staffRow?.role === "cashier" || staffRow?.role === "manager" || staffRow?.role === "owner") {
     role = staffRow.role
   }
 
-  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
-  if (accountIdError || accountIdRaw == null) {
-    return NextResponse.json({ role, store_id: null, store_name: null, account_id: null })
-  }
+  const { accountId: accountIdRaw, error: accountError } = await requireAccountAccess(supabase, user!.id)
+  if (accountError) return accountError
 
   const accountId =
     typeof accountIdRaw === "string"

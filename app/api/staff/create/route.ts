@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createStaff } from "@/app/settings/staff/actions"
+import { requireAuth, requireStaffRole } from "@/lib/api/auth-helper"
 
 /**
  * POST /api/staff/create
@@ -9,6 +10,12 @@ import { createStaff } from "@/app/settings/staff/actions"
  */
 export async function POST(request: NextRequest) {
   try {
+    const { user, supabase, error: authError } = await requireAuth(request)
+    if (authError) return authError
+
+    const { error: roleError } = await requireStaffRole(supabase, user!.id, ["owner", "manager"])
+    if (roleError) return roleError
+
     const body = await request.json()
     const { first_name, last_name, email, role, generate_pin } = body
 

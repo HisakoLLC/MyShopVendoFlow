@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
-import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { requireAccountAccess, requireAuth } from "@/lib/api/auth-helper"
 import { getSupabaseUrl } from "@/lib/supabase/env"
 
 type BulkSetRequest = {
@@ -12,26 +12,35 @@ type BulkSetRequest = {
   }[]
 }
 
-export async function POST(req: Request) {
+function normalizeAccountId(raw: unknown): string | null {
+  if (raw == null) return null
+  if (typeof raw === "string") return raw.trim() || null
+  if (Array.isArray(raw)) {
+    const first = raw[0]
+    return typeof first === "string"
+      ? first.trim() || null
+      : first != null
+        ? String(first).trim() || null
+        : null
+  }
+  if (typeof raw === "object" && raw !== null && "account_id" in raw) {
+    const v = (raw as { account_id: unknown }).account_id
+    return typeof v === "string" ? v.trim() || null : v != null ? String(v).trim() || null : null
+  }
+  return String(raw).trim() || null
+}
+
+export async function POST(req: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient()
+    const { user, supabase, error: authError } = await requireAuth(req)
+    if (authError) return authError
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
-
-    if (userError || !user) {
-      return NextResponse.json({ error: "You must be signed in." }, { status: 401 })
-    }
-
-    const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
-    if (accountIdError || !accountIdRaw) {
-      return NextResponse.json({ error: "Unable to resolve account." }, { status: 400 })
-    }
-    const accountId = Array.isArray(accountIdRaw) ? accountIdRaw[0] ?? null : accountIdRaw
-    if (accountId == null || accountId === "") {
-      return NextResponse.json({ error: "Unable to resolve account." }, { status: 400 })
+    const { accountId, error: accountError } = await requireAccountAccess(supabase, user!.id)
+    if (accountError) return accountError
+    const accountIdStr = normalizeAccountId(accountId)
+    if (!accountIdStr) {
+      console.warn("[api][inventory][bulk-set] missing account id", { userId: user!.id })
+      return NextResponse.json({ error: "Unable to resolve account." }, { status: 403 })
     }
 
     const body = (await req.json()) as BulkSetRequest
@@ -70,7 +79,7 @@ export async function POST(req: Request) {
     const invalidVariant = (variants ?? []).some(
       (v: { product_styles: { account_id: string } | null }) => {
         const style = v.product_styles as { account_id: string } | null
-        return !style || style.account_id !== accountId
+        return !style || style.account_id !== accountIdStr
       }
     )
 
@@ -89,7 +98,7 @@ export async function POST(req: Request) {
     }
 
     const invalidStore =
-      (stores ?? []).some((s: { account_id: string }) => s.account_id !== accountId) ||
+      (stores ?? []).some((s: { account_id: string }) => s.account_id !== accountIdStr) ||
       (stores ?? []).length !== storeIds.length
 
     if (invalidStore) {

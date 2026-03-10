@@ -31,9 +31,14 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
 
-    if (user) {
+    if (userError || !user) {
+      if (userError) console.warn("[api][auth][logout] getUser error", { error: userError.message })
+    } else {
       // Get staff info if staff user
       let staffId: string | undefined
       let accountId: string | undefined

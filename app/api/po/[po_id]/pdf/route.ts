@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server"
 import { jsPDF } from "jspdf"
-import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { requireAccountAccess, requireAuth } from "@/lib/api/auth-helper"
 
 export const dynamic = "force-dynamic"
 
@@ -9,17 +9,11 @@ export async function GET(
   { params }: { params: Promise<{ po_id: string }> }
 ) {
   const { po_id } = await params
-  const supabase = await createServerSupabaseClient()
+  const { user, supabase, error: authError } = await requireAuth(_request)
+  if (authError) return new Response("Unauthorized", { status: 401 })
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-  if (userError || !user) {
-    return new Response("Unauthorized", { status: 401 })
-  }
-
-  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  const { accountId: accountIdRaw, error: accountError } = await requireAccountAccess(supabase, user!.id)
+  if (accountError) return new Response("Account not found", { status: 403 })
   const accountId = Array.isArray(accountIdRaw)
     ? accountIdRaw[0]
     : typeof accountIdRaw === "object" &&
@@ -27,7 +21,7 @@ export async function GET(
         "account_id" in accountIdRaw
       ? (accountIdRaw as { account_id: string }).account_id
       : accountIdRaw
-  if (accountIdError || !accountId) {
+  if (!accountId) {
     return new Response("Account not found", { status: 403 })
   }
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { getSupabaseUrl } from "@/lib/supabase/env"
+import { requireAuth } from "@/lib/api/auth-helper"
 
 /**
  * Called when the user is authenticated but has no account_members row
@@ -9,13 +9,8 @@ import { getSupabaseUrl } from "@/lib/supabase/env"
  * signs them out and redirects to /login?deleted=1. Otherwise redirects to /onboarding.
  */
 export async function GET(request: NextRequest) {
-  const supabase = await createServerSupabaseClient()
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-
-  if (userError || !user) {
+  const { user, supabase, error: authError } = await requireAuth(request)
+  if (authError || !user) {
     return NextResponse.redirect(new URL("/login", request.url))
   }
 
