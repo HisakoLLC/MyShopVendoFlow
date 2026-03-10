@@ -248,15 +248,38 @@ async function DashboardContent({
     let todayRevenue = 0
     let yesterdayRevenue = 0
     try {
-      const { data: daily } = await supabase
+      const { data: daily, error: dailyError } = await supabase
         .from("daily_sales_metrics")
         .select("date, total_revenue, store_id")
         .in("store_id", viewStoreIds)
         .gte("date", yesterdayStr)
         .lte("date", todayStr)
-      for (const r of daily || []) {
-        if (r.date === todayStr) todayRevenue += r.total_revenue ?? 0
-        if (r.date === yesterdayStr) yesterdayRevenue += r.total_revenue ?? 0
+
+      if (!dailyError && daily && daily.length > 0) {
+        for (const r of daily) {
+          if (r.date === todayStr) todayRevenue += r.total_revenue ?? 0
+          if (r.date === yesterdayStr) yesterdayRevenue += r.total_revenue ?? 0
+        }
+      } else {
+        // Fallback to raw sales if metrics missing or empty
+        const tomorrow = addUtcDays(today, 1)
+        const tomorrowStr = toIsoDate(tomorrow)
+        const { data: sales, error: salesError } = await supabase
+          .from("sales")
+          .select("sale_date, store_id, grand_total")
+          .in("store_id", viewStoreIds)
+          .gte("sale_date", yesterdayStr)
+          .lt("sale_date", tomorrowStr)
+
+        if (!salesError) {
+          for (const s of sales || []) {
+            if (!s.sale_date) continue
+            const d = s.sale_date.split("T")[0]
+            const amt = s.grand_total ?? 0
+            if (d === todayStr) todayRevenue += amt
+            if (d === yesterdayStr) yesterdayRevenue += amt
+          }
+        }
       }
     } catch {
       // ignore

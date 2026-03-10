@@ -148,16 +148,25 @@ export async function getMultiStoreDashboardData(args: {
   const msg = `${currentError?.message ?? ""} ${prevError?.message ?? ""}`.toLowerCase()
   const dailyMetricsMissing = msg.includes("daily_sales_metrics") && msg.includes("does not exist")
 
-  if (!currentError && !prevError) {
-    current = (currentRows || []) as DailySalesMetricRow[]
-    previous = (prevRows || []) as DailySalesMetricRow[]
-  } else if (dailyMetricsMissing) {
+  const buildFromSales = async () => {
     const { data: curSales, error: curSalesError } = await getSales(startStr, startTomorrowStr)
     if (curSalesError) throw new Error(curSalesError.message)
     const { data: prevSales, error: prevSalesError } = await getSales(prevStartStr, prevEndExclusiveStr)
     if (prevSalesError) throw new Error(prevSalesError.message)
     current = salesToDailyMetrics(((curSales || []) as SaleRow[]).filter(Boolean))
     previous = salesToDailyMetrics(((prevSales || []) as SaleRow[]).filter(Boolean))
+  }
+
+  if (!currentError && !prevError) {
+    current = (currentRows || []) as DailySalesMetricRow[]
+    previous = (prevRows || []) as DailySalesMetricRow[]
+
+    // If metrics table exists but has no rows for the period yet, fall back to raw sales.
+    if (current.length === 0 && previous.length === 0) {
+      await buildFromSales()
+    }
+  } else if (dailyMetricsMissing) {
+    await buildFromSales()
   } else {
     throw new Error((currentError || prevError)?.message || "Failed to load dashboard metrics")
   }
