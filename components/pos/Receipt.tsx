@@ -103,7 +103,7 @@ export function Receipt({
 
       {/* Receipt Header */}
       <div className={`border-b-2 border-zinc-900 pb-4 text-center ${logoUrl ? "" : "mb-4"}`}>
-        <h1 className="text-2xl font-bold text-zinc-900">{storeName}</h1>
+        <h1 className="text-xl font-bold text-zinc-900">VendoFlow Receipt</h1>
         <p className="mt-1 text-sm text-zinc-600">
           {receiptHeader?.trim() || "Thank you for your purchase!"}
         </p>
@@ -111,6 +111,10 @@ export function Receipt({
 
       {/* Receipt Info */}
       <div className="mb-4 space-y-1 text-sm">
+        <div className="flex justify-between">
+          <span className="text-zinc-600">Store:</span>
+          <span className="font-medium text-zinc-900">{storeName}</span>
+        </div>
         <div className="flex justify-between">
           <span className="text-zinc-600">Receipt #:</span>
           <span className="font-medium text-zinc-900">{receiptNumber}</span>

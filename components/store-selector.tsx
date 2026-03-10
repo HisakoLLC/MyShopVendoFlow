@@ -163,7 +163,8 @@ export function StoreSelector({ className }: StoreSelectorProps) {
   if (isAuthPage) return null
 
   const multipleStores = stores.length > 1
-  const isStaffWithFixedStore = !!assignedStoreId && role !== "owner"
+  // Cashiers should never switch stores; managers/owners can.
+  const isStaffWithFixedStore = role === "cashier" || (!!assignedStoreId && role !== "owner")
 
   // Badge showing how many stores exist (if multiple)
   const storeCountBadge =
@@ -203,7 +204,7 @@ export function StoreSelector({ className }: StoreSelectorProps) {
         </span>
       ) : !currentStoreId || stores.length === 0 ? (
         <span className="text-xs text-zinc-500 dark:text-zinc-400">No store configured</span>
-      ) : isStaffWithFixedStore && !multipleStores ? (
+      ) : isStaffWithFixedStore ? (
         <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
           {currentStoreName}
         </span>

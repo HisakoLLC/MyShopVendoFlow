@@ -21,6 +21,7 @@ import { formatCurrency } from "@/lib/format-currency"
 interface CheckoutModalProps {
   storeId: string | null
   accountId?: string | null
+  storeName?: string
   onClose: () => void
 }
 
@@ -44,7 +45,7 @@ type ReceiptSnapshot = {
   total: number
 }
 
-export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: CheckoutModalProps) {
+export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: storeNameProp, onClose }: CheckoutModalProps) {
   const { cart, subtotal, taxAmount, total, clearCart } = useCart()
   const [currentStep, setCurrentStep] = React.useState<Step>(1)
   const [paymentMethod, setPaymentMethod] = React.useState<PaymentMethod>("cash")
@@ -68,8 +69,26 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
     taxRatePercent: 16,
   })
   const [receiptSnapshot, setReceiptSnapshot] = React.useState<ReceiptSnapshot | null>(null)
+  const [storeName, setStoreName] = React.useState<string>(storeNameProp ?? "Store")
 
   const supabase = React.useMemo(() => createClient(), [])
+
+  // Ensure we have store name for confirmation message
+  React.useEffect(() => {
+    if (storeNameProp?.trim()) {
+      setStoreName(storeNameProp)
+      return
+    }
+    if (!storeId) return
+    let cancelled = false
+    ;(async () => {
+      const { data } = await supabase.from("stores").select("name").eq("store_id", storeId).maybeSingle()
+      if (!cancelled && data?.name) setStoreName(data.name)
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [storeId, storeNameProp, supabase])
 
   const displaySubtotal = subtotal
   const displayTax = taxAmount
@@ -299,7 +318,7 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, onClose }: Ch
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Sale Completed!</DialogTitle>
+            <DialogTitle>Sale completed at {storeName}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-center text-lg font-semibold text-zinc-900 dark:text-zinc-100">
