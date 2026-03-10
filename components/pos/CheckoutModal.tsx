@@ -122,12 +122,14 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
       const [settingsRes, storeRes] = await Promise.all([
         supabase
           .from("business_settings")
-          .select(
-            "logo_url, logo_on_receipt, receipt_header, receipt_footer, return_policy, currency, tax_inclusive, business_address, business_phone"
-          )
+          .select("logo_url, logo_on_receipt, receipt_header, receipt_footer, return_policy, currency, tax_inclusive, business_address, business_phone")
           .eq("account_id", aid)
           .single(),
-        supabase.from("stores").select("tax_rate").eq("store_id", storeId).single(),
+        supabase
+          .from("stores")
+          .select("tax_rate, address, phone, logo_url, logo_on_receipt")
+          .eq("store_id", storeId)
+          .single(),
       ])
       const accountRes = await supabase
         .from("accounts")
@@ -136,6 +138,13 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
         .maybeSingle()
       if (cancelled) return
       const taxRate = (storeRes.data as { tax_rate: number | null } | null)?.tax_rate ?? 16
+      const storeRow = storeRes.data as {
+        tax_rate: number | null
+        address?: string | null
+        phone?: string | null
+        logo_url?: string | null
+        logo_on_receipt?: boolean | null
+      } | null
       const bs = settingsRes.data as {
         logo_url?: string | null
         logo_on_receipt?: boolean | null
@@ -151,9 +160,11 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
         (accountRes.data as { business_name?: string | null } | null)?.business_name ?? null
       setReceiptSettings({
         businessName: businessName?.trim() || null,
-        businessAddress: bs?.business_address?.trim() || null,
-        businessPhone: bs?.business_phone?.trim() || null,
-        logoUrl: bs?.logo_on_receipt && bs?.logo_url ? bs.logo_url : null,
+        businessAddress: (storeRow?.address?.trim() || bs?.business_address?.trim() || null) ?? null,
+        businessPhone: (storeRow?.phone?.trim() || bs?.business_phone?.trim() || null) ?? null,
+        logoUrl:
+          (storeRow?.logo_on_receipt && storeRow.logo_url ? storeRow.logo_url : null) ??
+          (bs?.logo_on_receipt && bs?.logo_url ? bs.logo_url : null),
         receiptHeader: bs?.receipt_header ?? null,
         receiptFooter: bs?.receipt_footer ?? null,
         returnPolicy: bs?.return_policy ?? null,

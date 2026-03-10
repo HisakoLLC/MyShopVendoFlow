@@ -22,6 +22,10 @@ type Store = {
   store_id: string
   name: string
   tax_rate: number | null
+  address?: string | null
+  phone?: string | null
+  logo_url?: string | null
+  logo_on_receipt?: boolean | null
 }
 
 type BusinessSettings = {

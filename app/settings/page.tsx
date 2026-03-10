@@ -84,7 +84,7 @@ async function fetchSettingsData(): Promise<{
 
   const { data: storesRows, error: storesError } = await supabase
     .from("stores")
-    .select("store_id, name, tax_rate")
+    .select("store_id, name, tax_rate, address, phone, logo_url, logo_on_receipt")
     .eq("account_id", accountId)
     .order("name", { ascending: true })
 
