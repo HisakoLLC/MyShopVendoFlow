@@ -11,6 +11,7 @@ import { createStore, deleteStore, type CreateStoreData } from "@/app/settings/a
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
 import { updateStoreProfile } from "@/app/settings/store-actions"
+import { createClient } from "@/lib/supabase/client"
 import { Input } from "@/components/ui/input"
 
 type Store = {
@@ -40,6 +41,7 @@ export function StoreLimitIndicator({ planTier, stores }: Props) {
   const [isDeletingId, setIsDeletingId] = React.useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [isUploadingLogo, setIsUploadingLogo] = React.useState(false)
+  const supabase = React.useMemo(() => createClient(), [])
 
   const tierKey = (planTier || "starter").toLowerCase()
   const maxStores = getPlanLimit(planTier)
@@ -285,21 +287,48 @@ export function StoreLimitIndicator({ planTier, stores }: Props) {
                 if (!file) return
                 try {
                   setIsUploadingLogo(true)
-                  const formData = new FormData()
-                  formData.append("file", file)
-                  formData.append("store_id", editingStore.store_id)
-                  const res = await fetch("/api/stores/upload-logo", {
-                    method: "POST",
-                    body: formData,
-                  })
-                  const json = await res.json()
-                  if (!res.ok) {
-                    toast.error(json.error || "Failed to upload logo.")
-                  } else {
-                    setEditLogoUrl(json.logo_url)
-                    setEditLogoOnReceipt(true)
-                    toast.success("Store logo uploaded.")
+                  // Resolve account_id for path scoping
+                  const { data: accountIdRaw, error: accountError } = await supabase.rpc("get_account_id")
+                  if (accountError || !accountIdRaw) {
+                    toast.error("Account not found. Please reload and try again.")
+                    return
                   }
+                  const accountId =
+                    typeof accountIdRaw === "string"
+                      ? accountIdRaw
+                      : Array.isArray(accountIdRaw)
+                        ? accountIdRaw[0]
+                        : accountIdRaw && typeof accountIdRaw === "object" && "account_id" in accountIdRaw
+                          ? (accountIdRaw as { account_id: string }).account_id
+                          : null
+                  if (!accountId) {
+                    toast.error("Account not found. Please reload and try again.")
+                    return
+                  }
+
+                  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg"
+                  const filePath = `${accountId}/stores/${editingStore.store_id}/${Date.now()}.${ext}`
+
+                  const { error: uploadError } = await supabase.storage
+                    .from("business-logos")
+                    .upload(filePath, file, {
+                      cacheControl: "3600",
+                      upsert: false,
+                    })
+
+                  if (uploadError) {
+                    toast.error(uploadError.message || "Failed to upload logo.")
+                    return
+                  }
+
+                  const { data: publicData } = supabase.storage
+                    .from("business-logos")
+                    .getPublicUrl(filePath)
+
+                  const url = publicData.publicUrl
+                  setEditLogoUrl(url)
+                  setEditLogoOnReceipt(true)
+                  toast.success("Store logo uploaded.")
                 } catch (err) {
                   toast.error(
                     err instanceof Error ? err.message : "Failed to upload logo."
