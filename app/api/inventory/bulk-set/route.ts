@@ -65,10 +65,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: variantsError.message }, { status: 400 })
     }
 
-    const invalidVariant = (variants ?? []).some((v) => {
-      const style = v.product_styles as { account_id: string } | null
-      return !style || style.account_id !== accountId
-    })
+    const invalidVariant = (variants ?? []).some(
+      (v: { product_styles: { account_id: string } | null }) => {
+        const style = v.product_styles as { account_id: string } | null
+        return !style || style.account_id !== accountId
+      }
+    )
 
     if (invalidVariant || (variants ?? []).length !== variantIds.length) {
       return NextResponse.json({ error: "Invalid variants for this account." }, { status: 403 })
