@@ -116,7 +116,7 @@ export async function GET(
   doc.setFont("helvetica", "bold")
   doc.setFontSize(9)
   doc.text("Product", colX[0], y)
-  doc.text("Variant / SKU", colX[1], y)
+  doc.text("Variant", colX[1], y)
   doc.text("Qty", colX[2], y)
   doc.text("Unit cost", colX[3], y)
   doc.text("Total", colX[4], y)
@@ -135,17 +135,15 @@ export async function GET(
     product_variants: {
       size: string
       color: string
-      sku: string
       product_styles: { name: string } | null
     } | null
   }>) {
     const pv = item.product_variants
     const name = pv?.product_styles?.name ?? "—"
     const variant = pv ? `${pv.size} / ${pv.color}` : "—"
-    const sku = pv?.sku ?? "—"
     const line1 = name.length > 28 ? name.slice(0, 28) + "…" : name
     doc.text(line1, colX[0], y)
-    doc.text(`${variant} ${sku}`, colX[1], y)
+    doc.text(variant, colX[1], y)
     doc.text(String(item.quantity_ordered), colX[2], y)
     doc.text(`${currSym}${item.unit_cost.toFixed(2)}`, colX[3], y)
     doc.text(`${currSym}${item.line_total.toFixed(2)}`, colX[4], y)
