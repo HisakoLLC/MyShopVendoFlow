@@ -35,7 +35,6 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import type { CreateStaffData } from "./actions"
 
-// Single store per account: no store selection; server assigns the account's store
 const staffSchema = z.object({
   first_name: z.string().min(1, "First name is required.").max(100, "First name is too long."),
   last_name: z.string().min(1, "Last name is required.").max(100, "Last name is too long."),
@@ -43,6 +42,7 @@ const staffSchema = z.object({
   role: z.enum(["cashier", "manager", "owner"], {
     errorMap: () => ({ message: "Role must be cashier, manager, or owner." }),
   }),
+  assigned_store_id: z.string().optional(),
   generate_pin: z.boolean().optional(),
 })
 
@@ -85,6 +85,7 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
       last_name: "",
       email: "",
       role: "cashier",
+      assigned_store_id: stores[0]?.store_id ?? "",
       generate_pin: false,
     },
     mode: "onChange",
@@ -103,6 +104,7 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
           last_name: values.last_name,
           email: values.email,
           role: values.role,
+          assigned_store_id: values.assigned_store_id,
           generate_pin: values.generate_pin,
         }),
       })
@@ -112,8 +114,10 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
       }
       setIsSubmitting(false)
       form.reset()
-
-      const store = stores[0] ?? null
+      const store =
+        stores.find((s) => s.store_id === values.assigned_store_id) ??
+        stores[0] ??
+        null
       const newStaff: NewStaffForList = {
         staff_id: result.staff_id,
         email: result.email,
@@ -215,6 +219,37 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                         <SelectItem value="owner">Owner</SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="assigned_store_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Assigned Store *</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? undefined}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select store" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {stores.map((store) => (
+                          <SelectItem key={store.store_id} value={store.store_id}>
+                            {store.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Cashiers will only see and sell from this store in POS.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

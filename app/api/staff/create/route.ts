@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     if (roleError) return roleError
 
     const body = await request.json()
-    const { first_name, last_name, email, role, generate_pin } = body
+    const { first_name, last_name, email, role, assigned_store_id, generate_pin } = body
 
     if (!first_name || !last_name || !email || !role) {
       return NextResponse.json(
@@ -31,6 +31,8 @@ export async function POST(request: NextRequest) {
       last_name: String(last_name).trim(),
       email: String(email).trim(),
       role: role === "cashier" || role === "manager" || role === "owner" ? role : "cashier",
+      assigned_store_id:
+        typeof assigned_store_id === "string" ? String(assigned_store_id).trim() : undefined,
       generate_pin: Boolean(generate_pin),
     })
 
