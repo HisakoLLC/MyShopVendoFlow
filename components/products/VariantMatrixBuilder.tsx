@@ -252,9 +252,7 @@ export function VariantMatrixBuilder({
         }),
         stores: (response.stores ?? []) as { store_id: string; name: string }[],
       })
-
-      router.push(`/products/${styleId}`)
-      router.refresh()
+      // Do NOT navigate here - let the modal stay visible until user closes it
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to create variants.")
     } finally {
@@ -534,12 +532,11 @@ export function VariantMatrixBuilder({
 
       <ProductCreatedInventoryModal
         open={inventoryModalState.open}
-        onClose={() =>
-          setInventoryModalState((prev) => ({
-            ...prev,
-            open: false,
-          }))
-        }
+        onClose={() => {
+          setInventoryModalState((prev) => ({ ...prev, open: false }))
+          router.push(`/products/${styleId}`)
+          router.refresh()
+        }}
         onSave={handleInventorySave}
         styleName={styleName}
         variants={inventoryModalState.variants}
