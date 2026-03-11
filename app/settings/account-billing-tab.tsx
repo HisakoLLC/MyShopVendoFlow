@@ -29,7 +29,6 @@ type Account = {
   plan_tier: string | null
   subscription_status: string | null
   trial_ends_at: string | null
-  stripe_customer_id: string | null
 }
 
 type AccountBillingTabProps = {
@@ -226,7 +225,10 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
                     </div>
                     <div className="mt-1 flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
                       <CreditCard className="h-4 w-4" />
-                      <span>Card ending in •••• (Stripe integration coming soon)</span>
+                      <span>
+                        Managed by Dodo Payments. Card details are stored securely with our
+                        payments provider.
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -236,7 +238,8 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
                       Next Billing Date
                     </div>
                     <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                      — (Stripe integration coming soon)
+                      Managed by Dodo Payments. This will update automatically after your next
+                      successful renewal.
                     </div>
                   </div>
                 </div>

@@ -40,14 +40,22 @@ export async function POST(req: NextRequest) {
       (user as any).user_metadata?.phone ||
       undefined
 
-    // 6. Create Dodo checkout session
+    // 6. Build a valid absolute return URL
+    const envBase = process.env.NEXT_PUBLIC_APP_URL
+    const origin =
+      envBase && envBase.startsWith("http")
+        ? envBase.replace(/\/$/, "")
+        : new URL(req.url).origin
+    const returnUrl = `${origin}/settings?tab=billing&payment=success`
+
+    // 7. Create Dodo checkout session
     const result = await dodoClient.createCheckoutSession({
       customerEmail: account.owner_email,
       customerName: account.business_name,
       customerPhone: phone,
       planTier: planTier as "starter" | "core" | "scale",
       accountId: account.account_id,
-      returnUrl: `${process.env.NEXT_PUBLIC_APP_URL}/settings?tab=billing&payment=success`,
+      returnUrl,
     })
 
     if (!result.success) {
@@ -59,7 +67,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 7. Update account with pending subscription
+    // 8. Update account with pending subscription
     await supabase
       .from("accounts")
       .update({
@@ -68,7 +76,7 @@ export async function POST(req: NextRequest) {
       })
       .eq("account_id", account.account_id)
 
-    // 8. Return checkout URL
+    // 9. Return checkout URL
     return NextResponse.json({
       success: true,
       checkoutUrl: result.checkoutUrl,
