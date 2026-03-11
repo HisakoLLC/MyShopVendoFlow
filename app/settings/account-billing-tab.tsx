@@ -59,17 +59,53 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
   const isPaid = account.subscription_status === "active"
   const planName = planNames[account.plan_tier || "starter"] || "Starter"
 
+  const handleUpgrade = async (planTier: string) => {
+    setIsProcessing(true)
+    try {
+      const response = await fetch("/api/subscriptions/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planTier }),
+      })
+
+      const data = await response.json()
+
+      if (data.success && data.checkoutUrl) {
+        window.location.href = data.checkoutUrl
+      } else {
+        toast.error(
+          "Failed to create checkout: " + (data.error || "Unknown error")
+        )
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Checkout error:", error)
+      toast.error("Failed to create checkout session")
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
   const handleManageSubscription = async () => {
-    // TODO: Implement Stripe customer portal redirect
-    toast.info("Stripe customer portal integration coming soon.")
+    // For now, redirect to a new checkout for the current plan
+    const tier = account.plan_tier || "starter"
+    await handleUpgrade(tier)
   }
 
   const handleCancelSubscription = async () => {
     setIsProcessing(true)
     try {
-      // TODO: Implement Stripe subscription cancellation
-      toast.info("Subscription cancellation coming soon.")
-      setShowCancelDialog(false)
+      const response = await fetch("/api/subscriptions/cancel", {
+        method: "POST",
+      })
+      const data = await response.json()
+      if (!response.ok || !data.success) {
+        toast.error(data.error || "Failed to cancel subscription.")
+      } else {
+        toast.success("Subscription cancellation requested.")
+        setShowCancelDialog(false)
+        router.refresh()
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to cancel subscription.")
     } finally {
@@ -207,12 +243,27 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
                 <Button onClick={handleManageSubscription} variant="outline">
                   Manage Subscription
                 </Button>
+                <Button
+                  onClick={() => handleUpgrade(account.plan_tier || "starter")}
+                  className="mt-2"
+                  disabled={isProcessing}
+                >
+                  Change Plan / Update Billing
+                </Button>
               </div>
             ) : (
-              <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-900/40 dark:bg-yellow-950/30">
-                <div className="text-sm text-yellow-900 dark:text-yellow-100">
-                  Subscription status: {account.subscription_status || "Unknown"}
+              <div className="space-y-3">
+                <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-900/40 dark:bg-yellow-950/30">
+                  <div className="text-sm text-yellow-900 dark:text-yellow-100">
+                    Subscription status: {account.subscription_status || "Not active"}
+                  </div>
                 </div>
+                <Button
+                  onClick={() => handleUpgrade(account.plan_tier || "starter")}
+                  disabled={isProcessing}
+                >
+                  Start Subscription
+                </Button>
               </div>
             )}
           </CardContent>
