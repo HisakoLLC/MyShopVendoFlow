@@ -14,7 +14,11 @@ type Account = {
   plan_tier: string | null
   subscription_status: string | null
   trial_ends_at: string | null
-  stripe_customer_id: string | null
+  dodo_customer_id: string | null
+  dodo_subscription_id: string | null
+  next_payment_date: string | null
+  last_payment_date: string | null
+  last_payment_amount: number | null
 }
 
 type Store = {
@@ -72,7 +76,9 @@ async function fetchSettingsData(): Promise<{
   if (!account) {
     const { data: accountDirect, error: directError } = await supabase
       .from("accounts")
-      .select("account_id, business_name, owner_email, plan_tier, subscription_status, trial_ends_at, stripe_customer_id")
+      .select(
+        "account_id, business_name, owner_email, plan_tier, subscription_status, trial_ends_at, dodo_customer_id, dodo_subscription_id, next_payment_date, last_payment_date, last_payment_amount"
+      )
       .eq("account_id", accountId)
       .maybeSingle()
     if (!directError && accountDirect) account = accountDirect as Account

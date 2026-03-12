@@ -29,6 +29,11 @@ type Account = {
   plan_tier: string | null
   subscription_status: string | null
   trial_ends_at: string | null
+  dodo_customer_id: string | null
+  dodo_subscription_id: string | null
+  next_payment_date: string | null
+  last_payment_date: string | null
+  last_payment_amount: number | null
 }
 
 type AccountBillingTabProps = {
@@ -47,6 +52,26 @@ const planStoreCopy: Record<string, string> = {
   scale: "Up to 10 stores included",
 }
 
+const plans = {
+  starter: {
+    name: "Starter",
+    price: 10200,
+    features: ["1 store included", "Core POS features", "Basic reporting"],
+  },
+  core: {
+    name: "Core",
+    price: 16500,
+    features: ["Up to 3 stores", "Advanced reporting", "Multi-store dashboard"],
+  },
+  scale: {
+    name: "Scale",
+    price: 35000,
+    features: ["Up to 10 stores", "Priority support", "Multi-store analytics"],
+  },
+} as const
+
+const planPriority: Record<string, number> = { starter: 1, core: 2, scale: 3 }
+
 export function AccountBillingTab({ account }: AccountBillingTabProps) {
   const router = useRouter()
   const supabase = React.useMemo(() => createClient(), [])
@@ -57,6 +82,10 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
 
   const isPaid = account.subscription_status === "active"
   const planName = planNames[account.plan_tier || "starter"] || "Starter"
+  const currentPlan =
+    account.plan_tier && plans[account.plan_tier as keyof typeof plans]
+      ? plans[account.plan_tier as keyof typeof plans]
+      : null
 
   const handleUpgrade = async (planTier: string) => {
     setIsProcessing(true)
@@ -86,9 +115,63 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
   }
 
   const handleManageSubscription = async () => {
-    // For now, redirect to a new checkout for the current plan
-    const tier = account.plan_tier || "starter"
-    await handleUpgrade(tier)
+    // Open Dodo Customer Portal for payment method & subscription management
+    setIsProcessing(true)
+    try {
+      const response = await fetch("/api/subscriptions/customer-portal", {
+        method: "POST",
+      })
+      const data = await response.json()
+      if (data.success && data.portalUrl) {
+        window.location.href = data.portalUrl
+      } else {
+        toast.error(
+          "Failed to open customer portal: " + (data.error || "Unknown error")
+        )
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Portal error:", error)
+      toast.error("Failed to open customer portal")
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const handleChangePlan = async (newPlanTier: string) => {
+    const current = account.plan_tier
+    const confirmMessage = current
+      ? `Change from ${planNames[current] || current} to ${planNames[newPlanTier] || newPlanTier}?`
+      : `Subscribe to ${planNames[newPlanTier] || newPlanTier} plan?`
+
+    if (!window.confirm(confirmMessage)) return
+
+    setIsProcessing(true)
+    try {
+      const response = await fetch("/api/subscriptions/change-plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newPlanTier }),
+      })
+      const data = await response.json()
+
+      if (data.success) {
+        if (data.requiresCheckout && data.checkoutUrl) {
+          window.location.href = data.checkoutUrl
+        } else {
+          toast.success("Plan changed successfully.")
+          router.refresh()
+        }
+      } else {
+        toast.error("Failed to change plan: " + (data.error || "Unknown error"))
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Plan change error:", error)
+      toast.error("Failed to change plan")
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   const handleCancelSubscription = async () => {
@@ -212,65 +295,100 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
         {/* Billing Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Billing</CardTitle>
+            <CardTitle>Billing & Payment</CardTitle>
             <CardDescription>Manage your subscription and payment method</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {isPaid ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-                  <div>
-                    <div className="font-medium text-zinc-900 dark:text-zinc-100">
-                      Payment Method
-                    </div>
-                    <div className="mt-1 flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                      <CreditCard className="h-4 w-4" />
-                      <span>
-                        Managed by Dodo Payments. Card details are stored securely with our
-                        payments provider.
-                      </span>
-                    </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+                <div>
+                  <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                    Payment Method
+                  </div>
+                  <div className="mt-1 flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+                    <CreditCard className="h-4 w-4" />
+                    <span>
+                      Managed by Dodo Payments. Card details are stored securely with our
+                      payments provider.
+                    </span>
                   </div>
                 </div>
-                <div className="flex items-center justify-between rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-                  <div>
-                    <div className="font-medium text-zinc-900 dark:text-zinc-100">
-                      Next Billing Date
-                    </div>
-                    <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                      Managed by Dodo Payments. This will update automatically after your next
-                      successful renewal.
-                    </div>
-                  </div>
-                </div>
-                <Button onClick={handleManageSubscription} variant="outline">
-                  Manage Subscription
-                </Button>
-                <Button
-                  onClick={() => handleUpgrade(account.plan_tier || "starter")}
-                  className="mt-2"
-                  disabled={isProcessing}
-                >
-                  Change Plan / Update Billing
-                </Button>
               </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-900/40 dark:bg-yellow-950/30">
-                  <div className="text-sm text-yellow-900 dark:text-yellow-100">
-                    Subscription status: {account.subscription_status || "Not active"}
+              <div className="flex items-center justify-between rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+                <div>
+                  <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                    Next Billing Date
+                  </div>
+                  <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                    {account.next_payment_date
+                      ? new Date(account.next_payment_date).toLocaleDateString("en-KE", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      : "Will be set after your first successful payment."}
                   </div>
                 </div>
-                <Button
-                  onClick={() => handleUpgrade(account.plan_tier || "starter")}
-                  disabled={isProcessing}
-                >
-                  Start Subscription
-                </Button>
               </div>
-            )}
+              <Button onClick={handleManageSubscription} variant="outline" disabled={isProcessing}>
+                Manage Payment Method in Dodo
+              </Button>
+            </div>
           </CardContent>
         </Card>
+
+        {/* Plans Section */}
+        <div id="plans-section" className="space-y-3">
+          <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+            {account.plan_tier ? "Change Plan" : "Choose Your Plan"}
+          </h3>
+          <div className="grid gap-4 md:grid-cols-3">
+            {Object.entries(plans).map(([key, plan]) => {
+              const isCurrent = key === account.plan_tier
+              const isUpgrade =
+                account.plan_tier &&
+                planPriority[key] > planPriority[account.plan_tier || "starter"]
+              return (
+                <Card
+                  key={key}
+                  className={isCurrent ? "border-zinc-900 dark:border-zinc-100 border-2" : ""}
+                >
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>{plan.name}</CardTitle>
+                      {isCurrent && <Badge>Current</Badge>}
+                    </div>
+                    <CardDescription>
+                      KES {plan.price.toLocaleString()}/month
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="mb-4 space-y-2">
+                      {plan.features.map((feature, i) => (
+                        <li key={i} className="flex items-center gap-2 text-sm">
+                          <span className="text-emerald-600">✓</span>
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <Button
+                      onClick={() => handleChangePlan(key)}
+                      disabled={isProcessing || isCurrent}
+                      variant={isUpgrade ? "default" : "outline"}
+                      className="w-full"
+                    >
+                      {isCurrent
+                        ? "Current Plan"
+                        : isUpgrade
+                          ? "Upgrade"
+                          : "Switch to This Plan"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        </div>
 
         {/* Danger Zone */}
         <Card className="border-red-200 dark:border-red-900/40">

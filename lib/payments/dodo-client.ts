@@ -84,6 +84,37 @@ export class DodoPaymentsClient {
   }
 
   /**
+   * Create Customer Portal session for payment method management.
+   *
+   * Note: As of the current Dodo docs, the Customer Portal session API
+   * is `client.customers.customerPortal.create(customerId)` and does not
+   * take a return_url parameter. The returned object includes a `link`
+   * property which is the URL to redirect the user to.
+   */
+  async createCustomerPortalSession(
+    customerId: string,
+    // Kept for future compatibility if Dodo adds explicit return URLs
+    // (currently unused by the SDK call itself).
+    _returnUrl: string
+  ): Promise<{ success: boolean; portalUrl?: string; error?: string }> {
+    try {
+      const session = await this.client.customers.customerPortal.create(customerId)
+
+      return {
+        success: true,
+        portalUrl: session.link,
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Customer portal creation failed:", error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      }
+    }
+  }
+
+  /**
    * Get subscription details
    */
   async getSubscription(subscriptionId: string) {
