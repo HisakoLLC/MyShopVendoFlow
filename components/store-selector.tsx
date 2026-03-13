@@ -169,8 +169,9 @@ export function StoreSelector({ className }: StoreSelectorProps) {
   // Badge showing how many stores exist (if multiple)
   const storeCountBadge =
     stores.length > 1 ? (
-      <span className="ml-2 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-        {stores.length} stores
+      <span className="ml-1 inline-flex shrink-0 items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+        <span className="tabular-nums">{stores.length}</span>
+        <span className="ml-1 hidden sm:inline">stores</span>
       </span>
     ) : null
 
@@ -182,12 +183,12 @@ export function StoreSelector({ className }: StoreSelectorProps) {
   return (
     <div
       className={cn(
-        "flex items-center gap-2 rounded-lg border border-transparent px-2 py-1",
+        "flex min-w-0 items-center gap-2 overflow-hidden rounded-lg border border-transparent px-2 py-1",
         className
       )}
       aria-label="Store selector"
     >
-      <span className="inline-flex items-center text-sm font-medium text-zinc-800 dark:text-zinc-100">
+      <span className="inline-flex shrink-0 items-center text-sm font-medium text-zinc-800 dark:text-zinc-100">
         <span className="mr-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
           <MapPin className="h-3 w-3" aria-hidden="true" />
         </span>
@@ -197,21 +198,21 @@ export function StoreSelector({ className }: StoreSelectorProps) {
       </span>
 
       {loading ? (
-        <div className="h-8 min-w-[8rem] animate-pulse rounded-md bg-zinc-100 dark:bg-zinc-800" />
+        <div className="h-8 w-full min-w-0 animate-pulse rounded-md bg-zinc-100 dark:bg-zinc-800" />
       ) : error ? (
-        <span className="text-xs text-red-600 dark:text-red-400" title={error}>
+        <span className="min-w-0 truncate text-xs text-red-600 dark:text-red-400" title={error}>
           Store unavailable
         </span>
       ) : !currentStoreId || stores.length === 0 ? (
-        <span className="text-xs text-zinc-500 dark:text-zinc-400">No store configured</span>
+        <span className="min-w-0 truncate text-xs text-zinc-500 dark:text-zinc-400">No store configured</span>
       ) : isStaffWithFixedStore ? (
-        <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+        <span className="min-w-0 truncate rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
           {currentStoreName}
         </span>
       ) : (
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
           <Select value={currentStoreId ?? undefined} onValueChange={handleChange}>
-            <SelectTrigger className="h-8 min-w-[9rem] border-emerald-500/40 bg-emerald-50 text-sm font-medium text-emerald-800 hover:bg-emerald-100 dark:border-emerald-500/50 dark:bg-emerald-900/30 dark:text-emerald-200">
+            <SelectTrigger className="h-8 w-full min-w-0 border-emerald-500/40 bg-emerald-50 text-sm font-medium text-emerald-800 hover:bg-emerald-100 dark:border-emerald-500/50 dark:bg-emerald-900/30 dark:text-emerald-200">
               <SelectValue
                 placeholder="Select store"
                 aria-label={stores.find((s) => s.store_id === currentStoreId)?.name}

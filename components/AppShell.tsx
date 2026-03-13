@@ -271,8 +271,8 @@ function Sidebar({
             <Link href="/dashboard" className="font-semibold text-zinc-900 dark:text-zinc-100">
               VendoFlow
             </Link>
-            <div className="ml-3 flex-1">
-              <StoreSelector />
+            <div className="ml-3 flex min-w-0 flex-1">
+              <StoreSelector className="min-w-0 flex-1" />
             </div>
           </>
         )}
