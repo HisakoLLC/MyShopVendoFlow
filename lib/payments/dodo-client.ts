@@ -43,6 +43,11 @@ export class DodoPaymentsClient {
    */
   async createCheckoutSession(params: CreateCheckoutParams): Promise<CreateCheckoutResponse> {
     try {
+      // ✅ Validate inputs
+      if (!params.customerEmail || !params.planTier || !params.accountId) {
+        throw new Error("Missing required parameters")
+      }
+
       const productId = DODO_PRODUCT_IDS[params.planTier]
 
       if (!productId) {
@@ -67,6 +72,11 @@ export class DodoPaymentsClient {
           plan_tier: params.planTier,
         },
       })
+
+      // ✅ Validate response
+      if (!session || !session.checkout_url) {
+        throw new Error("Dodo returned invalid checkout session (missing checkout_url)")
+      }
 
       return {
         success: true,
@@ -98,7 +108,16 @@ export class DodoPaymentsClient {
     _returnUrl: string
   ): Promise<{ success: boolean; portalUrl?: string; error?: string }> {
     try {
+      if (!customerId) {
+        throw new Error("Customer ID is required")
+      }
+
       const session = await this.client.customers.customerPortal.create(customerId)
+
+      // ✅ Validate response
+      if (!session || !session.link) {
+        throw new Error("Dodo returned invalid portal session (missing link)")
+      }
 
       return {
         success: true,
@@ -137,6 +156,10 @@ export class DodoPaymentsClient {
     error?: string
   }> {
     try {
+      if (!subscriptionId) {
+        throw new Error("Subscription ID is required")
+      }
+
       await this.client.subscriptions.cancel(subscriptionId)
       return { success: true }
     } catch (error) {

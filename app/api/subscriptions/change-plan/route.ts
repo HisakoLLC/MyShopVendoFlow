@@ -58,6 +58,15 @@ export async function POST(req: NextRequest) {
       // Simplest path: cancel current subscription and send user to checkout for new plan
       await dodoClient.cancelSubscription(account.dodo_subscription_id)
 
+      // ✅ FIX: Immediately mark as pending to prevent webhook race condition
+      await supabase
+        .from("accounts")
+        .update({
+          subscription_status: "pending_plan_change",
+          plan_tier: newPlanTier,
+        })
+        .eq("account_id", account.account_id)
+
       const checkoutResult = await dodoClient.createCheckoutSession({
         customerEmail: account.owner_email,
         customerName: account.business_name,
@@ -68,6 +77,15 @@ export async function POST(req: NextRequest) {
       })
 
       if (!checkoutResult.success || !checkoutResult.checkoutUrl) {
+        // ✅ FIX: Rollback on failure
+        await supabase
+          .from("accounts")
+          .update({
+            subscription_status: "active",
+            plan_tier: account.plan_tier,
+          })
+          .eq("account_id", account.account_id)
+
         return NextResponse.json(
           { error: checkoutResult.error || "Failed to create checkout session" },
           { status: 400 }

@@ -211,11 +211,18 @@ async function handleSubscriptionCancelled(supabase: any, data: any) {
 
   const { data: account } = await supabase
     .from("accounts")
-    .select("account_id")
+    .select("account_id, subscription_status")
     .eq("dodo_subscription_id", subscriptionId)
     .single()
 
   if (!account) return
+
+  // ✅ FIX: Don't mark as cancelled if user is in the middle of plan change
+  if (account.subscription_status === "pending_plan_change") {
+    // eslint-disable-next-line no-console
+    console.log("⏭️ Ignoring cancellation webhook - user is changing plans")
+    return
+  }
 
   await supabase
     .from("accounts")
