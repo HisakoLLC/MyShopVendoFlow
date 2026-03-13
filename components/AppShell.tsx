@@ -39,7 +39,6 @@ import { createClient } from "@/lib/supabase/client"
 import type { AuthChangeEvent, Session, User } from "@supabase/supabase-js"
 import { getRoleFromUser, canShowNavItem, getRoleLabel, type StaffRole } from "@/lib/auth/roles"
 import { StoreSelector } from "@/components/store-selector"
-import { Sidebar as UISidebar, SidebarBody, SidebarLink, DesktopSidebar } from "@/components/ui/sidebar"
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, hideForOwner: true },
@@ -258,93 +257,77 @@ function Sidebar({
     if (item.hideForOwner && role === "owner") return false
     return canShowNavItem(item.href, role)
   })
-  const open = !collapsed
 
   return (
-    <div className="fixed left-0 top-0 z-40 h-screen">
-      <UISidebar open={open} setOpen={() => {}} animate>
-        <SidebarBody className="h-full">
-          <DesktopSidebar
-            hoverExpand={false}
-            className={cn(
-              "border-r border-zinc-200 bg-background-card-light dark:border-border-dark dark:bg-background-card-dark",
-              "p-0"
-            )}
-          >
-            <div className="flex h-14 items-center gap-2 border-b border-zinc-200 px-3 dark:border-zinc-800">
-              {open ? (
-                <>
-                  <Link href="/dashboard" className="font-semibold text-zinc-900 dark:text-zinc-100">
-                    VendoFlow
-                  </Link>
-                  <div className="ml-3 flex-1">
-                    <StoreSelector />
-                  </div>
-                </>
-              ) : (
-                <Link
-                  href="/dashboard"
-                  className="mx-auto inline-flex h-9 w-9 items-center justify-center rounded-md bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
-                  aria-label="Go to dashboard"
-                >
-                  <LayoutDashboard className="h-5 w-5" />
-                </Link>
-              )}
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn("ml-auto shrink-0", !open && "mx-auto")}
-                onClick={onToggle}
-                aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
-              >
-                {open ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeft className="h-5 w-5" />}
-              </Button>
+    <aside
+      className={cn(
+        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-zinc-200 bg-background-card-light transition-[width] dark:border-border-dark dark:bg-background-card-dark",
+        collapsed ? "w-[4rem]" : "w-56"
+      )}
+    >
+      <div className="flex h-14 items-center gap-2 border-b border-zinc-200 px-3 dark:border-zinc-800">
+        {!collapsed && (
+          <>
+            <Link href="/dashboard" className="font-semibold text-zinc-900 dark:text-zinc-100">
+              VendoFlow
+            </Link>
+            <div className="ml-3 flex-1">
+              <StoreSelector />
             </div>
-
-            <nav className={cn("flex-1 overflow-y-auto", open ? "p-2" : "p-2")}>
-              <div className={cn("flex flex-col", open ? "gap-0.5" : "gap-1")}>
-                {visibleNavItems.map(({ href, label, icon: Icon }) => {
-                  const isActive =
-                    pathname === href ||
-                    (href !== "/dashboard" && pathname.startsWith(href)) ||
-                    (href === "/purchasing" && pathname.startsWith("/purchasing")) ||
-                    (href === "/staff" && pathname.startsWith("/settings/staff"))
-                  const showBadge = label === "Multi-Store Dashboard" && storeCount > 0 && role === "owner"
-
-                  return (
-                    <SidebarLink
-                      key={`${href}:${label}`}
-                      link={{
-                        href,
-                        label,
-                        icon: <Icon className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />,
-                      }}
-                      className={cn(
-                        "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                        open ? "gap-3" : "justify-center px-2",
-                        isActive
-                          ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
-                          : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
-                      )}
-                      title={!open ? label : undefined}
-                    >
-                      {showBadge && open ? (
-                        <span className="ml-auto shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-                          {storeCount}
-                        </span>
-                      ) : null}
-                    </SidebarLink>
-                  )
-                })}
-              </div>
-            </nav>
-
-            <SidebarUser user={user} collapsed={!open} />
-          </DesktopSidebar>
-        </SidebarBody>
-      </UISidebar>
-    </div>
+          </>
+        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn("ml-auto shrink-0", collapsed && "mx-auto")}
+          onClick={onToggle}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? (
+            <PanelLeft className="h-5 w-5" />
+          ) : (
+            <PanelLeftClose className="h-5 w-5" />
+          )}
+        </Button>
+      </div>
+      <nav className="flex-1 space-y-0.5 overflow-y-auto p-2">
+        {visibleNavItems.map(({ href, label, icon: Icon }) => {
+          const isActive =
+            pathname === href ||
+            (href !== "/dashboard" && pathname.startsWith(href)) ||
+            (href === "/purchasing" && pathname.startsWith("/purchasing")) ||
+            (href === "/staff" && pathname.startsWith("/settings/staff"))
+          const showBadge = label === "Multi-Store Dashboard" && storeCount > 0 && role === "owner"
+          return (
+            <Link
+              key={`${href}:${label}`}
+              href={href}
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
+                  : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100",
+                collapsed && "justify-center px-2"
+              )}
+              title={collapsed ? label : undefined}
+            >
+              <Icon className="h-5 w-5 shrink-0" />
+              {!collapsed && (
+                <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                  <span className="truncate">{label}</span>
+                  {showBadge && (
+                    <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                      {storeCount}
+                    </span>
+                  )}
+                </div>
+              )}
+            </Link>
+          )
+        })}
+      </nav>
+      <SidebarUser user={user} collapsed={collapsed} />
+    </aside>
   )
 }
 
