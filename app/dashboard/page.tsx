@@ -303,7 +303,7 @@ async function DashboardContent({
       yesterdayRevenue > 0 ? ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100 : 0
 
     return (
-      <div className="min-h-screen bg-background-light p-4 dark:bg-background-dark md:p-8">
+      <div className="min-h-screen bg-zinc-950 p-4 md:p-8">
         <div className="mx-auto max-w-7xl space-y-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>

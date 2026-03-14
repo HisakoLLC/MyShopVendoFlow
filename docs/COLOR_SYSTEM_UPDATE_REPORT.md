@@ -1,6 +1,6 @@
 # VendoFlow Color Palette Update Report
 
-**Date:** February 3, 2025  
+**Date:** February 3, 2026  
 **Design system:** Primary #6b0005 (dark burgundy), light page #e6e1de, dark page #25291c, cards white / #2f3326
 
 ---

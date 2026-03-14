@@ -106,7 +106,7 @@ export default async function TransferInventoryPage() {
 
 function TransferHistoryTable() {
   return (
-    <div className="rounded-lg border border-zinc-200 bg-background-card-light p-2 dark:border-border-dark dark:bg-background-card-dark">
+    <div className="rounded-lg border border-zinc-200 bg-zinc-900 p-2 dark:border-zinc-800 dark:bg-zinc-900">
       <TransferHistoryClient />
     </div>
   )

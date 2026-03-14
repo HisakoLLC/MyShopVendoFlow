@@ -284,7 +284,7 @@ export function VariantMatrixBuilder({
 
       <div className="space-y-6">
         {/* Size Selection */}
-        <div className="rounded-xl border border-zinc-200 bg-background p-6 dark:border-zinc-800 dark:bg-background-dark">
+        <div className="rounded-xl border border-zinc-200 bg-zinc-900 p-6 dark:border-zinc-800 dark:bg-zinc-900">
           <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-white">
             Size Selection
           </h2>
@@ -331,7 +331,7 @@ export function VariantMatrixBuilder({
               {sizeArray.map((size) => (
                 <div
                   key={size}
-                  className="flex items-center space-x-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-background-dark"
+                  className="flex items-center space-x-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900"
                 >
                   <Checkbox
                     checked={selectedSizes.has(size)}
@@ -345,7 +345,7 @@ export function VariantMatrixBuilder({
         </div>
 
         {/* Color Selection */}
-        <div className="rounded-xl border border-zinc-200 bg-background p-6 dark:border-zinc-800 dark:bg-background-dark">
+        <div className="rounded-xl border border-zinc-200 bg-zinc-900 p-6 dark:border-zinc-800 dark:bg-zinc-900">
           <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-white">
             Color Selection
           </h2>
@@ -414,7 +414,7 @@ export function VariantMatrixBuilder({
               {colorArray.map((color) => (
                 <div
                   key={color}
-                  className="flex items-center space-x-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-background-dark"
+                  className="flex items-center space-x-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900"
                 >
                   <Checkbox
                     checked={selectedColors.has(color)}
@@ -429,7 +429,7 @@ export function VariantMatrixBuilder({
 
         {/* Variant Matrix Preview */}
         {sizeArray.length > 0 && colorArray.length > 0 && (
-          <div className="rounded-xl border border-zinc-200 bg-background p-6 dark:border-zinc-800 dark:bg-background-dark">
+          <div className="rounded-xl border border-zinc-200 bg-zinc-900 p-6 dark:border-zinc-800 dark:bg-zinc-900">
             <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-white">
               Variant Preview ({sizeArray.length} × {colorArray.length} ={" "}
               {sizeArray.length * colorArray.length} variants)
@@ -440,13 +440,13 @@ export function VariantMatrixBuilder({
                 <table className="min-w-full border-collapse">
                   <thead>
                     <tr>
-                      <th className="border border-zinc-200 bg-zinc-50 px-4 py-2 text-left text-sm font-semibold text-zinc-900 dark:border-zinc-800 dark:bg-background-dark dark:text-white">
+                      <th className="border border-zinc-200 bg-zinc-50 px-4 py-2 text-left text-sm font-semibold text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white">
                         Size
                       </th>
                       {colorArray.map((color) => (
                         <th
                           key={color}
-                          className="border border-zinc-200 bg-zinc-50 px-4 py-2 text-center text-sm font-semibold text-zinc-900 dark:border-zinc-800 dark:bg-background-dark dark:text-white"
+                          className="border border-zinc-200 bg-zinc-50 px-4 py-2 text-center text-sm font-semibold text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white"
                         >
                           {color}
                         </th>
@@ -456,23 +456,23 @@ export function VariantMatrixBuilder({
                   <tbody>
                     {sizeArray.map((size) => (
                       <tr key={size}>
-                        <td className="border border-zinc-200 bg-zinc-50 px-4 py-2 text-sm font-medium text-zinc-900 dark:border-zinc-800 dark:bg-background-dark dark:text-white">
+                        <td className="border border-zinc-200 bg-zinc-50 px-4 py-2 text-sm font-medium text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white">
                           {size}
                         </td>
                         {colorArray.map((color) => {
                           const key = `${size}-${color}`
                           const cell = variantCells.get(key)
-                          if (!cell) return <td key={color} className="border border-zinc-200 px-4 py-2 dark:border-zinc-800 dark:bg-background-dark" />
+                          if (!cell) return <td key={color} className="border border-zinc-200 px-4 py-2 dark:border-zinc-800 dark:bg-zinc-900" />
 
                           return (
                             <td
                               key={color}
-                              className="border border-zinc-200 px-4 py-2 text-center dark:border-zinc-800 dark:bg-background-dark"
+                              className="border border-zinc-200 px-4 py-2 text-center dark:border-zinc-800 dark:bg-zinc-900"
                             >
                               <button
                                 type="button"
                                 onClick={() => handleCellClick(cell)}
-                                className="w-full rounded-lg border border-zinc-200 bg-background p-3 text-left transition hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background-dark dark:hover:bg-zinc-800"
+                                className="w-full rounded-lg border border-zinc-200 bg-zinc-900 p-3 text-left transition hover:bg-zinc-800 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
                               >
                                 <div className="text-xs font-medium text-zinc-900 dark:text-white">
                                   SKU: {cell.sku}

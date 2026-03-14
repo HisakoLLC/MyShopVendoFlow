@@ -19,94 +19,22 @@ const config = {
     },
     extend: {
       colors: {
-        /* VendoFlow design system */
-        primary: {
-          DEFAULT: "#6b0005",
-          hover: "#4d0003",
-          active: "#3a0002",
-          disabled: "rgba(107, 0, 5, 0.4)",
-          foreground: "#ffffff",
-        },
-        background: {
-          DEFAULT: "#e6e1de",
-          light: "#e6e1de",
-          dark: "#25291c",
-          card: {
-            light: "#FFFFFF",
-            dark: "#2f3326",
-          },
-          hover: {
-            light: "#f5f5f5",
-            dark: "#3a3f2e",
-          },
-        },
-        "text-primary": {
-          light: "#25291c",
-          dark: "#e6e1de",
-        },
-        "text-secondary": {
-          light: "#6b6b6b",
-          dark: "#a8a8a8",
-        },
-        "text-tertiary": {
-          light: "#9ca3af",
-          dark: "#6b7280",
-        },
-        border: {
-          DEFAULT: "#d4d4d4",
-          light: "#d4d4d4",
-          dark: "#404040",
-          divider: {
-            light: "#e5e5e5",
-            dark: "#333333",
-          },
-        },
-        semantic: {
-          success: {
-            DEFAULT: "#2d5016",
-            light: "#dcfce7",
-          },
-          warning: {
-            DEFAULT: "#d97706",
-            light: "#fef3c7",
-          },
-          error: {
-            DEFAULT: "#dc2626",
-            light: "#fee2e2",
-          },
-          info: {
-            DEFAULT: "#1e3a8a",
-            light: "#dbeafe",
-          },
-        },
-        /* Legacy/shadcn compatibility */
-        input: "#d4d4d4",
-        ring: "#6b0005",
-        foreground: "#25291c",
-        secondary: {
-          DEFAULT: "#6b6b6b",
-          foreground: "#e6e1de",
-        },
-        destructive: {
-          DEFAULT: "#dc2626",
-          foreground: "#ffffff",
-        },
-        muted: {
-          DEFAULT: "#f5f5f5",
-          foreground: "#6b6b6b",
-        },
-        accent: {
-          DEFAULT: "#f5f5f5",
-          foreground: "#25291c",
-        },
-        popover: {
-          DEFAULT: "#FFFFFF",
-          foreground: "#25291c",
-        },
-        card: {
-          DEFAULT: "#FFFFFF",
-          foreground: "#25291c",
-        },
+        // Back-office surfaces
+        "vf-bg": "#09090b",
+        "vf-surface": "#18181b",
+        "vf-elevated": "#27272a",
+        "vf-border": "#27272a",
+        "vf-border-strong": "#3f3f46",
+
+        // POS surfaces
+        "vf-pos-bg": "#f8f8f8",
+        "vf-pos-surface": "#ffffff",
+        "vf-pos-border": "#e4e4e7",
+
+        // Accent
+        "vf-accent": "#f59e0b",
+        "vf-accent-hover": "#fbbf24",
+        "vf-accent-text": "#09090b",
       },
       borderRadius: {
         lg: "var(--radius)",

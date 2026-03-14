@@ -310,7 +310,7 @@ export function ProductsTableClient(props: {
       </Dialog>
 
       {selectedCount > 0 && viewMode === "active" && (
-        <div className="-mx-4 mb-4 flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-background-card-dark/50">
+        <div className="-mx-4 mb-4 flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900/50">
           <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
             {selectedCount} style{selectedCount !== 1 ? "s" : ""} selected
           </span>
@@ -321,7 +321,7 @@ export function ProductsTableClient(props: {
         </div>
       )}
 
-      <div className="sticky top-0 z-10 -mx-4 mb-4 border-b bg-background-card-light/80 px-4 py-3 backdrop-blur dark:bg-background-card-dark/80">
+      <div className="sticky top-0 z-10 -mx-4 mb-4 border-b bg-zinc-900/80 px-4 py-3 backdrop-blur dark:bg-zinc-900/80">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex-1">
             <ProductsFilters
@@ -356,7 +356,7 @@ export function ProductsTableClient(props: {
             {viewMode === "active" && (
               <Link
                 href="/products/new"
-                className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-white shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-white dark:hover:opacity-90"
+                className="inline-flex h-10 items-center justify-center rounded-lg bg-amber-500 px-4 text-sm font-medium text-zinc-950 shadow-sm hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
               >
                 Add New Style
               </Link>
@@ -387,7 +387,7 @@ export function ProductsTableClient(props: {
       ) : (
         <>
           {/* Desktop: Table View */}
-          <div className="hidden overflow-hidden rounded-xl border border-zinc-200 bg-background-card-light shadow-sm dark:border-border-dark dark:bg-background-card-dark md:block">
+        <div className="hidden overflow-hidden rounded-xl border border-zinc-200 bg-zinc-900 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 md:block">
             <div className="overflow-x-auto">
               <table className="w-full">
               <thead className="bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:bg-background/40 dark:text-zinc-400">

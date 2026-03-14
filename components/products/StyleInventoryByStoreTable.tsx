@@ -126,7 +126,7 @@ export function StyleInventoryByStoreTable({ stores, inventory, styleName }: Pro
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 px-4 py-10 text-center text-sm text-zinc-600 dark:border-zinc-700 dark:bg-background-dark dark:text-zinc-300">
+      <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 px-4 py-10 text-center text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
         No variants yet for this style. Create variants to start tracking inventory by store.
       </div>
     )
@@ -144,7 +144,7 @@ export function StyleInventoryByStoreTable({ stores, inventory, styleName }: Pro
         </p>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-background dark:border-zinc-800 dark:bg-background-dark">
+      <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-zinc-900 dark:border-zinc-800 dark:bg-zinc-900">
         <Table>
           <TableHeader>
             <TableRow>

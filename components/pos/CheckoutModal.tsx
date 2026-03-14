@@ -420,7 +420,7 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
                   currentStep >= step
-                    ? "border-primary bg-primary text-white dark:border-primary dark:bg-primary dark:text-white"
+                    ? "border-amber-500 bg-amber-500 text-zinc-950 dark:border-amber-500 dark:bg-amber-500 dark:text-zinc-950"
                     : "border-zinc-300 text-zinc-400 dark:border-zinc-700 dark:text-zinc-600"
                 }`}
               >
@@ -559,7 +559,7 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
               )}
 
               {customerResults.length > 0 && (
-                <div className="mt-2 space-y-1 rounded-lg border border-zinc-200 bg-background dark:border-zinc-800 dark:bg-background">
+                <div className="mt-2 space-y-1 rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-white">
                   {customerResults.map((customer) => (
                     <button
                       key={customer.customer_id}

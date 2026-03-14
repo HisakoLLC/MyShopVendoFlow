@@ -2,39 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ——— VendoFlow Design System: CSS variables ——— */
 @layer base {
   :root {
-    --primary: #6b0005;
-    --primary-hover: #4d0003;
-    --primary-active: #3a0002;
-
-    --background: #e6e1de;
-    --background-card: #ffffff;
-
-    --text-primary: #25291c;
-    --text-secondary: #6b6b6b;
-    --text-tertiary: #9ca3af;
-
-    --border: #d4d4d4;
-
-    --success: #2d5016;
-    --warning: #d97706;
-    --error: #dc2626;
-    --info: #1e3a8a;
-
-    --radius: 8px;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 3.7% 10.9%;
+    --card-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --primary: 38 92% 50%;
+    --primary-foreground: 240 10% 3.9%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --ring: 38 92% 50%;
+    --radius: 0.5rem;
   }
 
-  .dark {
-    --background: #25291c;
-    --background-card: #2f3326;
-
-    --text-primary: #e6e1de;
-    --text-secondary: #a8a8a8;
-    --text-tertiary: #6b7280;
-
-    --border: #404040;
+  .pos-theme {
+    --background: 0 0% 97%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --border: 240 5.9% 90%;
+    --input: 0 0% 100%;
+    --primary: 38 92% 50%;
+    --primary-foreground: 240 10% 3.9%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --ring: 38 92% 50%;
   }
 
   * {
@@ -42,7 +43,6 @@
   }
 
   body {
-    @apply bg-background-light dark:bg-background-dark font-sans antialiased;
-    @apply text-text-primary-light dark:text-text-primary-dark;
+    @apply font-sans antialiased;
   }
 }

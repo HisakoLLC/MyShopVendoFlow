@@ -209,7 +209,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
             placeholder="Search products by name or SKU..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-border-light bg-background-card-light px-4 py-3 pl-10 text-sm text-text-primary-light placeholder:text-text-secondary-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary dark:border-border-dark dark:bg-background-card-dark dark:text-white dark:placeholder:text-text-secondary-dark dark:focus:ring-primary"
+            className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-3 pl-10 text-sm text-zinc-900 placeholder:text-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
           />
           <svg
             className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400"

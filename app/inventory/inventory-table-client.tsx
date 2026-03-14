@@ -214,7 +214,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
     <>
       <div className="space-y-4">
         {/* Filters */}
-        <div className="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-background-card-light p-4 dark:border-border-dark dark:bg-background-card-dark sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-zinc-900 p-4 dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
             <Input
@@ -294,7 +294,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
         </div>
 
         {/* List: Table */}
-        <div className={`rounded-xl border border-zinc-200 bg-background dark:border-zinc-800 dark:bg-background-dark ${layoutView === "grid" ? "hidden" : "block"}`}>
+        <div className={`rounded-xl border border-zinc-200 bg-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 ${layoutView === "grid" ? "hidden" : "block"}`}>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -318,8 +318,8 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
               </TableHeader>
               <TableBody>
                 {filtered.length === 0 ? (
-                  <TableRow className="dark:bg-background-dark dark:hover:bg-background-dark">
-                    <TableCell colSpan={hasMultipleStores ? stores.length + 7 : 8} className="h-24 text-center dark:bg-background-dark dark:text-white">
+                  <TableRow className="dark:bg-zinc-900 dark:hover:bg-zinc-900">
+                    <TableCell colSpan={hasMultipleStores ? stores.length + 7 : 8} className="h-24 text-center dark:bg-zinc-900 dark:text-white">
                       No inventory found matching your filters.
                     </TableCell>
                   </TableRow>
@@ -329,15 +329,15 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                     const rowBg = getRowBgColor(item.total_stock, hasNegative)
 
                     return (
-                      <TableRow key={item.variant_id} className={`${rowBg} dark:bg-background-dark dark:hover:bg-background-dark`}>
-                        <TableCell className="w-12 px-2 dark:bg-background-dark dark:text-white">
+                      <TableRow key={item.variant_id} className={`${rowBg} dark:bg-zinc-900 dark:hover:bg-zinc-900`}>
+                        <TableCell className="w-12 px-2 dark:bg-zinc-900 dark:text-white">
                           <Checkbox
                             checked={selectedIds.has(item.variant_id)}
                             onCheckedChange={() => toggleRow(item.variant_id)}
                             aria-label={`Select ${item.style_name} ${item.size}/${item.color}`}
                           />
                         </TableCell>
-                        <TableCell className="dark:bg-background-dark dark:text-white">
+                        <TableCell className="dark:bg-zinc-900 dark:text-white">
                           <div className="flex items-center gap-3">
                             <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
                               {item.style_image_url ? (
@@ -358,10 +358,10 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-zinc-700 dark:bg-background-dark dark:text-white">
+                        <TableCell className="text-zinc-700 dark:bg-zinc-900 dark:text-white">
                           {item.size} / {item.color}
                         </TableCell>
-                        <TableCell className="font-mono text-sm text-zinc-600 dark:bg-background-dark dark:text-white">
+                        <TableCell className="font-mono text-sm text-zinc-600 dark:bg-zinc-900 dark:text-white">
                           {item.sku}
                         </TableCell>
                         {hasMultipleStores
@@ -371,7 +371,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                               const colorClass = getStockColor(qty)
 
                               return (
-                                <TableCell key={store.store_id} className={`text-right dark:bg-background-dark ${colorClass}`}>
+                                <TableCell key={store.store_id} className={`text-right dark:bg-zinc-900 ${colorClass}`}>
                                   {qty < 0 && <AlertTriangle className="mr-1 inline h-4 w-4" />}
                                   {qty}
                                 </TableCell>
@@ -381,16 +381,16 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                               const qty = item.stores[0]?.quantity_on_hand ?? 0
                               const colorClass = getStockColor(qty)
                               return (
-                                <TableCell className={`text-right dark:bg-background-dark ${colorClass}`}>
+                                <TableCell className={`text-right dark:bg-zinc-900 ${colorClass}`}>
                                   {qty < 0 && <AlertTriangle className="mr-1 inline h-4 w-4" />}
                                   {qty}
                                 </TableCell>
                               )
                             })()}
-                        <TableCell className={`text-right font-medium dark:bg-background-dark ${getStockColor(item.total_stock)}`}>
+                        <TableCell className={`text-right font-medium dark:bg-zinc-900 ${getStockColor(item.total_stock)}`}>
                           {item.total_stock}
                         </TableCell>
-                        <TableCell className="text-right dark:bg-background-dark dark:text-white">
+                        <TableCell className="text-right dark:bg-zinc-900 dark:text-white">
                           <div className="flex flex-wrap justify-end gap-2">
                             <Button
                               variant="outline"
@@ -471,7 +471,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
         {/* Grid: Cards */}
         <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${layoutView === "list" ? "hidden" : "block"}`}>
           {filtered.length === 0 ? (
-            <div className="col-span-full rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 py-12 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-background-dark dark:text-white">
+            <div className="col-span-full rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 py-12 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white">
               No inventory found matching your filters.
             </div>
           ) : (
@@ -481,7 +481,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
               return (
                 <div
                   key={item.variant_id}
-                  className={`rounded-xl border border-zinc-200 bg-background-card-light p-4 dark:border-border-dark dark:bg-background-dark ${rowBg}`}
+                  className={`rounded-xl border border-zinc-200 bg-zinc-900 p-4 dark:border-zinc-800 dark:bg-zinc-900 ${rowBg}`}
                 >
                   <div className="flex gap-3">
                     <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">

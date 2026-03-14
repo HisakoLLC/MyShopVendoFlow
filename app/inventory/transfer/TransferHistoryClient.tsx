@@ -28,7 +28,7 @@ type HistoryRow = {
 
 function TransferHistorySkeleton() {
   return (
-    <div className="rounded-lg border border-zinc-200 bg-background-card-light p-4 dark:border-border-dark dark:bg-background-card-dark">
+    <div className="rounded-lg border border-zinc-200 bg-zinc-900 p-4 dark:border-zinc-800 dark:bg-zinc-900">
       <div className="mb-3 h-5 w-32 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
       <div className="h-32 w-full animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
     </div>

@@ -87,7 +87,7 @@ async function POSPageContent() {
 
   if (!stores || stores.length === 0) {
     return (
-      <div className="flex h-screen items-center justify-center bg-background-light px-4 dark:bg-background-dark">
+      <div className="flex h-screen items-center justify-center bg-[#f8f8f8] px-4">
         <div className="w-full max-w-md rounded-xl border border-amber-200 bg-amber-50 p-8 shadow-lg dark:border-amber-900/40 dark:bg-amber-950/30">
           <h2 className="text-xl font-semibold text-amber-900 dark:text-amber-100">Store not set up yet</h2>
           <p className="mt-2 text-sm text-amber-800 dark:text-amber-200">

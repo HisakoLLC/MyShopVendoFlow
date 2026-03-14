@@ -264,7 +264,7 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                        className="border-2 border-primary focus-visible:ring-primary"
+                        className="border-2 border-amber-500 focus-visible:ring-amber-500/30"
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">

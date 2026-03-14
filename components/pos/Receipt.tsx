@@ -94,7 +94,7 @@ export function Receipt({
   const displayTotal = total
 
   return (
-    <div className="mx-auto max-w-md bg-background-card-light p-6 print:p-4 print:bg-white dark:bg-background-card-dark" id="receipt">
+    <div className="mx-auto max-w-md bg-white p-6 print:p-4 print:bg-white" id="receipt">
       {/* Logo - when enabled in settings; StorageImage handles signed URLs for Supabase storage */}
       {logoUrl && (
         <div className="mb-4 flex justify-center border-b border-zinc-200 pb-4">
