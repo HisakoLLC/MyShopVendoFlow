@@ -35,6 +35,9 @@ const config = {
         "vf-accent": "#f59e0b",
         "vf-accent-hover": "#fbbf24",
         "vf-accent-text": "#09090b",
+
+        // shadcn/ui border token
+        border: "hsl(var(--border))",
       },
       borderRadius: {
         lg: "var(--radius)",

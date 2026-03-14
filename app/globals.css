@@ -39,10 +39,10 @@
   }
 
   * {
-    @apply border-border;
+    @apply border-zinc-800;
   }
 
   body {
-    @apply font-sans antialiased;
+    @apply bg-zinc-950 text-zinc-50 font-sans antialiased;
   }
 }
