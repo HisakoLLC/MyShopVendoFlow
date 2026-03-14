@@ -1,59 +1,32 @@
 "use client"
 
 import * as React from "react"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import Link from "next/link"
 import {
   LayoutDashboard,
   ShoppingCart,
-  Receipt,
+  BarChart2,
   Package,
   Boxes,
-  Truck,
+  ClipboardList,
   Users,
   Settings,
-  PanelLeftClose,
-  PanelLeft,
-  Moon,
-  Sun,
-  Monitor,
-  FileText,
-  HelpCircle,
-  LogOut,
-  CheckCircle2,
   UserCog,
 } from "lucide-react"
-import { useTheme } from "next-themes"
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { createClient } from "@/lib/supabase/client"
 import type { AuthChangeEvent, Session, User } from "@supabase/supabase-js"
 import { getRoleFromUser, canShowNavItem, getRoleLabel, type StaffRole } from "@/lib/auth/roles"
-import { StoreSelector } from "@/components/store-selector"
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, hideForOwner: true },
-  {
-    href: "/dashboard",
-    label: "Multi-Store Dashboard",
-    icon: LayoutDashboard,
-    ownerOnly: true,
-    badge: "storeCount" as const,
-  },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/pos", label: "POS", icon: ShoppingCart },
-  { href: "/sales", label: "Sales", icon: Receipt },
+  { href: "/sales", label: "Sales", icon: BarChart2 },
   { href: "/products", label: "Products", icon: Package },
   { href: "/inventory", label: "Inventory", icon: Boxes },
-  { href: "/purchasing", label: "Purchasing", icon: Truck },
+  { href: "/purchasing", label: "Purchasing", icon: ClipboardList },
   { href: "/customers", label: "Customers", icon: Users },
   { href: "/staff", label: "Staff", icon: UserCog },
   { href: "/settings", label: "Settings", icon: Settings },
@@ -90,243 +63,86 @@ function getInitials(user: User | null): string {
   return name.slice(0, 2).toUpperCase()
 }
 
-function SidebarUser({
-  user,
-  collapsed,
-}: {
-  user: User | null
-  collapsed: boolean
-}) {
-  const router = useRouter()
-  const { setTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
-  const supabase = React.useMemo(() => createClient(), [])
-
-  React.useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  const displayName = getUserDisplayName(user)
-  const avatarUrl = getUserAvatarUrl(user)
-  const initials = getInitials(user)
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push("/login")
-    router.refresh()
-  }
-
-  return (
-    <div className="border-t border-zinc-200 p-2 dark:border-zinc-800">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button
-            type="button"
-            className={cn(
-              "flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm outline-none transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800",
-              collapsed && "justify-center px-0"
-            )}
-            aria-label="Account menu"
-          >
-            {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={avatarUrl}
-                alt=""
-                className="h-8 w-8 shrink-0 rounded-full object-cover"
-              />
-            ) : (
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
-                {initials}
-              </div>
-            )}
-            {!collapsed && (
-              <span className="min-w-0 truncate font-medium text-zinc-900 dark:text-zinc-100">
-                {displayName}
-              </span>
-            )}
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" side="right" className="w-56">
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium">{displayName}</p>
-              {user?.email && user.email !== "pos-staff@vendoflow.internal" && (
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
-                  {user.email}
-                </p>
-              )}
-            </div>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          {mounted && (
-            <>
-              <DropdownMenuLabel className="text-xs text-zinc-500 dark:text-zinc-400">
-                Theme
-              </DropdownMenuLabel>
-              <DropdownMenuItem
-                onSelect={(e) => {
-                  e.preventDefault()
-                  setTheme("light")
-                }}
-                className="cursor-pointer"
-              >
-                <Sun className="mr-2 h-4 w-4" />
-                Light
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={(e) => {
-                  e.preventDefault()
-                  setTheme("dark")
-                }}
-                className="cursor-pointer"
-              >
-                <Moon className="mr-2 h-4 w-4" />
-                Dark
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={(e) => {
-                  e.preventDefault()
-                  setTheme("system")
-                }}
-                className="cursor-pointer"
-              >
-                <Monitor className="mr-2 h-4 w-4" />
-                System
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-            </>
-          )}
-          <DropdownMenuItem asChild>
-            <a
-              href="https://vendoflow.com/docs"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="cursor-pointer"
-            >
-              <FileText className="mr-2 h-4 w-4" />
-              Docs
-            </a>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <a
-              href="https://vendoflow.com/help"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="cursor-pointer"
-            >
-              <HelpCircle className="mr-2 h-4 w-4" />
-              Help
-            </a>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <div className="flex items-center gap-2 px-2 py-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600 dark:text-green-500" />
-            <span>Platform status: All systems normal</span>
-          </div>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onSelect={handleLogout}
-            className="cursor-pointer text-zinc-700 focus:text-red-600 dark:text-zinc-300 dark:focus:text-red-400"
-          >
-            <LogOut className="mr-2 h-4 w-4" />
-            Log out
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  )
-}
-
 function Sidebar({
-  collapsed,
-  onToggle,
   user,
   role,
-  storeCount,
+  storeName,
 }: {
-  collapsed: boolean
-  onToggle: () => void
   user: User | null
   role: StaffRole
-  storeCount: number
+  storeName: string
 }) {
   const pathname = usePathname()
-  const visibleNavItems = navItems.filter((item) => {
-    if (item.ownerOnly) return role === "owner"
-    if (item.hideForOwner && role === "owner") return false
-    return canShowNavItem(item.href, role)
-  })
+  const visibleNavItems = navItems.filter((item) => canShowNavItem(item.href, role))
+
+  const displayName = getUserDisplayName(user)
+  const initials = getInitials(user)
+  const userRoleLabel = getRoleLabel(role)
+
+  const isActive = (href: string) => {
+    if (href === "/dashboard") {
+      return pathname === "/dashboard"
+    }
+    return pathname === href || pathname.startsWith(`${href}/`)
+  }
 
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-zinc-800 bg-zinc-900 transition-[width]",
-        collapsed ? "w-[4rem]" : "w-56"
+        "w-60 bg-zinc-950 border-r border-zinc-800 h-screen flex flex-col fixed left-0 top-0 z-40"
       )}
     >
-      <div className="flex h-14 items-center gap-2 border-b border-zinc-200 px-3 dark:border-zinc-800">
-        {!collapsed && (
-          <>
-            <Link href="/dashboard" className="font-semibold text-zinc-900 dark:text-zinc-100">
-              VendoFlow
-            </Link>
-            <div className="ml-3 flex min-w-0 flex-1">
-              <StoreSelector className="min-w-0 flex-1" />
-            </div>
-          </>
-        )}
-        <Button
-          variant="ghost"
-          size="icon"
-          className={cn("ml-auto shrink-0", collapsed && "mx-auto")}
-          onClick={onToggle}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {collapsed ? (
-            <PanelLeft className="h-5 w-5" />
-          ) : (
-            <PanelLeftClose className="h-5 w-5" />
-          )}
-        </Button>
+      {/* Logo area */}
+      <div className="px-4 py-5 border-b border-zinc-800">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 bg-amber-500 rounded-lg flex items-center justify-center">
+            <span className="text-zinc-950 text-xs font-bold">V</span>
+          </div>
+          <span className="text-sm font-semibold text-zinc-100">VendoFlow</span>
+        </div>
+        <div className="mt-3 flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          <span className="text-xs text-zinc-500 truncate">
+            {storeName || "Select a store"}
+          </span>
+        </div>
       </div>
-      <nav className="flex-1 space-y-0.5 overflow-y-auto p-2">
-        {visibleNavItems.map(({ href, label, icon: Icon }) => {
-          const isActive =
-            pathname === href ||
-            (href !== "/dashboard" && pathname.startsWith(href)) ||
-            (href === "/purchasing" && pathname.startsWith("/purchasing")) ||
-            (href === "/staff" && pathname.startsWith("/settings/staff"))
-          const showBadge = label === "Multi-Store Dashboard" && storeCount > 0 && role === "owner"
-          return (
-            <Link
-              key={`${href}:${label}`}
-              href={href}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
-                  : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100",
-                collapsed && "justify-center px-2"
-              )}
-              title={collapsed ? label : undefined}
-            >
-              <Icon className="h-5 w-5 shrink-0" />
-              {!collapsed && (
-                <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                  <span className="truncate">{label}</span>
-                  {showBadge && (
-                    <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-                      {storeCount}
-                    </span>
-                  )}
-                </div>
-              )}
-            </Link>
-          )
-        })}
+
+      {/* Navigation */}
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        {visibleNavItems.map(({ href, label, icon: Icon }) => (
+          <Link
+            key={href}
+            href={href}
+            className={cn(
+              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors duration-150",
+              isActive(href)
+                ? "bg-zinc-800 text-zinc-100"
+                : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50"
+            )}
+          >
+            <Icon className="w-4 h-4 shrink-0" />
+            <span>{label}</span>
+          </Link>
+        ))}
       </nav>
-      <SidebarUser user={user} collapsed={collapsed} />
+
+      {/* Bottom user area */}
+      <div className="px-4 py-4 border-t border-zinc-800">
+        <div className="flex items-center gap-3">
+          <div className="w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center">
+            <span className="text-xs font-medium text-zinc-400">
+              {initials}
+            </span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium text-zinc-300 truncate">
+              {displayName}
+            </p>
+            <p className="text-xs text-zinc-600 truncate">{userRoleLabel}</p>
+          </div>
+        </div>
+      </div>
     </aside>
   )
 }
@@ -339,7 +155,6 @@ const ACCOUNT_ID_KEY = "vendoflow_last_account_id"
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const [collapsed, setCollapsed] = React.useState(false)
   const [user, setUser] = React.useState<User | null>(null)
   const supabase = React.useMemo(() => createClient(), [])
 
@@ -358,6 +173,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // Persist current store/account and role when any user (owner or staff) is logged in.
   const [role, setRole] = React.useState<StaffRole | null>(null)
   const [storeCount, setStoreCount] = React.useState(0)
+  const [storeName, setStoreName] = React.useState("")
   React.useEffect(() => {
     if (!user) {
       setRole(null)
@@ -382,6 +198,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               localStorage.setItem(STORE_ID_KEY, data.current_store.store_id)
               if (data.current_store.name) {
                 localStorage.setItem(STORE_NAME_KEY, data.current_store.name)
+                setStoreName(data.current_store.name)
               }
               if (data.account_id) {
                 localStorage.setItem(ACCOUNT_ID_KEY, data.account_id)
@@ -412,18 +229,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50">
       <Sidebar
-        collapsed={collapsed}
-        onToggle={() => setCollapsed((c) => !c)}
         user={user}
         role={effectiveRole}
-        storeCount={storeCount}
+        storeName={storeName}
       />
-      <main
-        className={cn(
-          "min-h-screen transition-[margin]",
-          collapsed ? "ml-16" : "ml-56"
-        )}
-      >
+      <main className="min-h-screen ml-60">
         {children}
       </main>
     </div>

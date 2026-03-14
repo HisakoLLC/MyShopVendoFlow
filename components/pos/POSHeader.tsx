@@ -31,50 +31,45 @@ export function POSHeader({
   const multipleStores = stores.length > 1
 
   return (
-    <div
+    <header
       className={cn(
-        "sticky top-0 z-50 w-full border-b border-emerald-700/30 bg-emerald-500 text-white",
+        "sticky top-0 z-50 w-full bg-white border-b border-zinc-200 px-4 py-3 flex items-center justify-between h-14",
         className
       )}
     >
-      <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-3 px-4 py-2">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/15">
-            <MapPin className="h-4 w-4" />
-          </span>
-          <div className="min-w-0">
-            <div className="text-xs font-semibold uppercase tracking-wide opacity-90">
-              Current Store
-            </div>
-            <div className="truncate text-sm font-semibold">
-              {currentStoreName || "—"}
-            </div>
-          </div>
+      <div className="flex items-center gap-3">
+        <div className="w-2 h-2 rounded-full bg-emerald-500" />
+        <div>
+          <p className="text-xs font-medium text-zinc-500 uppercase tracking-widest">
+            Current Store
+          </p>
+          <p className="text-sm font-semibold text-zinc-900 truncate max-w-[220px] sm:max-w-xs">
+            {currentStoreName || "—"}
+          </p>
         </div>
-
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-zinc-500">Switch:</span>
         {canSwitchStores && multipleStores ? (
-          <div className="flex items-center gap-2">
-            <span className="hidden text-xs font-medium opacity-90 sm:inline">Switch:</span>
-            <Select value={currentStoreId ?? undefined} onValueChange={onChangeStoreId}>
-              <SelectTrigger className="h-9 min-w-[180px] border-white/30 bg-white/10 text-white hover:bg-white/15">
-                <SelectValue placeholder="Select store" />
-              </SelectTrigger>
-              <SelectContent>
-                {stores.map((s) => (
-                  <SelectItem key={s.store_id} value={s.store_id}>
-                    {s.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={currentStoreId ?? undefined} onValueChange={onChangeStoreId}>
+            <SelectTrigger className="h-9 min-w-[180px] bg-white border border-zinc-200 rounded-lg text-sm text-zinc-900 hover:border-zinc-300">
+              <SelectValue placeholder="Select store" />
+            </SelectTrigger>
+            <SelectContent>
+              {stores.map((s) => (
+                <SelectItem key={s.store_id} value={s.store_id}>
+                  {s.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         ) : (
-          <div className="text-xs font-medium opacity-90">
+          <span className="text-xs text-zinc-500">
             {role === "cashier" ? "Read-only" : stores.length <= 1 ? "Single store" : ""}
-          </div>
+          </span>
         )}
       </div>
-    </div>
+    </header>
   )
 }
 

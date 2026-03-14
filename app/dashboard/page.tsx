@@ -330,85 +330,111 @@ async function DashboardContent({
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <Card>
+            <Card className="border border-zinc-700/50 border-l-2 border-l-amber-500/30">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Revenue (Today)</CardTitle>
-                <ShoppingCart className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+                <CardTitle className="text-xs font-medium uppercase tracking-widest text-zinc-500">
+                  Revenue Today
+                </CardTitle>
+                <ShoppingCart className="w-4 h-4 text-zinc-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatPrice(todayRevenue)}</div>
-                <div className="flex items-center gap-1 text-xs">
+                <div className="text-2xl font-bold tabular-nums text-zinc-50">
+                  {formatPrice(todayRevenue)}
+                </div>
+                <div className="flex items-center gap-1 mt-1">
                   {revenueChange >= 0 ? (
                     <>
-                      <TrendingUp className="h-3 w-3 text-emerald-600" />
-                      <span className="text-emerald-600">{revenueChange.toFixed(1)}% vs yesterday</span>
+                      <TrendingUp className="h-3 w-3 text-emerald-400" />
+                      <span className="text-emerald-400 text-xs">
+                        {revenueChange.toFixed(1)}% vs yesterday
+                      </span>
                     </>
                   ) : (
                     <>
-                      <TrendingDown className="h-3 w-3 text-red-600" />
-                      <span className="text-red-600">{Math.abs(revenueChange).toFixed(1)}% vs yesterday</span>
+                      <TrendingDown className="h-3 w-3 text-red-400" />
+                      <span className="text-red-400 text-xs">
+                        {Math.abs(revenueChange).toFixed(1)}% vs yesterday
+                      </span>
                     </>
                   )}
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border border-zinc-700/50 border-l-2 border-l-amber-500/30">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Revenue (Yesterday)</CardTitle>
-                <Receipt className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+                <CardTitle className="text-xs font-medium uppercase tracking-widest text-zinc-500">
+                  Revenue Yesterday
+                </CardTitle>
+                <Receipt className="w-4 h-4 text-zinc-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatPrice(yesterdayRevenue)}</div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">Previous day total</p>
+                <div className="text-2xl font-bold tabular-nums text-zinc-50">
+                  {formatPrice(yesterdayRevenue)}
+                </div>
+                <p className="mt-1 text-xs text-zinc-500">Previous day total</p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border border-zinc-700/50 border-l-2 border-l-amber-500/30">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Revenue (Last 7 Days)</CardTitle>
-                <TrendingUp className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+                <CardTitle className="text-xs font-medium uppercase tracking-widest text-zinc-500">
+                  Revenue Last 7 Days
+                </CardTitle>
+                <TrendingUp className="w-4 h-4 text-zinc-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatPrice(data7.aggregated.total_revenue)}</div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">Across selected stores</p>
+                <div className="text-2xl font-bold tabular-nums text-zinc-50">
+                  {formatPrice(data7.aggregated.total_revenue)}
+                </div>
+                <p className="mt-1 text-xs text-zinc-500">Across selected stores</p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border border-zinc-700/50 border-l-2 border-l-amber-500/30">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Revenue (Last 30 Days)</CardTitle>
-                <TrendingUp className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+                <CardTitle className="text-xs font-medium uppercase tracking-widest text-zinc-500">
+                  Revenue Last 30 Days
+                </CardTitle>
+                <TrendingUp className="w-4 h-4 text-zinc-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatPrice(data30.aggregated.total_revenue)}</div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">Across selected stores</p>
+                <div className="text-2xl font-bold tabular-nums text-zinc-50">
+                  {formatPrice(data30.aggregated.total_revenue)}
+                </div>
+                <p className="mt-1 text-xs text-zinc-500">Across selected stores</p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border border-zinc-700/50 border-l-2 border-l-amber-500/30">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Transactions (30 Days)</CardTitle>
-                <Receipt className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+                <CardTitle className="text-xs font-medium uppercase tracking-widest text-zinc-500">
+                  Transactions 30 Days
+                </CardTitle>
+                <Receipt className="w-4 h-4 text-zinc-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold tabular-nums">{data30.aggregated.total_transactions}</div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                <div className="text-2xl font-bold tabular-nums text-zinc-50">
+                  {data30.aggregated.total_transactions}
+                </div>
+                <p className="mt-1 text-xs text-zinc-500">
                   Avg basket: {formatPrice(data30.aggregated.avg_basket)}
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border border-zinc-700/50 border-l-2 border-l-amber-500/30">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Stores</CardTitle>
-                <Store className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+                <CardTitle className="text-xs font-medium uppercase tracking-widest text-zinc-500">
+                  Stores
+                </CardTitle>
+                <Store className="w-4 h-4 text-zinc-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold tabular-nums">
+                <div className="text-2xl font-bold tabular-nums text-zinc-50">
                   {selectedStore ? 1 : storeList.length}
                 </div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                <p className="mt-1 text-xs text-zinc-500">
                   {selectedStore ? "Current store view" : "Total stores in account"}
                 </p>
               </CardContent>
