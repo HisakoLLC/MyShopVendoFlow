@@ -95,16 +95,8 @@ function Sidebar({
       {/* Logo area */}
       <div className="px-5 py-5 border-b border-zinc-800">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 bg-white rounded-sm flex items-center justify-center">
-            <span className="text-zinc-950 text-xs font-bold">V</span>
-          </div>
+          <img src="/favicon.svg" alt="VendoFlow Logo" className="w-7 h-7" />
           <span className="font-editorial text-lg font-bold text-zinc-50">VendoFlow</span>
-        </div>
-        <div className="mt-1 flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-sm bg-emerald-500" />
-          <span className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-600 truncate">
-            {storeName || "Select a store"}
-          </span>
         </div>
       </div>
 
