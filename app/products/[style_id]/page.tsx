@@ -201,12 +201,12 @@ async function StyleInventoryPageContent({ styleId }: { styleId: string }) {
                 ← Back to products
               </Link>
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-              {data.style.name}
-            </h1>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 mt-2">
               Inventory by store for each variant.
             </p>
+            <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+              {data.style.name}
+            </h1>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">

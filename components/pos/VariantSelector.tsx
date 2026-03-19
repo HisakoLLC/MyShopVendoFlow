@@ -211,7 +211,7 @@ export function VariantSelector({
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="bg-white rounded-2xl border border-zinc-200 shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto [&>button]:hidden">
+      <DialogContent className="bg-white rounded-none border border-zinc-200 shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto [&>button]:hidden">
         <div className="flex items-center justify-between mb-6">
           <div>
             <DialogTitle className="text-lg font-semibold text-zinc-900">{styleName}</DialogTitle>
@@ -220,7 +220,7 @@ export function VariantSelector({
           <button 
             type="button"
             onClick={onClose} 
-            className="w-8 h-8 rounded-lg bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-sm bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center transition-colors"
           >
             <X className="w-4 h-4 text-zinc-500" />
           </button>
@@ -283,7 +283,7 @@ export function VariantSelector({
                         return (
                           <div
                             key={`${cell.size}-${cell.color}`}
-                            className="bg-zinc-50 border border-zinc-100 rounded-xl p-3 flex items-center justify-center opacity-50"
+                            className="bg-zinc-50 border border-zinc-100 rounded-sm p-3 flex items-center justify-center opacity-50"
                           >
                             <span className="text-sm text-zinc-300">—</span>
                           </div>
@@ -295,17 +295,17 @@ export function VariantSelector({
                       let priceTextClass = ""
 
                       if (!isAvailable) {
-                        cellClass = "bg-zinc-50 border border-zinc-100 rounded-xl p-3 cursor-not-allowed opacity-50"
-                        stockTextClass = "text-xs text-zinc-400"
-                        priceTextClass = "text-sm text-zinc-300"
+                        cellClass = "bg-zinc-50 border border-zinc-200 rounded-sm p-3 cursor-not-allowed opacity-50"
+                        stockTextClass = "text-xs text-zinc-400 font-medium"
+                        priceTextClass = "text-sm text-zinc-400 font-semibold tabular-nums"
                       } else if (isSelected) {
-                        cellClass = "bg-amber-50 border-2 border-amber-500 rounded-xl p-3"
-                        stockTextClass = "text-xs font-medium text-amber-600"
-                        priceTextClass = "text-sm font-semibold text-zinc-900"
+                        cellClass = "bg-zinc-100 border border-zinc-900 rounded-sm p-3 ring-1 ring-zinc-900"
+                        stockTextClass = "text-xs font-medium text-zinc-500"
+                        priceTextClass = "text-sm font-semibold tabular-nums text-zinc-900"
                       } else {
-                        cellClass = "bg-white border border-zinc-200 rounded-xl p-3 cursor-pointer hover:border-amber-400 hover:bg-amber-50 transition-all duration-150"
-                        stockTextClass = "text-xs font-medium text-emerald-600"
-                        priceTextClass = "text-sm font-semibold text-zinc-900"
+                        cellClass = "bg-white border border-zinc-200 rounded-sm p-3 cursor-pointer hover:border-zinc-400 hover:bg-zinc-50 transition-all duration-150"
+                        stockTextClass = "text-xs font-medium text-zinc-500"
+                        priceTextClass = "text-sm font-semibold tabular-nums text-zinc-900"
                       }
 
                       return (
@@ -335,7 +335,7 @@ export function VariantSelector({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-xl border border-zinc-200 bg-white px-6 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-colors"
+                className="rounded-sm border border-zinc-200 bg-white px-6 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-colors"
               >
                 Done
               </button>

@@ -192,7 +192,7 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
                             <Plus className="h-4 w-4" />
                           </Button>
                         </div>
-                        <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 shrink-0">
+                        <span className="font-editorial text-xl font-bold tabular-nums text-zinc-900 dark:text-zinc-100 shrink-0">
                           {formatPrice(item.price * item.quantity)}
                         </span>
                       </div>
@@ -233,11 +233,11 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
 
               {/* Total */}
               <div className="border-t border-zinc-200 pt-2 dark:border-zinc-800">
-                <div className="flex justify-between">
-                  <span className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                <div className="flex justify-between items-end">
+                  <span className="font-editorial text-2xl font-bold text-zinc-900 dark:text-zinc-100">
                     Total
                   </span>
-                  <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                  <span className="font-editorial text-4xl font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
                     {formatPrice(total)}
                   </span>
                 </div>
@@ -245,7 +245,7 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
 
               {/* Checkout Button */}
               <Button
-                className="mt-4 w-full"
+                className="mt-4 w-full bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
                 size="lg"
                 onClick={() => setShowCheckout(true)}
                 disabled={cart.length === 0}

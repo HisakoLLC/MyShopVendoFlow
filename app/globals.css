@@ -10,7 +10,7 @@
     --card-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --primary: 38 92% 50%;
+    --primary: 0 0% 98%;
     --primary-foreground: 240 10% 3.9%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
@@ -20,8 +20,8 @@
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --ring: 38 92% 50%;
-    --radius: 0.5rem;
+    --ring: 0 0% 98%;
+    --radius: 0.125rem;
   }
 
   .pos-theme {
@@ -31,11 +31,11 @@
     --card-foreground: 240 10% 3.9%;
     --border: 240 5.9% 90%;
     --input: 0 0% 100%;
-    --primary: 38 92% 50%;
-    --primary-foreground: 240 10% 3.9%;
+    --primary: 240 10% 3.9%;
+    --primary-foreground: 0 0% 98%;
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
-    --ring: 38 92% 50%;
+    --ring: 240 10% 3.9%;
   }
 
   * {

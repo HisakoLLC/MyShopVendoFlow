@@ -65,10 +65,10 @@ async function VariantsPageContent({ styleId }: { styleId: string }) {
             ← Back to products
           </Link>
         </div>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+        <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
           Generate Variants: {style.name}
         </h1>
-        <div className="mt-2 flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400">
+        <div className="mt-2 flex items-center gap-4 text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">
           <span>Base Price: KES {new Intl.NumberFormat("en-KE").format(style.base_price)}</span>
           <span>•</span>
           <span>Cost: KES {new Intl.NumberFormat("en-KE").format(style.cost)}</span>

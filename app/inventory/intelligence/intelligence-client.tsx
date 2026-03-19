@@ -235,12 +235,12 @@ export function InventoryIntelligenceClient({
       <div className="mx-auto max-w-7xl space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100">
-            Inventory Intelligence
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
             Advanced analytics for stock optimization and restock planning
           </p>
+          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+            Inventory Intelligence
+          </h1>
         </div>
 
         {/* Tabs */}
@@ -622,13 +622,13 @@ export function InventoryIntelligenceClient({
                         <table className="w-full border-collapse">
                           <thead>
                             <tr>
-                              <th className="border border-zinc-200 bg-zinc-50 p-2 text-left dark:border-zinc-800 dark:bg-zinc-900">
+                              <th className="h-12 border border-zinc-200 bg-zinc-50 p-2 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900">
                                 Size / Color
                               </th>
                               {heatmapData.colors.map((color) => (
                                 <th
                                   key={color}
-                                  className="border border-zinc-200 bg-zinc-50 p-2 text-center dark:border-zinc-800 dark:bg-zinc-900"
+                                  className="h-12 border border-zinc-200 bg-zinc-50 p-2 text-center align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900"
                                 >
                                   {color}
                                 </th>

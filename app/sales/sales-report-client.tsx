@@ -319,10 +319,10 @@ export function SalesReportClient({
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100">Sales Report</h1>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
               Detailed sales analytics and transaction history
             </p>
+            <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">Sales Report</h1>
           </div>
           <Button onClick={handleExportCSV} disabled={sales.length === 0}>
             <Download className="mr-2 h-4 w-4" />

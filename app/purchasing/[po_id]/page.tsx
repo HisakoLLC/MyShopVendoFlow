@@ -149,10 +149,12 @@ export default async function PODetailPage({
           >
             ← Purchasing
           </Link>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 mt-2">
+            {statusLabel}
+          </p>
+          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
             PO #{po.po_number}
           </h1>
-          <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">{statusLabel}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline" className="gap-2">
@@ -222,23 +224,23 @@ export default async function PODetailPage({
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/50">
-                <th className="px-6 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">
+              <tr className="bg-zinc-50 dark:bg-zinc-900/50">
+                <th className="h-12 px-6 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
                   Product
                 </th>
-                <th className="px-6 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">
+                <th className="h-12 px-6 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
                   Variant / SKU
                 </th>
-                <th className="px-6 py-3 text-right font-medium text-zinc-600 dark:text-zinc-400">
+                <th className="h-12 px-6 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
                   Qty ordered
                 </th>
-                <th className="px-6 py-3 text-right font-medium text-zinc-600 dark:text-zinc-400">
+                <th className="h-12 px-6 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
                   Qty received
                 </th>
-                <th className="px-6 py-3 text-right font-medium text-zinc-600 dark:text-zinc-400">
+                <th className="h-12 px-6 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
                   Unit cost
                 </th>
-                <th className="px-6 py-3 text-right font-medium text-zinc-600 dark:text-zinc-400">
+                <th className="h-12 px-6 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
                   Line total
                 </th>
               </tr>

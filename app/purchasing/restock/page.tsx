@@ -288,12 +288,12 @@ async function RestockSuggestionsContent() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-          Restock Suggestions
-        </h1>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
           Variants that need restocking based on sales velocity
         </p>
+        <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+          Restock Suggestions
+        </h1>
       </div>
 
       <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 text-blue-900 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-100">

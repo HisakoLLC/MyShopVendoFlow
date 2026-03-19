@@ -67,12 +67,12 @@ export default async function TransferInventoryPage() {
             <ArrowRightLeft className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-              Transfer Inventory
-            </h1>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
               Move stock between stores when one location is low and another has excess.
             </p>
+            <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+              Transfer Inventory
+            </h1>
           </div>
         </div>
         <div className="shrink-0">

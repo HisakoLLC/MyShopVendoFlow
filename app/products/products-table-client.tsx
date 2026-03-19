@@ -356,7 +356,7 @@ export function ProductsTableClient(props: {
             {viewMode === "active" && (
               <Link
                 href="/products/new"
-                className="inline-flex h-10 items-center justify-center rounded-lg bg-amber-500 px-4 text-sm font-medium text-zinc-950 shadow-sm hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                className="inline-flex items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
               >
                 Add New Style
               </Link>
@@ -377,7 +377,7 @@ export function ProductsTableClient(props: {
             <div className="pt-2">
               <Link
                 href="/products/new"
-                className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-white shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-white dark:hover:opacity-90"
+                className="inline-flex items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
               >
                 Add New Style
               </Link>
@@ -390,10 +390,10 @@ export function ProductsTableClient(props: {
         <div className="hidden overflow-hidden rounded-xl border border-zinc-200 bg-zinc-900 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 md:block">
             <div className="overflow-x-auto">
               <table className="w-full">
-              <thead className="bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:bg-background/40 dark:text-zinc-400">
+              <thead className="bg-zinc-50 dark:bg-zinc-900/50">
                 <tr>
                   {viewMode === "active" && (
-                    <th className="w-10 px-2 py-3">
+                    <th className="h-12 w-10 px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
                       <Checkbox
                         checked={filtered.length > 0 && filtered.every((s) => selectedIds.has(s.style_id))}
                         onCheckedChange={(checked) => (checked ? selectAllFiltered() : clearSelection())}
@@ -401,14 +401,14 @@ export function ProductsTableClient(props: {
                       />
                     </th>
                   )}
-                  <th className="px-4 py-3">Image</th>
-                  <th className="px-4 py-3">Style Name</th>
-                  <th className="px-4 py-3">Category</th>
-                  <th className="px-4 py-3">Season</th>
-                  <th className="px-4 py-3 text-right">Base Price</th>
-                  <th className="hidden px-4 py-3 text-right lg:table-cell">Cost</th>
-                  <th className="hidden px-4 py-3 text-right lg:table-cell">Margin %</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
+                  <th className="h-12 px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">Image</th>
+                  <th className="h-12 px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">Style Name</th>
+                  <th className="h-12 px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">Category</th>
+                  <th className="h-12 px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">Season</th>
+                  <th className="h-12 px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">Base Price</th>
+                  <th className="h-12 hidden px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800 lg:table-cell">Cost</th>
+                  <th className="h-12 hidden px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800 lg:table-cell">Margin %</th>
+                  <th className="h-12 px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 text-sm dark:divide-zinc-900">
@@ -554,7 +554,7 @@ export function ProductsTableClient(props: {
                                         <AlertDialog.Action asChild>
                                           <button
                                             type="button"
-                                            className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary dark:text-white dark:hover:opacity-90"
+                                            className="inline-flex items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                             disabled={isPending}
                                             onClick={() => {
                                               setError(null)

@@ -129,19 +129,19 @@ export function PrintPOClient({
           <table className="w-full border-collapse text-sm table-fixed">
             <thead>
               <tr className="border-b-2 border-zinc-900">
-                <th className="py-2 text-left font-semibold text-zinc-900" style={{ width: '30%' }}>
+                <th className="py-2 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500" style={{ width: '30%' }}>
                   Product
                 </th>
-                <th className="py-2 text-left font-semibold text-zinc-900" style={{ width: '25%' }}>
+                <th className="py-2 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500" style={{ width: '25%' }}>
                   Variant
                 </th>
-                <th className="py-2 text-right font-semibold text-zinc-900" style={{ width: '10%' }}>
+                <th className="py-2 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500" style={{ width: '10%' }}>
                   Qty
                 </th>
-                <th className="py-2 text-right font-semibold text-zinc-900" style={{ width: '17.5%' }}>
+                <th className="py-2 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500" style={{ width: '17.5%' }}>
                   Unit cost
                 </th>
-                <th className="py-2 text-right font-semibold text-zinc-900" style={{ width: '17.5%' }}>
+                <th className="py-2 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500" style={{ width: '17.5%' }}>
                   Total
                 </th>
               </tr>

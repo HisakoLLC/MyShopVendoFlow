@@ -117,7 +117,7 @@ function ErrorState({ message }: { message: string }) {
         <div className="mt-4">
           <Link
             href="/products"
-            className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-white hover:opacity-90 dark:bg-primary dark:text-white dark:hover:opacity-90"
+            className="inline-flex items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
           >
             Back to products
           </Link>
@@ -149,12 +149,12 @@ async function EditStylePageContent({ styleId }: { styleId: string }) {
               ← Back to products
             </Link>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-            Edit Style
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
             Update style details. Variants (sizes/colors) can be managed from the style page.
           </p>
+          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+            Edit Style
+          </h1>
         </div>
       </div>
 

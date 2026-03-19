@@ -130,12 +130,12 @@ async function PurchasingContent() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-          Purchasing
-        </h1>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
           Manage purchase orders, restock suggestions, and receive inventory.
         </p>
+        <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+          Purchasing
+        </h1>
       </div>
 
       {/* Quick actions */}
@@ -208,23 +208,23 @@ async function PurchasingContent() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/50">
-                  <th className="px-6 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">
+                <tr className="bg-zinc-50 dark:bg-zinc-900/50">
+                  <th className="h-12 px-6 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
                     PO #
                   </th>
-                  <th className="px-6 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">
+                  <th className="h-12 px-6 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
                     Supplier
                   </th>
-                  <th className="px-6 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">
+                  <th className="h-12 px-6 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
                     Order date
                   </th>
-                  <th className="px-6 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">
+                  <th className="h-12 px-6 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-right font-medium text-zinc-600 dark:text-zinc-400">
+                  <th className="h-12 px-6 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
                     Total
                   </th>
-                  <th className="px-6 py-3 text-right font-medium text-zinc-600 dark:text-zinc-400">
+                  <th className="h-12 px-6 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
                     Actions
                   </th>
                 </tr>

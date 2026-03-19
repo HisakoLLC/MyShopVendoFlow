@@ -84,12 +84,12 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
       <Toaster richColors position="top-right" />
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-            Inventory Transfers
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
             View and manage inventory transfers between stores
           </p>
+          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+            Inventory Transfers
+          </h1>
         </div>
         <Link href="/inventory/transfer">
           <Button className="gap-2">

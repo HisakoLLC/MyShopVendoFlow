@@ -93,16 +93,16 @@ function Sidebar({
       )}
     >
       {/* Logo area */}
-      <div className="px-4 py-5 border-b border-zinc-800">
+      <div className="px-5 py-5 border-b border-zinc-800">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 bg-amber-500 rounded-lg flex items-center justify-center">
+          <div className="w-7 h-7 bg-white rounded-sm flex items-center justify-center">
             <span className="text-zinc-950 text-xs font-bold">V</span>
           </div>
-          <span className="text-sm font-semibold text-zinc-100">VendoFlow</span>
+          <span className="font-editorial text-lg font-bold text-zinc-50">VendoFlow</span>
         </div>
-        <div className="mt-3 flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-          <span className="text-xs text-zinc-500 truncate">
+        <div className="mt-1 flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-sm bg-emerald-500" />
+          <span className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-600 truncate">
             {storeName || "Select a store"}
           </span>
         </div>
@@ -115,10 +115,10 @@ function Sidebar({
             key={href}
             href={href}
             className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors duration-150",
+              "flex items-center gap-3 px-4 py-2.5 text-xs font-semibold tracking-[0.1em] uppercase transition-colors duration-150",
               isActive(href)
-                ? "bg-zinc-800 text-zinc-100"
-                : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50"
+                ? "bg-zinc-800 border-l-2 border-l-white text-zinc-100"
+                : "text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50"
             )}
           >
             <Icon className="w-4 h-4 shrink-0" />
@@ -128,18 +128,18 @@ function Sidebar({
       </nav>
 
       {/* Bottom user area */}
-      <div className="px-4 py-4 border-t border-zinc-800">
+      <div className="mt-auto px-5 py-4 border-t border-zinc-800">
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-sm bg-zinc-800 border border-zinc-700 flex items-center justify-center">
             <span className="text-xs font-medium text-zinc-400">
               {initials}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-zinc-300 truncate">
+            <p className="text-xs font-semibold text-zinc-300 truncate">
               {displayName}
             </p>
-            <p className="text-xs text-zinc-600 truncate">{userRoleLabel}</p>
+            <p className="text-[0.65rem] tracking-[0.1em] uppercase text-zinc-600 truncate">{userRoleLabel}</p>
           </div>
         </div>
       </div>

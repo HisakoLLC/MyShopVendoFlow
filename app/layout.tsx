@@ -4,6 +4,13 @@ import { Toaster } from "sonner"
 import { OfflineBanner } from "@/components/OfflineBanner"
 import { AppShell } from "@/components/AppShell"
 import { ThemeProvider } from "@/components/ThemeProvider"
+import { Playfair_Display } from "next/font/google"
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+})
 
 export const metadata: Metadata = {
   title: "VendoFlow - Fashion Boutique POS",
@@ -25,7 +32,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="VendoFlow" />
         <link rel="manifest" href="/site.webmanifest" />
       </head>
-      <body className="antialiased">
+      <body className={`${playfair.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <OfflineBanner />
           <AppShell>{children}</AppShell>

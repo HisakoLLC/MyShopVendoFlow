@@ -162,16 +162,16 @@ async function ProductsPageContent() {
       <div className="mx-auto w-full max-w-6xl px-4 py-6">
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-              Products
-            </h1>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
               Manage your styles, pricing, and margins.
             </p>
+            <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+              Products
+            </h1>
           </div>
           <Link
             href="/products/new"
-            className="hidden h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-white shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-primary dark:text-white dark:hover:opacity-90 md:inline-flex"
+            className="hidden items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase md:inline-flex"
           >
             Add New Style
           </Link>
@@ -193,19 +193,19 @@ async function ProductsPageContent() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-6">
       <div className="mb-4 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-            Products
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Manage your styles, pricing, and margins.
-          </p>
-          {data.styles.length === 1 && <ProductsInventoryHint />}
-        </div>
-        <Link
-          href="/products/new"
-          className="hidden h-10 items-center justify-center rounded-lg bg-amber-500 px-4 text-sm font-medium text-zinc-950 shadow-sm hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30 md:inline-flex"
-        >
+          <div>
+            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+              Manage your styles, pricing, and margins.
+            </p>
+            <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+              Products
+            </h1>
+            {data.styles.length === 1 && <ProductsInventoryHint />}
+          </div>
+          <Link
+            href="/products/new"
+            className="hidden items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase md:inline-flex"
+          >
           Add New Style
         </Link>
       </div>

@@ -39,10 +39,14 @@ const config = {
         // shadcn/ui border token
         border: "hsl(var(--border))",
       },
+      fontFamily: {
+        editorial: ["var(--font-playfair)", "Georgia", "serif"],
+      },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        sm: "2px",
+        md: "6px",
+        lg: "8px",
+        xl: "12px",
       },
       keyframes: {
         "accordion-down": {
