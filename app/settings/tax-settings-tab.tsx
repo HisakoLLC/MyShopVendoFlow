@@ -77,7 +77,7 @@ export function TaxSettingsTab({ stores, planTier }: TaxSettingsTabProps) {
         {/* Tax Rate */}
         <Card>
           <CardHeader>
-            <CardTitle>Tax Rate</CardTitle>
+            <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Tax Rate</CardTitle>
             <CardDescription>
               Set the tax rate (VAT) for your store. Kenya standard: 16% VAT.
             </CardDescription>
@@ -130,7 +130,7 @@ export function TaxSettingsTab({ stores, planTier }: TaxSettingsTabProps) {
         {/* Multi-Rate Tax */}
         <Card>
           <CardHeader>
-            <CardTitle>Multi-Rate Tax</CardTitle>
+            <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Multi-Rate Tax</CardTitle>
             <CardDescription>
               Configure multiple tax rates (e.g., City Tax + County Tax).
             </CardDescription>

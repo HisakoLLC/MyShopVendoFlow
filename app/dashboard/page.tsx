@@ -444,7 +444,7 @@ async function DashboardContent({
           {!selectedStore && (
             <Card>
               <CardHeader>
-                <CardTitle>Store Comparison</CardTitle>
+                <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Store Comparison</CardTitle>
                 <CardDescription>Compare performance across stores (last 30 days)</CardDescription>
               </CardHeader>
               <CardContent>
@@ -455,7 +455,7 @@ async function DashboardContent({
 
           <Card>
             <CardHeader>
-              <CardTitle>Sales Trend</CardTitle>
+              <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Sales Trend</CardTitle>
               <CardDescription>
                 Daily revenue {selectedStore ? "for this store" : "per store"} (last 30 days)
               </CardDescription>

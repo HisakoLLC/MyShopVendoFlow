@@ -120,7 +120,7 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
           {/* Pending Transfers */}
           {pendingTransfers.length > 0 && (
             <div>
-              <h2 className="mb-4 text-lg font-semibold text-zinc-100">
+              <h2 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
                 Pending Transfers
               </h2>
               <div>
@@ -221,7 +221,7 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
           {/* Completed Transfers */}
           {completedTransfers.length > 0 && (
             <div>
-              <h2 className="mb-4 text-lg font-semibold text-zinc-100">
+              <h2 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
                 Completed Transfers
               </h2>
               <div>

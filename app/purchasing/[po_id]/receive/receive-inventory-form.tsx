@@ -209,7 +209,7 @@ export function ReceiveInventoryForm({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Receiving Form */}
           <div className="rounded-lg border border-zinc-200 bg-background-card-light p-6 dark:border-border-dark dark:bg-background-card-dark">
-            <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+            <h2 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
               Receiving Details
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
@@ -280,7 +280,7 @@ export function ReceiveInventoryForm({
 
           {/* Line Items Table */}
           <div className="rounded-lg border border-zinc-200 bg-background-card-light p-6 dark:border-border-dark dark:bg-background-card-dark">
-            <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+            <h2 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
               Line Items
             </h2>
             <div className="overflow-x-auto">

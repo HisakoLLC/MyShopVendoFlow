@@ -234,7 +234,7 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
         {/* Account Info */}
         <Card>
           <CardHeader>
-            <CardTitle>Account Information</CardTitle>
+            <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Account Information</CardTitle>
             <CardDescription>Your account details and subscription plan</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -295,7 +295,7 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
         {/* Billing Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Billing & Payment</CardTitle>
+            <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Billing & Payment</CardTitle>
             <CardDescription>Manage your subscription and payment method</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -393,7 +393,7 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
         {/* Danger Zone */}
         <Card className="border-red-200 dark:border-red-900/40">
           <CardHeader>
-            <CardTitle className="text-red-600 dark:text-red-400">Danger Zone</CardTitle>
+            <CardTitle className="font-editorial text-xl font-bold text-red-500">Danger Zone</CardTitle>
             <CardDescription>Irreversible and destructive actions</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

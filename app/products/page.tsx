@@ -127,7 +127,7 @@ function ErrorState({ message }: { message: string }) {
         <div className="mt-4">
           <Link
             href="/dashboard"
-            className="inline-flex h-10 items-center justify-center rounded-lg bg-amber-500 px-4 text-sm font-medium text-zinc-950 hover:bg-amber-400"
+            className="inline-flex h-10 items-center justify-center rounded-sm bg-white px-4 text-sm font-medium text-zinc-950 hover:bg-zinc-100"
           >
             Go to Dashboard
           </Link>

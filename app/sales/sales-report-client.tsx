@@ -333,7 +333,7 @@ export function SalesReportClient({
         {/* Filters */}
         <Card>
           <CardHeader>
-            <CardTitle>Filters</CardTitle>
+            <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Filters</CardTitle>
             <CardDescription>Filter sales by date, store, payment method, or staff</CardDescription>
           </CardHeader>
           <CardContent>
@@ -474,7 +474,7 @@ export function SalesReportClient({
         {/* Sales Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Sales Transactions</CardTitle>
+            <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Sales Transactions</CardTitle>
             <CardDescription>
               {sales.length} {sales.length === 1 ? "transaction" : "transactions"} found
             </CardDescription>

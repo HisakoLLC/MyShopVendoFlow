@@ -402,7 +402,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
             <div className="lg:col-span-2 space-y-6">
               {/* PO Details */}
               <div className="rounded-lg border border-zinc-200 bg-zinc-900 p-6 dark:border-zinc-800 dark:bg-zinc-900">
-                <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                <h2 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
                   PO Details
                 </h2>
                 <div className="grid gap-4 md:grid-cols-2">
@@ -492,7 +492,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
               {/* Line Items */}
               <div className="rounded-lg border border-zinc-200 bg-zinc-900 p-6 dark:border-zinc-800 dark:bg-zinc-900">
                 <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                  <h2 className="font-editorial text-xl font-bold text-zinc-50">
                     Line Items
                   </h2>
                   <Button
@@ -703,7 +703,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
             {/* PO Summary Sidebar */}
             <div className="lg:col-span-1">
               <div className="sticky top-6 rounded-lg border border-zinc-200 bg-zinc-900 p-6 dark:border-zinc-800 dark:bg-zinc-900">
-                <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                <h2 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
                   PO Summary
                 </h2>
                 <div className="space-y-4">

@@ -359,7 +359,10 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
   if (showReceipt && receiptNumber) {
     return (
       <Dialog open={true} onOpenChange={onClose}>
-        <DialogContent className="max-w-md">
+        <DialogContent 
+          className="max-w-md !bg-white !border-zinc-200 !rounded-xl !shadow-2xl"
+          overlayClassName="bg-black/60 backdrop-blur-sm"
+        >
           <DialogHeader>
             <DialogTitle>Sale completed at {storeName}</DialogTitle>
           </DialogHeader>
@@ -408,7 +411,10 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
   // -------------------------
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent 
+        className="max-w-2xl max-h-[90vh] overflow-y-auto !bg-white !border-zinc-200 !rounded-xl !shadow-2xl"
+        overlayClassName="bg-black/60 backdrop-blur-sm"
+      >
         <DialogHeader>
           <DialogTitle>Complete Sale</DialogTitle>
         </DialogHeader>
@@ -418,22 +424,16 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
           {[1, 2, 3].map((step) => (
             <React.Fragment key={step}>
               <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
+                className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
                   currentStep >= step
-                    ? "border-amber-500 bg-amber-500 text-zinc-950 dark:border-amber-500 dark:bg-amber-500 dark:text-zinc-950"
-                    : "border-zinc-300 text-zinc-400 dark:border-zinc-700 dark:text-zinc-600"
+                    ? "bg-zinc-900 text-white"
+                    : "border border-zinc-300 text-zinc-400"
                 }`}
               >
                 {step}
               </div>
               {step < 3 && (
-                <div
-                  className={`h-0.5 w-12 ${
-                    currentStep > step
-                      ? "bg-zinc-900 dark:bg-zinc-100"
-                      : "bg-zinc-300 dark:bg-zinc-700"
-                  }`}
-                />
+                <div className="h-px w-12 bg-zinc-200" />
               )}
             </React.Fragment>
           ))}
@@ -447,19 +447,19 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
               <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)}>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="cash" id="cash" />
-                  <Label htmlFor="cash" className="cursor-pointer">
+                  <Label htmlFor="cash" className="cursor-pointer text-sm font-medium text-zinc-900">
                     Cash
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="mpesa" id="mpesa" />
-                  <Label htmlFor="mpesa" className="cursor-pointer">
+                  <Label htmlFor="mpesa" className="cursor-pointer text-sm font-medium text-zinc-900">
                     M-Pesa (Manual)
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="card" id="card" />
-                  <Label htmlFor="card" className="cursor-pointer">
+                  <Label htmlFor="card" className="cursor-pointer text-sm font-medium text-zinc-900">
                     Card
                   </Label>
                 </div>
@@ -516,7 +516,7 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
                   placeholder="0.00"
                   min={total}
                   step="0.01"
-                  className="mt-1"
+                  className="mt-1 bg-white border border-zinc-200 rounded-md h-10 px-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900/10 shadow-none"
                 />
                 {change > 0 && (
                   <p className="mt-2 text-sm font-medium text-green-600 dark:text-green-400">
@@ -533,10 +533,10 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
             )}
 
             <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={onClose}>
+              <Button variant="outline" onClick={onClose} className="bg-transparent border border-zinc-200 text-zinc-700 hover:border-zinc-400 hover:text-zinc-900 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">
                 Cancel
               </Button>
-              <Button onClick={handleNext}>Next</Button>
+              <Button onClick={handleNext} className="bg-zinc-900 text-white hover:bg-zinc-800 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">Next</Button>
             </div>
           </div>
         )}
@@ -588,14 +588,14 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
             </div>
 
             <div className="flex justify-between gap-2 pt-4">
-              <Button variant="outline" onClick={handleBack}>
+              <Button variant="outline" onClick={handleBack} className="bg-transparent border border-zinc-200 text-zinc-700 hover:border-zinc-400 hover:text-zinc-900 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">
                 Back
               </Button>
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setCurrentStep(3)}>
+                <Button variant="outline" onClick={() => setCurrentStep(3)} className="bg-transparent border border-zinc-200 text-zinc-700 hover:border-zinc-400 hover:text-zinc-900 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">
                   Skip
                 </Button>
-                <Button onClick={handleNext}>Next</Button>
+                <Button onClick={handleNext} className="bg-zinc-900 text-white hover:bg-zinc-800 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">Next</Button>
               </div>
             </div>
           </div>
@@ -656,7 +656,7 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
             </div>
 
             <div className="flex justify-between gap-2 pt-4">
-              <Button variant="outline" onClick={handleBack} disabled={isProcessing}>
+              <Button variant="outline" onClick={handleBack} disabled={isProcessing} className="bg-transparent border border-zinc-200 text-zinc-700 hover:border-zinc-400 hover:text-zinc-900 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">
                 Back
               </Button>
               <Button
@@ -665,8 +665,7 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
                   isProcessing ||
                   (paymentMethod === "mpesa" && !mpesaConfirmationCode.trim())
                 }
-                size="lg"
-                className="flex-1"
+                className="flex-1 bg-zinc-900 text-white hover:bg-zinc-800 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none"
               >
                 {isProcessing ? "Processing..." : "Confirm Sale"}
               </Button>

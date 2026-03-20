@@ -90,17 +90,20 @@ function statusLabel(status: string | null): string {
 }
 
 function statusBadgeClass(status: string | null): string {
+  const base = "rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
   switch (status) {
     case "draft":
-      return "bg-zinc-800 text-zinc-300 border-zinc-700"
+      return `${base} bg-zinc-800 text-zinc-400 border border-zinc-700`
     case "sent":
-      return "bg-blue-900/40 text-blue-300 border-blue-800"
+      return `${base} bg-blue-400/10 text-blue-400 border border-blue-400/20`
     case "partially_received":
-      return "bg-zinc-800 text-zinc-300 border-zinc-700" // V3: no amber
+      return `${base} bg-amber-400/10 text-amber-400 border border-amber-400/20`
     case "received":
-      return "bg-green-900/40 text-green-300 border-green-800"
+      return `${base} bg-emerald-400/10 text-emerald-400 border border-emerald-400/20`
+    case "cancelled":
+      return `${base} bg-red-400/10 text-red-400 border border-red-400/20`
     default:
-      return "bg-zinc-800 text-zinc-300 border-zinc-700"
+      return `${base} bg-zinc-800 text-zinc-400 border border-zinc-700`
   }
 }
 
@@ -149,13 +152,13 @@ async function PurchasingContent() {
 
       {/* Quick actions */}
       <div className="mb-8 flex flex-wrap gap-3">
-        <Button asChild className="gap-2">
+        <Button asChild className="gap-2 rounded-sm">
           <Link href="/purchasing/restock">
             <Truck className="h-4 w-4" />
             Restock suggestions
           </Link>
         </Button>
-        <Button asChild variant="outline" className="gap-2">
+        <Button asChild variant="outline" className="gap-2 rounded-sm">
           <Link href="/purchasing/new">
             <Plus className="h-4 w-4" />
             Create PO
@@ -165,30 +168,30 @@ async function PurchasingContent() {
 
       {/* Summary */}
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-zinc-200 bg-background-card-light p-4 dark:border-border-dark dark:bg-background-card-dark">
-          <div className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+        <div className="rounded-xl border border-zinc-700/50 bg-zinc-900 p-4">
+          <div className="font-editorial text-3xl font-bold text-zinc-50 mb-1">
             {drafts.length}
           </div>
-          <div className="text-sm text-zinc-600 dark:text-zinc-400">Drafts</div>
+          <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Drafts</div>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-background-card-light p-4 dark:border-border-dark dark:bg-background-card-dark">
-          <div className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+        <div className="rounded-xl border border-zinc-700/50 bg-zinc-900 p-4">
+          <div className="font-editorial text-3xl font-bold text-zinc-50 mb-1">
             {notReceived.length}
           </div>
-          <div className="text-sm text-zinc-600 dark:text-zinc-400">Not yet received</div>
+          <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Not yet received</div>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-background-card-light p-4 dark:border-border-dark dark:bg-background-card-dark">
-          <div className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+        <div className="rounded-xl border border-zinc-700/50 bg-zinc-900 p-4">
+          <div className="font-editorial text-3xl font-bold text-zinc-50 mb-1">
             {received.length}
           </div>
-          <div className="text-sm text-zinc-600 dark:text-zinc-400">Received</div>
+          <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Received</div>
         </div>
       </div>
 
       {/* PO list */}
       <div>
         <div className="mb-4">
-          <h2 className="text-lg font-semibold text-zinc-100">
+          <h2 className="font-editorial text-xl font-bold text-zinc-50">
             Purchase orders
           </h2>
           <p className="mt-0.5 text-sm text-zinc-400">
@@ -232,7 +235,7 @@ async function PurchasingContent() {
                     po.status === "sent" || po.status === "partially_received"
                   return (
                     <TableRow key={po.po_id}>
-                      <TableCell className="font-mono text-zinc-300">
+                      <TableCell className="font-mono text-xs text-zinc-400">
                         <Link
                           href={`/purchasing/${po.po_id}`}
                           className="hover:underline"
@@ -258,7 +261,7 @@ async function PurchasingContent() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button asChild variant="outline" size="sm">
+                          <Button asChild variant="outline" size="sm" className="bg-transparent border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-7 px-3 text-xs font-semibold tracking-[0.1em] uppercase transition-colors shadow-none">
                             <Link href={`/purchasing/${po.po_id}`}>View</Link>
                           </Button>
                           {canReceive && (

@@ -316,7 +316,7 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
               {/* Transfer Details */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Transfer Details</CardTitle>
+                  <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Transfer Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -556,7 +556,7 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
             <div className="lg:col-span-1">
               <Card className="sticky top-6">
                 <CardHeader>
-                  <CardTitle>Transfer Preview</CardTitle>
+                  <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Transfer Preview</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {watchedVariantId && watchedFromStore && watchedToStore && fromStock !== null && (

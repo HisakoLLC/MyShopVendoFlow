@@ -100,7 +100,7 @@ export function ReceiptCustomizationTab({
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
         {/* Customization Form */}
         <div className="rounded-lg border border-zinc-200 bg-background-card-light p-6 dark:border-border-dark dark:bg-background-card-dark">
-          <h2 className="mb-6 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+          <h2 className="mb-6 font-editorial text-xl font-bold text-zinc-50">
             Receipt Customization
           </h2>
 
@@ -239,7 +239,7 @@ export function ReceiptCustomizationTab({
 
         {/* Receipt Preview */}
         <div className="rounded-lg border border-zinc-200 bg-background-card-light p-6 dark:border-border-dark dark:bg-background-card-dark">
-          <h2 className="mb-6 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+          <h2 className="mb-6 font-editorial text-xl font-bold text-zinc-50">
             Receipt Preview
           </h2>
           <ReceiptPreview

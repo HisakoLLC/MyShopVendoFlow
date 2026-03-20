@@ -236,7 +236,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
       {staff.length === 0 ? (
         <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-12 text-center">
           <Users className="mx-auto mb-4 h-12 w-12 text-zinc-400" />
-          <h3 className="mb-2 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+          <h3 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
             No staff members yet
           </h3>
           <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
@@ -365,7 +365,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
 
       {/* Activity Log Section */}
       <div className="mt-8">
-        <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+        <h2 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
           Recent Activity
         </h2>
         <div className="rounded-lg border border-zinc-200 bg-background-card-light p-8 text-center dark:border-border-dark dark:bg-background-card-dark">

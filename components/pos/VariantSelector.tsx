@@ -214,13 +214,13 @@ export function VariantSelector({
       <DialogContent className="bg-white rounded-none border border-zinc-200 shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto [&>button]:hidden">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <DialogTitle className="text-lg font-semibold text-zinc-900">{styleName}</DialogTitle>
+            <DialogTitle className="font-editorial text-xl font-bold text-zinc-900">{styleName}</DialogTitle>
             <p className="text-sm text-zinc-500 mt-0.5">Select size and color</p>
           </div>
           <button 
             type="button"
             onClick={onClose} 
-            className="w-8 h-8 rounded-sm bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-sm border border-zinc-200 bg-white hover:bg-zinc-100 flex items-center justify-center transition-colors"
           >
             <X className="w-4 h-4 text-zinc-500" />
           </button>
@@ -296,12 +296,12 @@ export function VariantSelector({
 
                       if (!isAvailable) {
                         cellClass = "bg-zinc-50 border border-zinc-200 rounded-sm p-3 cursor-not-allowed opacity-50"
-                        stockTextClass = "text-xs text-zinc-400 font-medium"
-                        priceTextClass = "text-sm text-zinc-400 font-semibold tabular-nums"
+                        stockTextClass = "text-xs text-zinc-400"
+                        priceTextClass = "text-sm text-zinc-300 tabular-nums"
                       } else if (isSelected) {
-                        cellClass = "bg-zinc-100 border border-zinc-900 rounded-sm p-3 ring-1 ring-zinc-900"
-                        stockTextClass = "text-xs font-medium text-zinc-500"
-                        priceTextClass = "text-sm font-semibold tabular-nums text-zinc-900"
+                        cellClass = "bg-zinc-900 border-2 border-zinc-900 rounded-lg p-3 cursor-pointer"
+                        stockTextClass = "text-xs font-medium text-zinc-400"
+                        priceTextClass = "text-sm font-semibold tabular-nums text-white"
                       } else {
                         cellClass = "bg-white border border-zinc-200 rounded-sm p-3 cursor-pointer hover:border-zinc-400 hover:bg-zinc-50 transition-all duration-150"
                         stockTextClass = "text-xs font-medium text-zinc-500"
