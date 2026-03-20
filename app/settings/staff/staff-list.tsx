@@ -70,9 +70,9 @@ const planLimits: Record<string, number> = {
 }
 
 const roleColors: Record<string, string> = {
-  owner: "bg-purple-500 text-white hover:bg-purple-600",
-  manager: "bg-blue-500 text-white hover:bg-blue-600",
-  cashier: "bg-zinc-500 text-white hover:bg-zinc-600",
+  owner: "bg-zinc-100 text-zinc-900 hover:bg-white rounded-sm border-0",
+  manager: "bg-zinc-800 text-zinc-300 border border-zinc-700 hover:bg-zinc-800 rounded-sm",
+  cashier: "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:bg-zinc-800 rounded-sm",
 }
 
 const roleIcons: Record<string, React.ReactNode> = {
@@ -234,7 +234,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
 
       {/* Staff Table */}
       {staff.length === 0 ? (
-        <div className="rounded-lg border border-zinc-200 bg-background-card-light p-12 text-center dark:border-border-dark dark:bg-background-card-dark">
+        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-12 text-center">
           <Users className="mx-auto mb-4 h-12 w-12 text-zinc-400" />
           <h3 className="mb-2 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
             No staff members yet
@@ -250,7 +250,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
           )}
         </div>
       ) : (
-        <div className="rounded-lg border border-zinc-200 bg-background-card-light dark:border-border-dark dark:bg-background-card-dark">
+        <div>
           <Table>
             <TableHeader>
               <TableRow>
@@ -270,16 +270,16 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
                   className={member.active === false ? "opacity-60" : ""}
                 >
                   <TableCell>
-                    <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                    <div className="font-medium text-zinc-100">
                       {`${member.first_name || ""} ${member.last_name || ""}`.trim() || "—"}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">{member.email}</div>
+                    <div className="text-sm text-zinc-300">{member.email}</div>
                   </TableCell>
                   <TableCell>
                     {member.role ? (
-                      <Badge className={roleColors[member.role] || "bg-zinc-500"}>
+                      <Badge className={roleColors[member.role] || "bg-zinc-800 text-zinc-300 border border-zinc-700 hover:bg-zinc-800 rounded-sm"}>
                         {roleIcons[member.role]}
                         {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
                       </Badge>
@@ -288,17 +288,17 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
                     )}
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                    <div className="text-sm text-zinc-400">
                       {member.stores?.name || "—"}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={member.active !== false ? "default" : "secondary"}>
+                    <Badge variant={member.active !== false ? "default" : "secondary"} className="rounded-sm">
                       {member.active !== false ? "Active" : "Inactive"}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                    <span className="text-sm text-zinc-400">
                       {member.last_login_at
                         ? new Date(member.last_login_at).toLocaleString(undefined, {
                             dateStyle: "short",
@@ -308,7 +308,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-1">
                       <Button
                         variant="ghost"
                         size="sm"

@@ -120,10 +120,10 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
           {/* Pending Transfers */}
           {pendingTransfers.length > 0 && (
             <div>
-              <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              <h2 className="mb-4 text-lg font-semibold text-zinc-100">
                 Pending Transfers
               </h2>
-              <div className="rounded-lg border border-zinc-200 bg-background-card-light dark:border-border-dark dark:bg-background-card-dark">
+              <div>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -141,26 +141,24 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
                       <TableRow key={transfer.transfer_id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            {transfer.product_variants?.product_styles?.image_url ? (
-                              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded border border-zinc-200 dark:border-zinc-800">
+                            <div className={transfer.product_variants?.product_styles?.image_url ? "relative h-10 w-10 shrink-0 overflow-hidden rounded-md" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
+                              {transfer.product_variants?.product_styles?.image_url ? (
                                 <Image
                                   src={transfer.product_variants.product_styles.image_url}
                                   alt={transfer.product_variants.product_styles.name || ""}
                                   fill
                                   className="object-cover"
                                 />
-                              </div>
-                            ) : (
-                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-zinc-200 bg-zinc-100 text-xs text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
-                                No Image
-                              </div>
-                            )}
+                              ) : (
+                                <Package className="h-4 w-4 text-zinc-600" />
+                              )}
+                            </div>
                             <div className="min-w-0">
-                              <div className="truncate font-medium text-zinc-900 dark:text-zinc-100">
+                              <div className="truncate font-medium text-zinc-100">
                                 {transfer.product_variants?.product_styles?.name || "—"}
                               </div>
                               {transfer.product_variants?.sku && (
-                                <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                                <div className="font-mono text-xs text-zinc-400 tracking-wide mt-0.5">
                                   {transfer.product_variants.sku}
                                 </div>
                               )}
@@ -169,36 +167,36 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
                         </TableCell>
                         <TableCell>
                           {transfer.product_variants ? (
-                            <div className="text-sm text-zinc-900 dark:text-zinc-100">
+                            <div className="text-sm text-zinc-300">
                               {transfer.product_variants.size} / {transfer.product_variants.color}
                             </div>
                           ) : (
-                            <span className="text-sm text-zinc-400">—</span>
+                            <span className="text-sm text-zinc-500">—</span>
                           )}
                         </TableCell>
                         <TableCell>
-                          <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                          <div className="font-medium text-zinc-300">
                             {transfer.stores_from?.name || "—"}
                           </div>
                         </TableCell>
                         <TableCell>
-                          <ArrowRight className="inline h-4 w-4 text-zinc-400" />
-                          <div className="ml-2 inline font-medium text-zinc-900 dark:text-zinc-100">
+                          <ArrowRight className="inline h-4 w-4 text-zinc-500" />
+                          <div className="ml-2 inline font-medium text-zinc-300">
                             {transfer.stores_to?.name || "—"}
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                          <div className="text-sm font-semibold text-zinc-100 tabular-nums">
                             {transfer.quantity}
                           </div>
                         </TableCell>
                         <TableCell>
                           {transfer.created_date ? (
-                            <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                            <div className="text-sm text-zinc-400">
                               {new Date(transfer.created_date).toLocaleDateString()}
                             </div>
                           ) : (
-                            <span className="text-sm text-zinc-400">—</span>
+                            <span className="text-sm text-zinc-500">—</span>
                           )}
                         </TableCell>
                         <TableCell className="text-right">
@@ -223,10 +221,10 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
           {/* Completed Transfers */}
           {completedTransfers.length > 0 && (
             <div>
-              <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              <h2 className="mb-4 text-lg font-semibold text-zinc-100">
                 Completed Transfers
               </h2>
-              <div className="rounded-lg border border-zinc-200 bg-background-card-light dark:border-border-dark dark:bg-background-card-dark">
+              <div>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -244,26 +242,24 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
                       <TableRow key={transfer.transfer_id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            {transfer.product_variants?.product_styles?.image_url ? (
-                              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded border border-zinc-200 dark:border-zinc-800">
+                            <div className={transfer.product_variants?.product_styles?.image_url ? "relative h-10 w-10 shrink-0 overflow-hidden rounded-md" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
+                              {transfer.product_variants?.product_styles?.image_url ? (
                                 <Image
                                   src={transfer.product_variants.product_styles.image_url}
                                   alt={transfer.product_variants.product_styles.name || ""}
                                   fill
                                   className="object-cover"
                                 />
-                              </div>
-                            ) : (
-                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-zinc-200 bg-zinc-100 text-xs text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
-                                No Image
-                              </div>
-                            )}
+                              ) : (
+                                <Package className="h-4 w-4 text-zinc-600" />
+                              )}
+                            </div>
                             <div className="min-w-0">
-                              <div className="truncate font-medium text-zinc-900 dark:text-zinc-100">
+                              <div className="truncate font-medium text-zinc-100">
                                 {transfer.product_variants?.product_styles?.name || "—"}
                               </div>
                               {transfer.product_variants?.sku && (
-                                <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                                <div className="font-mono text-xs text-zinc-400 tracking-wide mt-0.5">
                                   {transfer.product_variants.sku}
                                 </div>
                               )}
@@ -272,36 +268,36 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
                         </TableCell>
                         <TableCell>
                           {transfer.product_variants ? (
-                            <div className="text-sm text-zinc-900 dark:text-zinc-100">
+                            <div className="text-sm text-zinc-300">
                               {transfer.product_variants.size} / {transfer.product_variants.color}
                             </div>
                           ) : (
-                            <span className="text-sm text-zinc-400">—</span>
+                            <span className="text-sm text-zinc-500">—</span>
                           )}
                         </TableCell>
                         <TableCell>
-                          <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                          <div className="font-medium text-zinc-300">
                             {transfer.stores_from?.name || "—"}
                           </div>
                         </TableCell>
                         <TableCell>
-                          <ArrowRight className="inline h-4 w-4 text-zinc-400" />
-                          <div className="ml-2 inline font-medium text-zinc-900 dark:text-zinc-100">
+                          <ArrowRight className="inline h-4 w-4 text-zinc-500" />
+                          <div className="ml-2 inline font-medium text-zinc-300">
                             {transfer.stores_to?.name || "—"}
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                          <div className="text-sm font-semibold text-zinc-100 tabular-nums">
                             {transfer.quantity}
                           </div>
                         </TableCell>
                         <TableCell>
                           {transfer.completed_date ? (
-                            <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                            <div className="text-sm text-zinc-400">
                               {new Date(transfer.completed_date).toLocaleDateString()}
                             </div>
                           ) : (
-                            <span className="text-sm text-zinc-400">—</span>
+                            <span className="text-sm text-zinc-500">—</span>
                           )}
                         </TableCell>
                         <TableCell>

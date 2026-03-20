@@ -4,7 +4,7 @@ import * as React from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import * as AlertDialog from "@radix-ui/react-alert-dialog"
-import { Download, LayoutGrid, LayoutList, Search, AlertTriangle, Pencil, Layers, Trash2 } from "lucide-react"
+import { Download, LayoutGrid, LayoutList, Search, AlertTriangle, Pencil, Layers, Trash2, MoreHorizontal, Package } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   Table,
   TableBody,
@@ -61,19 +67,11 @@ type InventoryTableClientProps = {
 
 type StockStatus = "all" | "in-stock" | "low-stock" | "out-of-stock"
 
-function getStockColor(quantity: number | null): string {
+function getStockColorClass(quantity: number | null): string {
   const qty = quantity ?? 0
-  if (qty < 0) return "text-red-600 dark:text-red-400 font-semibold"
-  if (qty === 0) return "text-red-600 dark:text-red-400"
-  if (qty < 5) return "text-yellow-600 dark:text-yellow-400"
-  if (qty <= 10) return "text-yellow-700 dark:text-yellow-500"
-  return "text-green-600 dark:text-green-400"
-}
-
-function getRowBgColor(totalStock: number, hasNegative: boolean): string {
-  if (hasNegative) return "bg-red-50 dark:bg-red-950/20"
-  if (totalStock === 0) return "bg-red-50/50 dark:bg-red-950/10"
-  return ""
+  if (qty < 0) return "text-sm text-red-400 tabular-nums font-semibold"
+  if (qty === 0) return "text-sm text-zinc-600 tabular-nums font-semibold"
+  return "text-sm text-zinc-100 tabular-nums font-semibold"
 }
 
 export function InventoryTableClient({ stores, inventory }: InventoryTableClientProps) {
@@ -294,107 +292,101 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
         </div>
 
         {/* List: Table */}
-        <div className={`rounded-xl border border-zinc-200 bg-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 ${layoutView === "grid" ? "hidden" : "block"}`}>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="dark:bg-background-dark dark:hover:bg-background-dark">
-                  <TableHead className="w-12 px-2 dark:bg-background-dark dark:text-white" aria-label="Select row">
-                    <span className="sr-only">Select</span>
-                  </TableHead>
-                  <TableHead className="w-[200px] dark:bg-background-dark dark:text-white">Style</TableHead>
-                  <TableHead className="dark:bg-background-dark dark:text-white">Variant</TableHead>
-                  <TableHead className="dark:bg-background-dark dark:text-white">SKU</TableHead>
-                  {hasMultipleStores &&
-                    stores.map((store) => (
-                      <TableHead key={store.store_id} className="text-right dark:bg-background-dark dark:text-white">
-                        {store.name}
-                      </TableHead>
-                    ))}
-                  {!hasMultipleStores && <TableHead className="text-right dark:bg-background-dark dark:text-white">Stock</TableHead>}
-                  <TableHead className="text-right dark:bg-background-dark dark:text-white">Total</TableHead>
-                  <TableHead className="text-right dark:bg-background-dark dark:text-white">Actions</TableHead>
+        <div className={layoutView === "grid" ? "hidden" : "block"}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12 px-2" aria-label="Select row">
+                  <span className="sr-only">Select</span>
+                </TableHead>
+                <TableHead className="w-[200px]">Style</TableHead>
+                <TableHead>Variant</TableHead>
+                <TableHead>SKU</TableHead>
+                {hasMultipleStores &&
+                  stores.map((store) => (
+                    <TableHead key={store.store_id} className="text-right">
+                      {store.name}
+                    </TableHead>
+                  ))}
+                {!hasMultipleStores && <TableHead className="text-right">Stock</TableHead>}
+                <TableHead className="text-right">Total</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={hasMultipleStores ? stores.length + 7 : 8} className="h-24 text-center">
+                    No inventory found matching your filters.
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.length === 0 ? (
-                  <TableRow className="dark:bg-zinc-900 dark:hover:bg-zinc-900">
-                    <TableCell colSpan={hasMultipleStores ? stores.length + 7 : 8} className="h-24 text-center dark:bg-zinc-900 dark:text-white">
-                      No inventory found matching your filters.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filtered.map((item) => {
-                    const hasNegative = item.stores.some((s) => (s.quantity_on_hand ?? 0) < 0)
-                    const rowBg = getRowBgColor(item.total_stock, hasNegative)
-
-                    return (
-                      <TableRow key={item.variant_id} className={`${rowBg} dark:bg-zinc-900 dark:hover:bg-zinc-900`}>
-                        <TableCell className="w-12 px-2 dark:bg-zinc-900 dark:text-white">
-                          <Checkbox
-                            checked={selectedIds.has(item.variant_id)}
-                            onCheckedChange={() => toggleRow(item.variant_id)}
-                            aria-label={`Select ${item.style_name} ${item.size}/${item.color}`}
-                          />
-                        </TableCell>
-                        <TableCell className="dark:bg-zinc-900 dark:text-white">
-                          <div className="flex items-center gap-3">
-                            <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
-                              {item.style_image_url ? (
-                                <Image
-                                  src={item.style_image_url}
-                                  alt={item.style_name}
-                                  fill
-                                  className="object-cover"
-                                />
-                              ) : (
-                                <div className="flex h-full w-full items-center justify-center text-xs text-zinc-500 dark:text-zinc-400">
-                                  No image
-                                </div>
-                              )}
-                            </div>
-                            <div className="font-medium text-zinc-900 dark:text-white">
-                              {item.style_name}
-                            </div>
+              ) : (
+                filtered.map((item) => {
+                  return (
+                    <TableRow key={item.variant_id}>
+                      <TableCell className="w-12 px-2">
+                        <Checkbox
+                          checked={selectedIds.has(item.variant_id)}
+                          onCheckedChange={() => toggleRow(item.variant_id)}
+                          aria-label={`Select ${item.style_name} ${item.size}/${item.color}`}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className={item.style_image_url ? "relative h-10 w-10 overflow-hidden rounded-md" : "flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
+                            {item.style_image_url ? (
+                              <Image
+                                src={item.style_image_url}
+                                alt={item.style_name}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : (
+                              <Package className="h-4 w-4 text-zinc-600" />
+                            )}
                           </div>
-                        </TableCell>
-                        <TableCell className="text-zinc-700 dark:bg-zinc-900 dark:text-white">
-                          {item.size} / {item.color}
-                        </TableCell>
-                        <TableCell className="font-mono text-sm text-zinc-600 dark:bg-zinc-900 dark:text-white">
-                          {item.sku}
-                        </TableCell>
-                        {hasMultipleStores
-                          ? stores.map((store) => {
-                              const level = item.stores.find((s) => s.store_id === store.store_id)
-                              const qty = level?.quantity_on_hand ?? 0
-                              const colorClass = getStockColor(qty)
-
-                              return (
-                                <TableCell key={store.store_id} className={`text-right dark:bg-zinc-900 ${colorClass}`}>
-                                  {qty < 0 && <AlertTriangle className="mr-1 inline h-4 w-4" />}
-                                  {qty}
-                                </TableCell>
-                              )
-                            })
-                          : (() => {
-                              const qty = item.stores[0]?.quantity_on_hand ?? 0
-                              const colorClass = getStockColor(qty)
-                              return (
-                                <TableCell className={`text-right dark:bg-zinc-900 ${colorClass}`}>
-                                  {qty < 0 && <AlertTriangle className="mr-1 inline h-4 w-4" />}
-                                  {qty}
-                                </TableCell>
-                              )
-                            })()}
-                        <TableCell className={`text-right font-medium dark:bg-zinc-900 ${getStockColor(item.total_stock)}`}>
-                          {item.total_stock}
-                        </TableCell>
-                        <TableCell className="text-right dark:bg-zinc-900 dark:text-white">
-                          <div className="flex flex-wrap justify-end gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
+                          <div className="font-medium text-zinc-100">
+                            {item.style_name}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {item.size} / {item.color}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs text-zinc-400 tracking-wide">
+                        {item.sku}
+                      </TableCell>
+                      {hasMultipleStores
+                        ? stores.map((store) => {
+                            const level = item.stores.find((s) => s.store_id === store.store_id)
+                            const qty = level?.quantity_on_hand ?? 0
+                            return (
+                              <TableCell key={store.store_id} className={`text-right ${getStockColorClass(qty)}`}>
+                                {qty}
+                              </TableCell>
+                            )
+                          })
+                        : (() => {
+                            const qty = item.stores[0]?.quantity_on_hand ?? 0
+                            return (
+                              <TableCell className={`text-right ${getStockColorClass(qty)}`}>
+                                {qty}
+                              </TableCell>
+                            )
+                          })()}
+                      <TableCell className={`text-right ${getStockColorClass(item.total_stock)}`}>
+                        {item.total_stock}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="inline-flex w-8 h-8 rounded-sm hover:bg-zinc-800 items-center justify-center transition-colors text-zinc-500">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-zinc-900 border border-zinc-700 rounded-lg shadow-lg">
+                            <DropdownMenuItem
+                              className="text-sm text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 px-3 py-2 cursor-pointer focus:bg-zinc-800 focus:text-zinc-100"
                               onClick={() =>
                                 setEditingVariant({
                                   variant_id: item.variant_id,
@@ -406,18 +398,15 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                                   cost: item.cost,
                                 })
                               }
-                              title="Edit price, cost, SKU"
                             >
-                              <Pencil className="mr-1.5 h-4 w-4" />
-                              Edit
-                            </Button>
+                              <Pencil className="mr-2 h-4 w-4" /> Edit
+                            </DropdownMenuItem>
                             {stores.map((store) => {
                               const level = item.stores.find((s) => s.store_id === store.store_id)
                               return (
-                                <Button
+                                <DropdownMenuItem
                                   key={store.store_id}
-                                  variant="outline"
-                                  size="sm"
+                                  className="text-sm text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 px-3 py-2 cursor-pointer focus:bg-zinc-800 focus:text-zinc-100"
                                   onClick={() =>
                                     setAdjustingVariant({
                                       variant: {
@@ -435,16 +424,12 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                                     })
                                   }
                                 >
-                                  Adjust {hasMultipleStores ? store.name : ""}
-                                </Button>
+                                  <Layers className="mr-2 h-4 w-4" /> Adjust {store.name}
+                                </DropdownMenuItem>
                               )
                             })}
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30"
-                              title="Delete this variant only (this size/color)"
-                              disabled={deletePending}
+                            <DropdownMenuItem
+                              className="text-red-400 hover:bg-red-400/10 hover:text-red-300 px-3 py-2 cursor-pointer focus:bg-red-400/10 focus:text-red-300"
                               onClick={() =>
                                 setDeletingVariant({
                                   variant_id: item.variant_id,
@@ -454,18 +439,17 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                                 })
                               }
                             >
-                              <Trash2 className="mr-1.5 h-4 w-4" />
-                              Delete
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                              <Trash2 className="mr-2 h-4 w-4" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })
+              )}
+            </TableBody>
+          </Table>
         </div>
 
         {/* Grid: Cards */}
@@ -476,15 +460,13 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
             </div>
           ) : (
             filtered.map((item) => {
-              const hasNegative = item.stores.some((s) => (s.quantity_on_hand ?? 0) < 0)
-              const rowBg = getRowBgColor(item.total_stock, hasNegative)
               return (
                 <div
                   key={item.variant_id}
-                  className={`rounded-xl border border-zinc-200 bg-zinc-900 p-4 dark:border-zinc-800 dark:bg-zinc-900 ${rowBg}`}
+                  className="rounded-xl border border-zinc-700/50 bg-zinc-900 p-4"
                 >
                   <div className="flex gap-3">
-                    <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
+                    <div className={item.style_image_url ? "relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md" : "flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
                       {item.style_image_url ? (
                         <Image
                           src={item.style_image_url}
@@ -493,22 +475,20 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                           className="object-cover"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-xs text-zinc-500 dark:text-zinc-400">
-                          No image
-                        </div>
+                        <Package className="h-6 w-6 text-zinc-600" />
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium text-zinc-900 dark:text-white truncate">
+                      <div className="font-medium text-zinc-100 truncate">
                         {item.style_name}
                       </div>
-                      <div className="mt-0.5 text-sm text-zinc-600 dark:text-white">
+                      <div className="mt-0.5 text-sm text-zinc-300">
                         {item.size} / {item.color}
                       </div>
-                      <div className="mt-1 font-mono text-xs text-zinc-500 dark:text-white">
+                      <div className="mt-1 font-mono text-xs text-zinc-400 tracking-wide">
                         {item.sku}
                       </div>
-                      <div className={`mt-2 text-sm font-semibold ${getStockColor(item.total_stock)}`}>
+                      <div className={`mt-2 ${getStockColorClass(item.total_stock)}`}>
                         Total: {item.total_stock}
                         {item.total_stock < 0 && <AlertTriangle className="ml-1 inline h-3.5 w-3.5" />}
                       </div>

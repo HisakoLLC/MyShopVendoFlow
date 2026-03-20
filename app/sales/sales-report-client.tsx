@@ -482,15 +482,15 @@ export function SalesReportClient({
           <CardContent>
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="text-zinc-500 dark:text-zinc-400">Loading sales...</div>
+                <div className="text-zinc-400">Loading sales...</div>
               </div>
             ) : sales.length === 0 ? (
               <div className="flex items-center justify-center py-12">
-                <p className="text-zinc-500 dark:text-zinc-400">No sales found for the selected filters</p>
+                <p className="text-zinc-400">No sales found for the selected filters</p>
               </div>
             ) : (
               <>
-                <div className="rounded-md border border-zinc-200 dark:border-zinc-800">
+                <div>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -507,13 +507,13 @@ export function SalesReportClient({
                       {paginatedSales.map((sale) => (
                         <TableRow
                           key={sale.sale_id}
-                          className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                          className="cursor-pointer"
                           onClick={() => setSelectedSale(sale)}
                         >
-                          <TableCell className="font-medium">
+                          <TableCell className="font-medium text-zinc-100">
                             {formatDateTime(sale.sale_date)}
                           </TableCell>
-                          <TableCell>{sale.receipt_number ?? "—"}</TableCell>
+                          <TableCell className="font-mono text-zinc-400 tracking-wide">{sale.receipt_number ?? "—"}</TableCell>
                           <TableCell>{sale.stores?.name || "N/A"}</TableCell>
                           <TableCell>
                             {sale.staff
@@ -525,11 +525,11 @@ export function SalesReportClient({
                           <TableCell>
                             <span className="capitalize">{sale.payment_method || "N/A"}</span>
                           </TableCell>
-                          <TableCell className="text-right font-medium">
+                          <TableCell className="text-right">
                             {isSaleRefunded(sale.sale_id) ? (
-                              <span className="text-zinc-500 dark:text-zinc-400 italic">Refunded</span>
+                              <span className="text-zinc-500 italic">Refunded</span>
                             ) : (
-                              formatPrice(sale.grand_total ?? 0)
+                              <span className="font-semibold tabular-nums text-zinc-100">{formatPrice(sale.grand_total ?? 0)}</span>
                             )}
                           </TableCell>
                         </TableRow>

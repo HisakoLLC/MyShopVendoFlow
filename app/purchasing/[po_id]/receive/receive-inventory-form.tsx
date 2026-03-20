@@ -307,30 +307,23 @@ export function ReceiveInventoryForm({
                     return (
                       <TableRow
                         key={lineItem.line_item_id}
-                        className={
-                          isReceiving
-                            ? "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900/40"
-                            : ""
-                        }
                       >
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            {lineItem.product_variants?.product_styles?.image_url ? (
-                              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded border border-zinc-200 dark:border-zinc-800">
+                            <div className={lineItem.product_variants?.product_styles?.image_url ? "relative h-10 w-10 shrink-0 overflow-hidden rounded-md" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
+                              {lineItem.product_variants?.product_styles?.image_url ? (
                                 <Image
                                   src={lineItem.product_variants.product_styles.image_url}
                                   alt={lineItem.product_variants.product_styles.name || ""}
                                   fill
                                   className="object-cover"
                                 />
-                              </div>
-                            ) : (
-                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-zinc-200 bg-zinc-100 text-xs text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
-                                No Image
-                              </div>
-                            )}
+                              ) : (
+                                <Package className="h-4 w-4 text-zinc-600" />
+                              )}
+                            </div>
                             <div className="min-w-0">
-                              <div className="truncate font-medium text-zinc-900 dark:text-zinc-100">
+                              <div className="truncate font-medium text-zinc-100">
                                 {lineItem.product_variants?.product_styles?.name || "—"}
                               </div>
                             </div>
@@ -338,7 +331,7 @@ export function ReceiveInventoryForm({
                         </TableCell>
                         <TableCell>
                           {lineItem.product_variants ? (
-                            <div className="text-sm text-zinc-900 dark:text-zinc-100">
+                            <div className="text-sm text-zinc-300">
                               {lineItem.product_variants.size} / {lineItem.product_variants.color}
                             </div>
                           ) : (
@@ -347,7 +340,7 @@ export function ReceiveInventoryForm({
                         </TableCell>
                         <TableCell>
                           {lineItem.product_variants?.sku ? (
-                            <span className="font-mono text-sm text-zinc-600 dark:text-zinc-400">
+                            <span className="font-mono text-sm text-zinc-400 tracking-wide">
                               {lineItem.product_variants.sku}
                             </span>
                           ) : (
@@ -355,23 +348,23 @@ export function ReceiveInventoryForm({
                           )}
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                          <div className="font-medium text-zinc-100 tabular-nums">
                             {lineItem.quantity_ordered}
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                          <div className="text-sm text-zinc-400 tabular-nums">
                             {qtyReceived}
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
                           <div
-                            className={`font-medium ${
+                            className={`font-semibold tabular-nums ${
                               qtyRemaining === 0
-                                ? "text-green-600 dark:text-green-400"
+                                ? "text-green-400"
                                 : qtyRemaining < 5
-                                  ? "text-yellow-600 dark:text-yellow-400"
-                                  : "text-zinc-900 dark:text-zinc-100"
+                                  ? "text-yellow-400"
+                                  : "text-zinc-100"
                             }`}
                           >
                             {qtyRemaining}

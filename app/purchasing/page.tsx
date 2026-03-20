@@ -6,6 +6,15 @@ import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { Package, Plus, FileText, Truck } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { formatCurrency } from "@/lib/format-currency"
 
 export const dynamic = "force-dynamic"
@@ -83,15 +92,15 @@ function statusLabel(status: string | null): string {
 function statusBadgeClass(status: string | null): string {
   switch (status) {
     case "draft":
-      return "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+      return "bg-zinc-800 text-zinc-300 border-zinc-700"
     case "sent":
-      return "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300"
+      return "bg-blue-900/40 text-blue-300 border-blue-800"
     case "partially_received":
-      return "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
+      return "bg-zinc-800 text-zinc-300 border-zinc-700" // V3: no amber
     case "received":
-      return "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300"
+      return "bg-green-900/40 text-green-300 border-green-800"
     default:
-      return "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+      return "bg-zinc-800 text-zinc-300 border-zinc-700"
   }
 }
 
@@ -177,17 +186,17 @@ async function PurchasingContent() {
       </div>
 
       {/* PO list */}
-      <div className="rounded-xl border border-zinc-200 bg-background-card-light dark:border-border-dark dark:bg-background-card-dark">
-        <div className="border-b border-zinc-200 px-6 py-4 dark:border-zinc-800">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+      <div>
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-zinc-100">
             Purchase orders
           </h2>
-          <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-0.5 text-sm text-zinc-400">
             View, print, or receive inventory for any PO.
           </p>
         </div>
         {list.length === 0 ? (
-          <div className="px-6 py-12 text-center">
+          <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 px-6 py-12 text-center">
             <FileText className="mx-auto h-12 w-12 text-zinc-400 dark:text-zinc-500" />
             <p className="mt-3 text-sm font-medium text-zinc-900 dark:text-zinc-100">
               No purchase orders yet
@@ -206,67 +215,50 @@ async function PurchasingContent() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-zinc-50 dark:bg-zinc-900/50">
-                  <th className="h-12 px-6 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
-                    PO #
-                  </th>
-                  <th className="h-12 px-6 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
-                    Supplier
-                  </th>
-                  <th className="h-12 px-6 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
-                    Order date
-                  </th>
-                  <th className="h-12 px-6 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
-                    Status
-                  </th>
-                  <th className="h-12 px-6 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
-                    Total
-                  </th>
-                  <th className="h-12 px-6 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>PO #</TableHead>
+                  <TableHead>Supplier</TableHead>
+                  <TableHead>Order date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {list.map((po) => {
                   const canReceive =
                     po.status === "sent" || po.status === "partially_received"
                   return (
-                    <tr
-                      key={po.po_id}
-                      className="border-b border-zinc-100 dark:border-zinc-800/50"
-                    >
-                      <td className="px-6 py-3 font-medium text-zinc-900 dark:text-zinc-100">
+                    <TableRow key={po.po_id}>
+                      <TableCell className="font-mono text-zinc-300">
                         <Link
                           href={`/purchasing/${po.po_id}`}
                           className="hover:underline"
                         >
                           {po.po_number}
                         </Link>
-                      </td>
-                      <td className="px-6 py-3 text-zinc-600 dark:text-zinc-400">
+                      </TableCell>
+                      <TableCell>
                         {po.suppliers?.name ?? "—"}
-                      </td>
-                      <td className="px-6 py-3 text-zinc-600 dark:text-zinc-400">
+                      </TableCell>
+                      <TableCell>
                         {po.order_date
                           ? new Date(po.order_date).toLocaleDateString()
                           : "—"}
-                      </td>
-                      <td className="px-6 py-3">
-                        <span
-                          className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusBadgeClass(po.status)}`}
-                        >
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={statusBadgeClass(po.status)}>
                           {statusLabel(po.status)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-3 text-right font-medium text-zinc-900 dark:text-zinc-100">
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right font-semibold tabular-nums text-zinc-100">
                         {formatCurrency(po.total_cost ?? 0, currency, { maximumFractionDigits: 2 })}
-                      </td>
-                      <td className="px-6 py-3 text-right">
+                      </TableCell>
+                      <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button asChild variant="ghost" size="sm">
+                          <Button asChild variant="outline" size="sm">
                             <Link href={`/purchasing/${po.po_id}`}>View</Link>
                           </Button>
                           {canReceive && (
@@ -278,12 +270,12 @@ async function PurchasingContent() {
                             </Button>
                           )}
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   )
                 })}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         )}
       </div>

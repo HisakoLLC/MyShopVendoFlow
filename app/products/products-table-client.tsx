@@ -336,7 +336,7 @@ export function ProductsTableClient(props: {
               <div className="text-sm text-red-600 dark:text-red-400">{error}</div>
             ) : (
               <div className="flex items-center gap-2 text-sm text-zinc-500">
-                <span>
+                <span className="text-xs">
                   {viewMode === "active"
                     ? `${filtered.length} ${filtered.length === 1 ? "style" : "styles"}`
                     : `${filtered.length} archived`}
@@ -345,21 +345,12 @@ export function ProductsTableClient(props: {
                   <button
                     type="button"
                     onClick={() => setViewMode(viewMode === "archived" ? "active" : "archived")}
-                    className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                    className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-9 px-4 text-xs font-semibold uppercase tracking-[0.1em] transition-colors"
                   >
                     {viewMode === "archived" ? "Active" : `Archived (${archivedStyles.length})`}
                   </button>
                 )}
               </div>
-            )}
-
-            {viewMode === "active" && (
-              <Link
-                href="/products/new"
-                className="inline-flex items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
-              >
-                Add New Style
-              </Link>
             )}
           </div>
         </div>
@@ -387,13 +378,13 @@ export function ProductsTableClient(props: {
       ) : (
         <>
           {/* Desktop: Table View */}
-        <div className="hidden overflow-hidden rounded-xl border border-zinc-200 bg-zinc-900 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 md:block">
+        <div className="hidden overflow-hidden rounded-lg border border-zinc-700/50 bg-zinc-900 md:block">
             <div className="overflow-x-auto">
               <table className="w-full">
-              <thead className="bg-zinc-50 dark:bg-zinc-900/50">
+              <thead className="border-b-2 border-zinc-700">
                 <tr>
                   {viewMode === "active" && (
-                    <th className="h-12 w-10 px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
+                    <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900">
                       <Checkbox
                         checked={filtered.length > 0 && filtered.every((s) => selectedIds.has(s.style_id))}
                         onCheckedChange={(checked) => (checked ? selectAllFiltered() : clearSelection())}
@@ -401,17 +392,17 @@ export function ProductsTableClient(props: {
                       />
                     </th>
                   )}
-                  <th className="h-12 px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">Image</th>
-                  <th className="h-12 px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">Style Name</th>
-                  <th className="h-12 px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">Category</th>
-                  <th className="h-12 px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">Season</th>
-                  <th className="h-12 px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">Base Price</th>
-                  <th className="h-12 hidden px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800 lg:table-cell">Cost</th>
-                  <th className="h-12 hidden px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800 lg:table-cell">Margin %</th>
-                  <th className="h-12 px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">Actions</th>
+                  <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900">Image</th>
+                  <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900">Style Name</th>
+                  <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900">Category</th>
+                  <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900">Season</th>
+                  <th className="px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900">Base Price</th>
+                  <th className="hidden px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900 lg:table-cell">Cost</th>
+                  <th className="hidden px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900 lg:table-cell">Margin %</th>
+                  <th className="px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100 text-sm dark:divide-zinc-900">
+              <tbody className="text-sm">
                 {filtered.length === 0 ? (
                   <tr>
                     <td className="px-4 py-10 text-center text-zinc-500 dark:text-zinc-400" colSpan={viewMode === "active" ? 9 : 8}>
@@ -434,10 +425,10 @@ export function ProductsTableClient(props: {
                     return (
                       <tr
                         key={s.style_id}
-                        className="group transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/40"
+                        className="group border-b border-zinc-700/40 transition-colors duration-100 hover:bg-zinc-800/40 last:border-0"
                       >
                         {viewMode === "active" && (
-                          <td className="w-10 px-2 py-3">
+                          <td className="px-4 py-3.5 text-sm text-zinc-300">
                             <Checkbox
                               checked={selectedIds.has(s.style_id)}
                               onCheckedChange={() => toggleSelection(s.style_id)}
@@ -445,57 +436,55 @@ export function ProductsTableClient(props: {
                             />
                           </td>
                         )}
-                        <td className="px-4 py-3">
-                          <div className="h-[60px] w-[60px] overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-background-card-dark dark:ring-border-dark">
+                        <td className="px-4 py-3.5 text-sm text-zinc-300">
+                          <div className={s.image_url ? "h-10 w-10 overflow-hidden rounded-md" : "flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
                             {s.image_url ? (
                               <Image
                                 src={s.image_url}
                                 alt={s.name}
-                                width={60}
-                                height={60}
-                                className="h-[60px] w-[60px] object-cover"
+                                width={40}
+                                height={40}
+                                className="h-full w-full object-cover"
                               />
                             ) : (
-                              <div className="flex h-full w-full items-center justify-center text-xs text-zinc-500">
-                                No image
-                              </div>
+                              <Package className="h-4 w-4 text-zinc-600" />
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-zinc-900 dark:text-zinc-100">{s.name}</div>
+                        <td className="px-4 py-3.5 text-sm text-zinc-100 font-medium">
+                          {s.name}
                         </td>
-                        <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">{categoryName}</td>
-                        <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">{seasonName}</td>
-                        <td className="px-4 py-3 text-right font-medium text-zinc-900 dark:text-zinc-100">
+                        <td className="px-4 py-3.5 text-sm text-zinc-300">{categoryName}</td>
+                        <td className="px-4 py-3.5 text-sm text-zinc-300">{seasonName}</td>
+                        <td className="px-4 py-3.5 text-right font-semibold text-zinc-100 tabular-nums">
                           {active ? (
                             <span className="flex flex-col items-end gap-0.5">
-                              <span className="text-zinc-500 line-through">{formatKes(base)}</span>
+                              <span className="text-[0.65rem] text-zinc-500 line-through">{formatKes(base)}</span>
                               <span>{formatKes(displayPrice)}</span>
-                              <span className="text-xs font-normal text-green-600 dark:text-green-400">{discountPct}% off</span>
+                              <span className="text-[0.65rem] font-normal text-green-400">{discountPct}% off</span>
                               {s.discount_ends_at && (
-                                <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">Until {formatEndsAt(s.discount_ends_at)}</span>
+                                <span className="text-[0.65rem] font-normal text-zinc-500">Until {formatEndsAt(s.discount_ends_at)}</span>
                               )}
                             </span>
                           ) : (
                             formatKes(base)
                           )}
                         </td>
-                        <td className="px-4 py-3 text-right text-zinc-700 dark:text-zinc-300">
+                        <td className="px-4 py-3.5 text-right font-semibold text-zinc-100 tabular-nums">
                           {formatKes(cost)}
                         </td>
-                        <td className="px-4 py-3 text-right">
-                          <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 dark:bg-background-card-dark dark:text-text-secondary-dark">
+                        <td className="px-4 py-3.5 text-right text-sm">
+                          <span className="rounded-sm border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-[0.65rem] font-semibold tracking-[0.1em] text-zinc-300">
                             {margin.toFixed(1)}%
                           </span>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center justify-end gap-1">
+                        <td className="px-4 py-3.5 text-right">
+                          <div className="flex items-center justify-end gap-1 text-right">
                             {viewMode === "active" ? (
                               <>
                                 <Link
                                   href={`/products/${s.style_id}/edit`}
-                                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
+                                  className="flex h-8 w-8 items-center justify-center rounded-sm text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                                   title="Edit"
                                 >
                                   <Pencil className="h-4 w-4" />
@@ -503,7 +492,7 @@ export function ProductsTableClient(props: {
 
                                 <button
                                   type="button"
-                                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
+                                  className="flex h-8 w-8 items-center justify-center rounded-sm text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
                                   title="Discount"
                                   disabled={isPending}
                                   onClick={() => {
@@ -522,7 +511,7 @@ export function ProductsTableClient(props: {
                                   <AlertDialog.Trigger asChild>
                                     <button
                                       type="button"
-                                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
+                                      className="flex h-8 w-8 items-center justify-center rounded-sm text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
                                       title="Archive"
                                       disabled={isPending}
                                     >
@@ -797,58 +786,58 @@ export function ProductsTableClient(props: {
                               <Percent className="h-4 w-4" />
                             </button>
                             </>
-                          ) : (
-                            <button
-                              type="button"
-                              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-green-600 hover:bg-green-50 hover:text-green-700 dark:text-green-400 dark:hover:bg-green-950/30 dark:hover:text-green-300"
-                              title="Restore to active"
-                              disabled={isPending}
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                setError(null)
-                                startTransition(async () => {
-                                  try {
-                                    setRestoringId(s.style_id)
-                                    await unarchiveProductStyle(s.style_id)
-                                    setViewMode("active")
-                                    router.refresh()
-                                  } catch (err) {
-                                    setError(err instanceof Error ? err.message : "Failed to restore.")
-                                  } finally {
-                                    setRestoringId(null)
-                                  }
-                                })
-                              }}
-                            >
-                              <ArchiveRestore className="h-4 w-4" />
-                            </button>
-                          )}
-                          <AlertDialog.Root
-                            open={deletingId === s.style_id}
-                            onOpenChange={(open) => setDeletingId(open ? s.style_id : null)}
-                          >
-                            <AlertDialog.Trigger asChild>
+                            ) : (
                               <button
                                 type="button"
-                                onClick={(e) => e.stopPropagation()}
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30"
-                                title="Delete permanently"
+                                className="flex h-8 w-8 items-center justify-center rounded-sm text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                title="Restore to active"
                                 disabled={isPending}
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  setError(null)
+                                  startTransition(async () => {
+                                    try {
+                                      setRestoringId(s.style_id)
+                                      await unarchiveProductStyle(s.style_id)
+                                      setViewMode("active")
+                                      router.refresh()
+                                    } catch (err) {
+                                      setError(err instanceof Error ? err.message : "Failed to restore.")
+                                    } finally {
+                                      setRestoringId(null)
+                                    }
+                                  })
+                                }}
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <ArchiveRestore className="h-4 w-4" />
                               </button>
-                            </AlertDialog.Trigger>
+                            )}
+                            <AlertDialog.Root
+                              open={deletingId === s.style_id}
+                              onOpenChange={(open) => setDeletingId(open ? s.style_id : null)}
+                            >
+                              <AlertDialog.Trigger asChild>
+                                <button
+                                  type="button"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="flex h-8 w-8 items-center justify-center rounded-sm text-red-400 transition-colors hover:bg-zinc-800 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-50"
+                                  title="Delete permanently"
+                                  disabled={isPending}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </AlertDialog.Trigger>
 
-                            <AlertDialog.Portal>
-                              <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
-                              <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-background-card-light p-5 shadow-lg outline-none dark:border-border-dark dark:bg-background-card-dark">
-                                <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                                  Delete &quot;{s.name}&quot; permanently?
-                                </AlertDialog.Title>
-                                <AlertDialog.Description className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                                  This will remove the style and all its variants and inventory levels. This cannot be undone.
-                                </AlertDialog.Description>
+                              <AlertDialog.Portal>
+                                <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
+                                <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-background-card-light p-5 shadow-lg outline-none dark:border-border-dark dark:bg-background-card-dark">
+                                  <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                                    Delete &quot;{s.name}&quot; permanently?
+                                  </AlertDialog.Title>
+                                  <AlertDialog.Description className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                                    This will remove the style and all its variants and inventory levels. This cannot be undone.
+                                  </AlertDialog.Description>
 
                                 <div className="mt-4 flex items-center justify-end gap-2">
                                   <AlertDialog.Cancel asChild>

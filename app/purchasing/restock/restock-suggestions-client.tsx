@@ -3,7 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { ShoppingCart } from "lucide-react"
+import { ShoppingCart, Package } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -45,15 +45,7 @@ type SelectedItem = {
   quantity: number
 }
 
-function getUrgencyColor(daysRemaining: number): string {
-  if (daysRemaining < 3) {
-    return "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/40"
-  }
-  if (daysRemaining < 7) {
-    return "bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-900/40"
-  }
-  return ""
-}
+// Removed row-based urgency background color logic
 
 export function RestockSuggestionsClient({ suggestions, currency = "KES" }: RestockSuggestionsClientProps) {
   const formatCurrency = (amount: number) =>
@@ -170,7 +162,7 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border border-zinc-200 dark:border-zinc-800">
+      <div>
         <Table>
           <TableHeader>
             <TableRow>
@@ -193,12 +185,9 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
               const isSelected = selectedVariants.has(suggestion.variant_id)
               const qty = quantities[suggestion.variant_id] || suggestion.suggested_qty
               const lineTotal = qty * suggestion.unit_cost
-              const urgencyColor = getUrgencyColor(suggestion.days_remaining)
-
               return (
                 <TableRow
                   key={suggestion.variant_id}
-                  className={urgencyColor}
                 >
                   <TableCell>
                     <Checkbox
@@ -210,55 +199,53 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      {suggestion.style_image_url ? (
-                        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
+                      <div className={suggestion.style_image_url ? "relative h-10 w-10 shrink-0 overflow-hidden rounded-md" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
+                        {suggestion.style_image_url ? (
                           <Image
                             src={suggestion.style_image_url}
                             alt={suggestion.style_name}
                             fill
                             className="object-cover"
                           />
-                        </div>
-                      ) : (
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-100 text-xs text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
-                          No Image
-                        </div>
-                      )}
+                        ) : (
+                          <Package className="h-4 w-4 text-zinc-600" />
+                        )}
+                      </div>
                       <div className="min-w-0">
-                        <div className="truncate font-medium text-zinc-900 dark:text-zinc-100">
+                        <div className="truncate font-medium text-zinc-100">
                           {suggestion.style_name}
                         </div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm text-zinc-900 dark:text-zinc-100">
+                    <div className="text-sm text-zinc-300">
                       {suggestion.size} / {suggestion.color}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="font-mono text-sm text-zinc-600 dark:text-zinc-400">
+                    <div className="font-mono text-sm text-zinc-400 tracking-wide">
                       {suggestion.sku}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                    <div className="font-medium text-zinc-100 tabular-nums">
                       {suggestion.current_stock}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                    <div className="text-sm text-zinc-400 tabular-nums">
                       {suggestion.avg_daily_sales_30d.toFixed(2)}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <div
-                      className={`font-medium ${
+                      className={`font-semibold tabular-nums ${
                         suggestion.days_remaining < 3
-                          ? "text-red-600 dark:text-red-400"
+                          ? "text-red-400"
                           : suggestion.days_remaining < 7
-                            ? "text-yellow-600 dark:text-yellow-400"
-                            : "text-zinc-900 dark:text-zinc-100"
+                            ? "text-yellow-400"
+                            : "text-zinc-100"
                       }`}
                     >
                       {suggestion.days_remaining.toFixed(1)}
@@ -274,12 +261,12 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
                     />
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                    <div className="text-sm text-zinc-400 tabular-nums">
                       {formatCurrency(suggestion.unit_cost)}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                    <div className="font-semibold text-zinc-100 tabular-nums">
                       {formatCurrency(lineTotal)}
                     </div>
                   </TableCell>

@@ -584,10 +584,10 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                             [fieldKey]: [],
                                           }))
                                         }}
-                                        className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                                        className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-zinc-800/50"
                                       >
                                         {style.image_url && (
-                                          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded border border-zinc-200 dark:border-zinc-800">
+                                          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border border-zinc-700">
                                             <Image
                                               src={style.image_url}
                                               alt={style.name}
@@ -596,7 +596,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                             />
                                           </div>
                                         )}
-                                        <span className="text-sm">{style.name}</span>
+                                        <span className="text-sm text-zinc-100">{style.name}</span>
                                       </button>
                                     ))}
                                   </div>
@@ -629,7 +629,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                             </TableCell>
                             <TableCell>
                               {selectedVariant ? (
-                                <span className="font-mono text-sm text-zinc-600 dark:text-zinc-400">
+                                <span className="font-mono text-sm text-zinc-400 tracking-wide">
                                   {selectedVariant.sku}
                                 </span>
                               ) : (
@@ -676,7 +676,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                               />
                             </TableCell>
                             <TableCell className="text-right">
-                              <span className="font-medium">
+                              <span className="font-semibold tabular-nums text-zinc-100">
                                 {formatCurrency(lineTotal, currency, { maximumFractionDigits: 2 })}
                               </span>
                             </TableCell>

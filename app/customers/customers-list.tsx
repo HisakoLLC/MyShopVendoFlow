@@ -216,15 +216,15 @@ export function CustomersList({ initialCustomers }: CustomersListProps) {
 
       {/* Customers Table */}
       {filteredAndSorted.length === 0 ? (
-        <div className="rounded-lg border border-zinc-200 bg-background-card-light p-12 text-center dark:border-border-dark dark:bg-background-card-dark">
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-12 text-center">
+          <p className="text-sm text-zinc-400">
             {searchQuery || filter !== "all"
               ? "No customers match your filters."
               : "No customers yet. Add your first customer to get started."}
           </p>
         </div>
       ) : (
-        <div className="rounded-lg border border-zinc-200 bg-background-card-light dark:border-border-dark dark:bg-background-card-dark">
+        <div>
           <Table>
             <TableHeader>
               <TableRow>
@@ -246,47 +246,47 @@ export function CustomersList({ initialCustomers }: CustomersListProps) {
                   onClick={() => setViewingCustomer(customer)}
                 >
                   <TableCell>
-                    <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                    <div className="font-medium text-zinc-100">
                       {`${customer.first_name || ""} ${customer.last_name || ""}`.trim() || "—"}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                    <div className="text-sm text-zinc-300">
                       {customer.email || "—"}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                    <div className="text-sm text-zinc-400">
                       {customer.phone || "—"}
                     </div>
                   </TableCell>
                   <TableCell>
                     {customer.is_vip ? (
-                      <Badge className="bg-yellow-500 text-white hover:bg-yellow-600">
+                      <Badge className="bg-zinc-100 text-zinc-900 hover:bg-white rounded-sm border-0">
                         <Crown className="mr-1 h-3 w-3" />
                         VIP
                       </Badge>
                     ) : (
-                      <span className="text-sm text-zinc-400">—</span>
+                      <span className="text-sm text-zinc-600">—</span>
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                    <div className="font-semibold tabular-nums text-zinc-100">
                       {formatPrice(customer.total_spend)}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                    <div className="text-sm tabular-nums text-zinc-400">
                       {customer.transaction_count || 0}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                    <div className="text-sm text-zinc-400">
                       {formatDateAgo(customer.last_purchase_date)}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                       <Button
                         variant="ghost"
                         size="sm"
