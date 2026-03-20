@@ -133,10 +133,10 @@ export function AddCustomerModal({
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[500px] bg-zinc-900 border-zinc-800 text-zinc-100 rounded-lg shadow-2xl p-6">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Customer" : "Add New Customer"}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">{isEditing ? "Edit Customer" : "Add New Customer"}</DialogTitle>
+          <DialogDescription className="text-zinc-400">
             {isEditing
               ? "Update customer information."
               : "Add a new customer to your database."}
@@ -151,9 +151,9 @@ export function AddCustomerModal({
                 name="first_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">First Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="John" {...field} />
+                      <Input placeholder="John" {...field} className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -165,9 +165,9 @@ export function AddCustomerModal({
                 name="last_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last Name</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Last Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Doe" {...field} />
+                      <Input placeholder="Doe" {...field} className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -180,12 +180,12 @@ export function AddCustomerModal({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="john@example.com" {...field} />
+                    <Input type="email" placeholder="john@example.com" {...field} className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm" />
                   </FormControl>
                   <FormMessage />
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className="text-[0.65rem] text-zinc-500 uppercase tracking-wider">
                     At least email or phone is required
                   </p>
                 </FormItem>
@@ -197,20 +197,20 @@ export function AddCustomerModal({
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Phone</FormLabel>
                   <FormControl>
-                    <Input type="tel" placeholder="+254 700 000 000" {...field} />
+                    <Input type="tel" placeholder="+254 700 000 000" {...field} className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+            <DialogFooter className="gap-2 sm:gap-0 mt-6">
+              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white">
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100">
                 {isSubmitting ? "Saving..." : isEditing ? "Update Customer" : "Add Customer"}
               </Button>
             </DialogFooter>

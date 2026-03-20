@@ -170,11 +170,11 @@ export function CustomersList({ initialCustomers }: CustomersListProps) {
           </h1>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExportCSV} className="gap-2">
+          <Button variant="outline" onClick={handleExportCSV} className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white gap-2">
             <Download className="h-4 w-4" />
             Export CSV
           </Button>
-          <Button onClick={() => setShowAddModal(true)} className="gap-2">
+          <Button onClick={() => setShowAddModal(true)} className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100 gap-2">
             <Plus className="h-4 w-4" />
             Add Customer
           </Button>
@@ -186,27 +186,27 @@ export function CustomersList({ initialCustomers }: CustomersListProps) {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
           <Input
-            placeholder="Search by name, email, or phone..."
+            placeholder="Search customers..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
+            className="pl-9 bg-zinc-900 border-zinc-800 text-zinc-100 h-10 rounded-sm"
           />
         </div>
         <Select value={filter} onValueChange={(value) => setFilter(value as FilterType)}>
-          <SelectTrigger>
+          <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-10 rounded-sm">
             <SelectValue placeholder="Filter" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
             <SelectItem value="all">All Customers</SelectItem>
             <SelectItem value="vip">VIP Only</SelectItem>
             <SelectItem value="first-time">First-Time Customers</SelectItem>
           </SelectContent>
         </Select>
         <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortType)}>
-          <SelectTrigger>
+          <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-10 rounded-sm">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
             <SelectItem value="spend">Total Spend (High to Low)</SelectItem>
             <SelectItem value="last_purchase">Last Purchase (Recent First)</SelectItem>
             <SelectItem value="name">Name (A-Z)</SelectItem>
@@ -224,73 +224,70 @@ export function CustomersList({ initialCustomers }: CustomersListProps) {
           </p>
         </div>
       ) : (
-        <div>
+        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>VIP</TableHead>
-                <TableHead className="text-right">Total Spend</TableHead>
-                <TableHead className="text-right">Transactions</TableHead>
-                <TableHead>Last Purchase</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+            <TableHeader className="bg-zinc-900">
+              <TableRow className="border-b-2 border-zinc-700 hover:bg-transparent">
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Name</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Contact</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center">VIP</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Total Spend</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Txns</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Last Purchase</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredAndSorted.map((customer) => (
                 <TableRow
                   key={customer.customer_id}
-                  className="cursor-pointer"
+                  className="cursor-pointer border-b border-zinc-700/40 hover:bg-zinc-800/40 transition-colors duration-100 last:border-0"
                   onClick={() => setViewingCustomer(customer)}
                 >
-                  <TableCell>
+                  <TableCell className="px-6 py-4">
                     <div className="font-medium text-zinc-100">
                       {`${customer.first_name || ""} ${customer.last_name || ""}`.trim() || "—"}
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <div className="text-sm text-zinc-300">
+                  <TableCell className="px-6 py-4">
+                    <div className="text-xs text-zinc-400 font-mono">
                       {customer.email || "—"}
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm text-zinc-400">
+                    <div className="text-xs text-zinc-500 mt-0.5">
                       {customer.phone || "—"}
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="px-6 py-4 text-center">
                     {customer.is_vip ? (
-                      <Badge className="bg-zinc-100 text-zinc-900 hover:bg-white rounded-sm border-0">
-                        <Crown className="mr-1 h-3 w-3" />
-                        VIP
-                      </Badge>
+                      <div className="inline-flex items-center justify-center">
+                        <Crown className="h-4 w-4 text-zinc-100" />
+                      </div>
                     ) : (
-                      <span className="text-sm text-zinc-600">—</span>
+                      <span className="text-zinc-700 text-xs">—</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
-                    <div className="font-semibold tabular-nums text-zinc-100">
+                  <TableCell className="px-6 py-4 text-right">
+                    <div className="font-editorial text-lg font-bold tabular-nums text-zinc-50">
                       {formatPrice(customer.total_spend)}
                     </div>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="px-6 py-4 text-right">
                     <div className="text-sm tabular-nums text-zinc-400">
                       {customer.transaction_count || 0}
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <div className="text-sm text-zinc-400">
+                  <TableCell className="px-6 py-4">
+                    <div className="text-xs text-zinc-500">
                       {formatDateAgo(customer.last_purchase_date)}
                     </div>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setViewingCustomer(customer)}
+                        className="h-8 w-8 p-0 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
@@ -298,6 +295,7 @@ export function CustomersList({ initialCustomers }: CustomersListProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => setEditingCustomer(customer)}
+                        className="h-8 w-8 p-0 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>

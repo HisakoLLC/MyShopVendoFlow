@@ -97,7 +97,7 @@ function statusBadgeClass(status: string | null): string {
     case "sent":
       return `${base} bg-blue-400/10 text-blue-400 border border-blue-400/20`
     case "partially_received":
-      return `${base} bg-amber-400/10 text-amber-400 border border-amber-400/20`
+      return `${base} bg-zinc-400/10 text-zinc-300 border border-zinc-400/20`
     case "received":
       return `${base} bg-emerald-400/10 text-emerald-400 border border-emerald-400/20`
     case "cancelled":
@@ -217,25 +217,26 @@ async function PurchasingContent() {
             </div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>PO #</TableHead>
-                  <TableHead>Supplier</TableHead>
-                  <TableHead>Order date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
+          <div className="overflow-hidden rounded-lg border border-zinc-700/50 bg-zinc-900">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader className="border-b-2 border-zinc-700 bg-zinc-900">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">PO #</TableHead>
+                    <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Supplier</TableHead>
+                    <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Order date</TableHead>
+                    <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Status</TableHead>
+                    <TableHead className="px-4 py-3 text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Total</TableHead>
+                    <TableHead className="px-4 py-3 text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
               <TableBody>
                 {list.map((po) => {
                   const canReceive =
                     po.status === "sent" || po.status === "partially_received"
                   return (
-                    <TableRow key={po.po_id}>
-                      <TableCell className="font-mono text-xs text-zinc-400">
+                    <TableRow key={po.po_id} className="border-b border-zinc-700/40 hover:bg-zinc-800/40 transition-colors duration-100 last:border-0">
+                      <TableCell className="px-4 py-3.5 font-mono text-xs text-zinc-400">
                         <Link
                           href={`/purchasing/${po.po_id}`}
                           className="hover:underline"
@@ -256,11 +257,11 @@ async function PurchasingContent() {
                           {statusLabel(po.status)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right font-semibold tabular-nums text-zinc-100">
+                      <TableCell className="px-4 py-3.5 text-right font-semibold tabular-nums text-zinc-100">
                         {formatCurrency(po.total_cost ?? 0, currency, { maximumFractionDigits: 2 })}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
+                      <TableCell className="px-4 py-3.5 text-right">
+                        <div className="flex justify-end gap-2 px-1">
                           <Button asChild variant="outline" size="sm" className="bg-transparent border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-7 px-3 text-xs font-semibold tracking-[0.1em] uppercase transition-colors shadow-none">
                             <Link href={`/purchasing/${po.po_id}`}>View</Link>
                           </Button>
@@ -278,10 +279,11 @@ async function PurchasingContent() {
                   )
                 })}
               </TableBody>
-            </Table>
+              </Table>
+            </div>
           </div>
-        )}
-      </div>
+          )}
+        </div>
     </div>
   )
 }

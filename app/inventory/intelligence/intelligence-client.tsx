@@ -231,7 +231,7 @@ export function InventoryIntelligenceClient({
   }
 
   return (
-    <div className="min-h-screen bg-background-light p-4 dark:bg-background-dark md:p-8">
+    <div className="min-h-screen bg-zinc-950 p-4 md:p-8">
       <div className="mx-auto max-w-7xl space-y-6">
         {/* Header */}
         <div>
@@ -245,11 +245,11 @@ export function InventoryIntelligenceClient({
 
         {/* Tabs */}
         <Tabs defaultValue="deadstock" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="deadstock">Dead Stock</TabsTrigger>
-            <TabsTrigger value="lowstock">Low Stock Alerts</TabsTrigger>
-            <TabsTrigger value="health">Stock Health</TabsTrigger>
-            <TabsTrigger value="heatmap">Size/Color Heatmap</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 bg-zinc-900 border border-zinc-800">
+            <TabsTrigger value="deadstock" className="rounded-sm data-[state=active]:bg-zinc-800">Dead Stock</TabsTrigger>
+            <TabsTrigger value="lowstock" className="rounded-sm data-[state=active]:bg-zinc-800">Low Stock Alerts</TabsTrigger>
+            <TabsTrigger value="health" className="rounded-sm data-[state=active]:bg-zinc-800">Stock Health</TabsTrigger>
+            <TabsTrigger value="heatmap" className="rounded-sm data-[state=active]:bg-zinc-800">Size/Color Heatmap</TabsTrigger>
           </TabsList>
 
           {/* Tab 1: Dead Stock */}
@@ -257,8 +257,8 @@ export function InventoryIntelligenceClient({
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <TrendingDown className="h-5 w-5 text-red-600" />
-                  Dead Stock Analysis
+                  <TrendingDown className="h-5 w-5 text-red-400" />
+                  <span className="font-editorial text-xl font-bold text-zinc-50">Dead Stock Analysis</span>
                 </CardTitle>
                 <CardDescription>
                   Products with low sell-through and high inventory value
@@ -268,10 +268,10 @@ export function InventoryIntelligenceClient({
                 <div className="mb-4 rounded-lg bg-red-50 p-4 dark:bg-red-900/20">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                      <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">
                         Total Dead Stock Value
                       </div>
-                      <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                      <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">
                         {formatPrice(totalDeadStockValue)}
                       </div>
                     </div>
@@ -286,23 +286,23 @@ export function InventoryIntelligenceClient({
                     No dead stock found. Great job!
                   </div>
                 ) : (
-                  <div className="rounded-md border border-zinc-200 dark:border-zinc-800">
+                  <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden">
                     <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Style</TableHead>
-                          <TableHead>Variant</TableHead>
-                          <TableHead>SKU</TableHead>
-                          <TableHead className="text-right">Stock</TableHead>
-                          <TableHead className="text-right">Sell-Through (90d)</TableHead>
-                          <TableHead className="text-right">Inventory Value</TableHead>
-                          <TableHead>Suggested Action</TableHead>
+                      <TableHeader className="bg-zinc-900 text-zinc-500">
+                        <TableRow className="border-b-2 border-zinc-700 hover:bg-transparent">
+                          <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Style</TableHead>
+                          <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Variant</TableHead>
+                          <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">SKU</TableHead>
+                          <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Stock</TableHead>
+                          <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Sell-Through (90d)</TableHead>
+                          <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Inventory Value</TableHead>
+                          <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Suggested Action</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {deadStock.map((item) => (
-                          <TableRow key={item.variant_id}>
-                            <TableCell>
+                          <TableRow key={item.variant_id} className="border-b border-zinc-700/40 hover:bg-zinc-800/40 transition-colors duration-100 last:border-0">
+                            <TableCell className="px-4 py-3.5">
                               <div className="flex items-center gap-2">
                                 {item.product_variants?.product_styles?.image_url && (
                                   <Image
@@ -310,25 +310,25 @@ export function InventoryIntelligenceClient({
                                     alt={item.product_variants.product_styles.name || ""}
                                     width={40}
                                     height={40}
-                                    className="rounded"
+                                    className="rounded-sm"
                                   />
                                 )}
-                                <span className="font-medium">
+                                <span className="font-medium text-zinc-100">
                                   {item.product_variants?.product_styles?.name || "Unknown"}
                                 </span>
                               </div>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="px-4 py-3.5 text-zinc-300">
                               {item.product_variants?.size} / {item.product_variants?.color}
                             </TableCell>
-                            <TableCell className="text-zinc-500 dark:text-zinc-400">
+                            <TableCell className="px-4 py-3.5 font-mono text-xs text-zinc-400 tracking-wide">
                               {item.product_variants?.sku}
                             </TableCell>
-                            <TableCell className="text-right">{item.stock}</TableCell>
-                            <TableCell className="text-right">
+                            <TableCell className="px-4 py-3.5 text-right text-zinc-300">{item.stock}</TableCell>
+                            <TableCell className="px-4 py-3.5 text-right text-red-400 font-semibold">
                               {formatPercent(item.sell_through_90d)}
                             </TableCell>
-                            <TableCell className="text-right font-medium">
+                            <TableCell className="px-4 py-3.5 text-right font-semibold text-zinc-100 tabular-nums">
                               {formatPrice(item.inventoryValue)}
                             </TableCell>
                             <TableCell>
@@ -351,8 +351,8 @@ export function InventoryIntelligenceClient({
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-yellow-600" />
-                  Low Stock Alerts
+                  <AlertTriangle className="h-5 w-5 text-yellow-400" />
+                  <span className="font-editorial text-xl font-bold text-zinc-50">Low Stock Alerts</span>
                 </CardTitle>
                 <CardDescription>
                   Variants with less than 7 days of inventory remaining
@@ -364,39 +364,39 @@ export function InventoryIntelligenceClient({
                     No low stock alerts. All variants are well-stocked.
                   </div>
                 ) : (
-                  <div className="rounded-md border border-zinc-200 dark:border-zinc-800">
+                  <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden">
                     <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Style</TableHead>
-                          <TableHead>Variant</TableHead>
-                          <TableHead className="text-right">Current Stock</TableHead>
-                          <TableHead className="text-right">Avg Daily Sales (30d)</TableHead>
-                          <TableHead className="text-right">Days Remaining</TableHead>
-                          <TableHead className="text-right">Suggested Reorder Qty</TableHead>
-                          <TableHead>Action</TableHead>
+                      <TableHeader className="bg-zinc-900">
+                        <TableRow className="border-b-2 border-zinc-700 hover:bg-transparent">
+                          <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Style</TableHead>
+                          <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Variant</TableHead>
+                          <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Current Stock</TableHead>
+                          <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Avg Daily Sales (30d)</TableHead>
+                          <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Days Remaining</TableHead>
+                          <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Suggested Reorder Qty</TableHead>
+                          <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Action</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {lowStockAlerts.map((item) => (
-                          <TableRow key={item.variant_id}>
-                            <TableCell className="font-medium">
+                          <TableRow key={item.variant_id} className="border-b border-zinc-700/40 hover:bg-zinc-800/40 transition-colors duration-100 last:border-0">
+                            <TableCell className="px-4 py-3.5 font-medium text-zinc-100">
                               {item.product_variants?.product_styles?.name || "Unknown"}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="px-4 py-3.5 text-zinc-300">
                               {item.product_variants?.size} / {item.product_variants?.color}
                             </TableCell>
-                            <TableCell className="text-right">{item.stock}</TableCell>
-                            <TableCell className="text-right">
+                            <TableCell className="px-4 py-3.5 text-right text-zinc-300 tabular-nums">{item.stock}</TableCell>
+                            <TableCell className="px-4 py-3.5 text-right text-zinc-400 tabular-nums">
                               {item.avg_daily_sales_30d?.toFixed(2) || "0.00"}
                             </TableCell>
-                            <TableCell className={`text-right ${getDaysRemainingColor(item.daysRemaining)}`}>
+                            <TableCell className={`px-4 py-3.5 text-right tabular-nums ${getDaysRemainingColor(item.daysRemaining)}`}>
                               {item.isOutOfStock ? "Out of stock" : `${item.daysRemaining.toFixed(1)} days`}
                             </TableCell>
-                            <TableCell className="text-right font-medium">
+                            <TableCell className="px-4 py-3.5 text-right font-semibold text-zinc-100 tabular-nums">
                               {item.suggestedReorder}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="px-4 py-3.5">
                               <Button variant="outline" size="sm">
                                 Create Restock Order
                               </Button>
@@ -416,12 +416,12 @@ export function InventoryIntelligenceClient({
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Healthy Stock</CardTitle>
-                  <Package className="h-4 w-4 text-green-600" />
+                  <CardTitle className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Healthy Stock</CardTitle>
+                  <Package className="h-4 w-4 text-green-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stockHealthSummary.healthy}</div>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                  <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">{stockHealthSummary.healthy}</div>
+                  <p className="text-xs text-zinc-500">
                     {stockHealthSummary.healthyPercent.toFixed(1)}% of variants
                   </p>
                 </CardContent>
@@ -429,12 +429,12 @@ export function InventoryIntelligenceClient({
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Low Stock</CardTitle>
-                  <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                  <CardTitle className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Low Stock</CardTitle>
+                  <AlertTriangle className="h-4 w-4 text-yellow-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stockHealthSummary.lowStock}</div>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                  <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">{stockHealthSummary.lowStock}</div>
+                  <p className="text-xs text-zinc-500">
                     {stockHealthSummary.lowStockPercent.toFixed(1)}% of variants
                   </p>
                 </CardContent>
@@ -442,12 +442,12 @@ export function InventoryIntelligenceClient({
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Dead Stock</CardTitle>
-                  <TrendingDown className="h-4 w-4 text-red-600" />
+                  <CardTitle className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Dead Stock</CardTitle>
+                  <TrendingDown className="h-4 w-4 text-red-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stockHealthSummary.deadStock}</div>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                  <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">{stockHealthSummary.deadStock}</div>
+                  <p className="text-xs text-zinc-500">
                     {stockHealthSummary.deadStockPercent.toFixed(1)}% of variants
                   </p>
                 </CardContent>
@@ -455,12 +455,12 @@ export function InventoryIntelligenceClient({
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Out of Stock</CardTitle>
-                  <DollarSign className="h-4 w-4 text-zinc-600" />
+                  <CardTitle className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Out of Stock</CardTitle>
+                  <DollarSign className="h-4 w-4 text-zinc-500" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stockHealthSummary.outOfStock}</div>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                  <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">{stockHealthSummary.outOfStock}</div>
+                  <p className="text-xs text-zinc-500">
                     {stockHealthSummary.outOfStockPercent.toFixed(1)}% of variants
                   </p>
                 </CardContent>
@@ -494,16 +494,16 @@ export function InventoryIntelligenceClient({
                     No variant metrics yet. Sales and inventory data will populate stock health over time.
                   </div>
                 ) : (
-                <div className="rounded-md border border-zinc-200 dark:border-zinc-800">
+                <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden">
                   <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Style</TableHead>
-                        <TableHead>Variant</TableHead>
-                        <TableHead className="text-right">Stock</TableHead>
-                        <TableHead className="text-right">Sell-Through (90d)</TableHead>
-                        <TableHead className="text-right">Days of Inventory</TableHead>
-                        <TableHead>Health Status</TableHead>
+                    <TableHeader className="bg-zinc-900">
+                      <TableRow className="border-b-2 border-zinc-700 hover:bg-transparent">
+                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Style</TableHead>
+                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Variant</TableHead>
+                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Stock</TableHead>
+                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Sell-Through (90d)</TableHead>
+                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Days of Inventory</TableHead>
+                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Health Status</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -526,22 +526,22 @@ export function InventoryIntelligenceClient({
                                 : "bg-zinc-100 text-zinc-800 dark:bg-zinc-900/30 dark:text-zinc-400"
 
                         return (
-                          <TableRow key={vm.variant_id}>
-                            <TableCell className="font-medium">
+                          <TableRow key={vm.variant_id} className="border-b border-zinc-700/40 hover:bg-zinc-800/40 transition-colors duration-100 last:border-0">
+                            <TableCell className="px-4 py-3.5 font-medium text-zinc-100">
                               {vm.product_variants?.product_styles?.name || "Unknown"}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="px-4 py-3.5 text-zinc-300">
                               {vm.product_variants?.size} / {vm.product_variants?.color}
                             </TableCell>
-                            <TableCell className="text-right">{stock}</TableCell>
-                            <TableCell className="text-right">
+                            <TableCell className="px-4 py-3.5 text-right text-zinc-300 tabular-nums">{stock}</TableCell>
+                            <TableCell className="px-4 py-3.5 text-right text-zinc-300 tabular-nums">
                               {formatPercent(vm.sell_through_90d)}
                             </TableCell>
-                            <TableCell className="text-right">
+                            <TableCell className="px-4 py-3.5 text-right text-zinc-300 tabular-nums">
                               {vm.days_of_inventory?.toFixed(1) || "N/A"}
                             </TableCell>
-                            <TableCell>
-                              <Badge className={healthColor}>
+                            <TableCell className="px-4 py-3.5">
+                              <Badge className={`${healthColor} rounded-sm text-[0.65rem] font-semibold tracking-[0.12em]`}>
                                 {healthStatus.replace("_", " ").toUpperCase()}
                               </Badge>
                             </TableCell>
@@ -601,20 +601,20 @@ export function InventoryIntelligenceClient({
                 ) : (
                   <div className="space-y-4">
                     {/* Legend */}
-                    <div className="flex items-center gap-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="h-4 w-4 rounded border-2 border-green-500 bg-green-100 dark:bg-green-900/30"></div>
-                        <span>Sell-through &gt; 50%</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="h-4 w-4 rounded border-2 border-yellow-500 bg-yellow-100 dark:bg-yellow-900/30"></div>
-                        <span>Sell-through 25-50%</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="h-4 w-4 rounded border-2 border-red-500 bg-red-100 dark:bg-red-900/30"></div>
-                        <span>Sell-through &lt; 25%</span>
-                      </div>
-                    </div>
+                        <div className="flex items-center gap-4 text-[0.65rem] font-semibold tracking-[0.12em] uppercase">
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-sm border border-green-500 bg-green-100 dark:bg-green-900/30"></div>
+                            <span className="text-zinc-400">Sell-through &gt; 50%</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-sm border border-yellow-500 bg-yellow-100 dark:bg-yellow-900/30"></div>
+                            <span className="text-zinc-400">Sell-through 25-50%</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-sm border border-red-500 bg-red-100 dark:bg-red-900/30"></div>
+                            <span className="text-zinc-400">Sell-through &lt; 25%</span>
+                          </div>
+                        </div>
 
                     {/* Heatmap Grid */}
                     <div className="overflow-x-auto">
@@ -622,13 +622,13 @@ export function InventoryIntelligenceClient({
                         <table className="w-full border-collapse">
                           <thead>
                             <tr>
-                              <th className="h-12 border border-zinc-200 bg-zinc-50 p-2 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900">
+                              <th className="h-12 border border-zinc-700 bg-zinc-900 p-2 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">
                                 Size / Color
                               </th>
                               {heatmapData.colors.map((color) => (
                                 <th
                                   key={color}
-                                  className="h-12 border border-zinc-200 bg-zinc-50 p-2 text-center align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900"
+                                  className="h-12 border border-zinc-700 bg-zinc-900 p-2 text-center align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500"
                                 >
                                   {color}
                                 </th>
@@ -637,8 +637,8 @@ export function InventoryIntelligenceClient({
                           </thead>
                           <tbody>
                             {heatmapData.sizes.map((size) => (
-                              <tr key={size}>
-                                <td className="border border-zinc-200 bg-zinc-50 p-2 font-medium dark:border-zinc-800 dark:bg-zinc-900">
+                              <tr key={size} className="hover:bg-zinc-800/40 transition-colors">
+                                <td className="border border-zinc-700 bg-zinc-900 p-2 font-medium text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-400">
                                   {size}
                                 </td>
                                 {heatmapData.colors.map((color) => {
@@ -649,10 +649,10 @@ export function InventoryIntelligenceClient({
                                   return (
                                     <td
                                       key={`${size}-${color}`}
-                                      className={`border border-zinc-200 p-3 text-center dark:border-zinc-800 ${getSellThroughColor(cell.sellThrough)}`}
+                                      className={`border border-zinc-700 p-3 text-center transition-colors ${getSellThroughColor(cell.sellThrough)}`}
                                     >
-                                      <div className="font-medium">{cell.stock}</div>
-                                      <div className="text-xs text-zinc-600 dark:text-zinc-400">
+                                      <div className="font-editorial text-lg font-bold text-zinc-50 tabular-nums">{cell.stock}</div>
+                                      <div className="text-[0.65rem] font-medium text-zinc-400 tabular-nums">
                                         {formatPercent(cell.sellThrough)}
                                       </div>
                                     </td>

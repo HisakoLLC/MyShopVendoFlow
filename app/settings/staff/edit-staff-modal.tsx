@@ -106,10 +106,10 @@ export function EditStaffModal({
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[500px] bg-zinc-900 border-zinc-800 text-zinc-100 rounded-lg shadow-2xl p-6">
         <DialogHeader>
-          <DialogTitle>Edit Staff Member</DialogTitle>
-          <DialogDescription>Update staff information and role.</DialogDescription>
+          <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">Edit Staff Member</DialogTitle>
+          <DialogDescription className="text-zinc-400">Update staff information and role.</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -120,9 +120,9 @@ export function EditStaffModal({
                 name="first_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name *</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">First Name *</FormLabel>
                     <FormControl>
-                      <Input placeholder="John" {...field} />
+                      <Input placeholder="John" {...field} className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -134,9 +134,9 @@ export function EditStaffModal({
                 name="last_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last Name *</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Last Name *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Doe" {...field} />
+                      <Input placeholder="Doe" {...field} className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -144,10 +144,10 @@ export function EditStaffModal({
               />
             </div>
 
-            <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-900">
-              <div className="text-sm text-zinc-600 dark:text-zinc-400">Email</div>
-              <div className="font-medium text-zinc-900 dark:text-zinc-100">{staff.email}</div>
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+            <div className="rounded-lg border border-zinc-800 bg-zinc-800/30 p-4">
+              <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Email</div>
+              <div className="font-mono text-sm text-zinc-300 mt-1">{staff.email}</div>
+              <p className="mt-2 text-[0.65rem] text-zinc-500 uppercase tracking-wider">
                 Email cannot be changed
               </p>
             </div>
@@ -157,14 +157,14 @@ export function EditStaffModal({
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Role *</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Role *</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm">
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
                       <SelectItem value="cashier">Cashier</SelectItem>
                       <SelectItem value="manager">Manager</SelectItem>
                       <SelectItem value="owner">Owner</SelectItem>
@@ -175,11 +175,11 @@ export function EditStaffModal({
               )}
             />
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+            <DialogFooter className="gap-2 sm:gap-0 mt-6">
+              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white">
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100">
                 {isSubmitting ? "Updating..." : "Update Staff Member"}
               </Button>
             </DialogFooter>

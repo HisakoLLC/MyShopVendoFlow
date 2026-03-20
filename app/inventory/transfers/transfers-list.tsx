@@ -92,7 +92,7 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
           </h1>
         </div>
         <Link href="/inventory/transfer">
-          <Button className="gap-2">
+          <Button className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100 gap-2">
             <Plus className="h-4 w-4" />
             New Transfer
           </Button>
@@ -100,16 +100,16 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
       </div>
 
       {transfers.length === 0 ? (
-        <div className="rounded-lg border border-zinc-200 bg-background-card-light p-12 text-center dark:border-border-dark dark:bg-background-card-dark">
+        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-12 text-center">
           <Package className="mx-auto mb-4 h-12 w-12 text-zinc-400" />
-          <h3 className="mb-2 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+          <h3 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
             No transfers yet
           </h3>
-          <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="mb-4 text-sm text-zinc-500">
             Create your first transfer to move inventory between stores.
           </p>
           <Link href="/inventory/transfer">
-            <Button className="gap-2">
+            <Button className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100 gap-2">
               <Plus className="h-4 w-4" />
               Create Transfer
             </Button>
@@ -123,25 +123,25 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
               <h2 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
                 Pending Transfers
               </h2>
-              <div>
+              <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden">
                 <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Variant</TableHead>
-                      <TableHead>From</TableHead>
-                      <TableHead>To</TableHead>
-                      <TableHead className="text-right">Quantity</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                  <TableHeader className="bg-zinc-900">
+                    <TableRow className="border-b-2 border-zinc-700 hover:bg-transparent">
+                      <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Product</TableHead>
+                      <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Variant</TableHead>
+                      <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">From</TableHead>
+                      <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">To</TableHead>
+                      <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Qty</TableHead>
+                      <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Created</TableHead>
+                      <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {pendingTransfers.map((transfer) => (
-                      <TableRow key={transfer.transfer_id}>
-                        <TableCell>
+                      <TableRow key={transfer.transfer_id} className="border-b border-zinc-700/40 hover:bg-zinc-800/40 transition-colors duration-100 last:border-0">
+                        <TableCell className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className={transfer.product_variants?.product_styles?.image_url ? "relative h-10 w-10 shrink-0 overflow-hidden rounded-md" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
+                            <div className={transfer.product_variants?.product_styles?.image_url ? "relative h-10 w-10 shrink-0 overflow-hidden rounded-md border border-zinc-800" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-zinc-800 bg-zinc-900"}>
                               {transfer.product_variants?.product_styles?.image_url ? (
                                 <Image
                                   src={transfer.product_variants.product_styles.image_url}
@@ -150,7 +150,7 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
                                   className="object-cover"
                                 />
                               ) : (
-                                <Package className="h-4 w-4 text-zinc-600" />
+                                <Package className="h-4 w-4 text-zinc-700" />
                               )}
                             </div>
                             <div className="min-w-0">
@@ -158,56 +158,58 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
                                 {transfer.product_variants?.product_styles?.name || "—"}
                               </div>
                               {transfer.product_variants?.sku && (
-                                <div className="font-mono text-xs text-zinc-400 tracking-wide mt-0.5">
+                                <div className="font-mono text-[0.65rem] text-zinc-500 tracking-wider mt-1 uppercase">
                                   {transfer.product_variants.sku}
                                 </div>
                               )}
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="px-6 py-4">
                           {transfer.product_variants ? (
-                            <div className="text-sm text-zinc-300">
+                            <div className="text-sm text-zinc-400">
                               {transfer.product_variants.size} / {transfer.product_variants.color}
                             </div>
                           ) : (
                             <span className="text-sm text-zinc-500">—</span>
                           )}
                         </TableCell>
-                        <TableCell>
-                          <div className="font-medium text-zinc-300">
+                        <TableCell className="px-6 py-4">
+                          <div className="text-sm text-zinc-300">
                             {transfer.stores_from?.name || "—"}
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <ArrowRight className="inline h-4 w-4 text-zinc-500" />
-                          <div className="ml-2 inline font-medium text-zinc-300">
-                            {transfer.stores_to?.name || "—"}
+                        <TableCell className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <ArrowRight className="h-3 w-3 text-zinc-600" />
+                            <div className="text-sm text-zinc-300">
+                              {transfer.stores_to?.name || "—"}
+                            </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right">
-                          <div className="text-sm font-semibold text-zinc-100 tabular-nums">
+                        <TableCell className="px-6 py-4 text-right">
+                          <div className="text-sm font-mono text-zinc-100 tabular-nums">
                             {transfer.quantity}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="px-6 py-4">
                           {transfer.created_date ? (
-                            <div className="text-sm text-zinc-400">
+                            <div className="text-xs font-mono text-zinc-500">
                               {new Date(transfer.created_date).toLocaleDateString()}
                             </div>
                           ) : (
                             <span className="text-sm text-zinc-500">—</span>
                           )}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="px-6 py-4 text-right">
                           <Button
                             size="sm"
                             onClick={() => handleMarkReceived(transfer.transfer_id)}
                             disabled={completingId === transfer.transfer_id}
-                            className="gap-2"
+                            className="rounded-sm bg-zinc-100 text-zinc-950 hover:bg-white h-8 px-3 text-xs gap-2"
                           >
-                            <CheckCircle2 className="h-4 w-4" />
-                            {completingId === transfer.transfer_id ? "Processing..." : "Mark Received"}
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            {completingId === transfer.transfer_id ? "..." : "Received"}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -224,25 +226,25 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
               <h2 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
                 Completed Transfers
               </h2>
-              <div>
+              <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden">
                 <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Variant</TableHead>
-                      <TableHead>From</TableHead>
-                      <TableHead>To</TableHead>
-                      <TableHead className="text-right">Quantity</TableHead>
-                      <TableHead>Completed</TableHead>
-                      <TableHead>Status</TableHead>
+                  <TableHeader className="bg-zinc-900">
+                    <TableRow className="border-b-2 border-zinc-700 hover:bg-transparent">
+                      <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Product</TableHead>
+                      <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Variant</TableHead>
+                      <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">From</TableHead>
+                      <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">To</TableHead>
+                      <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Qty</TableHead>
+                      <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Completed</TableHead>
+                      <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {completedTransfers.map((transfer) => (
-                      <TableRow key={transfer.transfer_id}>
-                        <TableCell>
+                      <TableRow key={transfer.transfer_id} className="border-b border-zinc-700/40 hover:bg-zinc-800/40 transition-colors duration-100 last:border-0">
+                        <TableCell className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className={transfer.product_variants?.product_styles?.image_url ? "relative h-10 w-10 shrink-0 overflow-hidden rounded-md" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
+                            <div className={transfer.product_variants?.product_styles?.image_url ? "relative h-10 w-10 shrink-0 overflow-hidden rounded-md border border-zinc-800" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-zinc-800 bg-zinc-900"}>
                               {transfer.product_variants?.product_styles?.image_url ? (
                                 <Image
                                   src={transfer.product_variants.product_styles.image_url}
@@ -251,7 +253,7 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
                                   className="object-cover"
                                 />
                               ) : (
-                                <Package className="h-4 w-4 text-zinc-600" />
+                                <Package className="h-4 w-4 text-zinc-700" />
                               )}
                             </div>
                             <div className="min-w-0">
@@ -259,49 +261,51 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
                                 {transfer.product_variants?.product_styles?.name || "—"}
                               </div>
                               {transfer.product_variants?.sku && (
-                                <div className="font-mono text-xs text-zinc-400 tracking-wide mt-0.5">
+                                <div className="font-mono text-[0.65rem] text-zinc-500 tracking-wider mt-1 uppercase">
                                   {transfer.product_variants.sku}
                                 </div>
                               )}
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="px-6 py-4">
                           {transfer.product_variants ? (
-                            <div className="text-sm text-zinc-300">
+                            <div className="text-sm text-zinc-400">
                               {transfer.product_variants.size} / {transfer.product_variants.color}
                             </div>
                           ) : (
                             <span className="text-sm text-zinc-500">—</span>
                           )}
                         </TableCell>
-                        <TableCell>
-                          <div className="font-medium text-zinc-300">
+                        <TableCell className="px-6 py-4">
+                          <div className="text-sm text-zinc-300">
                             {transfer.stores_from?.name || "—"}
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <ArrowRight className="inline h-4 w-4 text-zinc-500" />
-                          <div className="ml-2 inline font-medium text-zinc-300">
-                            {transfer.stores_to?.name || "—"}
+                        <TableCell className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <ArrowRight className="h-3 w-3 text-zinc-600" />
+                            <div className="text-sm text-zinc-300">
+                              {transfer.stores_to?.name || "—"}
+                            </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right">
-                          <div className="text-sm font-semibold text-zinc-100 tabular-nums">
+                        <TableCell className="px-6 py-4 text-right">
+                          <div className="text-sm font-mono text-zinc-100 tabular-nums">
                             {transfer.quantity}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="px-6 py-4">
                           {transfer.completed_date ? (
-                            <div className="text-sm text-zinc-400">
+                            <div className="text-xs font-mono text-zinc-500">
                               {new Date(transfer.completed_date).toLocaleDateString()}
                             </div>
                           ) : (
                             <span className="text-sm text-zinc-500">—</span>
                           )}
                         </TableCell>
-                        <TableCell>
-                          <Badge variant="secondary" className="gap-1">
+                        <TableCell className="px-6 py-4">
+                          <Badge variant="secondary" className="gap-1 bg-zinc-800 text-zinc-400 border border-zinc-700/50 rounded-sm">
                             <CheckCircle2 className="h-3 w-3" />
                             Completed
                           </Badge>

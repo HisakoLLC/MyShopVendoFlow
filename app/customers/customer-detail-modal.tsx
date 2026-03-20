@@ -175,20 +175,17 @@ export function CustomerDetailModal({
     <>
       <Toaster richColors position="top-right" />
       <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-zinc-900 border-zinc-800 text-zinc-100 rounded-lg shadow-2xl p-6">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <div>
-                <DialogTitle className="flex items-center gap-2">
+                <DialogTitle className="font-editorial text-2xl font-bold flex items-center gap-2 text-zinc-50">
                   {`${customer.first_name || ""} ${customer.last_name || ""}`.trim() || "Customer"}
                   {customer.is_vip && (
-                    <Badge className="bg-yellow-500 text-white hover:bg-yellow-600">
-                      <Crown className="mr-1 h-3 w-3" />
-                      VIP
-                    </Badge>
+                    <Crown className="h-4 w-4 text-zinc-100" />
                   )}
                 </DialogTitle>
-                <DialogDescription>
+                <DialogDescription className="text-zinc-400">
                   Customer details and purchase history
                 </DialogDescription>
               </div>
@@ -197,51 +194,51 @@ export function CustomerDetailModal({
 
           <div className="space-y-6">
             {/* Customer Info */}
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2">
               <div>
-                <div className="text-sm text-zinc-600 dark:text-zinc-400">Email</div>
-                <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">Email</div>
+                <div className="font-mono text-sm text-zinc-300">
                   {customer.email || "—"}
                 </div>
               </div>
               <div>
-                <div className="text-sm text-zinc-600 dark:text-zinc-400">Phone</div>
-                <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">Phone</div>
+                <div className="text-sm text-zinc-300">
                   {customer.phone || "—"}
                 </div>
               </div>
               <div>
-                <div className="text-sm text-zinc-600 dark:text-zinc-400">First Purchase</div>
-                <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">First Purchase</div>
+                <div className="text-sm text-zinc-300">
                   {formatDate(customer.first_purchase_date)}
                 </div>
               </div>
               <div>
-                <div className="text-sm text-zinc-600 dark:text-zinc-400">Last Purchase</div>
-                <div className="font-medium text-zinc-900 dark:text-zinc-100">
-                  {formatDate(customer.last_purchase_date)}
+                <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">Last Purchase</div>
+                <div className="text-sm text-zinc-300">
+                   {formatDate(customer.last_purchase_date)}
                 </div>
               </div>
             </div>
 
             {/* Stats */}
-            <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
-              <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-lg border border-zinc-800 bg-zinc-800/30 p-6">
+              <div className="grid gap-6 md:grid-cols-3">
                 <div>
-                  <div className="text-sm text-zinc-600 dark:text-zinc-400">Total Spend</div>
-                  <div className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+                  <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">Total Spend</div>
+                  <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">
                     {formatPrice(customer.total_spend)}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-zinc-600 dark:text-zinc-400">Transaction Count</div>
-                  <div className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+                  <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">Transactions</div>
+                  <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">
                     {customer.transaction_count || 0}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-zinc-600 dark:text-zinc-400">Avg Basket Size</div>
-                  <div className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+                  <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">Avg Basket</div>
+                  <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">
                     {formatPrice(avgBasketSize)}
                   </div>
                 </div>
@@ -249,12 +246,12 @@ export function CustomerDetailModal({
             </div>
 
             {/* VIP Toggle */}
-            <div className="flex items-center justify-between rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+            <div className="flex items-center justify-between rounded-lg border border-zinc-800 p-6 bg-zinc-900">
               <div>
-                <Label htmlFor="vip-toggle" className="text-base font-medium">
+                <Label htmlFor="vip-toggle" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">
                   Tag as VIP
                 </Label>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                <p className="text-sm text-zinc-400 mt-1">
                   VIP customers receive special treatment and discounts
                 </p>
               </div>
@@ -263,48 +260,49 @@ export function CustomerDetailModal({
                 checked={isVip}
                 onCheckedChange={handleVIPToggle}
                 disabled={isUpdatingVIP}
+                className="data-[state=checked]:bg-white data-[state=unchecked]:bg-zinc-800"
               />
             </div>
 
             {/* Purchase History */}
             <div>
-              <h3 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              <h3 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
                 Purchase History
               </h3>
               {isLoadingHistory ? (
-                <div className="text-center py-8 text-sm text-zinc-600 dark:text-zinc-400">
+                <div className="text-center py-8 text-sm text-zinc-500">
                   Loading...
                 </div>
               ) : purchaseHistory.length === 0 ? (
-                <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-8 text-center dark:border-zinc-800 dark:bg-zinc-900">
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400">No purchase history</p>
+                <div className="rounded-lg border border-zinc-800 bg-zinc-800/20 p-8 text-center">
+                  <p className="text-sm text-zinc-500">No purchase history</p>
                 </div>
               ) : (
-                <div className="rounded-lg border border-zinc-200 dark:border-zinc-800">
+                <div className="rounded-lg border border-zinc-800 overflow-hidden">
                   <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Receipt #</TableHead>
-                        <TableHead>Store</TableHead>
-                        <TableHead className="text-right">Total</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                    <TableHeader className="bg-zinc-900">
+                      <TableRow className="border-b border-zinc-700 hover:bg-transparent">
+                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Date</TableHead>
+                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Receipt #</TableHead>
+                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Store</TableHead>
+                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Total</TableHead>
+                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Action</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {purchaseHistory.map((sale) => (
-                        <TableRow key={sale.sale_id}>
-                          <TableCell>{formatDate(sale.sale_date)}</TableCell>
-                          <TableCell>
-                            <span className="font-mono text-sm">{sale.receipt_number}</span>
+                        <TableRow key={sale.sale_id} className="border-b border-zinc-800/50 last:border-0 hover:bg-zinc-800/30">
+                          <TableCell className="px-4 py-3 text-sm text-zinc-300">{formatDate(sale.sale_date)}</TableCell>
+                          <TableCell className="px-4 py-3">
+                            <span className="font-mono text-xs text-zinc-400 tracking-wide">{sale.receipt_number}</span>
                           </TableCell>
-                          <TableCell>{sale.stores?.name || "—"}</TableCell>
-                          <TableCell className="text-right font-medium">
-                            {formatPrice(sale.grand_total)}
+                          <TableCell className="px-4 py-3 text-sm text-zinc-300">{sale.stores?.name || "—"}</TableCell>
+                          <TableCell className="px-4 py-3 text-right">
+                            <span className="font-editorial text-lg font-bold tabular-nums text-zinc-50">{formatPrice(sale.grand_total)}</span>
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="px-4 py-3 text-right">
                             <Link href={`/sales?receipt=${sale.receipt_number}`}>
-                              <Button variant="ghost" size="sm">
+                              <Button variant="ghost" size="sm" className="h-8 rounded-sm text-zinc-400 hover:text-white hover:bg-zinc-800">
                                 View
                               </Button>
                             </Link>
@@ -318,15 +316,16 @@ export function CustomerDetailModal({
             </div>
 
             {/* Notes */}
-            <div>
-              <div className="mb-2 flex items-center justify-between">
-                <Label htmlFor="notes" className="text-base font-medium">
+            <div className="pt-6 border-t border-zinc-800">
+              <div className="mb-4 flex items-center justify-between">
+                <Label htmlFor="notes" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">
                   Notes
                 </Label>
                 <Button
                   size="sm"
                   onClick={handleSaveNotes}
                   disabled={isSavingNotes || notes === (customer.notes || "")}
+                  className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100"
                 >
                   {isSavingNotes ? "Saving..." : "Save Notes"}
                 </Button>
@@ -336,7 +335,7 @@ export function CustomerDetailModal({
                 placeholder="Add notes about this customer..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="min-h-[100px]"
+                className="min-h-[100px] bg-zinc-800 border-zinc-700 text-zinc-100 rounded-sm"
               />
             </div>
           </div>

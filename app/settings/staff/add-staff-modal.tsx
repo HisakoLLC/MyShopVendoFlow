@@ -147,10 +147,10 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
   return (
     <>
       <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[550px] bg-zinc-900 border-zinc-800 text-zinc-100 rounded-lg shadow-2xl p-6">
           <DialogHeader>
-            <DialogTitle>Add Staff Member</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">Add Staff Member</DialogTitle>
+            <DialogDescription className="text-zinc-400">
               Create a new staff account. An invitation email will be sent.
             </DialogDescription>
           </DialogHeader>
@@ -163,9 +163,9 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                   name="first_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>First Name *</FormLabel>
+                      <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">First Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="John" {...field} />
+                        <Input placeholder="John" {...field} className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -177,9 +177,9 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                   name="last_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Last Name *</FormLabel>
+                      <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Last Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Doe" {...field} />
+                        <Input placeholder="Doe" {...field} className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -192,9 +192,9 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email *</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Email *</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="john@example.com" {...field} />
+                      <Input type="email" placeholder="john@example.com" {...field} className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -206,14 +206,14 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                 name="role"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Role *</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Role *</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm">
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
                         <SelectItem value="cashier">Cashier</SelectItem>
                         <SelectItem value="manager">Manager</SelectItem>
                         <SelectItem value="owner">Owner</SelectItem>
@@ -229,17 +229,17 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                 name="assigned_store_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Assigned Store *</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Assigned Store *</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value ?? undefined}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm">
                           <SelectValue placeholder="Select store" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
                         {stores.map((store) => (
                           <SelectItem key={store.store_id} value={store.store_id}>
                             {store.name}
@@ -247,7 +247,7 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormDescription>
+                    <FormDescription className="text-zinc-500">
                       Cashiers will only see and sell from this store in POS.
                     </FormDescription>
                     <FormMessage />
@@ -264,24 +264,24 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                        className="border-2 border-amber-500 focus-visible:ring-amber-500/30"
+                        className="border-zinc-700 data-[state=checked]:bg-white data-[state=checked]:text-zinc-950"
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel>Generate PIN</FormLabel>
-                      <FormDescription>
-                        Auto-generate a 6-digit PIN for POS login (easy to remember, e.g. 33xxxx or xxxx00)
+                      <FormLabel className="text-sm font-medium text-zinc-200">Generate PIN</FormLabel>
+                      <FormDescription className="text-zinc-500">
+                        Auto-generate a 6-digit PIN for POS login.
                       </FormDescription>
                     </div>
                   </FormItem>
                 )}
               />
 
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+              <DialogFooter className="gap-2 sm:gap-0 mt-6">
+                <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white">
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button type="submit" disabled={isSubmitting} className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100">
                   {isSubmitting ? "Creating..." : "Create Staff Member"}
                 </Button>
               </DialogFooter>
@@ -304,28 +304,29 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
             }
           }}
         >
-          <DialogContent>
+          <DialogContent className="bg-zinc-900 border-zinc-800 text-zinc-100 rounded-lg shadow-2xl p-6">
             <DialogHeader>
-              <DialogTitle>New staff created</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">New staff created</DialogTitle>
+              <DialogDescription className="text-zinc-400">
                 Copy this PIN and share it with the staff member. It will not be shown again.
               </DialogDescription>
             </DialogHeader>
-            <div className="my-4 rounded-lg border-2 border-zinc-200 bg-zinc-50 p-6 dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="my-6 rounded-lg border border-zinc-800 bg-zinc-800/50 p-6">
               <div className="text-center">
-                <div className="mb-2 text-sm text-zinc-600 dark:text-zinc-400">PIN</div>
-                <div className="font-mono text-4xl font-bold text-zinc-900 dark:text-zinc-100">
+                <div className="mb-2 text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">PIN</div>
+                <div className="font-mono text-4xl font-bold text-zinc-50 tracking-widest">
                   {generatedPIN}
                 </div>
               </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="gap-2 sm:gap-0">
               <Button
                 variant="outline"
                 onClick={() => {
                   navigator.clipboard.writeText(generatedPIN)
                   toast.success("PIN copied to clipboard")
                 }}
+                className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white"
               >
                 Copy PIN
               </Button>
@@ -337,6 +338,7 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                   }
                   setGeneratedPIN(null)
                 }}
+                className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100"
               >
                 Done
               </Button>

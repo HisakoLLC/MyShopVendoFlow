@@ -212,7 +212,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
     <>
       <div className="space-y-4">
         {/* Filters */}
-        <div className="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-zinc-900 p-4 dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-4 rounded-lg border border-zinc-700/50 bg-zinc-900 p-4 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
             <Input
@@ -249,14 +249,14 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
             </SelectContent>
           </Select>
 
-          <div className="flex items-center rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 dark:border-zinc-700 dark:bg-zinc-800/50">
+          <div className="flex items-center rounded-sm border border-zinc-700 bg-zinc-800/50 p-0.5">
             <button
               type="button"
               onClick={() => setLayoutView("list")}
               className={`rounded-md p-2 transition-colors ${
                 layoutView === "list"
-                  ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
-                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                  ? "bg-zinc-700 text-zinc-100 shadow-sm"
+                  : "text-zinc-500 hover:text-zinc-300"
               }`}
               title="List view"
               aria-label="List view"
@@ -268,8 +268,8 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
               onClick={() => setLayoutView("grid")}
               className={`rounded-md p-2 transition-colors ${
                 layoutView === "grid"
-                  ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
-                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                  ? "bg-zinc-700 text-zinc-100 shadow-sm"
+                  : "text-zinc-500 hover:text-zinc-300"
               }`}
               title="Grid view"
               aria-label="Grid view"
@@ -292,25 +292,25 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
         </div>
 
         {/* List: Table */}
-        <div className={layoutView === "grid" ? "hidden" : "block"}>
+        <div className={layoutView === "grid" ? "hidden" : "block rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden"}>
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12 px-2" aria-label="Select row">
+            <TableHeader className="bg-zinc-900">
+              <TableRow className="border-b-2 border-zinc-700 hover:bg-transparent">
+                <TableHead className="w-12 px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500" aria-label="Select row">
                   <span className="sr-only">Select</span>
                 </TableHead>
-                <TableHead className="w-[200px]">Style</TableHead>
-                <TableHead>Variant</TableHead>
-                <TableHead>SKU</TableHead>
+                <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 w-[200px]">Style</TableHead>
+                <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Variant</TableHead>
+                <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">SKU</TableHead>
                 {hasMultipleStores &&
                   stores.map((store) => (
-                    <TableHead key={store.store_id} className="text-right">
+                    <TableHead key={store.store_id} className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">
                       {store.name}
                     </TableHead>
                   ))}
-                {!hasMultipleStores && <TableHead className="text-right">Stock</TableHead>}
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                {!hasMultipleStores && <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Stock</TableHead>}
+                <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Total</TableHead>
+                <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -323,17 +323,17 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
               ) : (
                 filtered.map((item) => {
                   return (
-                    <TableRow key={item.variant_id}>
-                      <TableCell className="w-12 px-2">
+                    <TableRow key={item.variant_id} className="border-b border-zinc-700/40 hover:bg-zinc-800/40 transition-colors duration-100 last:border-0">
+                      <TableCell className="w-12 px-4 py-3.5">
                         <Checkbox
                           checked={selectedIds.has(item.variant_id)}
                           onCheckedChange={() => toggleRow(item.variant_id)}
                           aria-label={`Select ${item.style_name} ${item.size}/${item.color}`}
                         />
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
-                          <div className={item.style_image_url ? "relative h-10 w-10 overflow-hidden rounded-md" : "flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
+                          <div className={item.style_image_url ? "relative h-10 w-10 shrink-0 overflow-hidden rounded-sm" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-zinc-700 bg-zinc-800"}>
                             {item.style_image_url ? (
                               <Image
                                 src={item.style_image_url}
@@ -350,10 +350,10 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="px-4 py-3.5 text-zinc-300">
                         {item.size} / {item.color}
                       </TableCell>
-                      <TableCell className="font-mono text-xs text-zinc-400 tracking-wide">
+                      <TableCell className="px-4 py-3.5 font-mono text-xs text-zinc-400 tracking-wide">
                         {item.sku}
                       </TableCell>
                       {hasMultipleStores
@@ -361,7 +361,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                             const level = item.stores.find((s) => s.store_id === store.store_id)
                             const qty = level?.quantity_on_hand ?? 0
                             return (
-                              <TableCell key={store.store_id} className={`text-right ${getStockColorClass(qty)}`}>
+                              <TableCell key={store.store_id} className={`px-4 py-3.5 text-right ${getStockColorClass(qty)}`}>
                                 {qty}
                               </TableCell>
                             )
@@ -369,15 +369,15 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                         : (() => {
                             const qty = item.stores[0]?.quantity_on_hand ?? 0
                             return (
-                              <TableCell className={`text-right ${getStockColorClass(qty)}`}>
+                              <TableCell className={`px-4 py-3.5 text-right ${getStockColorClass(qty)}`}>
                                 {qty}
                               </TableCell>
                             )
                           })()}
-                      <TableCell className={`text-right ${getStockColorClass(item.total_stock)}`}>
+                      <TableCell className={`px-4 py-3.5 text-right ${getStockColorClass(item.total_stock)}`}>
                         {item.total_stock}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="px-4 py-3.5 text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button className="inline-flex w-8 h-8 rounded-sm hover:bg-zinc-800 items-center justify-center transition-colors text-zinc-500">
@@ -463,10 +463,10 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
               return (
                 <div
                   key={item.variant_id}
-                  className="rounded-xl border border-zinc-700/50 bg-zinc-900 p-4"
+                  className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-4"
                 >
                   <div className="flex gap-3">
-                    <div className={item.style_image_url ? "relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md" : "flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
+                    <div className={item.style_image_url ? "relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-sm" : "flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-sm border border-zinc-700 bg-zinc-800"}>
                       {item.style_image_url ? (
                         <Image
                           src={item.style_image_url}
@@ -601,8 +601,8 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
         onOpenChange={(open) => !open && setDeletingVariant(null)}
       >
         <AlertDialog.Portal>
-          <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
-          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-background-card-light p-5 shadow-lg outline-none dark:border-border-dark dark:bg-background-card-dark">
+          <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" />
+          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-zinc-200 bg-white p-6 shadow-2xl outline-none">
             <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
               Delete this variant?
             </AlertDialog.Title>

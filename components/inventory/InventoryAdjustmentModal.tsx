@@ -161,13 +161,13 @@ export function InventoryAdjustmentModal({
 
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="sm:max-w-[550px] bg-zinc-900 border-zinc-800 text-zinc-100 rounded-lg shadow-2xl p-6">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">
             Adjust Stock: {variant.style_name} ({variant.size}/{variant.color})
           </DialogTitle>
-          <DialogDescription>
-            Current Stock at {store.name}: <span className="font-semibold">{currentStock}</span> units
+          <DialogDescription className="text-zinc-400">
+            Current Stock at {store.name}: <span className="font-semibold text-zinc-100">{currentStock}</span> units
           </DialogDescription>
         </DialogHeader>
 
@@ -178,7 +178,7 @@ export function InventoryAdjustmentModal({
               name="adjustmentType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Adjustment Type</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Adjustment Type</FormLabel>
                   <FormControl>
                     <RadioGroup
                       value={field.value}
@@ -188,31 +188,31 @@ export function InventoryAdjustmentModal({
                       }}
                       className="space-y-3"
                     >
-                      <div className="flex items-center space-x-2 rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
-                        <RadioGroupItem value="add" id="add" />
+                      <div className="flex items-center space-x-2 rounded-sm border border-zinc-800 p-3 bg-zinc-800/50">
+                        <RadioGroupItem value="add" id="add" className="border-zinc-700 text-white" />
                         <Label htmlFor="add" className="flex-1 cursor-pointer">
-                          <div className="font-medium">Add Stock</div>
-                          <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                          <div className="font-medium text-zinc-100">Add Stock</div>
+                          <div className="text-xs text-zinc-400">
                             Received shipment, restock, etc.
                           </div>
                         </Label>
                       </div>
 
-                      <div className="flex items-center space-x-2 rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
-                        <RadioGroupItem value="remove" id="remove" />
+                      <div className="flex items-center space-x-2 rounded-sm border border-zinc-800 p-3 bg-zinc-800/50">
+                        <RadioGroupItem value="remove" id="remove" className="border-zinc-700 text-white" />
                         <Label htmlFor="remove" className="flex-1 cursor-pointer">
-                          <div className="font-medium">Remove Stock</div>
-                          <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                          <div className="font-medium text-zinc-100">Remove Stock</div>
+                          <div className="text-xs text-zinc-400">
                             Damaged, lost, returned, etc.
                           </div>
                         </Label>
                       </div>
 
-                      <div className="flex items-center space-x-2 rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
-                        <RadioGroupItem value="set" id="set" />
+                      <div className="flex items-center space-x-2 rounded-sm border border-zinc-800 p-3 bg-zinc-800/50">
+                        <RadioGroupItem value="set" id="set" className="border-zinc-700 text-white" />
                         <Label htmlFor="set" className="flex-1 cursor-pointer">
-                          <div className="font-medium">Set Stock</div>
-                          <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                          <div className="font-medium text-zinc-100">Set Stock</div>
+                          <div className="text-xs text-zinc-400">
                             Override to exact count (physical count)
                           </div>
                         </Label>
@@ -229,7 +229,7 @@ export function InventoryAdjustmentModal({
               name="quantity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">
                     {adjustmentType === "add"
                       ? "Quantity to Add"
                       : adjustmentType === "remove"
@@ -242,6 +242,7 @@ export function InventoryAdjustmentModal({
                       inputMode="numeric"
                       min={adjustmentType === "set" ? 0 : 1}
                       max={adjustmentType === "remove" ? currentStock : undefined}
+                      className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm"
                       {...field}
                       onChange={(e) => {
                         const value = e.target.value
@@ -264,12 +265,13 @@ export function InventoryAdjustmentModal({
               name="reason"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Reason (Optional)</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Reason (Optional)</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="e.g., Received shipment, Damaged goods, Physical count correction..."
                       maxLength={500}
                       rows={3}
+                      className="bg-zinc-800 border-zinc-700 text-zinc-100 rounded-sm"
                       {...field}
                     />
                   </FormControl>
@@ -279,19 +281,19 @@ export function InventoryAdjustmentModal({
             />
 
             {/* Preview */}
-            <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/40">
-              <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            <div className="rounded-sm border border-zinc-800 bg-zinc-800/30 p-4">
+              <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">
                 Preview
               </div>
-              <div className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+              <div className="mt-2 text-sm text-zinc-400">
                 New Stock:{" "}
                 <span
-                  className={`font-semibold ${
+                  className={`font-editorial text-xl font-bold tabular-nums ${
                     calculatedNewStock < 0
-                      ? "text-red-600 dark:text-red-400"
+                      ? "text-red-400"
                       : calculatedNewStock === 0
-                        ? "text-yellow-600 dark:text-yellow-400"
-                        : "text-green-600 dark:text-green-400"
+                        ? "text-yellow-400"
+                        : "text-green-400"
                   }`}
                 >
                   {calculatedNewStock} units
@@ -299,11 +301,11 @@ export function InventoryAdjustmentModal({
               </div>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="rounded-sm border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white">
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-200">
                 {isSubmitting ? "Updating..." : "Apply Adjustment"}
               </Button>
             </DialogFooter>

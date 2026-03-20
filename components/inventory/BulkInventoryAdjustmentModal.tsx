@@ -120,10 +120,10 @@ export function BulkInventoryAdjustmentModal({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] bg-zinc-900 border-zinc-800 text-zinc-100 rounded-lg shadow-2xl p-6">
         <DialogHeader>
-          <DialogTitle>Bulk adjust inventory</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">Bulk adjust inventory</DialogTitle>
+          <DialogDescription className="text-zinc-400">
             Apply the same adjustment to {count} selected variant{count !== 1 ? "s" : ""} at one store.
           </DialogDescription>
         </DialogHeader>
@@ -135,16 +135,16 @@ export function BulkInventoryAdjustmentModal({
               name="store_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Store</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Store</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm">
                         <SelectValue placeholder="Select store" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
                       {stores.map((s) => (
-                        <SelectItem key={s.store_id} value={s.store_id}>
+                        <SelectItem key={s.store_id} value={s.store_id} className="hover:bg-zinc-800 focus:bg-zinc-800">
                           {s.name}
                         </SelectItem>
                       ))}
@@ -160,24 +160,24 @@ export function BulkInventoryAdjustmentModal({
               name="adjustmentType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Adjustment type</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Adjustment type</FormLabel>
                   <FormControl>
                     <RadioGroup
                       value={field.value}
                       onValueChange={field.onChange}
                       className="grid grid-cols-3 gap-2"
                     >
-                      <div className="flex items-center space-x-2 rounded-lg border border-zinc-200 p-2 dark:border-zinc-800">
-                        <RadioGroupItem value="add" id="bulk-add" />
-                        <Label htmlFor="bulk-add" className="cursor-pointer text-sm">Add</Label>
+                      <div className="flex items-center space-x-2 rounded-sm border border-zinc-800 p-2 bg-zinc-800/50">
+                        <RadioGroupItem value="add" id="bulk-add" className="border-zinc-700 text-white" />
+                        <Label htmlFor="bulk-add" className="cursor-pointer text-sm text-zinc-100">Add</Label>
                       </div>
-                      <div className="flex items-center space-x-2 rounded-lg border border-zinc-200 p-2 dark:border-zinc-800">
-                        <RadioGroupItem value="remove" id="bulk-remove" />
-                        <Label htmlFor="bulk-remove" className="cursor-pointer text-sm">Remove</Label>
+                      <div className="flex items-center space-x-2 rounded-sm border border-zinc-800 p-2 bg-zinc-800/50">
+                        <RadioGroupItem value="remove" id="bulk-remove" className="border-zinc-700 text-white" />
+                        <Label htmlFor="bulk-remove" className="cursor-pointer text-sm text-zinc-100">Remove</Label>
                       </div>
-                      <div className="flex items-center space-x-2 rounded-lg border border-zinc-200 p-2 dark:border-zinc-800">
-                        <RadioGroupItem value="set" id="bulk-set" />
-                        <Label htmlFor="bulk-set" className="cursor-pointer text-sm">Set to</Label>
+                      <div className="flex items-center space-x-2 rounded-sm border border-zinc-800 p-2 bg-zinc-800/50">
+                        <RadioGroupItem value="set" id="bulk-set" className="border-zinc-700 text-white" />
+                        <Label htmlFor="bulk-set" className="cursor-pointer text-sm text-zinc-100">Set to</Label>
                       </div>
                     </RadioGroup>
                   </FormControl>
@@ -191,7 +191,7 @@ export function BulkInventoryAdjustmentModal({
               name="quantity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">
                     {adjustmentType === "add"
                       ? "Quantity to add"
                       : adjustmentType === "remove"
@@ -203,6 +203,7 @@ export function BulkInventoryAdjustmentModal({
                       type="number"
                       inputMode="numeric"
                       min={0}
+                      className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm"
                       {...field}
                       onChange={(e) => field.onChange(e.target.value === "" ? 0 : Number(e.target.value))}
                     />
@@ -217,12 +218,13 @@ export function BulkInventoryAdjustmentModal({
               name="reason"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Reason</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Reason</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="e.g., Bulk restock, Physical count..."
                       maxLength={200}
                       rows={2}
+                      className="bg-zinc-800 border-zinc-700 text-zinc-100 rounded-sm"
                       {...field}
                     />
                   </FormControl>
@@ -231,11 +233,11 @@ export function BulkInventoryAdjustmentModal({
               )}
             />
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="rounded-sm border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white">
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-200">
                 {isSubmitting ? "Updating…" : `Apply to ${count} variant${count !== 1 ? "s" : ""}`}
               </Button>
             </DialogFooter>

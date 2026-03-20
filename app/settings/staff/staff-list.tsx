@@ -193,7 +193,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
           </h1>
         </div>
         {canAddMore ? (
-          <Button onClick={() => setShowAddModal(true)} className="gap-2">
+          <Button onClick={() => setShowAddModal(true)} className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100 gap-2">
             <Plus className="h-4 w-4" />
             Add Staff Member
           </Button>
@@ -214,20 +214,22 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
       </div>
 
       {/* Role Info Box */}
-      <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/40 dark:bg-blue-950/30">
-        <h3 className="mb-2 text-sm font-semibold text-blue-900 dark:text-blue-100">
+      <div className="mb-6 rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
+        <h3 className="mb-4 text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">
           Role Definitions
         </h3>
-        <div className="grid gap-2 text-sm text-blue-800 dark:text-blue-200 md:grid-cols-3">
-          <div>
-            <strong>Cashier:</strong> POS only. Can process sales at the register. No other pages.
+        <div className="grid gap-6 text-sm text-zinc-400 md:grid-cols-3">
+          <div className="space-y-1">
+            <strong className="text-zinc-200 block">Cashier</strong>
+            <p>POS only. Can process sales at the register. No back-office access.</p>
           </div>
-          <div>
-            <strong>Manager:</strong> Cashier permissions + edit inventory, view reports, manage
-            customers.
+          <div className="space-y-1">
+            <strong className="text-zinc-200 block">Manager</strong>
+            <p>Cashier + inventory management, sales reports, and customer list.</p>
           </div>
-          <div>
-            <strong>Owner:</strong> Full access to all features.
+          <div className="space-y-1">
+            <strong className="text-zinc-200 block">Owner</strong>
+            <p>Full access to all features, settings, and staff management.</p>
           </div>
         </div>
       </div>
@@ -250,69 +252,68 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
           )}
         </div>
       ) : (
-        <div>
+        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Assigned Store</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Login</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+            <TableHeader className="bg-zinc-900">
+              <TableRow className="border-b-2 border-zinc-700 hover:bg-transparent">
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Name</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Email</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Role</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Assigned Store</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Status</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Last Login</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {staff.map((member) => (
                 <TableRow
                   key={member.staff_id}
-                  className={member.active === false ? "opacity-60" : ""}
+                  className={`border-b border-zinc-700/40 hover:bg-zinc-800/40 transition-colors duration-100 last:border-0 ${member.active === false ? "opacity-60" : ""}`}
                 >
-                  <TableCell>
+                  <TableCell className="px-6 py-4">
                     <div className="font-medium text-zinc-100">
                       {`${member.first_name || ""} ${member.last_name || ""}`.trim() || "—"}
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <div className="text-sm text-zinc-300">{member.email}</div>
+                  <TableCell className="px-6 py-4">
+                    <div className="text-sm text-zinc-300 font-mono">{member.email}</div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="px-6 py-4">
                     {member.role ? (
-                      <Badge className={roleColors[member.role] || "bg-zinc-800 text-zinc-300 border border-zinc-700 hover:bg-zinc-800 rounded-sm"}>
+                      <Badge className={`${roleColors[member.role] || "bg-zinc-800 text-zinc-300 border border-zinc-700 hover:bg-zinc-800 rounded-sm"}`}>
                         {roleIcons[member.role]}
                         {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
                       </Badge>
                     ) : (
-                      <span className="text-sm text-zinc-400">—</span>
+                      <span className="text-sm text-zinc-500">—</span>
                     )}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="px-6 py-4">
                     <div className="text-sm text-zinc-400">
                       {member.stores?.name || "—"}
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <Badge variant={member.active !== false ? "default" : "secondary"} className="rounded-sm">
+                  <TableCell className="px-6 py-4">
+                    <Badge variant={member.active !== false ? "default" : "secondary"} className="rounded-sm bg-zinc-800 text-zinc-300 border border-zinc-700 hover:bg-zinc-800">
                       {member.active !== false ? "Active" : "Inactive"}
                     </Badge>
                   </TableCell>
-                  <TableCell>
-                    <span className="text-sm text-zinc-400">
-                      {member.last_login_at
-                        ? new Date(member.last_login_at).toLocaleString(undefined, {
-                            dateStyle: "short",
-                            timeStyle: "short",
-                          })
-                        : "—"}
-                    </span>
+                  <TableCell className="px-6 py-4 font-mono text-xs text-zinc-500 mt-1">
+                    {member.last_login_at
+                      ? new Date(member.last_login_at).toLocaleString(undefined, {
+                          dateStyle: "short",
+                          timeStyle: "short",
+                        })
+                      : "—"}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setEditingStaff(member)}
+                        className="h-8 w-8 p-0 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -321,6 +322,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
                         size="sm"
                         onClick={() => setPinModalStaff(member)}
                         title="Manage PIN"
+                        className="h-8 w-8 p-0 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
                       >
                         <Key className="h-4 w-4" />
                       </Button>
@@ -330,6 +332,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
                           size="sm"
                           onClick={() => setDeactivatingStaff(member)}
                           title="Deactivate"
+                          className="h-8 w-8 p-0 text-zinc-400 hover:text-red-400 hover:bg-zinc-800"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -340,6 +343,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
                             size="sm"
                             onClick={() => setReactivatingStaff(member)}
                             title="Reactivate"
+                            className="h-8 w-8 p-0 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
                           >
                             <UserPlus className="h-4 w-4" />
                           </Button>
@@ -348,7 +352,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
                             size="sm"
                             onClick={() => setDeletingStaff(member)}
                             title="Delete permanently"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/50"
+                            className="h-8 w-8 p-0 text-red-500/60 hover:text-red-500 hover:bg-red-500/10"
                           >
                             <Trash className="h-4 w-4" />
                           </Button>
@@ -364,13 +368,13 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
       )}
 
       {/* Activity Log Section */}
-      <div className="mt-8">
-        <h2 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
+      <div className="mt-12">
+        <h2 className="mb-6 font-editorial text-2xl font-bold text-zinc-50">
           Recent Activity
         </h2>
-        <div className="rounded-lg border border-zinc-200 bg-background-card-light p-8 text-center dark:border-border-dark dark:bg-background-card-dark">
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            Activity log coming soon. This will show recent staff actions.
+        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-12 text-center">
+          <p className="text-sm text-zinc-500">
+            Activity log coming soon. This will show recent staff actions and audit trails.
           </p>
         </div>
       </div>
@@ -394,30 +398,30 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
 
       {/* PIN management modal: show status + Reset PIN */}
       <Dialog open={!!pinModalStaff} onOpenChange={(open) => !open && setPinModalStaff(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-zinc-900 border-zinc-800 text-zinc-100 rounded-lg shadow-2xl p-6">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="font-editorial text-xl font-bold flex items-center gap-2 text-zinc-50">
               <Key className="h-5 w-5" />
               PIN for {pinModalStaff ? `${(pinModalStaff.first_name || "").trim()} ${(pinModalStaff.last_name || "").trim()}`.trim() || pinModalStaff.email : ""}
             </DialogTitle>
             <DialogDescription asChild>
-              <div className="space-y-3 pt-1">
+              <div className="space-y-3 pt-4 text-zinc-400">
                 <p>
                   {pinModalStaff?.has_pin
                     ? "A 6-digit PIN is set for this staff. They can sign in with PIN at the login page when this device has the store saved."
                     : "No PIN is set. Use Reset PIN to generate a 6-digit PIN for POS login."}
                 </p>
-                <p className="text-zinc-500 dark:text-zinc-400">
+                <p className="text-zinc-500">
                   For security, the current PIN cannot be displayed. Use Reset PIN to generate a new one and share it with the staff member.
                 </p>
               </div>
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setPinModalStaff(null)}>
+          <DialogFooter className="gap-2 sm:gap-0 mt-6">
+            <Button variant="outline" onClick={() => setPinModalStaff(null)} className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white">
               Close
             </Button>
-            <Button onClick={openResetConfirm}>
+            <Button onClick={openResetConfirm} className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100">
               Reset PIN
             </Button>
           </DialogFooter>

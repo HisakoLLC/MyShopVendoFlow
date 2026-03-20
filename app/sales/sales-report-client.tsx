@@ -331,21 +331,21 @@ export function SalesReportClient({
         </div>
 
         {/* Filters */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Filters</CardTitle>
-            <CardDescription>Filter sales by date, store, payment method, or staff</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden">
+          <div className="p-6 border-b border-zinc-800">
+            <h2 className="font-editorial text-xl font-bold text-zinc-50">Filters</h2>
+            <p className="text-sm text-zinc-400">Filter sales by date, store, payment method, or staff</p>
+          </div>
+          <div className="p-6">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
               {/* Date Range Preset */}
               <div className="space-y-2">
-                <Label>Date Range</Label>
+                <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Date Range</Label>
                 <Select value={datePreset} onValueChange={(v) => setDatePreset(v as DateRangePreset)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
                     <SelectItem value="today">Today</SelectItem>
                     <SelectItem value="7days">Last 7 Days</SelectItem>
                     <SelectItem value="30days">Last 30 Days</SelectItem>
@@ -359,19 +359,21 @@ export function SalesReportClient({
               {datePreset === "custom" && (
                 <>
                   <div className="space-y-2">
-                    <Label>From</Label>
+                    <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">From</Label>
                     <Input
                       type="date"
                       value={customDateFrom}
                       onChange={(e) => setCustomDateFrom(e.target.value)}
+                      className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>To</Label>
+                    <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">To</Label>
                     <Input
                       type="date"
                       value={customDateTo}
                       onChange={(e) => setCustomDateTo(e.target.value)}
+                      className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm"
                     />
                   </div>
                 </>
@@ -379,12 +381,12 @@ export function SalesReportClient({
 
               {/* Store Filter */}
               <div className="space-y-2">
-                <Label>Store</Label>
+                <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Store</Label>
                 <Select value={selectedStore} onValueChange={setSelectedStore}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
                     <SelectItem value="all">All Stores</SelectItem>
                     {stores.map((store) => (
                       <SelectItem key={store.store_id} value={store.store_id}>
@@ -397,12 +399,12 @@ export function SalesReportClient({
 
               {/* Payment Method Filter */}
               <div className="space-y-2">
-                <Label>Payment Method</Label>
+                <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Payment Method</Label>
                 <Select value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
                     <SelectItem value="all">All Methods</SelectItem>
                     <SelectItem value="cash">Cash</SelectItem>
                     <SelectItem value="mpesa">M-Pesa</SelectItem>
@@ -413,12 +415,12 @@ export function SalesReportClient({
 
               {/* Staff Filter */}
               <div className="space-y-2">
-                <Label>Cashier</Label>
+                <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Cashier</Label>
                 <Select value={selectedStaff} onValueChange={setSelectedStaff}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
                     <SelectItem value="all">All Staff</SelectItem>
                     {staff.map((s) => (
                       <SelectItem key={s.staff_id} value={s.staff_id}>
@@ -429,107 +431,91 @@ export function SalesReportClient({
                 </Select>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Summary Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatPrice(summary.totalRevenue)}</div>
-            </CardContent>
-          </Card>
+          <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
+            <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">Total Revenue</div>
+            <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">{formatPrice(summary.totalRevenue)}</div>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.totalTransactions}</div>
-            </CardContent>
-          </Card>
+          <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
+            <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">Total Transactions</div>
+            <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">{summary.totalTransactions}</div>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Basket Size</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatPrice(summary.averageBasketSize)}</div>
-            </CardContent>
-          </Card>
+          <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
+            <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">Average Basket</div>
+            <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">{formatPrice(summary.averageBasketSize)}</div>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Units Sold</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.totalUnits}</div>
-            </CardContent>
-          </Card>
+          <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
+            <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">Units Sold</div>
+            <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">{summary.totalUnits}</div>
+          </div>
         </div>
 
         {/* Sales Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Sales Transactions</CardTitle>
-            <CardDescription>
+        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden">
+          <div className="p-6 border-b border-zinc-800">
+            <h2 className="font-editorial text-xl font-bold text-zinc-50">Sales Transactions</h2>
+            <p className="text-sm text-zinc-400">
               {sales.length} {sales.length === 1 ? "transaction" : "transactions"} found
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </p>
+          </div>
+          <div className="p-0">
             {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="text-zinc-400">Loading sales...</div>
+              <div className="flex items-center justify-center py-12 text-zinc-400">
+                Loading sales...
               </div>
             ) : sales.length === 0 ? (
-              <div className="flex items-center justify-center py-12">
-                <p className="text-zinc-400">No sales found for the selected filters</p>
+              <div className="flex items-center justify-center py-12 text-zinc-400">
+                No sales found for the selected filters
               </div>
             ) : (
               <>
-                <div>
+                <div className="overflow-x-auto">
                   <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date/Time</TableHead>
-                        <TableHead>Receipt #</TableHead>
-                        <TableHead>Store</TableHead>
-                        <TableHead>Cashier</TableHead>
-                        <TableHead>Items</TableHead>
-                        <TableHead>Payment</TableHead>
-                        <TableHead className="text-right">Total</TableHead>
+                    <TableHeader className="bg-zinc-900">
+                      <TableRow className="border-b-2 border-zinc-700 hover:bg-transparent">
+                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Date/Time</TableHead>
+                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Receipt #</TableHead>
+                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Store</TableHead>
+                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Cashier</TableHead>
+                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center">Items</TableHead>
+                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Payment</TableHead>
+                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Total</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {paginatedSales.map((sale) => (
                         <TableRow
                           key={sale.sale_id}
-                          className="cursor-pointer"
+                          className="cursor-pointer border-b border-zinc-700/40 hover:bg-zinc-800/40 transition-colors duration-100 last:border-0"
                           onClick={() => setSelectedSale(sale)}
                         >
-                          <TableCell className="font-medium text-zinc-100">
+                          <TableCell className="px-6 py-4 font-medium text-zinc-100">
                             {formatDateTime(sale.sale_date)}
                           </TableCell>
-                          <TableCell className="font-mono text-zinc-400 tracking-wide">{sale.receipt_number ?? "—"}</TableCell>
-                          <TableCell>{sale.stores?.name || "N/A"}</TableCell>
-                          <TableCell>
+                          <TableCell className="px-6 py-4 font-mono text-xs text-zinc-400 tracking-wide">{sale.receipt_number ?? "—"}</TableCell>
+                          <TableCell className="px-6 py-4 text-zinc-300">{sale.stores?.name || "N/A"}</TableCell>
+                          <TableCell className="px-6 py-4 text-zinc-300">
                             {sale.staff
                               ? `${sale.staff.first_name || ""} ${sale.staff.last_name || ""}`.trim() ||
                                 "N/A"
                               : "N/A"}
                           </TableCell>
-                          <TableCell>{itemsPerSale[sale.sale_id] || 0}</TableCell>
-                          <TableCell>
-                            <span className="capitalize">{sale.payment_method || "N/A"}</span>
+                          <TableCell className="px-6 py-4 text-center text-zinc-300">{itemsPerSale[sale.sale_id] || 0}</TableCell>
+                          <TableCell className="px-6 py-4">
+                            <span className="capitalize text-zinc-300">{sale.payment_method || "N/A"}</span>
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="px-6 py-4 text-right">
                             {isSaleRefunded(sale.sale_id) ? (
                               <span className="text-zinc-500 italic">Refunded</span>
                             ) : (
-                              <span className="font-semibold tabular-nums text-zinc-100">{formatPrice(sale.grand_total ?? 0)}</span>
+                              <span className="font-editorial text-lg font-bold tabular-nums text-zinc-50">{formatPrice(sale.grand_total ?? 0)}</span>
                             )}
                           </TableCell>
                         </TableRow>
@@ -540,8 +526,8 @@ export function SalesReportClient({
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                  <div className="p-6 border-t border-zinc-800 flex items-center justify-between">
+                    <div className="text-sm text-zinc-500">
                       Page {currentPage} of {totalPages}
                     </div>
                     <div className="flex gap-2">
@@ -550,8 +536,9 @@ export function SalesReportClient({
                         size="sm"
                         onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                         disabled={currentPage === 1}
+                        className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white"
                       >
-                        <ChevronLeft className="h-4 w-4" />
+                        <ChevronLeft className="h-4 w-4 mr-1" />
                         Previous
                       </Button>
                       <Button
@@ -559,17 +546,18 @@ export function SalesReportClient({
                         size="sm"
                         onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                         disabled={currentPage === totalPages}
+                        className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white"
                       >
                         Next
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-4 w-4 ml-1" />
                       </Button>
                     </div>
                   </div>
                 )}
               </>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* Sale Detail Modal */}
