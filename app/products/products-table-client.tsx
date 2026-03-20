@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import * as AlertDialog from "@radix-ui/react-alert-dialog"
-import { Archive, ArchiveRestore, Pencil, Percent, Trash2 } from "lucide-react"
+import { Archive, ArchiveRestore, Pencil, Percent, Trash2, Package } from "lucide-react"
 import {
   Dialog,
   DialogContent,
