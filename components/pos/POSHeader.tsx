@@ -52,12 +52,16 @@ export function POSHeader({
         <span className="text-xs text-zinc-500">Switch:</span>
         {canSwitchStores && multipleStores ? (
           <Select value={currentStoreId ?? undefined} onValueChange={onChangeStoreId}>
-            <SelectTrigger className="h-9 min-w-[180px] bg-white border border-zinc-200 rounded-lg text-sm text-zinc-900 hover:border-zinc-300">
+            <SelectTrigger className="h-9 min-w-[180px] bg-white border border-zinc-200 rounded-sm text-xs font-semibold tracking-wider text-zinc-900 hover:border-zinc-400 focus:ring-0 focus:ring-offset-0 transition-colors shadow-none uppercase">
               <SelectValue placeholder="Select store" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white border-zinc-200 rounded-sm shadow-xl">
               {stores.map((s) => (
-                <SelectItem key={s.store_id} value={s.store_id}>
+                <SelectItem 
+                  key={s.store_id} 
+                  value={s.store_id}
+                  className="text-xs font-medium text-zinc-700 focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer"
+                >
                   {s.name}
                 </SelectItem>
               ))}

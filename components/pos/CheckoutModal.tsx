@@ -360,17 +360,20 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
     return (
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent 
-          className="max-w-md !bg-white !border-zinc-200 !rounded-xl !shadow-2xl"
+          className="max-w-md !bg-white !border-zinc-200 !rounded-xl !shadow-2xl flex flex-col p-0 overflow-hidden max-h-[85vh]"
           overlayClassName="bg-black/60 backdrop-blur-sm"
         >
-          <DialogHeader>
-            <DialogTitle>Sale completed at {storeName}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-center text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+          <DialogHeader className="px-6 py-5 border-b border-zinc-100">
+            <DialogTitle className="text-sm font-semibold tracking-[0.05em] text-zinc-900">
+              Sale completed at {storeName}
+            </DialogTitle>
+            <p className="font-mono text-xs text-zinc-500 mt-1">
               Receipt #{receiptNumber}
             </p>
-            <div className="print:block overflow-y-auto max-h-[60vh]">
+          </DialogHeader>
+          <div className="space-y-4 flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 overflow-y-auto px-6 py-4">
+            <div className="print:block">
               <Receipt
                 receiptNumber={receiptNumber}
                 cart={receiptSnapshot?.cart ?? []}
@@ -392,14 +395,22 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
                 taxRatePercent={receiptSettings.taxRatePercent}
               />
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={onClose} className="flex-1">
-                Done
-              </Button>
-              <Button onClick={handlePrintReceipt} className="flex-1">
-                Print Receipt
-              </Button>
-            </div>
+          </div>
+          </div>
+          <div className="px-6 py-4 border-t border-zinc-100 flex gap-3">
+            <Button 
+              variant="outline" 
+              onClick={onClose} 
+              className="flex-1 bg-zinc-900 text-white hover:bg-zinc-800 rounded-sm h-10 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none"
+            >
+              Done
+            </Button>
+            <Button 
+              onClick={handlePrintReceipt} 
+              className="flex-1 bg-transparent border border-zinc-200 text-zinc-700 hover:border-zinc-400 rounded-sm h-10 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none"
+            >
+              Print Receipt
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

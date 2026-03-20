@@ -36,6 +36,7 @@ import { AddStaffModal } from "./add-staff-modal"
 import { EditStaffModal } from "./edit-staff-modal"
 import { deactivateStaff, reactivateStaff, deleteStaff, resetStaffPIN } from "./actions"
 import { toast, Toaster } from "sonner"
+import { cn } from "@/lib/utils"
 
 type Staff = {
   staff_id: string
@@ -295,7 +296,15 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
                     </div>
                   </TableCell>
                   <TableCell className="px-6 py-4">
-                    <Badge variant={member.active !== false ? "default" : "secondary"} className="rounded-sm bg-zinc-800 text-zinc-300 border border-zinc-700 hover:bg-zinc-800">
+                    <Badge 
+                      variant="outline" 
+                      className={cn(
+                        "rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5 border",
+                        member.active !== false 
+                          ? "bg-emerald-400/10 text-emerald-400 border-emerald-400/20" 
+                          : "bg-zinc-800 text-zinc-500 border-zinc-700"
+                      )}
+                    >
                       {member.active !== false ? "Active" : "Inactive"}
                     </Badge>
                   </TableCell>

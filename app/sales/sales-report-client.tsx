@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { cn } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -490,36 +491,62 @@ export function SalesReportClient({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {paginatedSales.map((sale) => (
-                        <TableRow
-                          key={sale.sale_id}
-                          className="cursor-pointer border-b border-zinc-700/40 hover:bg-zinc-800/40 transition-colors duration-100 last:border-0"
-                          onClick={() => setSelectedSale(sale)}
-                        >
-                          <TableCell className="px-6 py-4 font-medium text-zinc-100">
-                            {formatDateTime(sale.sale_date)}
-                          </TableCell>
-                          <TableCell className="px-6 py-4 font-mono text-xs text-zinc-400 tracking-wide">{sale.receipt_number ?? "—"}</TableCell>
-                          <TableCell className="px-6 py-4 text-zinc-300">{sale.stores?.name || "N/A"}</TableCell>
-                          <TableCell className="px-6 py-4 text-zinc-300">
-                            {sale.staff
-                              ? `${sale.staff.first_name || ""} ${sale.staff.last_name || ""}`.trim() ||
-                                "N/A"
-                              : "N/A"}
-                          </TableCell>
-                          <TableCell className="px-6 py-4 text-center text-zinc-300">{itemsPerSale[sale.sale_id] || 0}</TableCell>
-                          <TableCell className="px-6 py-4">
-                            <span className="capitalize text-zinc-300">{sale.payment_method || "N/A"}</span>
-                          </TableCell>
-                          <TableCell className="px-6 py-4 text-right">
-                            {isSaleRefunded(sale.sale_id) ? (
-                              <span className="text-zinc-500 italic">Refunded</span>
-                            ) : (
-                              <span className="font-editorial text-lg font-bold tabular-nums text-zinc-50">{formatPrice(sale.grand_total ?? 0)}</span>
+                      {paginatedSales.map((sale) => {
+                        const isRefunded = sale.status === "refunded"
+                        const isPartialRefund = sale.status === "partially_refunded"
+                        
+                        return (
+                          <TableRow
+                            key={sale.sale_id}
+                            className={cn(
+                              "cursor-pointer transition-colors duration-100 last:border-0",
+                              isRefunded 
+                                ? "bg-red-400/5 border-b border-red-400/10 hover:bg-red-400/10" 
+                                : isPartialRefund
+                                  ? "bg-amber-400/5 border-b border-amber-400/10 hover:bg-amber-400/10"
+                                  : "border-b border-zinc-700/40 hover:bg-zinc-800/40"
                             )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                            onClick={() => setSelectedSale(sale)}
+                          >
+                            <TableCell className={cn("px-6 py-4 text-sm transition-colors", isRefunded || isPartialRefund ? "text-zinc-500" : "text-zinc-300")}>
+                              {formatDateTime(sale.sale_date)}
+                            </TableCell>
+                            <TableCell className={cn("px-6 py-4 font-mono text-xs tracking-wide transition-colors", isRefunded || isPartialRefund ? "text-zinc-500" : "text-zinc-400")}>
+                              {sale.receipt_number ?? "—"}
+                            </TableCell>
+                            <TableCell className={cn("px-6 py-4 text-sm transition-colors", isRefunded || isPartialRefund ? "text-zinc-500" : "text-zinc-400")}>
+                              {sale.stores?.name || "N/A"}
+                            </TableCell>
+                            <TableCell className={cn("px-6 py-4 text-sm transition-colors", isRefunded || isPartialRefund ? "text-zinc-500" : "text-zinc-400")}>
+                              {sale.staff
+                                ? `${sale.staff.first_name || ""} ${sale.staff.last_name || ""}`.trim() ||
+                                  "N/A"
+                                : "N/A"}
+                            </TableCell>
+                            <TableCell className={cn("px-6 py-4 text-center tabular-nums transition-colors", isRefunded || isPartialRefund ? "text-zinc-500" : "text-zinc-300")}>
+                              {itemsPerSale[sale.sale_id] || 0}
+                            </TableCell>
+                            <TableCell className={cn("px-6 py-4 capitalize transition-colors", isRefunded || isPartialRefund ? "text-zinc-500" : "text-zinc-400")}>
+                              {sale.payment_method || "N/A"}
+                            </TableCell>
+                            <TableCell className="px-6 py-4 text-right">
+                              {isRefunded ? (
+                                <span className="bg-red-400/10 text-red-400 border border-red-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5">
+                                  REFUNDED
+                                </span>
+                              ) : isPartialRefund ? (
+                                <span className="bg-amber-400/10 text-amber-400 border border-amber-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5">
+                                  PARTIAL REFUND
+                                </span>
+                              ) : (
+                                <span className="font-editorial text-sm font-bold tabular-nums text-zinc-50">
+                                  {formatPrice(sale.grand_total ?? 0)}
+                                </span>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
                     </TableBody>
                   </Table>
                 </div>

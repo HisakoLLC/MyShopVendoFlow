@@ -249,10 +249,10 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
               <button
                 key={product.style_id}
                 onClick={() => handleProductSelect(product.style_id)}
-                className="group relative overflow-hidden rounded-lg border border-zinc-200 bg-background p-4 text-left transition-all hover:scale-105 hover:shadow-lg dark:border-zinc-800 dark:bg-background-dark"
+                className="group relative overflow-hidden rounded-lg border border-zinc-200 bg-white p-0 text-left transition-all hover:border-zinc-400 cursor-pointer"
               >
                 {/* Product Image */}
-                <div className="relative mb-3 aspect-square w-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-700">
+                <div className="relative aspect-square w-full overflow-hidden bg-zinc-100">
                   {product.image_url ? (
                     <StorageImage
                       src={product.image_url}
@@ -281,19 +281,21 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
                 </div>
 
                 {/* Product Info */}
-                <h3 className="mb-1 line-clamp-2 text-sm font-medium text-zinc-900 dark:text-white">
-                  {product.name}
-                </h3>
-                <p className="text-sm font-semibold text-zinc-700 dark:text-white">
-                  {isDiscountActive(product.discount_percent, product.discount_ends_at)
-                    ? formatPrice(Math.round(product.base_price * (1 - (Number(product.discount_percent) || 0) / 100)))
-                    : formatPrice(product.base_price)}
-                  {isDiscountActive(product.discount_percent, product.discount_ends_at) && (
-                    <span className="ml-1 text-xs text-green-600 dark:text-green-400">
-                      {product.discount_percent}% off
-                    </span>
-                  )}
-                </p>
+                <div className="px-3 py-2">
+                  <h3 className="mb-0.5 line-clamp-2 text-xs font-semibold tracking-[0.05em] uppercase text-zinc-800">
+                    {product.name}
+                  </h3>
+                  <p className="font-editorial text-sm font-bold text-zinc-900 mt-0.5">
+                    {isDiscountActive(product.discount_percent, product.discount_ends_at)
+                      ? formatPrice(Math.round(product.base_price * (1 - (Number(product.discount_percent) || 0) / 100)))
+                      : formatPrice(product.base_price)}
+                    {isDiscountActive(product.discount_percent, product.discount_ends_at) && (
+                      <span className="ml-1 text-[0.65rem] font-semibold text-emerald-600">
+                        {product.discount_percent}% OFF
+                      </span>
+                    )}
+                  </p>
+                </div>
               </button>
             ))}
           </div>

@@ -98,10 +98,12 @@ export function VariantCellEditor({
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleCancel()}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] !bg-zinc-900 !border-zinc-800 !text-zinc-100 !rounded-sm !shadow-2xl">
         <DialogHeader>
-          <DialogTitle>Edit Variant: {size} - {color}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">
+            Edit Variant: {size} - {color}
+          </DialogTitle>
+          <DialogDescription className="text-sm text-zinc-400">
             Update the SKU, price, and cost for this size and color combination.
           </DialogDescription>
         </DialogHeader>
@@ -113,11 +115,12 @@ export function VariantCellEditor({
               name="sku"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>SKU</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">SKU</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       placeholder="e.g., OLS-M-NAV"
+                      className="bg-zinc-950 border-zinc-800 text-zinc-100 focus:border-zinc-600 focus:ring-1 focus:ring-white/10 rounded-sm"
                       onChange={(e) => {
                         const value = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, "")
                         field.onChange(value)
@@ -125,8 +128,8 @@ export function VariantCellEditor({
                     />
                   </FormControl>
                   <FormMessage />
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    Uppercase letters, numbers, and hyphens only
+                  <p className="text-[0.65rem] text-zinc-500 tracking-wide">
+                    UPPERCASE LETTERS, NUMBERS, AND HYPHENS ONLY
                   </p>
                 </FormItem>
               )}
@@ -137,7 +140,7 @@ export function VariantCellEditor({
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price (KES)</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Price (KES)</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -145,6 +148,7 @@ export function VariantCellEditor({
                       min={0.01}
                       step="0.01"
                       {...field}
+                      className="bg-zinc-950 border-zinc-800 text-zinc-100 focus:border-zinc-600 focus:ring-1 focus:ring-white/10 rounded-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       onChange={(e) => {
                         const value = e.target.value
                         field.onChange(value === "" ? "" : Number(value))
@@ -152,8 +156,8 @@ export function VariantCellEditor({
                     />
                   </FormControl>
                   <FormMessage />
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    Preview: KES{" "}
+                  <p className="text-[0.65rem] text-zinc-500 tracking-wide">
+                    PREVIEW: KES{" "}
                     {field.value
                       ? new Intl.NumberFormat("en-KE", {
                           minimumFractionDigits: 0,
@@ -170,7 +174,7 @@ export function VariantCellEditor({
               name="cost"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cost (KES)</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Cost (KES)</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -178,6 +182,7 @@ export function VariantCellEditor({
                       min={0.01}
                       step="0.01"
                       {...field}
+                      className="bg-zinc-950 border-zinc-800 text-zinc-100 focus:border-zinc-600 focus:ring-1 focus:ring-white/10 rounded-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       onChange={(e) => {
                         const value = e.target.value
                         field.onChange(value === "" ? "" : Number(value))
@@ -185,8 +190,8 @@ export function VariantCellEditor({
                     />
                   </FormControl>
                   <FormMessage />
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    Preview: KES{" "}
+                  <p className="text-[0.65rem] text-zinc-500 tracking-wide">
+                    PREVIEW: KES{" "}
                     {field.value
                       ? new Intl.NumberFormat("en-KE", {
                           minimumFractionDigits: 0,
@@ -195,25 +200,25 @@ export function VariantCellEditor({
                       : "0"}
                   </p>
                   {form.watch("price") > 0 && form.watch("cost") > 0 && (
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Margin:{" "}
+                    <p className="text-[0.65rem] text-zinc-500 tracking-wide mt-1">
+                      MARGIN:{" "}
                       {form.watch("price") > form.watch("cost")
                         ? `${(
                             ((form.watch("price") - form.watch("cost")) / form.watch("price")) *
                             100
                           ).toFixed(1)}%`
-                        : "Invalid"}
+                        : "INVALID"}
                     </p>
                   )}
                 </FormItem>
               )}
             />
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={handleCancel}>
+            <DialogFooter className="pt-4 border-t border-zinc-800">
+              <Button type="button" variant="outline" onClick={handleCancel} className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white h-9 px-5 text-xs font-semibold tracking-wider uppercase transition-colors shadow-none">
                 Cancel
               </Button>
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit" className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100 h-9 px-5 text-xs font-semibold tracking-wider uppercase transition-colors shadow-none">Save Changes</Button>
             </DialogFooter>
           </form>
         </Form>

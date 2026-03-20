@@ -305,7 +305,10 @@ export function TransfersList({ transfers: initialTransfers }: TransfersListProp
                           )}
                         </TableCell>
                         <TableCell className="px-6 py-4">
-                          <Badge variant="secondary" className="gap-1 bg-zinc-800 text-zinc-400 border border-zinc-700/50 rounded-sm">
+                          <Badge 
+                            variant="outline" 
+                            className="gap-1 bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
+                          >
                             <CheckCircle2 className="h-3 w-3" />
                             Completed
                           </Badge>

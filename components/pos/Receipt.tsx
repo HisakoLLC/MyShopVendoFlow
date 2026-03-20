@@ -111,8 +111,8 @@ export function Receipt({
       )}
 
       {/* Receipt Header */}
-      <div className={`border-b-2 border-zinc-900 pb-4 text-center ${logoUrl ? "" : "mb-4"}`}>
-        <h1 className="text-xl font-bold text-zinc-900">
+      <div className={`border-b border-zinc-100 pb-4 text-center ${logoUrl ? "" : "mb-4"}`}>
+        <h1 className="font-editorial text-xl font-bold text-zinc-900">
           {storeName?.trim() || businessName?.trim() || "Receipt"}
         </h1>
         {(businessName?.trim() || businessAddress?.trim() || businessPhone?.trim()) && (
@@ -128,22 +128,22 @@ export function Receipt({
       </div>
 
       {/* Receipt Info */}
-      <div className="mb-4 space-y-1 text-sm">
-        <div className="flex justify-between">
-          <span className="text-zinc-600">Store:</span>
-          <span className="font-medium text-zinc-900">{storeName}</span>
+      <div className="mb-4 space-y-0.5 text-sm">
+        <div className="flex justify-between py-2 border-b border-zinc-100">
+          <span className="text-zinc-500">Store:</span>
+          <span className="font-semibold text-zinc-900">{storeName}</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-zinc-600">Receipt #:</span>
-          <span className="font-medium text-zinc-900">{receiptNumber}</span>
+        <div className="flex justify-between py-2 border-b border-zinc-100">
+          <span className="text-zinc-500">Receipt #:</span>
+          <span className="font-semibold text-zinc-900">{receiptNumber}</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-zinc-600">Date:</span>
-          <span className="font-medium text-zinc-900">{formatDate(new Date())}</span>
+        <div className="flex justify-between py-2 border-b border-zinc-100">
+          <span className="text-zinc-500">Date:</span>
+          <span className="font-semibold text-zinc-900">{formatDate(new Date())}</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-zinc-600">Payment:</span>
-          <span className="font-medium capitalize text-zinc-900">{paymentMethod}</span>
+        <div className="flex justify-between py-2 border-b border-zinc-100">
+          <span className="text-zinc-500">Payment:</span>
+          <span className="font-semibold capitalize text-zinc-900">{paymentMethod}</span>
         </div>
       </div>
 
