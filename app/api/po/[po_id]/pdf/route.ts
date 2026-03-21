@@ -10,54 +10,53 @@ export async function GET(
 ) {
   const { po_id } = await params
   try {
-    console.log("[API][PDF] Generating for PO:", po_id)
-  
-  const { user, supabase, error: authError } = await requireAuth(_request)
-  if (authError) {
-    console.warn("[API][PDF] Unauthorized access attempt")
-    return new Response("Unauthorized", { status: 401 })
-  }
+    console.log(`[API][PDF] Generating for PO ID: "${po_id}"`)
+    
+    const { user, supabase, error: authError } = await requireAuth(_request)
+    if (authError) {
+      console.warn("[API][PDF] Unauthorized")
+      return new Response("Unauthorized", { status: 401 })
+    }
 
-  const { accountId: accountIdRaw, error: accountError } = await requireAccountAccess(supabase, user!.id)
-  if (accountError) {
-    console.warn("[API][PDF] Account access denied for user:", user!.id)
-    return new Response("Account not found", { status: 403 })
-  }
-  const accountId = Array.isArray(accountIdRaw)
-    ? accountIdRaw[0]
-    : typeof accountIdRaw === "object" &&
-        accountIdRaw !== null &&
-        "account_id" in accountIdRaw
-      ? (accountIdRaw as { account_id: string }).account_id
-      : accountIdRaw
-  if (!accountId) {
-    return new Response("Account not found", { status: 403 })
-  }
+    // Get account ID directly from RPC to match page logic exactly
+    const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
+    console.log(`[API][PDF] Account ID from RPC: "${accountId}"`)
 
-  const { data: bs } = await supabase.from("business_settings").select("*").eq("account_id", accountId).single()
-  const currency = (bs as any)?.currency ?? "KES"
+    if (accountIdError || !accountId) {
+      console.warn("[API][PDF] Account access denied", accountIdError)
+      return new Response("Account not found", { status: 403 })
+    }
 
-  const { data: po, error: poError } = await supabase
-    .from("purchase_orders")
-    .select(
-      `
-      po_number,
-      order_date,
-      expected_delivery_date,
-      total_cost,
-      status,
-      notes,
-      suppliers!inner(name, email, phone, account_id, payment_terms)
-    `
-    )
-    .eq("po_id", po_id)
-    .eq("suppliers.account_id", accountId)
-    .single()
+    const { data: bs } = await supabase.from("business_settings").select("*").eq("account_id", accountId).single()
+    const currency = (bs as any)?.currency ?? "KES"
 
-  if (poError || !po) {
-    console.warn("[API][PDF] Purchase order not found:", po_id, poError)
-    return new Response("Purchase order not found", { status: 404 })
-  }
+    // Simpler query for PO: filter by po_id first, then verify account_id
+    const { data: po, error: poError } = await supabase
+      .from("purchase_orders")
+      .select(`
+        po_number,
+        order_date,
+        expected_delivery_date,
+        total_cost,
+        status,
+        notes,
+        suppliers!inner(name, email, phone, account_id, payment_terms)
+      `)
+      .eq("po_id", po_id)
+      .single()
+
+    if (poError || !po) {
+      console.warn("[API][PDF] PO not found or query error:", poError)
+      return new Response(`Purchase order not found: ${po_id}`, { status: 404 })
+    }
+
+    const poAccountId = (po as any).suppliers?.account_id
+    console.log(`[API][PDF] PO Supplier Account ID: "${poAccountId}"`)
+
+    if (poAccountId !== accountId) {
+      console.warn("[API][PDF] Account mismatch:", { poAccountId, accountId })
+      return new Response("Access denied to this purchase order", { status: 403 })
+    }
 
   const { data: lineItems, error: lineError } = await supabase
     .from("po_line_items")
