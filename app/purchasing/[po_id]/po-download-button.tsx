@@ -16,13 +16,26 @@ export function PODownloadButton({ poId, poNumber }: PODownloadButtonProps) {
   const handleDownload = async () => {
     setIsDownloading(true)
     try {
-      const response = await fetch(`/api/po/${poId}/pdf`)
+      const response = await fetch(`/api/po/${poId}/pdf`, {
+        credentials: "include",
+      })
       
       if (!response.ok) {
-        throw new Error("Failed to generate PDF")
+        const errorText = await response.text()
+        console.error("PDF API error:", response.status, errorText)
+        throw new Error(`Server error: ${response.status} ${errorText}`)
+      }
+
+      if (response.headers.get("content-type") !== "application/pdf") {
+        console.error("Wrong content type:", response.headers.get("content-type"))
+        throw new Error("Received non-PDF response from server")
       }
 
       const blob = await response.blob()
+      if (blob.size === 0) {
+        throw new Error("Received empty PDF file")
+      }
+
       const url = window.URL.createObjectURL(blob)
       
       const link = document.createElement("a")
@@ -38,7 +51,7 @@ export function PODownloadButton({ poId, poNumber }: PODownloadButtonProps) {
       toast.success("PO PDF downloaded successfully")
     } catch (error) {
       console.error("PDF download error:", error)
-      toast.error("Could not download PDF. Please try again.")
+      toast.error(error instanceof Error ? error.message : "Could not download PDF. Please try again.")
     } finally {
       setIsDownloading(false)
     }

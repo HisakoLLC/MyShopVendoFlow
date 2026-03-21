@@ -9,11 +9,20 @@ export async function GET(
   { params }: { params: Promise<{ po_id: string }> }
 ) {
   const { po_id } = await params
+  try {
+    console.log("[API][PDF] Generating for PO:", po_id)
+  
   const { user, supabase, error: authError } = await requireAuth(_request)
-  if (authError) return new Response("Unauthorized", { status: 401 })
+  if (authError) {
+    console.warn("[API][PDF] Unauthorized access attempt")
+    return new Response("Unauthorized", { status: 401 })
+  }
 
   const { accountId: accountIdRaw, error: accountError } = await requireAccountAccess(supabase, user!.id)
-  if (accountError) return new Response("Account not found", { status: 403 })
+  if (accountError) {
+    console.warn("[API][PDF] Account access denied for user:", user!.id)
+    return new Response("Account not found", { status: 403 })
+  }
   const accountId = Array.isArray(accountIdRaw)
     ? accountIdRaw[0]
     : typeof accountIdRaw === "object" &&
@@ -46,6 +55,7 @@ export async function GET(
     .single()
 
   if (poError || !po) {
+    console.warn("[API][PDF] Purchase order not found:", po_id, poError)
     return new Response("Purchase order not found", { status: 404 })
   }
 
@@ -64,8 +74,11 @@ export async function GET(
     .order("line_item_id")
 
   if (lineError || !lineItems?.length) {
+    console.warn("[API][PDF] Failed to load line items for PO:", po_id, lineError)
     return new Response("Failed to load line items", { status: 500 })
   }
+
+  console.log("[API][PDF] Data fetched, creating jsPDF doc...")
 
   const doc = new jsPDF({ format: "a4", unit: "mm" })
   const pageW = doc.internal.pageSize.getWidth()
@@ -275,6 +288,8 @@ export async function GET(
   const buf = doc.output("arraybuffer")
   const uint8array = new Uint8Array(buf)
 
+  console.log("[API][PDF] PDF created, size:", uint8array.byteLength)
+
   return new Response(uint8array, {
     status: 200,
     headers: {
@@ -284,4 +299,8 @@ export async function GET(
       "Cache-Control": "no-store",
     },
   })
+} catch (err) {
+  console.error("[API][PDF] Error generating PDF:", err)
+  return new Response("Internal Server Error", { status: 500 })
+}
 }
