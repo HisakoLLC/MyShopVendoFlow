@@ -25,8 +25,8 @@ export async function GET(
     return new Response("Account not found", { status: 403 })
   }
 
-  const { data: bs } = await supabase.from("business_settings").select("currency").eq("account_id", accountId).single()
-  const currency = (bs as { currency?: string } | null)?.currency ?? "KES"
+  const { data: bs } = await supabase.from("business_settings").select("*").eq("account_id", accountId).single()
+  const currency = (bs as any)?.currency ?? "KES"
 
   const { data: po, error: poError } = await supabase
     .from("purchase_orders")
@@ -36,7 +36,9 @@ export async function GET(
       order_date,
       expected_delivery_date,
       total_cost,
-      suppliers!inner(name, email, phone, account_id)
+      status,
+      notes,
+      suppliers!inner(name, email, phone, account_id, payment_terms)
     `
     )
     .eq("po_id", po_id)
@@ -73,42 +75,83 @@ export async function GET(
   doc.setFontSize(22)
   doc.setFont("helvetica", "bold")
   doc.text("PURCHASE ORDER", 20, y)
-  y += 10
+  y += 15
 
-  doc.setFontSize(12)
+  // Header (two columns: BILL FROM & BILL TO)
   doc.setFont("helvetica", "normal")
-  doc.text(`PO #${(po as { po_number: string }).po_number}`, 20, y)
-  y += 12
-
-  // Supplier & dates (two columns)
-  doc.setFont("helvetica", "bold")
-  doc.setFontSize(10)
-  doc.text("Supplier", 20, y)
-  doc.text("Dates", 110, y)
-  y += 6
-  doc.setFont("helvetica", "normal")
-  const supplier = (po as { suppliers: { name: string; email?: string | null; phone?: string | null } }).suppliers
-  doc.text(supplier?.name ?? "—", 20, y)
-  const orderDate = (po as { order_date: string | null }).order_date
-    ? new Date((po as { order_date: string }).order_date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
-    : "—"
-  const expectedDate = (po as { expected_delivery_date: string | null }).expected_delivery_date
-    ? new Date((po as { expected_delivery_date: string }).expected_delivery_date).toLocaleDateString(
-        "en-US",
-        { year: "numeric", month: "short", day: "numeric" }
-      )
-    : "—"
-  doc.text(`Order: ${orderDate}`, 110, y)
+  doc.setFontSize(9)
+  doc.setTextColor(100, 100, 100)
+  
+  doc.text("BILL FROM", 20, y)
+  doc.text("BILL TO", 110, y)
+  
   y += 5
-  if (supplier?.email) doc.text(supplier.email, 20, y)
-  doc.text(`Expected: ${expectedDate}`, 110, y)
-  y += supplier?.email ? 5 : 0
-  if (supplier?.phone) doc.text(supplier.phone, 20, y)
-  y += 14
+  doc.setTextColor(0, 0, 0)
+  doc.setFontSize(11)
+  doc.setFont("helvetica", "bold")
+  
+  const bsData = bs as any
+  const supplier = (po as any).suppliers
+
+  doc.text(bsData?.business_name ?? "Your Business", 20, y)
+  doc.text(supplier?.name ?? "—", 110, y)
+  
+  doc.setFont("helvetica", "normal")
+  y += 5
+  
+  let leftY = y
+  if (bsData?.address) { doc.text(bsData.address, 20, leftY); leftY += 5 }
+  if (bsData?.phone) { doc.text(bsData.phone, 20, leftY); leftY += 5 }
+  if (bsData?.email) { doc.text(bsData.email, 20, leftY); leftY += 5 }
+  if (bsData?.tax_id) { doc.text(`VAT No: ${bsData.tax_id}`, 20, leftY); leftY += 5 }
+  
+  let rightY = y
+  if (supplier?.email) { doc.text(supplier.email, 110, rightY); rightY += 5 }
+  if (supplier?.phone) { doc.text(supplier.phone, 110, rightY); rightY += 5 }
+  
+  y = Math.max(leftY, rightY) + 12
+
+  // PO Meta Section
+  doc.setFont("helvetica", "normal")
+  doc.setFontSize(9)
+  doc.setTextColor(100, 100, 100)
+  doc.text("PO NUMBER", 20, y)
+  doc.text("ORDER DATE", 55, y)
+  doc.text("EXPECTED DELIVERY", 95, y)
+  doc.text("STATUS", 145, y)
+  y += 5
+
+  doc.setTextColor(0, 0, 0)
+  doc.setFontSize(11)
+  doc.setFont("helvetica", "bold")
+  doc.text(`#${(po as any).po_number}`, 20, y)
+  
+  const orderDate = (po as any).order_date
+    ? new Date((po as any).order_date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+    : "—"
+  doc.text(orderDate, 55, y)
+  
+  const expectedDate = (po as any).expected_delivery_date
+    ? new Date((po as any).expected_delivery_date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+    : "—"
+  doc.text(expectedDate, 95, y)
+  
+  doc.text(String((po as any).status || "DRAFT").toUpperCase(), 145, y)
+  y += 8
+  
+  if (supplier?.payment_terms) {
+    doc.setFont("helvetica", "normal")
+    doc.setFontSize(9)
+    doc.setTextColor(100, 100, 100)
+    doc.text("PAYMENT TERMS", 20, y)
+    y += 5
+    doc.setTextColor(0, 0, 0)
+    doc.setFontSize(11)
+    doc.text(supplier.payment_terms, 20, y)
+    y += 8
+  }
+  
+  y += 5
 
   // Table header
   const colW = [70, 45, 15, 25, 30]
@@ -155,15 +198,50 @@ export async function GET(
   }
 
   y += 4
+  doc.setDrawColor(220, 220, 220)
   doc.line(20, y, pageW - 20, y)
-  y += 6
+  y += 8
+  
+  if ((po as any).notes) {
+    if (y > 260) { doc.addPage(); y = 20; }
+    doc.setFont("helvetica", "bold")
+    doc.setFontSize(9)
+    doc.setTextColor(100, 100, 100)
+    doc.text("NOTES / INSTRUCTIONS", 20, y)
+    y += 5
+    
+    doc.setFont("helvetica", "normal")
+    doc.setFontSize(11)
+    doc.setTextColor(0, 0, 0)
+    
+    const splitNotes = doc.splitTextToSize((po as any).notes, pageW - 40)
+    doc.text(splitNotes, 20, y)
+    y += (splitNotes.length * 5) + 8
+    
+    doc.setDrawColor(220, 220, 220)
+    doc.line(20, y, pageW - 20, y)
+    y += 8
+  }
+  
+  if (y > 265) { doc.addPage(); y = 20; }
   doc.setFont("helvetica", "bold")
-  const total = (po as { total_cost: number | null }).total_cost ?? 0
-  doc.text("Total:", colX[3], y)
+  doc.setFontSize(11)
+  const total = (po as any).total_cost ?? 0
+  doc.text("Subtotal:", colX[3], y)
+  doc.text(`${currSym}${total.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, colX[4], y)
+  
+  y += 6
+  doc.setDrawColor(0, 0, 0)
+  doc.line(colX[3], y, pageW - 20, y)
+  y += 6
+  
+  doc.setFontSize(12)
+  doc.text("TOTAL:", colX[3], y)
   doc.text(`${currSym}${total.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, colX[4], y)
   y += 20
 
   // Signature / stamp area — more space and longer lines
+  if (y > 250) { doc.addPage(); y = 20; }
   doc.setFont("helvetica", "normal")
   doc.setFontSize(10)
   doc.setTextColor(0, 0, 0)
@@ -178,6 +256,20 @@ export async function GET(
   doc.setTextColor(120, 120, 120)
   doc.text("Sign and stamp here", 20, y)
   doc.text("(DD/MM/YYYY)", 115, y)
+
+  y += 25
+  if (y > 280) { doc.addPage(); y = 20; }
+  doc.setFontSize(9)
+  doc.setTextColor(100, 100, 100)
+  doc.text(`This purchase order is issued by ${(bs as any)?.business_name ?? "your business"}.`, 20, y)
+  y += 4
+  const bEmail = (bs as any)?.email ?? "us"
+  doc.text(`Please confirm receipt and expected delivery date by replying to ${bEmail}.`, 20, y)
+  
+  y += 10
+  if (y > 290) { doc.addPage(); y = 20; }
+  doc.setFontSize(8)
+  doc.text(`Generated by VendoFlow · ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`, 20, y)
 
   const filename = `PO-${(po as { po_number: string }).po_number}.pdf`
   const buf = doc.output("arraybuffer")
