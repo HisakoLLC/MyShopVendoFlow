@@ -41,8 +41,7 @@ export async function GET(
         expected_delivery_date,
         total_cost,
         status,
-        notes,
-        suppliers!inner(name, email, phone, account_id, payment_terms)
+        suppliers!inner(name, account_id)
       `)
       .eq("po_id", po_id)
       .maybeSingle()
@@ -58,11 +57,11 @@ export async function GET(
           expected_delivery_date,
           total_cost,
           status,
-          notes,
-          suppliers!inner(name, email, phone, account_id, payment_terms)
+          suppliers!inner(name, account_id)
         `)
         .eq("id", po_id)
         .maybeSingle()
+
       
       if (altPO) {
         console.log("[API][PDF] Found PO using 'id' column!")
