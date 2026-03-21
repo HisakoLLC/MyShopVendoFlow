@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
+import { ArrowLeft } from "lucide-react"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { getSignedStorageUrl } from "@/lib/signed-storage-url"
@@ -288,6 +289,10 @@ async function RestockSuggestionsContent() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-6">
       <div className="mb-6">
+        <a href="/purchasing" className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6 group">
+          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+          Purchasing
+        </a>
         <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
           Variants that need restocking based on sales velocity
         </p>

@@ -209,7 +209,7 @@ export function ReceiveInventoryForm({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Receiving Form */}
           <div className="rounded-lg border border-zinc-200 bg-background-card-light p-6 dark:border-border-dark dark:bg-background-card-dark">
-            <h2 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
+            <h2 className="mb-4 font-editorial text-lg font-bold text-zinc-50">
               Receiving Details
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
@@ -218,10 +218,10 @@ export function ReceiveInventoryForm({
                 name="store_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Destination Store *</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1.5 block">Destination Store *</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600">
                           <SelectValue placeholder="Where is this inventory going?" />
                         </SelectTrigger>
                       </FormControl>
@@ -243,9 +243,9 @@ export function ReceiveInventoryForm({
                 name="received_date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Received Date *</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1.5 block">Received Date *</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input type="date" className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -255,22 +255,22 @@ export function ReceiveInventoryForm({
 
             {/* Barcode Scanning */}
             <div className="mt-4">
-              <FormLabel>Scan Barcode (Optional)</FormLabel>
+              <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1.5 block">Scan Barcode (Optional)</FormLabel>
               <div className="flex gap-2">
                 <Input
                   placeholder="Scan or enter SKU..."
                   value={barcodeInput}
                   onChange={(e) => setBarcodeInput(e.target.value)}
                   onKeyPress={handleBarcodeKeyPress}
-                  className="flex-1"
+                  className="flex-1 bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
                 />
-                <Button
+                <button
                   type="button"
-                  variant="outline"
                   onClick={() => handleBarcodeScan(barcodeInput)}
+                  className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-4 text-xs font-semibold uppercase transition-colors flex items-center justify-center shrink-0"
                 >
                   Scan
-                </Button>
+                </button>
               </div>
               <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                 Scan a barcode to automatically increment the quantity for that item
@@ -280,7 +280,7 @@ export function ReceiveInventoryForm({
 
           {/* Line Items Table */}
           <div className="rounded-lg border border-zinc-200 bg-background-card-light p-6 dark:border-border-dark dark:bg-background-card-dark">
-            <h2 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
+            <h2 className="mb-4 font-editorial text-lg font-bold text-zinc-50">
               Line Items
             </h2>
             <div className="overflow-x-auto">
@@ -377,22 +377,22 @@ export function ReceiveInventoryForm({
                             render={({ field }) => (
                               <FormItem>
                                 <FormControl>
-                                  <Input
-                                    type="number"
-                                    min="0"
-                                    max={qtyRemaining}
-                                    disabled={isFullyReceived}
-                                    className="w-24 text-right"
-                                    {...field}
-                                    onChange={(e) => {
-                                      const value = parseInt(e.target.value, 10) || 0
-                                      const clampedValue = Math.min(
-                                        Math.max(0, value),
-                                        qtyRemaining
-                                      )
-                                      field.onChange(clampedValue)
-                                    }}
-                                  />
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      max={qtyRemaining}
+                                      disabled={isFullyReceived}
+                                      className="w-24 bg-zinc-900 border border-zinc-800 rounded-md h-8 px-2 text-sm text-zinc-100 text-center focus:ring-1 focus:ring-white/20 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                      {...field}
+                                      onChange={(e) => {
+                                        const value = parseInt(e.target.value, 10) || 0
+                                        const clampedValue = Math.min(
+                                          Math.max(0, value),
+                                          qtyRemaining
+                                        )
+                                        field.onChange(clampedValue)
+                                      }}
+                                    />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>

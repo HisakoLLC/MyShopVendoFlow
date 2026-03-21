@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
-import { Package, Printer } from "lucide-react"
+import { Package, Printer, ArrowLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { formatCurrency } from "@/lib/format-currency"
@@ -143,12 +143,13 @@ export default async function PODetailPage({
     <div className="mx-auto max-w-4xl px-4 py-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <Link
-            href="/purchasing/restock"
-            className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+          <a
+            href="/purchasing"
+            className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6 group"
           >
-            ← Purchasing
-          </Link>
+            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+            Purchasing
+          </a>
           <div className="mb-2 mt-2">
             <span className={
               po.status === "received"

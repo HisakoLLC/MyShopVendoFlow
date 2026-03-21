@@ -1,6 +1,7 @@
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { getSignedStorageUrl } from "@/lib/signed-storage-url"
@@ -192,12 +193,13 @@ async function ReceiveInventoryContent({ poId }: { poId: string }) {
     <div className="mx-auto w-full max-w-7xl px-4 py-6">
       <div className="mb-6">
         <div className="mb-2">
-          <Link
+          <a
             href={`/purchasing/${poId}`}
-            className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+            className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6 group"
           >
-            ← Back to PO
-          </Link>
+            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+            Back to PO
+          </a>
         </div>
         <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
           Record received inventory from supplier. You can receive the full order or partial
@@ -210,7 +212,7 @@ async function ReceiveInventoryContent({ poId }: { poId: string }) {
 
       {/* PO Details */}
       <div className="mb-6 rounded-lg border border-zinc-200 bg-background-card-light p-6 dark:border-border-dark dark:bg-background-card-dark">
-        <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+        <h2 className="mb-4 font-editorial text-lg font-bold text-zinc-50">
           PO Details
         </h2>
         <div className="grid gap-4 md:grid-cols-3">
