@@ -170,7 +170,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
     mode: "onChange",
   })
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "line_items",
   })
@@ -227,12 +227,12 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
 
   // Fetch variants when style is selected
   const handleStyleSelect = async (fieldId: string, index: number, styleId: string) => {
-    const currentItem = form.getValues(`line_items.${index}`)
-    update(index, {
-      ...currentItem,
-      style_id: styleId,
-      variant_id: null,
-      unit_cost: 0,
+    form.setValue(`line_items.${index}.style_id`, styleId)
+    form.setValue(`line_items.${index}.variant_id`, null)
+    form.setValue(`line_items.${index}.unit_cost`, 0, {
+      shouldDirty: true,
+      shouldValidate: true,
+      shouldTouch: true,
     })
 
     try {
@@ -270,12 +270,12 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
     const variants = variantOptions[fieldId] || []
     const variant = variants.find((v) => v.variant_id === variantId)
     if (variant) {
-      const currentItem = form.getValues(`line_items.${index}`)
-      update(index, {
-        ...currentItem,
-        variant_id: variantId,
-        sku: variant.sku || "",
-        unit_cost: variant.cost || 0,
+      form.setValue(`line_items.${index}.variant_id`, variantId)
+      form.setValue(`line_items.${index}.sku`, variant.sku || "")
+      form.setValue(`line_items.${index}.unit_cost`, variant.cost || 0, {
+        shouldDirty: true,
+        shouldValidate: true,
+        shouldTouch: true,
       })
     }
   }
