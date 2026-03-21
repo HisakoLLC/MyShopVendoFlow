@@ -211,7 +211,7 @@ export function VariantSelector({
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="bg-white rounded-xl border border-zinc-200 shadow-2xl w-[90vw] max-w-3xl flex flex-col p-0 max-h-[92vh] overflow-hidden [&>button]:hidden">
+      <DialogContent className="bg-white rounded-xl border border-zinc-200 shadow-2xl w-[calc(100vw-320px-2rem)] max-w-3xl flex flex-col p-0 max-h-[92vh] overflow-hidden [&>button]:hidden">
         <div className="px-6 py-5 border-b border-zinc-100 flex items-center justify-between flex-shrink-0">
           <div>
             <DialogTitle className="font-editorial text-xl font-bold text-zinc-900">{styleName}</DialogTitle>
@@ -248,7 +248,7 @@ export function VariantSelector({
           <div>
             <div className="w-full">
               <div
-                className="grid gap-2 w-full"
+                className="grid gap-2.5 w-full"
                 style={{
                   gridTemplateColumns: `2.5rem repeat(${colors.length}, 1fr)`,
                 }}
@@ -258,7 +258,7 @@ export function VariantSelector({
                 {colors.map((color) => (
                   <div
                     key={color}
-                    className="text-[0.6rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center py-2"
+                    className="text-[0.6rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center pb-2"
                   >
                     {color}
                   </div>
@@ -283,7 +283,7 @@ export function VariantSelector({
                         return (
                           <div
                             key={`${cell.size}-${cell.color}`}
-                            className="bg-zinc-50 border border-zinc-100 rounded-lg p-3 min-h-[64px] flex flex-col justify-center opacity-50 w-full"
+                            className="bg-zinc-50 border border-zinc-100 rounded-lg p-3 min-h-[68px] flex flex-col justify-center opacity-50 w-full box-border"
                           >
                             <span className="text-sm text-zinc-300 text-center">—</span>
                           </div>
@@ -295,15 +295,15 @@ export function VariantSelector({
                       let priceTextClass = ""
 
                       if (!isAvailable) {
-                        cellClass = "bg-zinc-50 border border-zinc-100 rounded-lg p-3 min-h-[64px] cursor-not-allowed flex flex-col justify-center text-left w-full"
+                        cellClass = "bg-zinc-50 border border-zinc-100 rounded-lg p-3 min-h-[68px] cursor-not-allowed flex flex-col justify-center text-left w-full box-border"
                         stockTextClass = "text-xs text-zinc-400"
                         priceTextClass = "text-sm text-zinc-300 mt-0.5"
                       } else if (isSelected) {
-                        cellClass = "bg-zinc-900 border border-zinc-900 rounded-lg p-3 min-h-[64px] cursor-pointer flex flex-col justify-center text-left w-full"
+                        cellClass = "bg-zinc-900 border border-zinc-900 rounded-lg p-3 min-h-[68px] cursor-pointer flex flex-col justify-center text-left w-full box-border"
                         stockTextClass = "text-xs font-medium text-zinc-400"
                         priceTextClass = "text-sm font-semibold text-white mt-0.5"
                       } else {
-                        cellClass = "bg-white border border-zinc-200 rounded-lg p-3 min-h-[64px] cursor-pointer hover:border-zinc-800 hover:bg-zinc-50 transition-colors duration-150 flex flex-col justify-center text-left w-full"
+                        cellClass = "bg-white border border-zinc-200 rounded-lg p-3 min-h-[68px] cursor-pointer hover:border-zinc-800 hover:bg-zinc-50 transition-colors duration-150 flex flex-col justify-center text-left w-full box-border"
                         stockTextClass = "text-xs font-medium text-emerald-600"
                         priceTextClass = "text-sm font-semibold text-zinc-900 mt-0.5"
                       }
