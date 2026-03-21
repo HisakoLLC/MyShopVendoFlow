@@ -87,6 +87,7 @@ const poSchema = z.object({
       z.object({
         style_id: z.string().nullable(),
         variant_id: z.string().nullable(),
+        sku: z.string().optional(),
         quantity: z.coerce.number().min(1, "Quantity must be at least 1."),
         unit_cost: z.coerce.number().min(0, "Unit cost must be 0 or greater."),
       })
@@ -142,6 +143,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
           return {
             style_id: variant?.style_id || null,
             variant_id: variant?.variant_id || null,
+            sku: variant?.sku || "",
             quantity: item.quantity,
             unit_cost: variant?.cost || 0,
           }
@@ -150,6 +152,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
           {
             style_id: null,
             variant_id: null,
+            sku: "",
             quantity: 1,
             unit_cost: 0,
           },
@@ -264,6 +267,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
     const variant = variants.find((v) => v.variant_id === variantId)
     if (variant) {
       form.setValue(`line_items.${index}.variant_id`, variantId)
+      form.setValue(`line_items.${index}.sku`, variant.sku || "")
       form.setValue(`line_items.${index}.unit_cost`, variant.cost || 0)
     }
   }
@@ -501,6 +505,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                       append({
                         style_id: null,
                         variant_id: null,
+                        sku: "",
                         quantity: 1,
                         unit_cost: 0,
                       })
@@ -637,16 +642,26 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                 </div>
                               )}
                             </TableCell>
-                            <TableCell className="px-2 py-2 truncate align-top">
-                              {selectedVariant ? (
-                                <span className="font-mono text-xs text-zinc-400 truncate block">
-                                  {selectedVariant.sku}
-                                </span>
-                              ) : (
-                                <span className="text-sm text-zinc-600">—</span>
-                              )}
+                            <TableCell className="px-2 py-2 align-top">
+                              <FormField
+                                control={form.control}
+                                name={`line_items.${index}.sku`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Input
+                                        className="w-full bg-zinc-900 border border-zinc-700 rounded-md h-8 px-2 text-sm text-zinc-100 font-mono"
+                                        placeholder="SKU"
+                                        {...field}
+                                        value={field.value || ""}
+                                        disabled={!lineItem.variant_id}
+                                      />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
                             </TableCell>
-                            <TableCell className="px-2 py-2 truncate align-top">
+                            <TableCell className="px-2 py-2 align-top">
                               <FormField
                                 control={form.control}
                                 name={`line_items.${index}.quantity`}
@@ -656,7 +671,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                       <Input
                                         type="number"
                                         min="1"
-                                        className="w-full text-center tabular-nums bg-zinc-900 border border-zinc-700 rounded-md h-8 text-sm text-zinc-100"
+                                        className="w-full text-center tabular-nums bg-zinc-900 border border-zinc-700 rounded-md h-8 text-sm text-zinc-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         {...field}
                                       />
                                     </FormControl>
@@ -664,7 +679,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                 )}
                               />
                             </TableCell>
-                            <TableCell className="px-2 py-2 truncate align-top">
+                            <TableCell className="px-2 py-2 align-top">
                               <FormField
                                 control={form.control}
                                 name={`line_items.${index}.unit_cost`}
@@ -675,7 +690,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                         type="number"
                                         min="0"
                                         step="0.01"
-                                        className="w-full bg-zinc-900 border border-zinc-700 rounded-md h-8 px-2 text-sm text-zinc-100 tabular-nums"
+                                        className="w-full text-right bg-zinc-900 border border-zinc-700 rounded-md h-8 px-2 text-sm text-zinc-100 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         {...field}
                                       />
                                     </FormControl>
@@ -683,12 +698,12 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                 )}
                               />
                             </TableCell>
-                            <TableCell className="px-2 py-2 text-right truncate align-top">
-                              <span className="text-sm font-semibold text-zinc-100 tabular-nums truncate block">
+                            <TableCell className="px-2 py-2 text-right align-top pt-3">
+                              <span className="text-sm font-semibold text-zinc-100 tabular-nums block">
                                 {formatCurrency(lineTotal, currency, { maximumFractionDigits: 2 })}
                               </span>
                             </TableCell>
-                            <TableCell className="px-2 py-2 w-[3%] truncate align-top">
+                            <TableCell className="px-2 py-2 w-[3%] truncate align-top pt-[0.6rem]">
                               <button
                                 type="button"
                                 onClick={() => remove(index)}
