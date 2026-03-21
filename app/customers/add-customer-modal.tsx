@@ -133,10 +133,10 @@ export function AddCustomerModal({
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[500px] bg-zinc-900 border-zinc-800 text-zinc-100 rounded-lg shadow-2xl p-6">
+      <DialogContent className="bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-xl shadow-2xl p-6 w-full max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">{isEditing ? "Edit Customer" : "Add New Customer"}</DialogTitle>
-          <DialogDescription className="text-zinc-400">
+          <DialogDescription className="text-sm text-zinc-400 mt-1">
             {isEditing
               ? "Update customer information."
               : "Add a new customer to your database."}
@@ -151,9 +151,9 @@ export function AddCustomerModal({
                 name="first_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">First Name</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1.5 block">First Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="John" {...field} className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm" />
+                      <Input placeholder="John" {...field} className="bg-zinc-800 border border-zinc-700 rounded-md text-sm text-zinc-100 h-9 px-3 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-500" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -165,9 +165,9 @@ export function AddCustomerModal({
                 name="last_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Last Name</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1.5 block">Last Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Doe" {...field} className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm" />
+                      <Input placeholder="Doe" {...field} className="bg-zinc-800 border border-zinc-700 rounded-md text-sm text-zinc-100 h-9 px-3 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-500" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -180,12 +180,12 @@ export function AddCustomerModal({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Email</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1.5 block">Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="john@example.com" {...field} className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm" />
+                    <Input type="email" placeholder="john@example.com" {...field} className="bg-zinc-800 border border-zinc-700 rounded-md text-sm text-zinc-100 h-9 px-3 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-500" />
                   </FormControl>
                   <FormMessage />
-                  <p className="text-[0.65rem] text-zinc-500 uppercase tracking-wider">
+                  <p className="text-xs text-zinc-500 mt-1">
                     At least email or phone is required
                   </p>
                 </FormItem>
@@ -197,9 +197,9 @@ export function AddCustomerModal({
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Phone</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1.5 block">Phone</FormLabel>
                   <FormControl>
-                    <Input type="tel" placeholder="+254 700 000 000" {...field} className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm" />
+                    <Input type="tel" placeholder="+254 700 000 000" {...field} className="bg-zinc-800 border border-zinc-700 rounded-md text-sm text-zinc-100 h-9 px-3 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-500" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -207,12 +207,12 @@ export function AddCustomerModal({
             />
 
             <DialogFooter className="gap-2 sm:gap-0 mt-6">
-              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white">
+              <button type="button" onClick={onClose} disabled={isSubmitting} className="bg-transparent border border-zinc-700 text-zinc-300 hover:border-zinc-500 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors">
                 Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting} className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100">
+              </button>
+              <button type="submit" disabled={isSubmitting} className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors">
                 {isSubmitting ? "Saving..." : isEditing ? "Update Customer" : "Add Customer"}
-              </Button>
+              </button>
             </DialogFooter>
           </form>
         </Form>

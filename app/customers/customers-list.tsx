@@ -232,7 +232,7 @@ export function CustomersList({ initialCustomers }: CustomersListProps) {
                 <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Contact</TableHead>
                 <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center">VIP</TableHead>
                 <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Total Spend</TableHead>
-                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Txns</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center">Txns</TableHead>
                 <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Last Purchase</TableHead>
                 <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Actions</TableHead>
               </TableRow>
@@ -245,60 +245,60 @@ export function CustomersList({ initialCustomers }: CustomersListProps) {
                   onClick={() => setViewingCustomer(customer)}
                 >
                   <TableCell className="px-6 py-4">
-                    <div className="font-medium text-zinc-100">
+                    <div className="text-sm font-semibold text-zinc-100">
                       {`${customer.first_name || ""} ${customer.last_name || ""}`.trim() || "—"}
                     </div>
                   </TableCell>
                   <TableCell className="px-6 py-4">
-                    <div className="text-xs text-zinc-400 font-mono">
+                    <span className="text-sm text-zinc-300 block">
                       {customer.email || "—"}
-                    </div>
-                    <div className="text-xs text-zinc-500 mt-0.5">
+                    </span>
+                    <span className="font-mono text-xs text-zinc-500 block mt-0.5">
                       {customer.phone || "—"}
-                    </div>
+                    </span>
                   </TableCell>
                   <TableCell className="px-6 py-4 text-center">
                     {customer.is_vip ? (
                       <div className="inline-flex items-center justify-center">
-                        <Crown className="h-4 w-4 text-zinc-100" />
+                        <Crown className="h-4 w-4 text-amber-400" />
                       </div>
                     ) : (
-                      <span className="text-zinc-700 text-xs">—</span>
+                      <div className="inline-flex items-center justify-center">
+                        <Crown className="h-4 w-4 text-zinc-700 opacity-30" />
+                      </div>
                     )}
                   </TableCell>
                   <TableCell className="px-6 py-4 text-right">
-                    <div className="font-editorial text-lg font-bold tabular-nums text-zinc-50">
+                    <div className="text-sm font-semibold text-zinc-100 tabular-nums">
                       {formatPrice(customer.total_spend)}
                     </div>
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-right">
-                    <div className="text-sm tabular-nums text-zinc-400">
+                  <TableCell className="px-6 py-4 text-center">
+                    <div className="text-sm text-zinc-300 tabular-nums">
                       {customer.transaction_count || 0}
                     </div>
                   </TableCell>
                   <TableCell className="px-6 py-4">
-                    <div className="text-xs text-zinc-500">
+                    <div className="text-sm text-zinc-500">
                       {formatDateAgo(customer.last_purchase_date)}
                     </div>
                   </TableCell>
                   <TableCell className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-                      <Button
-                        variant="ghost"
-                        size="sm"
+                      <button
+                        type="button"
                         onClick={() => setViewingCustomer(customer)}
-                        className="h-8 w-8 p-0 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
+                        className="w-8 h-8 rounded-sm hover:bg-zinc-800 flex items-center justify-center transition-colors text-zinc-500 hover:text-zinc-100"
                       >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => setEditingCustomer(customer)}
-                        className="h-8 w-8 p-0 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
+                        className="w-8 h-8 rounded-sm hover:bg-zinc-800 flex items-center justify-center transition-colors text-zinc-500 hover:text-zinc-100"
                       >
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                        <Edit className="w-4 h-4" />
+                      </button>
                     </div>
                   </TableCell>
                 </TableRow>
