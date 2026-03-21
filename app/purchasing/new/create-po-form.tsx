@@ -495,10 +495,8 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                   <h2 className="font-editorial text-xl font-bold text-zinc-50">
                     Line Items
                   </h2>
-                  <Button
+                  <button
                     type="button"
-                    variant="outline"
-                    size="sm"
                     onClick={() =>
                       append({
                         style_id: null,
@@ -507,23 +505,24 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                         unit_cost: 0,
                       })
                     }
+                    className="bg-transparent border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-8 px-3 text-xs font-semibold uppercase flex items-center justify-center transition-colors"
                   >
                     <Plus className="mr-2 h-4 w-4" />
                     Add Line Item
-                  </Button>
+                  </button>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[200px]">Product</TableHead>
-                        <TableHead className="w-[150px]">Variant</TableHead>
-                        <TableHead className="w-[120px]">SKU</TableHead>
-                        <TableHead className="w-[100px] text-right">Quantity</TableHead>
-                        <TableHead className="w-[120px] text-right">Unit Cost</TableHead>
-                        <TableHead className="w-[120px] text-right">Line Total</TableHead>
-                        <TableHead className="w-[50px]"></TableHead>
+                <div className="w-full overflow-x-hidden bg-zinc-800 border border-zinc-700 rounded-lg">
+                  <Table className="table-fixed w-full">
+                    <TableHeader className="bg-zinc-800 border-b border-zinc-700">
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead className="w-[30%] px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Product</TableHead>
+                        <TableHead className="w-[22%] px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Variant</TableHead>
+                        <TableHead className="w-[15%] px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">SKU</TableHead>
+                        <TableHead className="w-[10%] px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center">Qty</TableHead>
+                        <TableHead className="w-[12%] px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Unit Cost</TableHead>
+                        <TableHead className="w-[11%] px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Line Total</TableHead>
+                        <TableHead className="w-8 px-0"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -549,17 +548,17 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                 <PopoverAnchor asChild>
                                   <div className="relative">
                                     <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-                                    <Input
-                                      placeholder="Search product..."
-                                      value={productSearchQuery[fieldKey] || ""}
-                                      onChange={(e) => {
-                                        setProductSearchQuery((prev) => ({
-                                          ...prev,
-                                          [fieldKey]: e.target.value,
-                                        }))
-                                      }}
-                                      className="pl-8"
-                                    />
+                                      <Input
+                                        placeholder="Search product..."
+                                        value={productSearchQuery[fieldKey] || ""}
+                                        onChange={(e) => {
+                                          setProductSearchQuery((prev) => ({
+                                            ...prev,
+                                            [fieldKey]: e.target.value,
+                                          }))
+                                        }}
+                                        className={`w-full bg-zinc-900 border border-zinc-700 rounded-md h-8 pl-8 pr-2 text-sm placeholder:text-zinc-600 focus:border-zinc-500 ${lineItem.style_id ? "font-semibold text-zinc-100" : "text-zinc-100"}`}
+                                      />
                                   </div>
                                 </PopoverAnchor>
                                 <PopoverContent
@@ -603,40 +602,42 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                 </PopoverContent>
                               </Popover>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="px-2 py-2">
                               {lineItem.style_id ? (
                                 <Select
                                   value={lineItem.variant_id || ""}
                                   onValueChange={(value) => handleVariantSelect(fieldKey, index, value)}
                                 >
-                                  <SelectTrigger>
+                                  <SelectTrigger className="w-full bg-zinc-900 border border-zinc-700 rounded-md h-8 px-2 text-sm text-zinc-300">
                                     <SelectValue placeholder="Select variant" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    {(variantOptions[index] || []).map((variant) => (
+                                    {(variantOptions[fieldKey] || []).map((variant) => (
                                       <SelectItem
                                         key={variant.variant_id}
                                         value={variant.variant_id}
                                       >
-                                        {variant.size} / {variant.color}
+                                        {variant.size} / {variant.color} ({variant.sku})
                                       </SelectItem>
                                     ))}
                                   </SelectContent>
                                 </Select>
                               ) : (
-                                <span className="text-sm text-zinc-400">Select product first</span>
+                                <div className="w-full bg-zinc-900 border border-zinc-700 rounded-md h-8 px-2 text-sm text-zinc-500 opacity-50 cursor-not-allowed flex items-center">
+                                  Select product first
+                                </div>
                               )}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="px-2 py-2">
                               {selectedVariant ? (
-                                <span className="font-mono text-sm text-zinc-400 tracking-wide">
+                                <span className="font-mono text-xs text-zinc-400">
                                   {selectedVariant.sku}
                                 </span>
                               ) : (
-                                <span className="text-sm text-zinc-400">—</span>
+                                <span className="text-sm text-zinc-600">—</span>
                               )}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="px-2 py-2">
                               <FormField
                                 control={form.control}
                                 name={`line_items.${index}.quantity`}
@@ -646,16 +647,15 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                       <Input
                                         type="number"
                                         min="1"
-                                        className="w-20 text-right"
+                                        className="w-full text-center tabular-nums bg-zinc-900 border border-zinc-700 rounded-md h-8 text-sm text-zinc-100"
                                         {...field}
                                       />
                                     </FormControl>
-                                    <FormMessage />
                                   </FormItem>
                                 )}
                               />
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="px-2 py-2">
                               <FormField
                                 control={form.control}
                                 name={`line_items.${index}.unit_cost`}
@@ -666,30 +666,28 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                         type="number"
                                         min="0"
                                         step="0.01"
-                                        className="w-24 text-right"
+                                        className="w-full bg-zinc-900 border border-zinc-700 rounded-md h-8 px-2 text-sm text-zinc-100 tabular-nums text-right"
                                         {...field}
                                       />
                                     </FormControl>
-                                    <FormMessage />
                                   </FormItem>
                                 )}
                               />
                             </TableCell>
-                            <TableCell className="text-right">
-                              <span className="font-semibold tabular-nums text-zinc-100">
+                            <TableCell className="px-2 py-2 text-right">
+                              <span className="text-sm font-semibold text-zinc-100 tabular-nums">
                                 {formatCurrency(lineTotal, currency, { maximumFractionDigits: 2 })}
                               </span>
                             </TableCell>
-                            <TableCell>
-                              <Button
+                            <TableCell className="px-2 py-2">
+                              <button
                                 type="button"
-                                variant="ghost"
-                                size="icon"
                                 onClick={() => remove(index)}
                                 disabled={fields.length === 1}
+                                className="w-8 h-8 rounded-sm hover:bg-zinc-800 flex items-center justify-center transition-colors text-zinc-500 hover:text-red-400 disabled:opacity-50"
                               >
                                 <X className="h-4 w-4" />
-                              </Button>
+                              </button>
                             </TableCell>
                           </TableRow>
                         )
@@ -702,42 +700,41 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
 
             {/* PO Summary Sidebar */}
             <div className="lg:col-span-1">
-              <div className="sticky top-6 rounded-lg border border-zinc-200 bg-zinc-900 p-6 dark:border-zinc-800 dark:bg-zinc-900">
-                <h2 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
+              <div className="sticky top-6 rounded-lg border border-zinc-700/50 bg-zinc-900 p-5">
+                <h2 className="mb-4 font-editorial text-lg font-bold text-zinc-50">
                   PO Summary
                 </h2>
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-600 dark:text-zinc-400">Line Items</span>
-                    <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                    <span className="text-zinc-500">Line Items</span>
+                    <span className="font-semibold text-zinc-100">
                       {fields.length}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-600 dark:text-zinc-400">Total Cost</span>
-                    <span className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                  <div className="flex justify-between text-sm mt-2">
+                    <span className="text-zinc-500">Total Cost</span>
+                    <span className="font-editorial text-2xl font-bold text-zinc-50 tabular-nums">
                       {formatCurrency(totalCost, currency, { maximumFractionDigits: 2 })}
                     </span>
                   </div>
                   <div className="pt-4 space-y-2">
-                    <Button
+                    <button
                       type="button"
-                      variant="outline"
-                      className="w-full"
                       onClick={handleSaveAsDraft}
                       disabled={isSubmitting || !watchedSupplierId}
+                      className="w-full bg-transparent border border-zinc-700 text-zinc-300 hover:border-zinc-500 rounded-sm h-9 text-xs font-semibold uppercase tracking-[0.12em] transition-colors disabled:opacity-50 flex items-center justify-center"
                     >
                       Save as Draft
-                    </Button>
-                    <Button
+                    </button>
+                    <button
                       type="button"
-                      className="w-full gap-2"
                       onClick={handlePrintPO}
                       disabled={isSubmitting || !watchedSupplierId}
+                      className="w-full bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 mt-2 text-xs font-semibold uppercase tracking-[0.12em] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                       <Printer className="h-4 w-4" />
-                      Print PO
-                    </Button>
+                      Print PO / Submit
+                    </button>
                   </div>
                 </div>
               </div>
