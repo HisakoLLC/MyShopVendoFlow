@@ -493,233 +493,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                 />
               </div>
 
-              {/* Line Items */}
-              <div className="rounded-lg border border-zinc-200 bg-zinc-900 p-6 dark:border-zinc-800 dark:bg-zinc-900">
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="font-editorial text-xl font-bold text-zinc-50">
-                    Line Items
-                  </h2>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      append({
-                        style_id: null,
-                        variant_id: null,
-                        sku: "",
-                        quantity: 1,
-                        unit_cost: 0,
-                      })
-                    }
-                    className="bg-transparent border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-8 px-3 text-xs font-semibold uppercase flex items-center justify-center transition-colors"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Line Item
-                  </button>
-                </div>
-
-                <div className="w-full overflow-hidden bg-zinc-800 border border-zinc-700 rounded-lg">
-                  <Table className="table-fixed w-full">
-                    <TableHeader className="bg-zinc-800 border-b border-zinc-700">
-                      <TableRow className="hover:bg-transparent">
-                        <TableHead className="w-[25%] px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 truncate">Product</TableHead>
-                        <TableHead className="w-[25%] px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 truncate">Variant</TableHead>
-                        <TableHead className="w-[15%] px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 truncate">SKU</TableHead>
-                        <TableHead className="w-[10%] px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center truncate">Qty</TableHead>
-                        <TableHead className="w-[12%] px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right truncate">Unit Cost</TableHead>
-                        <TableHead className="w-[10%] px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right truncate">Line Total</TableHead>
-                        <TableHead className="w-[3%] px-2 py-3"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {fields.map((field, index) => {
-                        const lineItem = watchedLineItems[index]
-                        const fieldKey = field.id
-                        const selectedVariant =
-                          lineItem.variant_id && variantOptions[fieldKey]
-                            ? variantOptions[fieldKey].find((v) => v.variant_id === lineItem.variant_id)
-                            : null
-                        const lineTotal = (lineItem.quantity || 0) * (lineItem.unit_cost || 0)
-
-                        return (
-                          <TableRow key={field.id}>
-                            <TableCell className="align-top">
-                              <Popover
-                                open={!!(productResults[fieldKey]?.length)}
-                                onOpenChange={(open) => {
-                                  if (!open)
-                                    setProductResults((prev) => ({ ...prev, [fieldKey]: [] }))
-                                }}
-                              >
-                                <PopoverAnchor asChild>
-                                  <div className="relative">
-                                    <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-                                      <Input
-                                        placeholder="Search product..."
-                                        value={productSearchQuery[fieldKey] || ""}
-                                        onChange={(e) => {
-                                          setProductSearchQuery((prev) => ({
-                                            ...prev,
-                                            [fieldKey]: e.target.value,
-                                          }))
-                                        }}
-                                        className={`w-full bg-zinc-900 border border-zinc-700 rounded-md h-8 pl-8 pr-2 text-sm placeholder:text-zinc-600 focus:border-zinc-500 ${lineItem.style_id ? "font-semibold text-zinc-100" : "text-zinc-100"}`}
-                                      />
-                                  </div>
-                                </PopoverAnchor>
-                                <PopoverContent
-                                  className="min-w-[var(--radix-popover-trigger-width)] max-w-[320px] p-0"
-                                  side="bottom"
-                                  align="start"
-                                  sideOffset={4}
-                                >
-                                  <div className="max-h-60 overflow-auto">
-                                    {productResults[fieldKey]?.map((style) => (
-                                      <button
-                                        key={style.style_id}
-                                        type="button"
-                                        onClick={() => {
-                                          handleStyleSelect(fieldKey, index, style.style_id)
-                                          setProductSearchQuery((prev) => ({
-                                            ...prev,
-                                            [fieldKey]: style.name,
-                                          }))
-                                          setProductResults((prev) => ({
-                                            ...prev,
-                                            [fieldKey]: [],
-                                          }))
-                                        }}
-                                        className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-zinc-800/50"
-                                      >
-                                        {style.image_url && (
-                                          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border border-zinc-700">
-                                            <Image
-                                              src={style.image_url}
-                                              alt={style.name}
-                                              fill
-                                              className="object-cover"
-                                            />
-                                          </div>
-                                        )}
-                                        <span className="text-sm text-zinc-100 truncate">{style.name}</span>
-                                      </button>
-                                    ))}
-                                  </div>
-                                </PopoverContent>
-                              </Popover>
-                            </TableCell>
-                            <TableCell className="px-2 py-2 truncate align-top">
-                              {lineItem.style_id ? (
-                                <Select
-                                  value={lineItem.variant_id || ""}
-                                  onValueChange={(value) => handleVariantSelect(fieldKey, index, value)}
-                                >
-                                  <SelectTrigger className="w-full bg-zinc-900 border border-zinc-700 rounded-md h-8 px-2 text-sm text-zinc-300 truncate">
-                                    <SelectValue placeholder="Select variant" />
-                                  </SelectTrigger>
-                                  <SelectContent
-                                    position="popper"
-                                    className="absolute z-50 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl max-h-[240px] overflow-y-auto min-w-[220px]"
-                                  >
-                                    {(variantOptions[fieldKey] || []).map((variant) => {
-                                      const isSelected = lineItem.variant_id === variant.variant_id
-                                      return (
-                                        <SelectItem
-                                          key={variant.variant_id}
-                                          value={variant.variant_id}
-                                          className={`px-3 py-2 cursor-pointer ${isSelected ? "text-zinc-100 font-medium bg-zinc-800/50" : "text-sm text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100"}`}
-                                        >
-                                          <span className="truncate block">
-                                            {variant.size} / {variant.color} ({variant.sku})
-                                          </span>
-                                        </SelectItem>
-                                      )
-                                    })}
-                                  </SelectContent>
-                                </Select>
-                              ) : (
-                                <div className="w-full bg-zinc-900 border border-zinc-700 rounded-md h-8 px-2 text-sm text-zinc-500 opacity-50 cursor-not-allowed flex items-center truncate">
-                                  Select product first
-                                </div>
-                              )}
-                            </TableCell>
-                            <TableCell className="px-2 py-2 align-top">
-                              <FormField
-                                control={form.control}
-                                name={`line_items.${index}.sku`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        className="w-full bg-zinc-900 border border-zinc-700 rounded-md h-8 px-2 text-sm text-zinc-100 font-mono"
-                                        placeholder="SKU"
-                                        {...field}
-                                        value={field.value || ""}
-                                        disabled={!lineItem.variant_id}
-                                      />
-                                    </FormControl>
-                                  </FormItem>
-                                )}
-                              />
-                            </TableCell>
-                            <TableCell className="px-2 py-2 align-top">
-                              <FormField
-                                control={form.control}
-                                name={`line_items.${index}.quantity`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        min="1"
-                                        className="w-full text-center tabular-nums bg-zinc-900 border border-zinc-700 rounded-md h-8 text-sm text-zinc-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                  </FormItem>
-                                )}
-                              />
-                            </TableCell>
-                            <TableCell className="px-2 py-2 align-top">
-                              <FormField
-                                control={form.control}
-                                name={`line_items.${index}.unit_cost`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        className="w-full text-right bg-zinc-900 border border-zinc-700 rounded-md h-8 px-2 text-sm text-zinc-100 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                  </FormItem>
-                                )}
-                              />
-                            </TableCell>
-                            <TableCell className="px-2 py-2 text-right align-top pt-3">
-                              <span className="text-sm font-semibold text-zinc-100 tabular-nums block">
-                                {formatCurrency(lineTotal, currency, { maximumFractionDigits: 2 })}
-                              </span>
-                            </TableCell>
-                            <TableCell className="px-2 py-2 w-[3%] truncate align-top pt-[0.6rem]">
-                              <button
-                                type="button"
-                                onClick={() => remove(index)}
-                                disabled={fields.length === 1}
-                                className="w-8 h-8 rounded-sm hover:bg-zinc-800 flex items-center justify-center transition-colors text-zinc-500 hover:text-red-400 disabled:opacity-50"
-                              >
-                                <X className="h-4 w-4" />
-                              </button>
-                            </TableCell>
-                          </TableRow>
-                        )
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
+              {/* Line items moved out below */}
             </div>
 
             {/* PO Summary Sidebar */}
@@ -764,6 +538,231 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
               </div>
             </div>
           </div>
+
+          {/* SECTION 2 (full width, below section 1) */}
+          <div className="w-full bg-zinc-900 border border-zinc-700/50 rounded-lg overflow-hidden mt-6 p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="font-editorial text-xl font-bold text-zinc-50">
+                Line Items
+              </h2>
+              <button
+                type="button"
+                onClick={() =>
+                  append({
+                    style_id: null,
+                    variant_id: null,
+                    sku: "",
+                    quantity: 1,
+                    unit_cost: 0,
+                  })
+                }
+                className="bg-transparent border border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 rounded-sm h-8 px-3 text-xs font-semibold uppercase tracking-[0.1em] transition-colors"
+              >
+                Add Line Item
+              </button>
+            </div>
+
+            <div className="w-full bg-zinc-900 border border-zinc-700 border-x-0 border-b-0 overflow-x-auto">
+              <Table className="table-fixed w-full min-w-[800px]">
+                <TableHeader className="bg-zinc-900 border-b border-zinc-700">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="w-8 px-3 py-3"></TableHead>
+                    <TableHead className="w-[22%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 truncate">Product</TableHead>
+                    <TableHead className="w-[22%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 truncate">Variant</TableHead>
+                    <TableHead className="w-[14%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 truncate">SKU</TableHead>
+                    <TableHead className="w-[8%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center truncate">Qty</TableHead>
+                    <TableHead className="w-[12%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right truncate">Unit Cost</TableHead>
+                    <TableHead className="w-[12%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right truncate">Line Total</TableHead>
+                    <TableHead className="w-[4%] px-3 py-3"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                      {fields.map((field, index) => {
+                        const lineItem = watchedLineItems[index]
+                        const fieldKey = field.id
+                        const selectedVariant =
+                          lineItem.variant_id && variantOptions[fieldKey]
+                            ? variantOptions[fieldKey].find((v) => v.variant_id === lineItem.variant_id)
+                            : null
+                        const lineTotal = (lineItem.quantity || 0) * (lineItem.unit_cost || 0)
+
+                        return (
+                          <TableRow key={field.id}>
+                            <TableCell className="w-8 px-2 py-2"></TableCell>
+                            <TableCell className="px-3 py-2 align-top">
+                              {lineItem.style_id ? (
+                                <div className="text-sm font-medium text-zinc-100 px-1 pt-1.5 truncate">
+                                  {productSearchQuery[fieldKey] || "Product Selected"}
+                                </div>
+                              ) : (
+                                <Popover
+                                  open={!!(productResults[fieldKey]?.length)}
+                                  onOpenChange={(open) => {
+                                    if (!open)
+                                      setProductResults((prev) => ({ ...prev, [fieldKey]: [] }))
+                                  }}
+                                >
+                                  <PopoverAnchor asChild>
+                                    <div className="relative">
+                                      <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                                        <Input
+                                          placeholder="Search product..."
+                                          value={productSearchQuery[fieldKey] || ""}
+                                          onChange={(e) => {
+                                            setProductSearchQuery((prev) => ({
+                                              ...prev,
+                                              [fieldKey]: e.target.value,
+                                            }))
+                                          }}
+                                          className="w-full bg-zinc-800 border border-zinc-700 rounded-md h-8 pl-8 pr-3 text-sm placeholder:text-zinc-600 focus:border-zinc-500 focus:ring-1 focus:ring-white/10 text-zinc-100"
+                                        />
+                                    </div>
+                                  </PopoverAnchor>
+                                  <PopoverContent
+                                    className="min-w-[var(--radix-popover-trigger-width)] max-w-[320px] p-0 border border-zinc-700 bg-zinc-900 rounded-lg shadow-xl"
+                                    side="bottom"
+                                    align="start"
+                                    sideOffset={4}
+                                  >
+                                    <div className="max-h-60 overflow-auto py-1">
+                                      {productResults[fieldKey]?.map((style) => (
+                                        <button
+                                          key={style.style_id}
+                                          type="button"
+                                          onClick={() => {
+                                            handleStyleSelect(fieldKey, index, style.style_id)
+                                            setProductSearchQuery((prev) => ({
+                                              ...prev,
+                                              [fieldKey]: style.name,
+                                            }))
+                                            setProductResults((prev) => ({
+                                              ...prev,
+                                              [fieldKey]: [],
+                                            }))
+                                          }}
+                                          className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-zinc-800"
+                                        >
+                                          {style.image_url && (
+                                            <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-sm border border-zinc-700">
+                                              <Image
+                                                src={style.image_url}
+                                                alt={style.name}
+                                                fill
+                                                className="object-cover"
+                                              />
+                                            </div>
+                                          )}
+                                          <span className="text-sm text-zinc-300 hover:text-zinc-100 truncate">{style.name}</span>
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </PopoverContent>
+                                </Popover>
+                              )}
+                            </TableCell>
+                            <TableCell className="px-3 py-2 align-top">
+                              {lineItem.style_id ? (
+                                <Select
+                                  value={lineItem.variant_id || ""}
+                                  onValueChange={(value) => handleVariantSelect(fieldKey, index, value)}
+                                >
+                                  <SelectTrigger className="w-full bg-zinc-800 border border-zinc-700 rounded-md h-8 px-2 text-sm text-zinc-300 truncate focus:ring-1 focus:ring-white/10">
+                                    <SelectValue placeholder="Select variant" />
+                                  </SelectTrigger>
+                                  <SelectContent
+                                    position="popper"
+                                    className="absolute z-50 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl max-h-[200px] overflow-y-auto min-w-[200px]"
+                                  >
+                                    {(variantOptions[fieldKey] || []).map((variant) => {
+                                      const isSelected = lineItem.variant_id === variant.variant_id
+                                      return (
+                                        <SelectItem
+                                          key={variant.variant_id}
+                                          value={variant.variant_id}
+                                          className={`px-3 py-2 cursor-pointer text-sm ${isSelected ? "text-zinc-100 font-medium bg-zinc-800" : "text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100"}`}
+                                        >
+                                          <span className="truncate block">
+                                            {variant.size} / {variant.color} ({variant.sku})
+                                          </span>
+                                        </SelectItem>
+                                      )
+                                    })}
+                                  </SelectContent>
+                                </Select>
+                              ) : (
+                                <div className="w-full bg-zinc-800 border border-zinc-700/50 rounded-md h-8 px-2 text-sm text-zinc-500 cursor-not-allowed flex items-center truncate">
+                                  Select product first
+                                </div>
+                              )}
+                            </TableCell>
+                            <TableCell className="px-3 py-2 align-top pt-3">
+                              {selectedVariant ? (
+                                <span className="font-mono text-xs text-zinc-400 block truncate">
+                                  {selectedVariant.sku}
+                                </span>
+                              ) : (
+                                <span className="text-sm text-zinc-600">—</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="px-3 py-2 align-top">
+                              <FormField
+                                control={form.control}
+                                name={`line_items.${index}.quantity`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        min="1"
+                                        className="w-full text-center tabular-nums bg-zinc-800 border border-zinc-700 rounded-md h-8 text-sm text-zinc-100 focus:ring-1 focus:ring-white/10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell className="px-3 py-2 align-top">
+                              <FormField
+                                control={form.control}
+                                name={`line_items.${index}.unit_cost`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-md h-8 px-2 text-sm text-zinc-100 tabular-nums focus:ring-1 focus:ring-white/10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-right"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell className="px-3 py-2 text-right align-top pt-3">
+                              <span className="text-sm font-semibold text-zinc-100 tabular-nums block truncate">
+                                {formatCurrency(lineTotal, currency, { maximumFractionDigits: 2 })}
+                              </span>
+                            </TableCell>
+                            <TableCell className="px-3 py-2 align-top pt-2">
+                              <button
+                                type="button"
+                                onClick={() => remove(index)}
+                                disabled={fields.length === 1}
+                                className="w-7 h-7 rounded-sm hover:bg-zinc-800 flex items-center justify-center transition-colors text-zinc-600 hover:text-red-400 disabled:opacity-50"
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
         </form>
       </Form>
 
