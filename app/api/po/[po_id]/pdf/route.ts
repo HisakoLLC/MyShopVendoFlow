@@ -10,17 +10,16 @@ export async function GET(
 ) {
   const { po_id } = await params
   try {
-    console.log(`[API][PDF] Generating for PO ID: "${po_id}"`)
+    console.log(`[API][PDF] Generating for PO ID: "${po_id}" (type: ${typeof po_id})`)
     
     const { user, supabase, error: authError } = await requireAuth(_request)
-    if (authError) {
+    if (authError || !user) {
       console.warn("[API][PDF] Unauthorized")
       return new Response("Unauthorized", { status: 401 })
     }
 
-    // Get account ID directly from RPC to match page logic exactly
     const { data: accountId, error: accountIdError } = await supabase.rpc("get_account_id")
-    console.log(`[API][PDF] Account ID from RPC: "${accountId}"`)
+    console.log(`[API][PDF] Account ID from RPC: "${JSON.stringify(accountId)}" (type: ${typeof accountId})`)
 
     if (accountIdError || !accountId) {
       console.warn("[API][PDF] Account access denied", accountIdError)
@@ -30,8 +29,11 @@ export async function GET(
     const { data: bs } = await supabase.from("business_settings").select("*").eq("account_id", accountId).single()
     const currency = (bs as any)?.currency ?? "KES"
 
+    const { data: samplePO, error: sampleError } = await supabase.from("purchase_orders").select("*").limit(1)
+    console.log(`[API][PDF] Sample PO row: ${JSON.stringify(samplePO?.[0] || sampleError)}`)
+
     // Simpler query for PO: filter by po_id first, then verify account_id
-    const { data: po, error: poError } = await supabase
+    const { data: initialPO, error: poError } = await supabase
       .from("purchase_orders")
       .select(`
         po_number,
@@ -43,12 +45,34 @@ export async function GET(
         suppliers!inner(name, email, phone, account_id, payment_terms)
       `)
       .eq("po_id", po_id)
-      .single()
+      .maybeSingle()
 
-    if (poError || !po) {
-      console.warn("[API][PDF] PO not found or query error:", poError)
-      return new Response(`Purchase order not found: ${po_id}`, { status: 404 })
+    let po = initialPO
+    if (!po) {
+      console.log(`[API][PDF] PO not found by po_id, trying id...`)
+      const { data: altPO, error: altError } = await supabase
+        .from("purchase_orders")
+        .select(`
+          po_number,
+          order_date,
+          expected_delivery_date,
+          total_cost,
+          status,
+          notes,
+          suppliers!inner(name, email, phone, account_id, payment_terms)
+        `)
+        .eq("id", po_id)
+        .maybeSingle()
+      
+      if (altPO) {
+        console.log("[API][PDF] Found PO using 'id' column!")
+        po = altPO
+      } else {
+        console.warn("[API][PDF] PO not found by po_id or id:", po_id, poError, altError)
+        return new Response(`Purchase order not found: ${po_id}`, { status: 404 })
+      }
     }
+
 
     const poAccountId = (po as any).suppliers?.account_id
     console.log(`[API][PDF] PO Supplier Account ID: "${poAccountId}"`)
