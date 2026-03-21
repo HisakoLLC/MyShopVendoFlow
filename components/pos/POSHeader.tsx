@@ -1,9 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { MapPin } from "lucide-react"
-
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { MapPin, ChevronDown, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 type StaffRole = "owner" | "manager" | "cashier"
@@ -29,6 +27,23 @@ export function POSHeader({
 }: Props) {
   const canSwitchStores = role === "owner" || role === "manager"
   const multipleStores = stores.length > 1
+  
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false)
+  const dropdownRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [isDropdownOpen])
+
+  const toggleDropdown = () => setIsDropdownOpen((prev) => !prev)
 
   return (
     <header
@@ -48,24 +63,50 @@ export function POSHeader({
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 relative" ref={dropdownRef}>
         {canSwitchStores && multipleStores ? (
-          <Select value={currentStoreId ?? undefined} onValueChange={onChangeStoreId}>
-            <SelectTrigger className="bg-white border border-zinc-300 rounded-md h-9 px-3 min-w-[160px] flex items-center justify-between gap-2 text-sm font-medium text-zinc-900 hover:border-zinc-500 transition-colors cursor-pointer shadow-none">
-              <SelectValue placeholder="Select store" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border border-zinc-200 rounded-lg shadow-lg py-1 min-w-[200px] z-50">
-              {stores.map((s) => (
-                <SelectItem 
-                  key={s.store_id} 
-                  value={s.store_id}
-                  className="text-sm text-zinc-700 px-3 py-2.5 hover:bg-zinc-100 focus:bg-zinc-100 cursor-pointer transition-colors data-[state=checked]:bg-zinc-100 data-[state=checked]:font-semibold data-[state=checked]:text-zinc-900"
-                >
-                  {s.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <>
+            <button 
+              className="flex items-center gap-2 bg-white border border-zinc-300 rounded-md h-9 px-3 min-w-[180px] hover:border-zinc-500 transition-colors cursor-pointer"
+              onClick={toggleDropdown}
+            >
+              <span className="text-sm font-medium text-zinc-900 flex-1 text-left truncate">
+                {currentStoreName}
+              </span>
+              <ChevronDown className="w-4 h-4 text-zinc-500 flex-shrink-0" />
+            </button>
+            {isDropdownOpen && (
+              <div className="absolute top-full right-0 bg-white border border-zinc-200 rounded-lg shadow-lg py-1 min-w-[200px] z-50 mt-1">
+                {stores.map((s) => {
+                  const isSelected = s.store_id === currentStoreId
+                  return (
+                    <button
+                      key={s.store_id}
+                      onClick={() => {
+                        onChangeStoreId(s.store_id)
+                        setIsDropdownOpen(false)
+                      }}
+                      className={
+                        isSelected
+                          ? "w-full text-sm font-semibold text-zinc-900 px-3 py-2.5 rounded-md mx-1 bg-zinc-100 cursor-default flex items-center gap-2 text-left"
+                          : "w-full text-sm text-zinc-700 px-3 py-2.5 rounded-md mx-1 hover:bg-zinc-100 cursor-pointer transition-colors flex items-center gap-2 text-left"
+                      }
+                      style={{ width: "calc(100% - 8px)" }}
+                    >
+                      {isSelected ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-zinc-700 mr-1 flex-shrink-0" />
+                          <span className="truncate">{s.name}</span>
+                        </>
+                      ) : (
+                        <span className="truncate pr-3 pl-[22px]">{s.name}</span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </>
         ) : (
           <span className="text-xs text-zinc-500">
             {role === "cashier" ? "Read-only" : stores.length <= 1 ? "Single store" : ""}

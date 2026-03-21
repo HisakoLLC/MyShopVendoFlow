@@ -488,7 +488,7 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
                       setMpesaConfirmationCode(e.target.value.toUpperCase())
                     }}
                     placeholder="e.g. QGH5X9K2AB"
-                    className="mt-1"
+                    className="mt-1 bg-white border border-zinc-200 rounded-md h-10 px-3 text-sm text-zinc-900 font-medium placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900/10 shadow-none"
                   />
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                     Enter the confirmation code from the customer's M-Pesa message.
@@ -507,7 +507,7 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
                     }}
                     placeholder="254712345678"
                     maxLength={12}
-                    className="mt-1"
+                    className="mt-1 bg-white border border-zinc-200 rounded-md h-10 px-3 text-sm text-zinc-900 font-medium placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900/10 shadow-none"
                   />
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                     Format: 254712345678 (12 digits, starts with 254)
@@ -527,7 +527,7 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
                   placeholder="0.00"
                   min={total}
                   step="0.01"
-                  className="mt-1 bg-white border border-zinc-200 rounded-md h-10 px-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900/10 shadow-none"
+                  className="mt-1 bg-white border border-zinc-200 rounded-md h-10 px-3 text-sm text-zinc-900 font-medium placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900/10 shadow-none"
                 />
                 {change > 0 && (
                   <p className="mt-2 text-sm font-medium text-green-600 dark:text-green-400">
@@ -562,7 +562,7 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
                 value={customerSearch}
                 onChange={(e) => setCustomerSearch(e.target.value)}
                 placeholder="Search by phone or email..."
-                className="mt-1 bg-white border border-zinc-200 rounded-md h-10 px-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900/10 shadow-none"
+                className="mt-1 bg-white border border-zinc-200 rounded-md h-10 px-3 text-sm text-zinc-900 font-medium placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900/10 shadow-none"
               />
 
               {isSearchingCustomers && (

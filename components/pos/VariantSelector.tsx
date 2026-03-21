@@ -211,8 +211,8 @@ export function VariantSelector({
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="bg-white rounded-xl border border-zinc-200 shadow-2xl max-w-2xl w-full flex flex-col p-0 max-h-[90vh] [&>button]:hidden">
-        <div className="flex-shrink-0 px-6 py-5 border-b border-zinc-100 flex items-center justify-between">
+      <DialogContent className="bg-white rounded-xl border border-zinc-200 shadow-2xl w-full max-w-2xl flex flex-col p-0 [&>button]:hidden">
+        <div className="flex-shrink-0 px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
           <div>
             <DialogTitle className="font-editorial text-xl font-bold text-zinc-900">{styleName}</DialogTitle>
             <p className="text-sm text-zinc-500 mt-0.5">Select size and color</p>
@@ -226,7 +226,7 @@ export function VariantSelector({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-5">
+        <div className="px-6 py-4">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-zinc-500">Loading variants...</div>
@@ -246,12 +246,11 @@ export function VariantSelector({
           </div>
         ) : (
           <div>
-            {/* Matrix Grid */}
             <div className="overflow-x-auto pb-2">
               <div
-                className="grid gap-2 min-w-max"
+                className="grid gap-[6px] min-w-max"
                 style={{
-                  gridTemplateColumns: `auto repeat(${colors.length}, minmax(110px, 1fr))`,
+                  gridTemplateColumns: `3rem repeat(${colors.length}, 1fr)`,
                 }}
               >
                 {/* Headers */}
@@ -259,7 +258,7 @@ export function VariantSelector({
                 {colors.map((color) => (
                   <div
                     key={color}
-                    className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center pb-1"
+                    className="text-[0.6rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center pb-1"
                   >
                     {color}
                   </div>
@@ -269,7 +268,7 @@ export function VariantSelector({
                 {matrix.map((row, rowIndex) => (
                   <React.Fragment key={sizes[rowIndex]}>
                     {/* Row Header */}
-                    <div className="text-sm font-semibold text-zinc-600 pr-3 flex items-center justify-end w-10 flex-shrink-0">
+                    <div className="text-sm font-semibold text-zinc-600 pr-2 flex items-center justify-end w-12 flex-shrink-0">
                       {sizes[rowIndex]}
                     </div>
 
@@ -284,7 +283,7 @@ export function VariantSelector({
                         return (
                           <div
                             key={`${cell.size}-${cell.color}`}
-                            className="bg-zinc-50 border border-zinc-100 rounded-lg p-2.5 flex items-center justify-center opacity-50"
+                            className="bg-zinc-50 border border-zinc-100 rounded-lg p-2 min-h-[56px] flex items-center justify-center opacity-50"
                           >
                             <span className="text-sm text-zinc-300">—</span>
                           </div>
@@ -296,17 +295,17 @@ export function VariantSelector({
                       let priceTextClass = ""
 
                       if (!isAvailable) {
-                        cellClass = "bg-zinc-50 border border-zinc-100 rounded-lg p-2.5 cursor-not-allowed"
-                        stockTextClass = "text-xs text-zinc-400"
-                        priceTextClass = "text-sm text-zinc-300 tabular-nums"
+                        cellClass = "bg-zinc-50 border border-zinc-100 rounded-lg p-2 min-h-[56px] cursor-not-allowed flex flex-col justify-center text-left"
+                        stockTextClass = "text-[0.65rem] text-zinc-400"
+                        priceTextClass = "text-sm text-zinc-300 tabular-nums mt-0.5"
                       } else if (isSelected) {
-                        cellClass = "bg-zinc-900 border-2 border-zinc-900 rounded-lg p-2.5 cursor-pointer"
-                        stockTextClass = "text-xs font-medium text-zinc-400"
-                        priceTextClass = "text-sm font-semibold tabular-nums text-white"
+                        cellClass = "bg-zinc-900 border-2 border-zinc-900 rounded-lg p-2 min-h-[56px] cursor-pointer flex flex-col justify-center text-left"
+                        stockTextClass = "text-[0.65rem] font-medium text-zinc-400"
+                        priceTextClass = "text-sm font-semibold tabular-nums text-white mt-0.5"
                       } else {
-                        cellClass = "bg-white border border-zinc-200 rounded-lg p-2.5 cursor-pointer hover:border-zinc-800 hover:bg-zinc-50 transition-colors duration-150"
-                        stockTextClass = "text-xs font-medium text-emerald-600"
-                        priceTextClass = "text-sm font-semibold tabular-nums text-zinc-900"
+                        cellClass = "bg-white border border-zinc-200 rounded-lg p-2 min-h-[56px] cursor-pointer hover:border-zinc-800 hover:bg-zinc-50 transition-colors duration-150 flex flex-col justify-center text-left"
+                        stockTextClass = "text-[0.65rem] font-medium text-emerald-600"
+                        priceTextClass = "text-sm font-semibold tabular-nums text-zinc-900 mt-0.5"
                       }
 
                       return (
@@ -316,7 +315,7 @@ export function VariantSelector({
                           disabled={!isAvailable}
                           onPointerDown={(e) => handleCellPointerDown(e, cell)}
                           onClick={(e) => handleCellClick(e, cell)}
-                          className={`${cellClass} flex flex-col items-start gap-1 touch-manipulation text-left`}
+                          className={`${cellClass} touch-manipulation`}
                         >
                           <span className={stockTextClass}>
                             {isAvailable ? `${stock} in stock` : "Out of stock"}
