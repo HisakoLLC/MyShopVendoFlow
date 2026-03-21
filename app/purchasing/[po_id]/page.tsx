@@ -3,10 +3,11 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
-import { Package, Printer, ArrowLeft } from "lucide-react"
+import { Package, ArrowLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { formatCurrency } from "@/lib/format-currency"
+import { PODownloadButton } from "./po-download-button"
 
 export const dynamic = "force-dynamic"
 
@@ -170,16 +171,7 @@ export default async function PODetailPage({
           </h1>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline" className="gap-2">
-            <a
-              href={`/api/po/${po_id}/pdf`}
-              download={`PO-${po.po_number}.pdf`}
-              className="inline-flex items-center gap-2"
-            >
-              <Printer className="h-4 w-4" />
-              Download PDF
-            </a>
-          </Button>
+          <PODownloadButton poId={po_id} poNumber={po.po_number} />
           {po.status !== "received" && (
             <Button asChild className="gap-2">
               <Link href={`/purchasing/${po_id}/receive`}>

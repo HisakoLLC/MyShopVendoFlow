@@ -273,12 +273,14 @@ export async function GET(
 
   const filename = `PO-${(po as { po_number: string }).po_number}.pdf`
   const buf = doc.output("arraybuffer")
+  const uint8array = new Uint8Array(buf)
 
-  return new Response(buf, {
+  return new Response(uint8array, {
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `attachment; filename="${filename}"`,
+      "Content-Length": uint8array.byteLength.toString(),
       "Cache-Control": "no-store",
     },
   })
