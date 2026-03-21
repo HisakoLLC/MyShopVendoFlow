@@ -423,28 +423,28 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent 
-        className="max-w-2xl max-h-[90vh] overflow-y-auto !bg-white !border-zinc-200 !rounded-xl !shadow-2xl"
+        className="max-w-2xl max-h-[90vh] overflow-y-auto !bg-white !border-zinc-200 !rounded-xl !shadow-2xl p-0"
         overlayClassName="bg-black/60 backdrop-blur-sm"
       >
-        <DialogHeader>
-          <DialogTitle>Complete Sale</DialogTitle>
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-100">
+          <DialogTitle className="text-lg font-editorial font-bold text-zinc-900">Complete Sale</DialogTitle>
         </DialogHeader>
 
         {/* Step Indicator */}
-        <div className="flex items-center justify-center gap-2 mb-6">
+        <div className="flex items-center w-full px-6 mb-6 mt-4">
           {[1, 2, 3].map((step) => (
             <React.Fragment key={step}>
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
                   currentStep >= step
                     ? "bg-zinc-900 text-white"
-                    : "border border-zinc-300 text-zinc-400"
+                    : "border-2 border-zinc-200 text-zinc-400"
                 }`}
               >
                 {step}
               </div>
               {step < 3 && (
-                <div className="h-px w-12 bg-zinc-200" />
+                <div className="h-px flex-1 bg-zinc-200 mx-2" />
               )}
             </React.Fragment>
           ))}
@@ -452,9 +452,9 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
 
         {/* Step 1: Payment Method */}
         {currentStep === 1 && (
-          <div className="space-y-4">
+          <div className="space-y-4 px-6 pb-6">
             <div>
-              <Label className="mb-3 block text-sm font-medium">Payment Method</Label>
+              <Label className="mb-3 block text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Payment Method</Label>
               <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)}>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="cash" id="cash" />
@@ -480,7 +480,7 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
             {paymentMethod === "mpesa" && (
               <div className="space-y-3">
                 <div>
-                  <Label htmlFor="mpesa-code">M-Pesa Confirmation Code *</Label>
+                  <Label htmlFor="mpesa-code" className="mb-1.5 block text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">M-Pesa Confirmation Code *</Label>
                   <Input
                     id="mpesa-code"
                     value={mpesaConfirmationCode}
@@ -496,7 +496,7 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
                 </div>
 
                 <div>
-                  <Label htmlFor="mpesa-phone">Customer Phone Number (optional)</Label>
+                  <Label htmlFor="mpesa-phone" className="mb-1.5 block text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Customer Phone Number (optional)</Label>
                   <Input
                     id="mpesa-phone"
                     type="tel"
@@ -518,7 +518,7 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
 
             {paymentMethod === "cash" && (
               <div>
-                <Label htmlFor="amount-tendered">Amount Tendered</Label>
+                <Label htmlFor="amount-tendered" className="mb-1.5 block text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Amount Tendered</Label>
                 <Input
                   id="amount-tendered"
                   type="number"
@@ -543,8 +543,8 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
               </p>
             )}
 
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={onClose} className="bg-transparent border border-zinc-200 text-zinc-700 hover:border-zinc-400 hover:text-zinc-900 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">
+            <div className="flex justify-end gap-2 pt-4 px-6 py-4 border-t border-zinc-100 -mx-6 -mb-6 mt-4">
+              <Button variant="outline" onClick={onClose} className="bg-transparent border border-zinc-200 text-zinc-700 hover:border-zinc-400 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">
                 Cancel
               </Button>
               <Button onClick={handleNext} className="bg-zinc-900 text-white hover:bg-zinc-800 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">Next</Button>
@@ -554,15 +554,15 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
 
         {/* Step 2: Customer Info */}
         {currentStep === 2 && (
-          <div className="space-y-4">
+          <div className="space-y-4 px-6 pb-6">
             <div>
-              <Label htmlFor="customer-search">Customer Phone/Email (optional)</Label>
+              <Label htmlFor="customer-search" className="mb-1.5 block text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Customer Phone/Email (optional)</Label>
               <Input
                 id="customer-search"
                 value={customerSearch}
                 onChange={(e) => setCustomerSearch(e.target.value)}
                 placeholder="Search by phone or email..."
-                className="mt-1"
+                className="mt-1 bg-white border border-zinc-200 rounded-md h-10 px-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900/10 shadow-none"
               />
 
               {isSearchingCustomers && (
@@ -598,12 +598,12 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
               )}
             </div>
 
-            <div className="flex justify-between gap-2 pt-4">
-              <Button variant="outline" onClick={handleBack} className="bg-transparent border border-zinc-200 text-zinc-700 hover:border-zinc-400 hover:text-zinc-900 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">
+            <div className="flex justify-between gap-2 pt-4 px-6 py-4 border-t border-zinc-100 -mx-6 -mb-6 mt-4">
+              <Button variant="outline" onClick={handleBack} className="bg-transparent border border-zinc-200 text-zinc-700 hover:border-zinc-400 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">
                 Back
               </Button>
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setCurrentStep(3)} className="bg-transparent border border-zinc-200 text-zinc-700 hover:border-zinc-400 hover:text-zinc-900 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">
+                <Button variant="outline" onClick={() => setCurrentStep(3)} className="bg-transparent text-zinc-500 hover:text-zinc-700 rounded-sm h-9 px-4 text-xs font-semibold tracking-[0.12em] uppercase shadow-none border-none hover:bg-transparent">
                   Skip
                 </Button>
                 <Button onClick={handleNext} className="bg-zinc-900 text-white hover:bg-zinc-800 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">Next</Button>
@@ -614,51 +614,51 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
 
         {/* Step 3: Confirm & Process */}
         {currentStep === 3 && (
-          <div className="space-y-4">
-            <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
-              <h3 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-100">Order Summary</h3>
+          <div className="space-y-4 px-6 pb-6">
+            <div className="bg-zinc-900 rounded-lg p-4">
+              <h3 className="mb-3 text-sm font-semibold text-zinc-100">Order Summary</h3>
               <div className="space-y-2">
                 {cart.map((item) => (
                   <div key={item.cartItemId} className="flex justify-between text-sm">
                     <div>
-                      <p className="font-medium text-zinc-900 dark:text-zinc-100">{item.styleName}</p>
-                      <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                      <p className="font-semibold text-zinc-100">{item.styleName}</p>
+                      <p className="text-xs text-zinc-400">
                         {item.size} / {item.color} × {item.quantity}
                       </p>
                     </div>
-                    <p className="font-medium text-zinc-900 dark:text-zinc-100">
+                    <p className="font-semibold text-zinc-100 tabular-nums">
                       {formatPrice(item.price * item.quantity)}
                     </p>
                   </div>
                 ))}
               </div>
-              <div className="mt-4 space-y-1 border-t border-zinc-200 pt-3 dark:border-zinc-800">
+              <div className="mt-4 space-y-1 border-t border-zinc-700 pt-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-600 dark:text-zinc-400">Subtotal</span>
-                  <span className="text-zinc-900 dark:text-zinc-100">{formatPrice(displaySubtotal)}</span>
+                  <span className="text-sm text-zinc-400">Subtotal</span>
+                  <span className="text-sm text-zinc-300 tabular-nums">{formatPrice(displaySubtotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-600 dark:text-zinc-400">Tax</span>
-                  <span className="text-zinc-900 dark:text-zinc-100">{formatPrice(displayTax)}</span>
+                  <span className="text-sm text-zinc-400">Tax</span>
+                  <span className="text-sm text-zinc-300 tabular-nums">{formatPrice(displayTax)}</span>
                 </div>
-                <div className="flex justify-between border-t border-zinc-200 pt-2 dark:border-zinc-800">
-                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">Total</span>
-                  <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                <div className="flex justify-between border-t border-zinc-700 pt-2 mt-2">
+                  <span className="text-sm font-semibold text-zinc-100">Total</span>
+                  <span className="font-editorial text-lg font-bold text-white tabular-nums">
                     {formatPrice(displayTotal)}
                   </span>
                 </div>
               </div>
-              <div className="mt-4 space-y-1 text-sm">
+              <div className="mt-4 space-y-1 text-sm pt-4 border-t border-zinc-700">
                 <p>
-                  <span className="text-zinc-600 dark:text-zinc-400">Payment:</span>{" "}
-                  <span className="font-medium capitalize text-zinc-900 dark:text-zinc-100">
+                  <span className="text-zinc-400 text-sm">Payment:</span>{" "}
+                  <span className="font-semibold capitalize text-sm text-zinc-100">
                     {paymentMethod}
                   </span>
                 </p>
                 {selectedCustomer && (
                   <p>
-                    <span className="text-zinc-600 dark:text-zinc-400">Customer:</span>{" "}
-                    <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                    <span className="text-zinc-400 text-sm">Customer:</span>{" "}
+                    <span className="font-semibold text-sm text-zinc-100">
                       {customerSearch}
                     </span>
                   </p>
@@ -666,8 +666,8 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
               </div>
             </div>
 
-            <div className="flex justify-between gap-2 pt-4">
-              <Button variant="outline" onClick={handleBack} disabled={isProcessing} className="bg-transparent border border-zinc-200 text-zinc-700 hover:border-zinc-400 hover:text-zinc-900 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">
+            <div className="flex justify-between gap-2 pt-4 px-6 py-4 border-t border-zinc-100 -mx-6 -mb-6 mt-4">
+              <Button variant="outline" onClick={handleBack} disabled={isProcessing} className="bg-transparent border border-zinc-200 text-zinc-700 hover:border-zinc-400 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">
                 Back
               </Button>
               <Button

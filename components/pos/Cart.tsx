@@ -87,8 +87,8 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
     <>
       <div className="flex h-full flex-col">
         {/* Cart Header */}
-        <div className="border-b border-zinc-200 p-4 dark:border-zinc-800">
-          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+        <div className="border-b border-zinc-200 px-5 py-4">
+          <h2 className="text-xs font-semibold tracking-[0.15em] uppercase text-zinc-500">
             Cart ({cart.length} {cart.length === 1 ? "item" : "items"})
           </h2>
         </div>
@@ -126,7 +126,7 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
                   {/* Remove Button */}
                   <button
                     onClick={() => removeFromCart(item.cartItemId)}
-                    className="absolute right-2 top-2 rounded p-1 text-zinc-400 opacity-0 transition-opacity hover:text-red-600 group-hover:opacity-100 dark:text-zinc-500 dark:hover:text-red-500"
+                    className="absolute right-3 top-3 rounded p-1 text-zinc-400 opacity-0 transition-opacity hover:text-red-600 group-hover:opacity-100"
                     aria-label="Remove item"
                   >
                     <svg
@@ -160,7 +160,7 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
                         <div className="flex items-center gap-2 mt-2">
                           <button
                             type="button"
-                            className="w-7 h-7 rounded-sm border border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400 flex items-center justify-center text-sm shrink-0"
+                            className="w-7 h-7 rounded-sm border border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400 hover:bg-zinc-50 transition-colors flex items-center justify-center text-sm shrink-0 font-medium"
                             onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
                             aria-label="Decrease quantity"
                           >
@@ -171,7 +171,7 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
                           </span>
                           <button
                             type="button"
-                            className="w-7 h-7 rounded-sm border border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400 flex items-center justify-center text-sm shrink-0"
+                            className="w-7 h-7 rounded-sm border border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400 hover:bg-zinc-50 transition-colors flex items-center justify-center text-sm shrink-0 font-medium"
                             onClick={() => {
                               const available = defaultStoreId
                                 ? (stockByVariant[item.variantId] ?? 0)
@@ -187,12 +187,12 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
                             <Plus className="h-3 w-3" />
                           </button>
                         </div>
-                        <span className="text-sm font-semibold text-zinc-900 tabular-nums shrink-0 mt-2">
+                        <span className="text-sm font-bold text-zinc-900 tabular-nums shrink-0 mt-2">
                           {formatPrice(item.price * item.quantity)}
                         </span>
                       </div>
                       {defaultStoreId && stockByVariant[item.variantId] != null && (
-                        <p className="text-xs text-zinc-400 mt-1">
+                        <p className="text-xs text-zinc-500 mt-1.5">
                           Max in stock: {stockByVariant[item.variantId]}
                         </p>
                       )}
@@ -206,14 +206,14 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
 
         {/* Footer - Sticky Bottom */}
         {cart.length > 0 && (
-          <div className="border-t-2 border-zinc-200 bg-zinc-900 p-4">
+          <div className="border-t-2 border-zinc-200 bg-zinc-900 px-5 py-4">
             <div className="space-y-2">
               {/* Subtotal */}
               <div className="flex justify-between text-sm items-center">
                 <span className="text-xs text-zinc-400">
                   {taxInclusive ? "Subtotal (ex tax)" : "Subtotal"}
                 </span>
-                <span className="text-sm font-semibold text-zinc-100 tabular-nums">
+                <span className="text-sm text-zinc-300 tabular-nums">
                   {formatPrice(subtotal)}
                 </span>
               </div>
@@ -221,13 +221,13 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
               {/* Tax */}
               <div className="flex justify-between text-sm items-center">
                 <span className="text-xs text-zinc-400">Tax ({taxRatePercent}%)</span>
-                <span className="text-sm font-semibold text-zinc-100 tabular-nums">
+                <span className="text-sm text-zinc-300 tabular-nums">
                   {formatPrice(taxAmount)}
                 </span>
               </div>
 
               {/* Total */}
-              <div className="border-t border-zinc-700 pt-2 mt-2">
+              <div className="border-t border-zinc-700 my-2 pt-2">
                 <div className="flex justify-between items-end">
                   <span className="text-sm font-semibold text-zinc-100">
                     Total
@@ -239,19 +239,18 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
               </div>
 
               {/* Checkout Button */}
-              <Button
-                className="mt-4 w-full bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
-                size="lg"
+              <button
+                className="mt-3 w-full bg-white text-zinc-900 hover:bg-zinc-100 border border-zinc-700 rounded-sm h-11 text-xs font-semibold tracking-[0.15em] uppercase transition-colors"
                 onClick={() => setShowCheckout(true)}
                 disabled={cart.length === 0}
               >
                 Checkout
-              </Button>
+              </button>
 
               {/* Clear Cart Button */}
               <button
                 type="button"
-                className="w-full bg-transparent border border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-300 rounded-sm h-9 text-xs font-semibold tracking-[0.12em] uppercase transition-colors mt-2"
+                className="w-full bg-transparent border border-zinc-700 text-zinc-500 hover:border-zinc-500 hover:text-zinc-400 rounded-sm h-9 text-xs font-semibold tracking-[0.12em] uppercase transition-colors mt-2"
                 onClick={() => setShowClearConfirm(true)}
                 disabled={cart.length === 0}
               >

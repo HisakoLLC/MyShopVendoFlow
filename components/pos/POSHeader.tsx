@@ -49,18 +49,17 @@ export function POSHeader({
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-xs text-zinc-500">Switch:</span>
         {canSwitchStores && multipleStores ? (
           <Select value={currentStoreId ?? undefined} onValueChange={onChangeStoreId}>
-            <SelectTrigger className="h-9 min-w-[180px] bg-white border border-zinc-200 rounded-sm text-xs font-semibold tracking-wider text-zinc-900 hover:border-zinc-400 focus:ring-0 focus:ring-offset-0 transition-colors shadow-none uppercase">
+            <SelectTrigger className="bg-white border border-zinc-300 rounded-md h-9 px-3 min-w-[160px] flex items-center justify-between gap-2 text-sm font-medium text-zinc-900 hover:border-zinc-500 transition-colors cursor-pointer shadow-none">
               <SelectValue placeholder="Select store" />
             </SelectTrigger>
-            <SelectContent className="bg-white border-zinc-200 rounded-sm shadow-xl">
+            <SelectContent className="bg-white border border-zinc-200 rounded-lg shadow-lg py-1 min-w-[200px] z-50">
               {stores.map((s) => (
                 <SelectItem 
                   key={s.store_id} 
                   value={s.store_id}
-                  className="text-xs font-medium text-zinc-700 focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer"
+                  className="text-sm text-zinc-700 px-3 py-2.5 hover:bg-zinc-100 focus:bg-zinc-100 cursor-pointer transition-colors data-[state=checked]:bg-zinc-100 data-[state=checked]:font-semibold data-[state=checked]:text-zinc-900"
                 >
                   {s.name}
                 </SelectItem>

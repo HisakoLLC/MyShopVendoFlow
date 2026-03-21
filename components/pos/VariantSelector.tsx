@@ -211,8 +211,8 @@ export function VariantSelector({
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="bg-white rounded-none border border-zinc-200 shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto [&>button]:hidden">
-        <div className="flex items-center justify-between mb-6">
+      <DialogContent className="bg-white rounded-xl border border-zinc-200 shadow-2xl max-w-2xl w-full flex flex-col p-0 max-h-[90vh] [&>button]:hidden">
+        <div className="flex-shrink-0 px-6 py-5 border-b border-zinc-100 flex items-center justify-between">
           <div>
             <DialogTitle className="font-editorial text-xl font-bold text-zinc-900">{styleName}</DialogTitle>
             <p className="text-sm text-zinc-500 mt-0.5">Select size and color</p>
@@ -226,6 +226,7 @@ export function VariantSelector({
           </button>
         </div>
 
+        <div className="flex-1 overflow-y-auto px-6 py-5">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-zinc-500">Loading variants...</div>
@@ -258,7 +259,7 @@ export function VariantSelector({
                 {colors.map((color) => (
                   <div
                     key={color}
-                    className="text-xs font-medium uppercase tracking-widest text-zinc-500 text-center pb-3"
+                    className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center pb-1"
                   >
                     {color}
                   </div>
@@ -268,7 +269,7 @@ export function VariantSelector({
                 {matrix.map((row, rowIndex) => (
                   <React.Fragment key={sizes[rowIndex]}>
                     {/* Row Header */}
-                    <div className="text-sm font-semibold text-zinc-700 pr-4 flex items-center justify-end w-12">
+                    <div className="text-sm font-semibold text-zinc-600 pr-3 flex items-center justify-end w-10 flex-shrink-0">
                       {sizes[rowIndex]}
                     </div>
 
@@ -283,7 +284,7 @@ export function VariantSelector({
                         return (
                           <div
                             key={`${cell.size}-${cell.color}`}
-                            className="bg-zinc-50 border border-zinc-100 rounded-sm p-3 flex items-center justify-center opacity-50"
+                            className="bg-zinc-50 border border-zinc-100 rounded-lg p-2.5 flex items-center justify-center opacity-50"
                           >
                             <span className="text-sm text-zinc-300">—</span>
                           </div>
@@ -295,16 +296,16 @@ export function VariantSelector({
                       let priceTextClass = ""
 
                       if (!isAvailable) {
-                        cellClass = "bg-zinc-50 border border-zinc-200 rounded-sm p-3 cursor-not-allowed opacity-50"
+                        cellClass = "bg-zinc-50 border border-zinc-100 rounded-lg p-2.5 cursor-not-allowed"
                         stockTextClass = "text-xs text-zinc-400"
                         priceTextClass = "text-sm text-zinc-300 tabular-nums"
                       } else if (isSelected) {
-                        cellClass = "bg-zinc-900 border-2 border-zinc-900 rounded-lg p-3 cursor-pointer"
+                        cellClass = "bg-zinc-900 border-2 border-zinc-900 rounded-lg p-2.5 cursor-pointer"
                         stockTextClass = "text-xs font-medium text-zinc-400"
                         priceTextClass = "text-sm font-semibold tabular-nums text-white"
                       } else {
-                        cellClass = "bg-white border border-zinc-200 rounded-sm p-3 cursor-pointer hover:border-zinc-400 hover:bg-zinc-50 transition-all duration-150"
-                        stockTextClass = "text-xs font-medium text-zinc-500"
+                        cellClass = "bg-white border border-zinc-200 rounded-lg p-2.5 cursor-pointer hover:border-zinc-800 hover:bg-zinc-50 transition-colors duration-150"
+                        stockTextClass = "text-xs font-medium text-emerald-600"
                         priceTextClass = "text-sm font-semibold tabular-nums text-zinc-900"
                       }
 
@@ -330,18 +331,9 @@ export function VariantSelector({
                 ))}
               </div>
             </div>
-
-            <div className="mt-6 flex justify-end pt-6 border-t border-zinc-100">
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-sm border border-zinc-200 bg-white px-6 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-colors"
-              >
-                Done
-              </button>
-            </div>
           </div>
         )}
+        </div>
       </DialogContent>
     </Dialog>
   )
