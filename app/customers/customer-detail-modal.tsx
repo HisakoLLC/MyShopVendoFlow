@@ -259,7 +259,7 @@ export function CustomerDetailModal({
                 checked={isVip}
                 onCheckedChange={handleVIPToggle}
                 disabled={isUpdatingVIP}
-                className="data-[state=unchecked]:bg-zinc-600 data-[state=checked]:bg-white data-[state=checked]:[&>span]:bg-zinc-900 data-[state=unchecked]:[&>span]:bg-zinc-100 transition-colors duration-200"
+                className="data-[state=unchecked]:!bg-zinc-600 data-[state=checked]:!bg-white data-[state=checked]:[&>span]:!bg-zinc-900 data-[state=unchecked]:[&>span]:!bg-zinc-200 border-transparent shadow-inner"
               />
             </div>
 
