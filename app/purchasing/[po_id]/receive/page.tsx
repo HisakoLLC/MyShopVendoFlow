@@ -192,15 +192,13 @@ async function ReceiveInventoryContent({ poId }: { poId: string }) {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-6">
       <div className="mb-6">
-        <div className="mb-2">
-          <a
-            href={`/purchasing/${poId}`}
-            className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6 group"
-          >
-            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
-            Back to PO
-          </a>
-        </div>
+        <a
+          href={`/purchasing/${poId}`}
+          className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6 group"
+        >
+          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+          Back to PO
+        </a>
         <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
           Record received inventory from supplier. You can receive the full order or partial
           quantities—enter only what you received today; you can receive the rest later.
