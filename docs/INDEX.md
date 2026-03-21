@@ -41,6 +41,7 @@ Quick reference guide to all VendoFlow documentation.
 - **[Responsive Design Guide](./RESPONSIVE_DESIGN_GUIDE.md)** - Responsive design patterns
 - **[Schedule Function Guide](./SCHEDULE_FUNCTION_GUIDE.md)** - Schedule Edge Functions
 - **[Complete Database Setup](./COMPLETE_DATABASE_SETUP.md)** - Step-by-step database setup
+- **[V3 Migration & Refinement](./V3_MIGRATION.md)** - Redesign summary (Phases 1-18)
 
 ---
 

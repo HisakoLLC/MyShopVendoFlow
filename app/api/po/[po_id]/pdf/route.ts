@@ -102,203 +102,258 @@ export async function GET(
 
   console.log("[API][PDF] Data fetched, creating jsPDF doc...")
 
-  const doc = new jsPDF({ format: "a4", unit: "mm" })
-  const pageW = doc.internal.pageSize.getWidth()
-  let y = 20
-
-  // Title
-  doc.setFontSize(22)
-  doc.setFont("helvetica", "bold")
-  doc.text("PURCHASE ORDER", 20, y)
-  y += 15
-
-  // Header (two columns: BILL FROM & BILL TO)
-  doc.setFont("helvetica", "normal")
-  doc.setFontSize(9)
-  doc.setTextColor(100, 100, 100)
-  
-  doc.text("BILL FROM", 20, y)
-  doc.text("BILL TO", 110, y)
-  
-  y += 5
-  doc.setTextColor(0, 0, 0)
-  doc.setFontSize(11)
-  doc.setFont("helvetica", "bold")
-  
-  const bsData = bs as any
-  const supplier = (po as any).suppliers
-
-  // Section 1: BILL FROM
-  const bsName = bsData?.business_name || "Your Business"
-  doc.text(bsName, 20, y)
-  doc.text(supplier?.name ?? "—", 110, y)
-  
-  doc.setFont("helvetica", "normal")
-  y += 5
-  
-  let leftY = y
-  if (bsData?.address) { doc.text(bsData.address, 20, leftY); leftY += 5 }
-  if (bsData?.phone) { doc.text(bsData.phone, 20, leftY); leftY += 5 }
-  if (bsData?.email) { doc.text(bsData.email, 20, leftY); leftY += 5 }
-  if (bsData?.tax_id) { doc.text(`VAT/Tax ID: ${bsData.tax_id}`, 20, leftY); leftY += 5 }
-  
-  let rightY = y
-  if (supplier?.email) { doc.text(supplier.email, 110, rightY); rightY += 5 }
-  if (supplier?.phone) { doc.text(supplier.phone, 110, rightY); rightY += 5 }
-  // Section 2: Payment Terms in Bill To
-  if (supplier?.payment_terms) { 
-    doc.text(`Terms: ${supplier.payment_terms}`, 110, rightY); 
-    rightY += 5 
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "—"
+    return new Date(dateStr).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    })
   }
-  
-  y = Math.max(leftY, rightY) + 12
 
-  // PO Meta Section
-  doc.setFont("helvetica", "normal")
-  doc.setFontSize(9)
-  doc.setTextColor(100, 100, 100)
-  doc.text("PO NUMBER", 20, y)
-  doc.text("ORDER DATE", 55, y)
-  doc.text("EXPECTED DELIVERY", 95, y)
-  doc.text("STATUS", 145, y)
-  y += 5
+  const doc = new jsPDF({ format: "a4", unit: "mm" })
+  const pageWidth = doc.internal.pageSize.getWidth() // 210
+  const pageHeight = doc.internal.pageSize.getHeight() // 297
+  const margin = 20
+  const contentWidth = pageWidth - margin * 2
+  let y = margin // Y cursor starts at top margin
 
-  doc.setTextColor(0, 0, 0)
-  doc.setFontSize(11)
-  doc.setFont("helvetica", "bold")
-  doc.text(`#${(po as any).po_number}`, 20, y)
-  
-  const orderDate = (po as any).order_date
-    ? new Date((po as any).order_date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
-    : "—"
-  doc.text(orderDate, 55, y)
-  
-  const expectedDate = (po as any).expected_delivery_date
-    ? new Date((po as any).expected_delivery_date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
-    : "—"
-  doc.text(expectedDate, 95, y)
-  
-  doc.text(String((po as any).status || "DRAFT").toUpperCase(), 145, y)
-  y += 5
+  // HELPER FUNCTIONS
+  const gap = (n: number) => {
+    y += n
+  }
 
-  // Table header
-  const colW = [70, 45, 15, 25, 30]
-  const colX = [20, 90, 135, 150, 175]
-  doc.setFont("helvetica", "bold")
-  doc.setFontSize(9)
-  doc.text("Product", colX[0], y)
-  doc.text("Variant", colX[1], y)
-  doc.text("Qty", colX[2], y)
-  doc.text("Unit cost", colX[3], y)
-  doc.text("Total", colX[4], y)
-  y += 6
-  doc.setDrawColor(0, 0, 0)
-  doc.line(20, y, pageW - 20, y)
-  y += 6
+  const rule = (thickness = 0.2) => {
+    doc.setLineWidth(thickness)
+    doc.setDrawColor(200, 200, 200)
+    doc.line(margin, y, pageWidth - margin, y)
+    gap(4)
+  }
 
-  const currSym = currency === "USD" ? "$" : currency === "KES" ? "Ksh " : `${currency} `
-  doc.setFont("helvetica", "normal")
-  doc.setFontSize(9)
-  for (const item of lineItems as Array<{
-    quantity_ordered: number
-    unit_cost: number
-    line_total: number
-    product_variants: {
-      size: string
-      color: string
-      product_styles: { name: string } | null
-    } | null
-  }>) {
-    const pv = item.product_variants
-    const name = pv?.product_styles?.name ?? "—"
-    const variant = pv ? `${pv.size} / ${pv.color}` : "—"
-    const line1 = name.length > 28 ? name.slice(0, 28) + "…" : name
-    doc.text(line1, colX[0], y)
-    doc.text(variant, colX[1], y)
-    doc.text(String(item.quantity_ordered), colX[2], y)
-    doc.text(`${currSym}${item.unit_cost.toFixed(2)}`, colX[3], y)
-    doc.text(`${currSym}${item.line_total.toFixed(2)}`, colX[4], y)
-    y += 6
-    if (y > 260) {
+  const checkPage = (neededHeight: number) => {
+    if (y + neededHeight > pageHeight - 25) {
       doc.addPage()
-      y = 20
+      y = margin
     }
   }
 
-  y += 4
-  doc.setDrawColor(220, 220, 220)
-  doc.line(20, y, pageW - 20, y)
-  y += 8
+  const bsData = bs as any
+  const supplier = (po as any).suppliers
 
-  // Section 4: Notes & Instructions
-  if ((po as any).notes) {
-    if (y > 230) { doc.addPage(); y = 20; }
-    doc.setFont("helvetica", "bold")
-    doc.setFontSize(8)
-    doc.setTextColor(100, 100, 100)
-    doc.text("NOTES / INSTRUCTIONS", 20, y)
-    y += 4
-    
-    doc.setFont("helvetica", "normal")
-    doc.setFontSize(10)
-    doc.setTextColor(0, 0, 0)
-    
-    const splitNotes = doc.splitTextToSize((po as any).notes, pageW - 40)
-    doc.text(splitNotes, 20, y)
-    y += (splitNotes.length * 5) + 5
-    
-    doc.setDrawColor(220, 220, 220)
-    doc.line(20, y, pageW - 20, y)
-    y += 8
+  // SECTION 1 — TITLE
+  y = margin
+  doc.setFontSize(18)
+  doc.setFont("helvetica", "bold")
+  doc.text("PURCHASE ORDER", margin, y)
+  gap(12)
+
+  // SECTION 2 — BILL FROM / BILL TO (two columns)
+  const col1x = margin
+  const col2x = pageWidth / 2 + 5
+  const startY = y
+
+  // BILL FROM (left column)
+  doc.setFontSize(7)
+  doc.setFont("helvetica", "bold")
+  doc.setTextColor(120, 120, 120)
+  doc.text("BILL FROM", col1x, y)
+  gap(5)
+  doc.setFontSize(10)
+  doc.setFont("helvetica", "bold")
+  doc.setTextColor(0, 0, 0)
+  const fromName = bsData?.business_name || "Your Business"
+  doc.text(fromName, col1x, y)
+  gap(5)
+  doc.setFont("helvetica", "normal")
+  doc.setFontSize(9)
+  if (bsData?.address) {
+    doc.text(bsData.address, col1x, y)
+    gap(4)
+  }
+  if (bsData?.phone) {
+    doc.text(bsData.phone, col1x, y)
+    gap(4)
+  }
+  if (bsData?.email) {
+    doc.text(bsData.email, col1x, y)
+    gap(4)
+  }
+  if (bsData?.tax_id) {
+    doc.text("VAT/Tax ID: " + bsData.tax_id, col1x, y)
+    gap(4)
+  }
+  const leftColEndY = y
+
+  // BILL TO (right column) — reset Y to startY
+  y = startY
+
+  doc.setFontSize(7)
+  doc.setFont("helvetica", "bold")
+  doc.setTextColor(120, 120, 120)
+  doc.text("BILL TO", col2x, y)
+  gap(5)
+  doc.setFontSize(10)
+  doc.setFont("helvetica", "bold")
+  doc.setTextColor(0, 0, 0)
+  doc.text(supplier?.name || "", col2x, y)
+  gap(5)
+  doc.setFont("helvetica", "normal")
+  doc.setFontSize(9)
+  if (supplier?.email) {
+    doc.text(supplier.email, col2x, y)
+    gap(4)
+  }
+  if (supplier?.phone) {
+    doc.text(supplier.phone, col2x, y)
+    gap(4)
+  }
+  if (supplier?.payment_terms) {
+    doc.text("Terms: " + supplier.payment_terms, col2x, y)
+    gap(4)
   }
 
-  // Section 5: Totals Section
-  if (y > 250) { doc.addPage(); y = 20; }
-  const subtotal = (lineItems as any[]).reduce((sum, item) => sum + (item.line_total || 0), 0)
-  const total = (po as any).total_cost ?? subtotal
-  
+  // Set Y to whichever column was taller
+  y = Math.max(leftColEndY, y) + 10
+  rule()
+
+  // SECTION 3 — PO META (horizontal row of 3 items)
+  doc.setFontSize(7)
+  doc.setFont("helvetica", "bold")
+  doc.setTextColor(120, 120, 120)
+  doc.text("PO NUMBER", margin, y)
+  doc.text("ORDER DATE", margin + 55, y)
+  doc.text("EXPECTED DELIVERY", margin + 110, y)
+  gap(5)
+  doc.setFontSize(10)
+  doc.setFont("helvetica", "bold")
+  doc.setTextColor(0, 0, 0)
+  doc.text("#" + (po as any).po_number, margin, y)
+  doc.text(formatDate((po as any).order_date), margin + 55, y)
+  doc.text(formatDate((po as any).expected_delivery_date), margin + 110, y)
+  gap(10)
+  rule()
+
+  // SECTION 4 — LINE ITEMS TABLE HEADER
+  doc.setFontSize(8)
+  doc.setFont("helvetica", "bold")
+  doc.setTextColor(100, 100, 100)
+  // Column positions:
+  const col = {
+    product: margin, // width ~70mm
+    variant: margin + 75, // width ~35mm
+    qty: margin + 115, // width ~15mm
+    unitCost: margin + 135, // width ~25mm
+    total: margin + 162, // width ~28mm
+  }
+  doc.text("PRODUCT", col.product, y)
+  doc.text("VARIANT", col.variant, y)
+  doc.text("QTY", col.qty, y)
+  doc.text("UNIT COST", col.unitCost, y)
+  doc.text("TOTAL", col.total, y)
+  gap(4)
+  rule(0.3)
+
+  // SECTION 5 — LINE ITEMS ROWS
   doc.setFont("helvetica", "normal")
   doc.setFontSize(10)
   doc.setTextColor(0, 0, 0)
-  doc.text("Subtotal:", colX[3], y)
-  doc.text(`${currSym}${subtotal.toFixed(2)}`, colX[4], y)
-  
-  y += 6
-  doc.setDrawColor(200, 200, 200)
-  doc.line(colX[3], y, pageW - 20, y)
-  y += 6
-  
-  doc.setFont("helvetica", "bold")
-  doc.setFontSize(11)
-  doc.text("TOTAL:", colX[3], y)
-  doc.text(`${currSym}${total.toFixed(2)}`, colX[4], y)
-  y += 20
 
-  // Section 6: Footer
-  const footerY = 282
-  doc.setDrawColor(220, 220, 220)
-  doc.line(20, footerY - 5, pageW - 20, footerY - 5)
-  doc.setFontSize(8)
-  doc.setTextColor(120, 120, 120)
-  doc.setFont("helvetica", "normal")
-  const bFullName = bsData?.business_name || "VendoFlow"
-  doc.text(`This purchase order is issued by ${bFullName}. Please confirm receipt and expected delivery date.`, 20, footerY)
-  const dateStr = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
-  doc.text(`Generated by VendoFlow · ${dateStr}`, pageW - 20, footerY, { align: "right" })
+  for (const item of lineItems as any[]) {
+    checkPage(10)
+    const pv = item.product_variants
+    const name = pv?.product_styles?.name ?? "—"
+    const variant = pv ? `${pv.size} / ${pv.color}` : "—"
 
-  // Section 7: Signature Area
-  if (y > 250) { doc.addPage(); y = 20; }
-  doc.setFont("helvetica", "normal")
+    doc.text(name, col.product, y, { maxWidth: 68 })
+    doc.text(variant, col.variant, y, { maxWidth: 35 })
+    doc.text(String(item.quantity_ordered), col.qty, y)
+    doc.text(currency + " " + item.unit_cost.toFixed(2), col.unitCost, y)
+    doc.text(currency + " " + item.line_total.toFixed(2), col.total, y)
+    gap(8)
+  }
+  rule()
+
+  // SECTION 6 — NOTES
+  if ((po as any).notes && (po as any).notes.trim().length > 0) {
+    checkPage(20)
+    doc.setFontSize(7)
+    doc.setFont("helvetica", "bold")
+    doc.setTextColor(120, 120, 120)
+    doc.text("NOTES / INSTRUCTIONS", margin, y)
+    gap(5)
+    doc.setFontSize(9)
+    doc.setFont("helvetica", "normal")
+    doc.setTextColor(0, 0, 0)
+    const noteLines = doc.splitTextToSize((po as any).notes, contentWidth)
+    doc.text(noteLines, margin, y)
+    y += noteLines.length * 5
+    gap(6)
+    rule()
+  }
+
+  // SECTION 7 — TOTALS (right-aligned)
+  checkPage(25)
+  const subtotal = (lineItems as any[]).reduce((sum: number, item: any) => sum + (item.line_total || 0), 0)
+  const totalsLabelX = margin + 120
+  const totalsValueX = pageWidth - margin
+
   doc.setFontSize(9)
+  doc.setFont("helvetica", "normal")
+  doc.setTextColor(80, 80, 80)
+  doc.text("Subtotal:", totalsLabelX, y)
+  doc.text(currency + " " + subtotal.toFixed(2), totalsValueX, y, { align: "right" })
+  gap(5)
+
+  rule(0.5)
+
+  doc.setFontSize(11)
+  doc.setFont("helvetica", "bold")
   doc.setTextColor(0, 0, 0)
-  doc.text("Authorized signature / Stamp", 20, y)
-  doc.text("Received by:", 75, y)
-  doc.text("Date", 155, y)
-  y += 8
+  doc.text("TOTAL:", totalsLabelX, y)
+  doc.text(currency + " " + subtotal.toFixed(2), totalsValueX, y, { align: "right" })
+  gap(16)
+
+  // SECTION 8 — SIGNATURE AREA
+  checkPage(45)
+  rule()
+  gap(4)
+
+  const sig1x = margin
+  const sig2x = margin + 60
+  const sig3x = margin + 130
+
+  doc.setFontSize(8)
+  doc.setFont("helvetica", "normal")
+  doc.setTextColor(80, 80, 80)
+  doc.text("Authorized signature / Stamp", sig1x, y)
+  doc.text("Received by:", sig2x, y)
+  doc.text("Date:", sig3x, y)
+  gap(12)
+
+  // Signature lines
   doc.setDrawColor(180, 180, 180)
-  doc.line(20, y, 70, y)         // Authorized signature line
-  doc.line(75, y, 150, y)        // Received by line
-  doc.line(155, y, pageW - 20, y) // Date line
+  doc.line(sig1x, y, sig1x + 50, y)
+  doc.line(sig2x, y, sig2x + 50, y)
+  doc.line(sig3x, y, sig3x + 50, y)
+  gap(4)
+
+  doc.setFontSize(7)
+  doc.setTextColor(160, 160, 160)
+  doc.text("Sign and stamp here", sig1x, y)
+  doc.text("(DD/MM/YYYY)", sig3x, y)
+  gap(12)
+
+  // SECTION 9 — FOOTER
+  const footerY = pageHeight - 12
+  doc.setFontSize(7)
+  doc.setFont("helvetica", "normal")
+  doc.setTextColor(160, 160, 160)
+
+  const footerLeft =
+    "This purchase order is issued by " + (bsData?.business_name || "the buyer") + ". Please confirm receipt and expected delivery date."
+  doc.text(footerLeft, margin, footerY, { maxWidth: 130 })
+
+  doc.text("Powered by VendoFlow · " + new Date().toLocaleDateString("en-GB"), pageWidth - margin, footerY, { align: "right" }) // Date line
 
 
   const filename = `PO-${(po as { po_number: string }).po_number}.pdf`

@@ -279,6 +279,8 @@ See the [docs](./docs) folder for detailed troubleshooting guides:
 
 ## 📚 Additional Resources
 
+- **[V3 Migration Summary](./docs/V3_MIGRATION.md)** - Redesign & Overhaul (Phases 1-18)
+- **[Changelog](./CHANGELOG.md)** - Project history and versioning
 - **Documentation:** See [docs](./docs) folder for all guides and troubleshooting
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Supabase Documentation](https://supabase.com/docs)
