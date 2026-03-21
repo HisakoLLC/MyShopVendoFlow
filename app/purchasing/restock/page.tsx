@@ -296,11 +296,9 @@ async function RestockSuggestionsContent() {
         </h1>
       </div>
 
-      <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 text-blue-900 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-100">
-        <p className="text-sm">
-          These variants are running low based on sales velocity. Create a purchase order to
-          restock.
-        </p>
+      <div className="mb-6 bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-sm text-zinc-300">
+        Review generated restock suggestions based on recent low stock. Select the items you'd 
+        like to order, and you'll be able to refine the PO in the next step.
       </div>
 
       <RestockSuggestionsClient suggestions={suggestions} currency={currency} />

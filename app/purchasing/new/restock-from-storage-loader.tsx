@@ -192,11 +192,10 @@ export function RestockFromStorageLoader({ suppliers }: RestockFromStorageLoader
         </div>
       )}
       {prefillItems.length > 0 && (
-        <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 text-blue-900 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-100">
-          <p className="text-sm">
-            Pre-filled from restock suggestions. Review and adjust as needed.
-          </p>
-        </div>
+      <div className="mb-6 bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-sm text-zinc-300">
+        You are restocking multiple variants across different suppliers. Review the table below 
+        and select the ones you want. A separate Purchase Order will be created for each distinct supplier.
+      </div>
       )}
       <CreatePOForm
         suppliers={suppliers}

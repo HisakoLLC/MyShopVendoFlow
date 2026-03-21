@@ -149,9 +149,21 @@ export default async function PODetailPage({
           >
             ← Purchasing
           </Link>
-          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 mt-2">
-            {statusLabel}
-          </p>
+          <div className="mb-2 mt-2">
+            <span className={
+              po.status === "received"
+                ? "bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
+                : po.status === "partially_received"
+                  ? "bg-amber-400/10 text-amber-400 border border-amber-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
+                  : po.status === "sent"
+                    ? "bg-blue-400/10 text-blue-400 border border-blue-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
+                    : po.status === "cancelled"
+                      ? "bg-red-400/10 text-red-400 border border-red-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
+                      : "bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
+            }>
+              {statusLabel}
+            </span>
+          </div>
           <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
             PO #{po.po_number}
           </h1>

@@ -97,7 +97,7 @@ function statusBadgeClass(status: string | null): string {
     case "sent":
       return `${base} bg-blue-400/10 text-blue-400 border border-blue-400/20`
     case "partially_received":
-      return `${base} bg-zinc-400/10 text-zinc-300 border border-zinc-400/20`
+      return `${base} bg-amber-400/10 text-amber-400 border border-amber-400/20`
     case "received":
       return `${base} bg-emerald-400/10 text-emerald-400 border border-emerald-400/20`
     case "cancelled":
@@ -169,22 +169,22 @@ async function PurchasingContent() {
       {/* Summary */}
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-zinc-700/50 bg-zinc-900 p-4">
-          <div className="font-editorial text-3xl font-bold text-zinc-50 mb-1">
+          <div className="font-editorial text-3xl font-bold text-zinc-50">
             {drafts.length}
           </div>
-          <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Drafts</div>
+          <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mt-2">Drafts</div>
         </div>
         <div className="rounded-xl border border-zinc-700/50 bg-zinc-900 p-4">
-          <div className="font-editorial text-3xl font-bold text-zinc-50 mb-1">
+          <div className="font-editorial text-3xl font-bold text-zinc-50">
             {notReceived.length}
           </div>
-          <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Not yet received</div>
+          <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mt-2">Not yet received</div>
         </div>
         <div className="rounded-xl border border-zinc-700/50 bg-zinc-900 p-4">
-          <div className="font-editorial text-3xl font-bold text-zinc-50 mb-1">
+          <div className="font-editorial text-3xl font-bold text-zinc-50">
             {received.length}
           </div>
-          <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Received</div>
+          <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mt-2">Received</div>
         </div>
       </div>
 
@@ -244,27 +244,29 @@ async function PurchasingContent() {
                           {po.po_number}
                         </Link>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="px-4 py-3.5 text-sm font-semibold text-zinc-100">
                         {po.suppliers?.name ?? "—"}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="px-4 py-3.5 text-sm text-zinc-400">
                         {po.order_date
                           ? new Date(po.order_date).toLocaleDateString()
                           : "—"}
                       </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={statusBadgeClass(po.status)}>
+                      <TableCell className="px-4 py-3.5">
+                        <span className={statusBadgeClass(po.status)}>
                           {statusLabel(po.status)}
-                        </Badge>
+                        </span>
                       </TableCell>
-                      <TableCell className="px-4 py-3.5 text-right font-semibold tabular-nums text-zinc-100">
+                      <TableCell className="px-4 py-3.5 text-right text-sm font-semibold text-zinc-100 tabular-nums">
                         {formatCurrency(po.total_cost ?? 0, currency, { maximumFractionDigits: 2 })}
                       </TableCell>
                       <TableCell className="px-4 py-3.5 text-right">
                         <div className="flex justify-end gap-2 px-1">
-                          <Button asChild variant="outline" size="sm" className="bg-transparent border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-7 px-3 text-xs font-semibold tracking-[0.1em] uppercase transition-colors shadow-none">
-                            <Link href={`/purchasing/${po.po_id}`}>View</Link>
-                          </Button>
+                          <Link href={`/purchasing/${po.po_id}`}>
+                            <button type="button" className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-7 px-3 text-xs font-semibold uppercase transition-colors bg-transparent items-center justify-center flex">
+                              View
+                            </button>
+                          </Link>
                           {canReceive && (
                             <Button asChild variant="outline" size="sm" className="gap-1">
                               <Link href={`/purchasing/${po.po_id}/receive`}>
