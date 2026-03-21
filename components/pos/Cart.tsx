@@ -32,18 +32,27 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
   const supabase = React.useMemo(() => createClient(), [])
 
   // Fetch available stock for each variant in the cart at the current store
+  const variantIdsStr = React.useMemo(() => {
+    return [...new Set(cart.map((i) => i.variantId))].sort().join(",")
+  }, [cart])
+
   React.useEffect(() => {
-    if (!defaultStoreId || cart.length === 0) {
+    if (!defaultStoreId || !variantIdsStr) {
       setStockByVariant({})
       return
     }
-    const variantIds = [...new Set(cart.map((i) => i.variantId))]
+    
+    let isActive = true
+    const variantIds = variantIdsStr.split(",")
+    
     ;(async () => {
       const { data, error } = await supabase
         .from("inventory_levels")
         .select("variant_id, quantity_on_hand")
         .eq("store_id", defaultStoreId)
         .in("variant_id", variantIds)
+
+      if (!isActive) return
 
       if (error) {
         setStockByVariant({})
@@ -57,15 +66,21 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
       }
       setStockByVariant(map)
     })()
-  }, [defaultStoreId, supabase, cart])
+    
+    return () => {
+      isActive = false
+    }
+  }, [defaultStoreId, supabase, variantIdsStr])
 
   // When stock data loads, clamp any cart quantity that exceeds available
   React.useEffect(() => {
     if (!defaultStoreId || Object.keys(stockByVariant).length === 0) return
     cart.forEach((item) => {
-      const available = stockByVariant[item.variantId] ?? 0
-      if (item.quantity > available) {
-        updateQuantity(item.cartItemId, available)
+      if (stockByVariant[item.variantId] !== undefined) {
+        const available = stockByVariant[item.variantId]
+        if (item.quantity > available) {
+          updateQuantity(item.cartItemId, available)
+        }
       }
     })
   }, [defaultStoreId, stockByVariant, cart, updateQuantity])
