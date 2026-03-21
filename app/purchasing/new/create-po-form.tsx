@@ -671,7 +671,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                   </SelectTrigger>
                                   <SelectContent
                                     position="popper"
-                                    className="absolute z-50 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl max-h-[200px] overflow-y-auto min-w-[200px]"
+                                    className="z-50 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl max-h-[200px] overflow-y-auto min-w-[200px]"
                                   >
                                     {(variantOptions[fieldKey] || []).map((variant) => {
                                       const isSelected = lineItem.variant_id === variant.variant_id
