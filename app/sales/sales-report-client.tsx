@@ -343,7 +343,7 @@ export function SalesReportClient({
               <div className="space-y-2">
                 <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Date Range</Label>
                 <Select value={datePreset} onValueChange={(v) => setDatePreset(v as DateRangePreset)}>
-                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm">
+                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm focus:ring-1 focus:ring-white/20 focus:border-zinc-600">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
@@ -365,7 +365,7 @@ export function SalesReportClient({
                       type="date"
                       value={customDateFrom}
                       onChange={(e) => setCustomDateFrom(e.target.value)}
-                      className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm"
+                      className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
                     />
                   </div>
                   <div className="space-y-2">
@@ -374,7 +374,7 @@ export function SalesReportClient({
                       type="date"
                       value={customDateTo}
                       onChange={(e) => setCustomDateTo(e.target.value)}
-                      className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm"
+                      className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
                     />
                   </div>
                 </>
@@ -384,7 +384,7 @@ export function SalesReportClient({
               <div className="space-y-2">
                 <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Store</Label>
                 <Select value={selectedStore} onValueChange={setSelectedStore}>
-                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm">
+                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm focus:ring-1 focus:ring-white/20 focus:border-zinc-600">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
@@ -402,7 +402,7 @@ export function SalesReportClient({
               <div className="space-y-2">
                 <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Payment Method</Label>
                 <Select value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod}>
-                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm">
+                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm focus:ring-1 focus:ring-white/20 focus:border-zinc-600">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
@@ -418,7 +418,7 @@ export function SalesReportClient({
               <div className="space-y-2">
                 <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Cashier</Label>
                 <Select value={selectedStaff} onValueChange={setSelectedStaff}>
-                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm">
+                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm focus:ring-1 focus:ring-white/20 focus:border-zinc-600">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
@@ -462,7 +462,7 @@ export function SalesReportClient({
         <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden">
           <div className="p-6 border-b border-zinc-800">
             <h2 className="font-editorial text-xl font-bold text-zinc-50">Sales Transactions</h2>
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-zinc-500 mt-1">
               {sales.length} {sales.length === 1 ? "transaction" : "transactions"} found
             </p>
           </div>
@@ -477,8 +477,8 @@ export function SalesReportClient({
               </div>
             ) : (
               <>
-                <div className="overflow-x-auto">
-                  <Table>
+                <div className="overflow-x-hidden w-full">
+                  <Table className="w-full">
                     <TableHeader className="bg-zinc-900">
                       <TableRow className="border-b-2 border-zinc-700 hover:bg-transparent">
                         <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Date/Time</TableHead>
@@ -499,34 +499,34 @@ export function SalesReportClient({
                           <TableRow
                             key={sale.sale_id}
                             className={cn(
-                              "cursor-pointer transition-colors duration-100 last:border-0",
+                              "cursor-pointer transition-colors last:border-0",
                               isRefunded 
-                                ? "bg-red-400/5 border-b border-red-400/10 hover:bg-red-400/10" 
+                                ? "bg-red-400/5 border-b border-red-400/10 hover:bg-red-400/8" 
                                 : isPartialRefund
                                   ? "bg-amber-400/5 border-b border-amber-400/10 hover:bg-amber-400/10"
                                   : "border-b border-zinc-700/40 hover:bg-zinc-800/40"
                             )}
                             onClick={() => setSelectedSale(sale)}
                           >
-                            <TableCell className={cn("px-6 py-4 text-sm transition-colors", isRefunded || isPartialRefund ? "text-zinc-500" : "text-zinc-300")}>
+                            <TableCell className={cn("px-6 py-4 text-sm transition-colors", isRefunded ? "text-zinc-500" : isPartialRefund ? "text-zinc-400" : "text-zinc-300")}>
                               {formatDateTime(sale.sale_date)}
                             </TableCell>
-                            <TableCell className={cn("px-6 py-4 font-mono text-xs tracking-wide transition-colors", isRefunded || isPartialRefund ? "text-zinc-500" : "text-zinc-400")}>
+                            <TableCell className={cn("px-6 py-4 font-mono text-xs tracking-wide transition-colors", isRefunded ? "text-zinc-500" : "text-zinc-400")}>
                               {sale.receipt_number ?? "—"}
                             </TableCell>
-                            <TableCell className={cn("px-6 py-4 text-sm transition-colors", isRefunded || isPartialRefund ? "text-zinc-500" : "text-zinc-400")}>
+                            <TableCell className={cn("px-6 py-4 text-sm transition-colors", isRefunded ? "text-zinc-500" : "text-zinc-400")}>
                               {sale.stores?.name || "N/A"}
                             </TableCell>
-                            <TableCell className={cn("px-6 py-4 text-sm transition-colors", isRefunded || isPartialRefund ? "text-zinc-500" : "text-zinc-400")}>
+                            <TableCell className={cn("px-6 py-4 text-sm transition-colors", isRefunded ? "text-zinc-500" : "text-zinc-400")}>
                               {sale.staff
                                 ? `${sale.staff.first_name || ""} ${sale.staff.last_name || ""}`.trim() ||
                                   "N/A"
                                 : "N/A"}
                             </TableCell>
-                            <TableCell className={cn("px-6 py-4 text-center tabular-nums transition-colors", isRefunded || isPartialRefund ? "text-zinc-500" : "text-zinc-300")}>
+                            <TableCell className={cn("px-6 py-4 text-center tabular-nums transition-colors", isRefunded ? "text-zinc-500" : isPartialRefund ? "text-zinc-400" : "text-sm text-zinc-300")}>
                               {itemsPerSale[sale.sale_id] || 0}
                             </TableCell>
-                            <TableCell className={cn("px-6 py-4 capitalize transition-colors", isRefunded || isPartialRefund ? "text-zinc-500" : "text-zinc-400")}>
+                            <TableCell className={cn("px-6 py-4 capitalize text-sm transition-colors", isRefunded ? "text-zinc-500" : "text-zinc-400")}>
                               {sale.payment_method || "N/A"}
                             </TableCell>
                             <TableCell className="px-6 py-4 text-right">
@@ -536,10 +536,10 @@ export function SalesReportClient({
                                 </span>
                               ) : isPartialRefund ? (
                                 <span className="bg-amber-400/10 text-amber-400 border border-amber-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5">
-                                  PARTIAL REFUND
+                                  PARTIAL
                                 </span>
                               ) : (
-                                <span className="font-editorial text-sm font-bold tabular-nums text-zinc-50">
+                                <span className="font-editorial text-base font-bold tabular-nums text-zinc-50">
                                   {formatPrice(sale.grand_total ?? 0)}
                                 </span>
                               )}

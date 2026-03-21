@@ -22,6 +22,8 @@ import { createClient } from "@/lib/supabase/client"
 import { Printer, RotateCcw } from "lucide-react"
 import { toast } from "sonner"
 import { processRefund } from "@/app/sales/actions"
+import { X } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface Sale {
   sale_id: string
@@ -257,51 +259,57 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
   return (
     <>
     <Dialog open={true} onOpenChange={(open) => { if (!open) onClose() }}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Sale Details - {sale.receipt_number ?? "—"}</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col p-0 [&>button]:hidden overflow-hidden">
+        <div className="px-6 py-5 border-b border-zinc-800 flex items-center justify-between flex-shrink-0">
+          <div className="font-editorial text-lg font-bold text-zinc-50">
+            Sale Details - <span className="font-mono">{sale.receipt_number ?? "—"}</span>
+          </div>
+          <button type="button" onClick={onClose} className="w-8 h-8 rounded-sm hover:bg-zinc-800 flex items-center justify-center transition-colors">
+            <X className="w-4 h-4 text-zinc-400" />
+          </button>
+        </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-zinc-500 dark:text-zinc-400">Loading sale details...</div>
+          <div className="flex items-center justify-center py-12 flex-1">
+            <div className="text-zinc-500">Loading sale details...</div>
           </div>
         ) : (
-          <div className="space-y-6">
-            {/* Sale Info */}
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <div className="text-sm text-zinc-600 dark:text-zinc-400">Date/Time</div>
-                <div className="font-medium">{formatDateTime(sale.sale_date)}</div>
+          <>
+            <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col">
+              {/* Sale Info */}
+            <div className="grid grid-cols-2 gap-4 px-6 py-4 border-b border-zinc-800 flex-shrink-0">
+              <div className="space-y-1">
+                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Date/Time</div>
+                <div className="text-sm font-semibold text-zinc-100">{formatDateTime(sale.sale_date)}</div>
               </div>
-              <div className="space-y-2">
-                <div className="text-sm text-zinc-600 dark:text-zinc-400">Store</div>
-                <div className="font-medium">{sale.stores?.name || "N/A"}</div>
+              <div className="space-y-1">
+                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Store</div>
+                <div className="text-sm font-semibold text-zinc-100">{sale.stores?.name || "N/A"}</div>
               </div>
-              <div className="space-y-2">
-                <div className="text-sm text-zinc-600 dark:text-zinc-400">Cashier</div>
-                <div className="font-medium">
+              <div className="space-y-1">
+                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Cashier</div>
+                <div className="text-sm font-semibold text-zinc-100">
                   {sale.staff
                     ? `${sale.staff.first_name || ""} ${sale.staff.last_name || ""}`.trim() || "N/A"
                     : "N/A"}
                 </div>
               </div>
-              <div className="space-y-2">
-                <div className="text-sm text-zinc-600 dark:text-zinc-400">Payment Method</div>
-                <div className="font-medium capitalize">{sale.payment_method || "N/A"}</div>
+              <div className="space-y-1">
+                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Payment Method</div>
+                <div className="text-sm font-semibold text-zinc-100 capitalize">{sale.payment_method || "N/A"}</div>
               </div>
               {sale.payment_method?.toLowerCase() === "mpesa" && sale.notes?.trim() && (
-                <div className="space-y-2 md:col-span-2">
-                  <div className="text-sm text-zinc-600 dark:text-zinc-400">M-Pesa details</div>
-                  <div className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 font-mono text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
+                <div className="space-y-1 col-span-2 md:col-span-2">
+                  <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">M-Pesa details</div>
+                  <div className="font-mono text-sm font-semibold text-zinc-100">
                     {sale.notes.trim()}
                   </div>
                 </div>
               )}
               {sale.customers && (
-                <div className="space-y-2 md:col-span-2">
-                  <div className="text-sm text-zinc-600 dark:text-zinc-400">Customer</div>
-                  <div className="font-medium">
+                <div className="space-y-1 col-span-2 md:col-span-2">
+                  <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Customer</div>
+                  <div className="text-sm font-semibold text-zinc-100">
                     {sale.customers.first_name || ""} {sale.customers.last_name || ""}
                     {sale.customers.phone && ` - ${sale.customers.phone}`}
                   </div>
@@ -310,44 +318,48 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
             </div>
 
             {/* Line Items */}
-            <div>
-              <h3 className="mb-4 text-lg font-semibold">Line Items</h3>
-              <div className="rounded-md border border-zinc-200 dark:border-zinc-800">
-                <Table>
+            <div className="flex-1 flex flex-col">
+              <h3 className="font-editorial text-base font-bold text-zinc-50 px-6 pt-4 pb-2">Line Items</h3>
+              <div className="overflow-x-hidden w-full">
+                <Table className="table-fixed w-full">
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Variant</TableHead>
-                      <TableHead>SKU</TableHead>
-                      <TableHead className="text-right">Qty</TableHead>
-                      <TableHead className="text-right">Unit Price</TableHead>
-                      <TableHead className="text-right">Line Total</TableHead>
+                    <TableRow className="border-b border-zinc-800 hover:bg-transparent">
+                      <TableHead className="w-[28%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-3 py-2">Product</TableHead>
+                      <TableHead className="w-[18%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-3 py-2">Variant</TableHead>
+                      <TableHead className="w-[18%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-3 py-2">SKU</TableHead>
+                      <TableHead className="w-[8%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-3 py-2 text-center">Qty</TableHead>
+                      <TableHead className="w-[14%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-3 py-2 text-right">Unit Price</TableHead>
+                      <TableHead className="w-[14%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-3 py-2 text-right">Line Total</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {lineItems.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center text-zinc-500 dark:text-zinc-400">
+                      <TableRow className="border-b-0 hover:bg-transparent">
+                        <TableCell colSpan={6} className="text-center text-zinc-500 px-3 py-6">
                           No line items found
                         </TableCell>
                       </TableRow>
                     ) : (
                       lineItems.map((item) => (
-                        <TableRow key={item.line_item_id}>
-                          <TableCell className="font-medium">
+                        <TableRow key={item.line_item_id} className="border-b border-zinc-800 hover:bg-zinc-800/30">
+                          <TableCell className="text-sm font-semibold text-zinc-100 px-3 py-2 truncate">
                             {item.product_variants?.product_styles?.name || "Unknown Product"}
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="text-sm text-zinc-400 px-3 py-2 truncate">
                             {item.product_variants
                               ? `${item.product_variants.size} / ${item.product_variants.color}`
-                              : "N/A"}
+                              : "—"}
                           </TableCell>
-                          <TableCell className="text-zinc-500 dark:text-zinc-400">
-                            {item.product_variants?.sku || "N/A"}
+                          <TableCell className="font-mono text-xs text-zinc-400 px-3 py-2 truncate">
+                            {item.product_variants?.sku || "—"}
                           </TableCell>
-                          <TableCell className="text-right">{item.quantity || 0}</TableCell>
-                          <TableCell className="text-right">{formatPrice(item.unit_price)}</TableCell>
-                          <TableCell className="text-right font-medium">
+                          <TableCell className="text-sm text-zinc-300 tabular-nums text-center px-3 py-2">
+                            {item.quantity || 0}
+                          </TableCell>
+                          <TableCell className="text-sm text-zinc-400 tabular-nums text-right px-3 py-2">
+                            {formatPrice(item.unit_price)}
+                          </TableCell>
+                          <TableCell className="text-sm font-semibold text-zinc-100 tabular-nums text-right px-3 py-2">
                             {formatPrice(item.line_total)}
                           </TableCell>
                         </TableRow>
@@ -360,105 +372,111 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
 
             {/* Totals */}
             {saleDetails && (
-              <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-600 dark:text-zinc-400">Subtotal</span>
-                    <span className="font-medium">{formatPrice(saleDetails.subtotal)}</span>
+              <div className="border-t border-zinc-800 px-6 py-4 mt-auto shrink-0 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-zinc-400">Subtotal</span>
+                  <span className="text-sm text-zinc-300 tabular-nums">{formatPrice(saleDetails.subtotal)}</span>
+                </div>
+                {saleDetails.tax_total && saleDetails.tax_total > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-zinc-400">Tax</span>
+                    <span className="text-sm text-zinc-300 tabular-nums">{formatPrice(saleDetails.tax_total)}</span>
                   </div>
-                  {saleDetails.tax_total && saleDetails.tax_total > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-zinc-600 dark:text-zinc-400">Tax</span>
-                      <span className="font-medium">{formatPrice(saleDetails.tax_total)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between border-t border-zinc-200 pt-2 dark:border-zinc-800">
-                    <span className="font-semibold">Total</span>
-                    <span className="text-lg font-bold">{formatPrice(saleDetails.grand_total ?? 0)}</span>
-                  </div>
+                )}
+                <div className="border-t border-zinc-700 my-2" />
+                <div className="flex justify-between align-middle items-center">
+                  <span className="text-sm font-semibold text-zinc-100">Total</span>
+                  <span className="font-editorial text-xl font-bold text-zinc-50 tabular-nums">{formatPrice(saleDetails.grand_total ?? 0)}</span>
                 </div>
               </div>
             )}
+          </div>
 
             {/* Actions */}
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={handlePrintReceipt} className="flex-1">
+            <div className="px-6 py-4 border-t border-zinc-800 flex flex-wrap sm:flex-nowrap items-center gap-3 flex-shrink-0">
+              <button type="button" onClick={handlePrintReceipt} className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 rounded-sm h-9 px-4 text-xs font-semibold tracking-[0.1em] uppercase flex-1 transition-colors flex items-center justify-center">
                 <Printer className="mr-2 h-4 w-4" />
                 Reprint Receipt
-              </Button>
+              </button>
               {canRefund && (
-                <Button variant="outline" onClick={handleOpenRefund} className="flex-1">
+                <button type="button" onClick={handleOpenRefund} className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-sm h-9 px-4 text-xs font-semibold tracking-[0.1em] uppercase flex-1 transition-colors flex items-center justify-center">
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Process Refund
-                </Button>
+                </button>
               )}
-              <Button variant="outline" onClick={onClose} className="flex-1">
+              <button type="button" onClick={onClose} className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-4 text-xs font-semibold tracking-[0.1em] uppercase flex-1 transition-colors">
                 Close
-              </Button>
+              </button>
             </div>
-          </div>
+          </>
         )}
       </DialogContent>
     </Dialog>
 
-    {/* Refund confirmation dialog (sibling to avoid nested Radix Dialog issues) */}
     <Dialog open={showRefundDialog} onOpenChange={setShowRefundDialog}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Process Refund</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+      <DialogContent className="!z-[60] bg-white border border-zinc-200 rounded-xl shadow-2xl w-full max-w-md p-0 overflow-hidden [&>button]:hidden">
+        <div className="px-6 pt-6 pb-0 relative">
+          <div className="font-editorial text-xl font-bold text-zinc-900">Process Refund</div>
+          <button type="button" onClick={() => setShowRefundDialog(false)} className="absolute top-6 right-6 w-8 h-8 rounded-sm border border-zinc-200 bg-white hover:bg-zinc-100 flex items-center justify-center transition-colors">
+            <X className="w-4 h-4 text-zinc-500" />
+          </button>
+        </div>
+        <div className="px-6 py-4">
+          <p className="text-sm text-zinc-600 leading-relaxed mb-4">
             Refund full amount of{" "}
-            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+            <span className="font-semibold text-zinc-900">
               {saleDetails ? formatPrice(saleDetails.grand_total ?? 0) : ""}
             </span>{" "}
             for receipt {sale.receipt_number ?? "—"}? Inventory will be restored for all items.
           </p>
           <div>
-            <Label className="mb-2 block text-sm font-medium">Refund method</Label>
+            <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mt-4 mb-2">Refund method</div>
             <RadioGroup
               value={refundMethod}
               onValueChange={(v) => setRefundMethod(v as RefundMethod)}
-              className="flex flex-wrap gap-4"
+              className="flex flex-wrap gap-3"
             >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="cash" id="refund-cash" />
-                <Label htmlFor="refund-cash" className="cursor-pointer font-normal">
-                  Cash
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="mpesa" id="refund-mpesa" />
-                <Label htmlFor="refund-mpesa" className="cursor-pointer font-normal">
-                  M-Pesa
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="card" id="refund-card" />
-                <Label htmlFor="refund-card" className="cursor-pointer font-normal">
-                  Card
-                </Label>
-              </div>
+              {[
+                { id: "cash", label: "Cash" },
+                { id: "mpesa", label: "M-Pesa" },
+                { id: "card", label: "Card" },
+              ].map((method) => {
+                const isSelected = refundMethod === method.id
+                return (
+                  <label
+                    key={method.id}
+                    className={cn(
+                      "border rounded-lg px-4 py-2.5 text-sm font-medium cursor-pointer transition-colors flex items-center justify-center",
+                      isSelected 
+                        ? "border-zinc-900 bg-zinc-900 text-white" 
+                        : "border-zinc-200 text-zinc-700 hover:border-zinc-400"
+                    )}
+                  >
+                    <RadioGroupItem value={method.id} id={`refund-${method.id}`} className="sr-only" />
+                    {method.label}
+                  </label>
+                )
+              })}
             </RadioGroup>
           </div>
-          <div className="flex gap-2 pt-2">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => setShowRefundDialog(false)}
-              disabled={isRefunding}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="flex-1"
-              onClick={handleConfirmRefund}
-              disabled={isRefunding || !saleDetails?.grand_total}
-            >
-              {isRefunding ? "Processing…" : "Confirm Refund"}
-            </Button>
-          </div>
+        </div>
+        <div className="px-6 pb-6 pt-4 flex gap-3">
+          <button
+            type="button"
+            className="flex-1 border border-zinc-200 text-zinc-700 hover:border-zinc-400 rounded-sm h-10 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+            onClick={() => setShowRefundDialog(false)}
+            disabled={isRefunding}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="flex-1 bg-red-600 text-white hover:bg-red-700 rounded-sm h-10 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+            onClick={handleConfirmRefund}
+            disabled={isRefunding || !saleDetails?.grand_total}
+          >
+            {isRefunding ? "Processing…" : "Confirm Refund"}
+          </button>
         </div>
       </DialogContent>
     </Dialog>
