@@ -197,7 +197,82 @@ export async function createSupplier(data: CreateSupplierData) {
   }
 
   revalidatePath("/purchasing")
+  revalidatePath("/purchasing/suppliers")
   return supplier
+}
+
+/** Update an existing supplier */
+export async function updateSupplier(supplierId: string, data: CreateSupplierData) {
+  const supabase = await createServerSupabaseClient()
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) throw new Error("You must be signed in to update a supplier.")
+
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  if (accountIdError || !accountIdRaw) throw new Error("Account not found. Please complete setup first.")
+  const accountId = typeof accountIdRaw === "string" ? accountIdRaw : accountIdRaw?.account_id
+  if (!accountId) throw new Error("Invalid account ID returned.")
+
+  if (!data.name || !data.name.trim()) throw new Error("Supplier name is required.")
+
+  const { data: supplier, error: supplierError } = await supabase
+    .from("suppliers")
+    .update({
+      name: data.name.trim(),
+      email: data.email?.trim() || null,
+      phone: data.phone?.trim() || null,
+      payment_terms: data.payment_terms?.trim() || null,
+    })
+    .eq("supplier_id", supplierId)
+    .eq("account_id", accountId) // extra safety
+    .select("supplier_id, name")
+    .single()
+
+  if (supplierError || !supplier) {
+    console.error("Error updating supplier:", supplierError)
+    throw new Error(`Failed to update supplier: ${supplierError?.message || "No data returned"}`)
+  }
+
+  revalidatePath("/purchasing")
+  revalidatePath("/purchasing/suppliers")
+  return supplier
+}
+
+/** Delete a supplier */
+export async function deleteSupplier(supplierId: string) {
+  const supabase = await createServerSupabaseClient()
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) throw new Error("You must be signed in to delete a supplier.")
+
+  const { data: accountIdRaw, error: accountIdError } = await supabase.rpc("get_account_id")
+  if (accountIdError || !accountIdRaw) throw new Error("Account not found. Please complete setup first.")
+  const accountId = typeof accountIdRaw === "string" ? accountIdRaw : accountIdRaw?.account_id
+  if (!accountId) throw new Error("Invalid account ID returned.")
+
+  const { error } = await supabase
+    .from("suppliers")
+    .delete()
+    .eq("supplier_id", supplierId)
+    .eq("account_id", accountId)
+
+  if (error) {
+    console.error("Error deleting supplier:", error)
+    if (error.code === "23503") {
+      throw new Error("Cannot delete supplier with existing purchase orders.")
+    }
+    throw new Error(`Failed to delete supplier: ${error.message}`)
+  }
+
+  revalidatePath("/purchasing")
+  revalidatePath("/purchasing/suppliers")
+  return { success: true }
 }
 
 /** Receive inventory for a PO */

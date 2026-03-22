@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
-import { Package, Plus, FileText, Truck } from "lucide-react"
+import { Package, Plus, FileText, Truck, Users } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -162,6 +162,12 @@ async function PurchasingContent() {
           <Link href="/purchasing/new">
             <Plus className="h-4 w-4" />
             Create PO
+          </Link>
+        </Button>
+        <Button asChild variant="outline" className="gap-2 rounded-sm hover:border-zinc-500">
+          <Link href="/purchasing/suppliers">
+            <Users className="h-4 w-4" />
+            Suppliers
           </Link>
         </Button>
       </div>

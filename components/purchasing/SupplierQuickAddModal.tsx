@@ -27,7 +27,15 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import { createSupplier, type CreateSupplierData } from "@/app/purchasing/actions"
+import { createSupplier, updateSupplier, type CreateSupplierData } from "@/app/purchasing/actions"
+
+type Supplier = {
+  supplier_id: string
+  name: string
+  email?: string | null
+  phone?: string | null
+  payment_terms?: string | null
+}
 
 const supplierSchema = z.object({
   name: z.string().min(1, "Supplier name is required.").max(200, "Name is too long."),
@@ -42,12 +50,14 @@ type SupplierQuickAddModalProps = {
   open: boolean
   onClose: () => void
   onSuccess: (supplier: { supplier_id: string; name: string }) => void
+  supplier?: Supplier // Optional for edit mode
 }
 
 export function SupplierQuickAddModal({
   open,
   onClose,
   onSuccess,
+  supplier,
 }: SupplierQuickAddModalProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false)
 
@@ -62,6 +72,27 @@ export function SupplierQuickAddModal({
     mode: "onChange",
   })
 
+  // Reset form when supplier changes or modal opens
+  React.useEffect(() => {
+    if (open) {
+      if (supplier) {
+        form.reset({
+          name: supplier.name,
+          email: supplier.email || "",
+          phone: supplier.phone || "",
+          payment_terms: supplier.payment_terms || "",
+        })
+      } else {
+        form.reset({
+          name: "",
+          email: "",
+          phone: "",
+          payment_terms: "",
+        })
+      }
+    }
+  }, [open, supplier, form])
+
   const onSubmit = async (values: SupplierFormValues) => {
     setIsSubmitting(true)
     try {
@@ -72,13 +103,20 @@ export function SupplierQuickAddModal({
         payment_terms: values.payment_terms || null,
       }
 
-      const supplier = await createSupplier(data)
-      toast.success("Supplier added successfully!")
+      let result
+      if (supplier) {
+        result = await updateSupplier(supplier.supplier_id, data)
+        toast.success("Supplier updated successfully!")
+      } else {
+        result = await createSupplier(data)
+        toast.success("Supplier added successfully!")
+      }
+      
       form.reset()
-      onSuccess(supplier)
+      onSuccess(result)
       onClose()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to add supplier.")
+      toast.error(e instanceof Error ? e.message : "Failed to save supplier.")
     } finally {
       setIsSubmitting(false)
     }
@@ -92,8 +130,12 @@ export function SupplierQuickAddModal({
       >
         <DialogHeader className="px-6 py-5 border-b border-zinc-800 flex flex-row items-center justify-between space-y-0 text-left">
           <div className="flex flex-col">
-            <DialogTitle className="font-editorial text-lg font-bold text-zinc-50">Add New Supplier</DialogTitle>
-            <DialogDescription className="text-sm text-zinc-400 mt-1">Add a new supplier to your vendor list.</DialogDescription>
+            <DialogTitle className="font-editorial text-lg font-bold text-zinc-50">
+              {supplier ? "Edit Supplier" : "Add New Supplier"}
+            </DialogTitle>
+            <DialogDescription className="text-sm text-zinc-400 mt-1">
+              {supplier ? "Update supplier contact information." : "Add a new supplier to your vendor list."}
+            </DialogDescription>
           </div>
           <DialogClose asChild>
             <button className="w-8 h-8 rounded-sm hover:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-100 transition-colors">
@@ -196,7 +238,7 @@ export function SupplierQuickAddModal({
                 disabled={isSubmitting}
                 className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold uppercase tracking-[0.12em] border-none"
               >
-                {isSubmitting ? "Adding..." : "Add Supplier"}
+                {isSubmitting ? "Saving..." : supplier ? "Update Supplier" : "Add Supplier"}
               </Button>
             </DialogFooter>
           </form>
