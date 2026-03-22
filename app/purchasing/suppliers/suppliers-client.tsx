@@ -60,13 +60,26 @@ export function SuppliersClient({
 
   return (
     <>
-      <Button onClick={handleAdd} className="gap-2 rounded-sm bg-white text-zinc-950 hover:bg-zinc-100 border-none font-semibold uppercase tracking-[0.1em] text-xs h-9 px-4">
-        <Plus className="h-4 w-4" />
-        Add Supplier
-      </Button>
+      {/* PAGE HEADER */}
+      <div className="flex items-start justify-between border-b border-zinc-800 pb-6 mb-6">
+        <div>
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+            MANAGE YOUR SUPPLIER CONTACTS AND PAYMENT TERMS
+          </p>
+          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+            Suppliers
+          </h1>
+        </div>
+        <Button 
+          onClick={handleAdd} 
+          className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors border-none"
+        >
+          + ADD SUPPLIER
+        </Button>
+      </div>
 
       {/* Main Table Section */}
-      <div className="mt-8">
+      <div className="w-full">
         {initialSuppliers.length === 0 ? (
           <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 px-6 py-16 text-center">
             <Package className="mx-auto h-12 w-12 text-zinc-600 mb-4" />
@@ -74,36 +87,36 @@ export function SuppliersClient({
             <p className="mt-1 text-xs text-zinc-600">
               Add your first supplier to start creating purchase orders.
             </p>
-            <Button onClick={handleAdd} size="sm" variant="outline" className="mt-6 gap-2 border-zinc-700 text-zinc-400 hover:text-zinc-100">
+            <Button onClick={handleAdd} size="sm" variant="outline" className="mt-6 gap-2 border-zinc-700 text-zinc-400 hover:text-zinc-100 rounded-sm">
               <Plus className="h-4 w-4" />
               Add Supplier
             </Button>
           </div>
         ) : (
-          <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden">
-            <Table>
+          <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden w-full">
+            <Table className="table-fixed w-full">
               <TableHeader className="bg-zinc-950/50 border-b border-zinc-800">
                 <TableRow className="hover:bg-transparent border-0">
-                  <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Name</TableHead>
-                  <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Email</TableHead>
-                  <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Phone</TableHead>
-                  <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Payment Terms</TableHead>
-                  <TableHead className="px-4 py-3 text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Actions</TableHead>
+                  <TableHead className="w-[22%] px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Name</TableHead>
+                  <TableHead className="w-[22%] px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Email</TableHead>
+                  <TableHead className="w-[16%] px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Phone</TableHead>
+                  <TableHead className="w-[30%] px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Payment Terms</TableHead>
+                  <TableHead className="w-[10%] px-4 py-3 text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {initialSuppliers.map((s) => (
                   <TableRow key={s.supplier_id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors last:border-0">
-                    <TableCell className="px-4 py-3.5 text-sm font-semibold text-zinc-100">
+                    <TableCell className="px-4 py-3.5 text-sm font-semibold text-zinc-100 whitespace-nowrap">
                       {s.name}
                     </TableCell>
-                    <TableCell className="px-4 py-3.5 text-sm text-zinc-400">
+                    <TableCell className="px-4 py-3.5 text-sm text-zinc-400 whitespace-nowrap">
                       {s.email || "—"}
                     </TableCell>
-                    <TableCell className="px-4 py-3.5 font-mono text-sm text-zinc-400">
+                    <TableCell className="px-4 py-3.5 font-mono text-sm text-zinc-400 whitespace-nowrap">
                       {s.phone || "—"}
                     </TableCell>
-                    <TableCell className="px-4 py-3.5 text-sm text-zinc-500 max-w-[200px] truncate">
+                    <TableCell className="px-4 py-3.5 text-sm text-zinc-500">
                       {s.payment_terms || "—"}
                     </TableCell>
                     <TableCell className="px-4 py-3.5 text-right">

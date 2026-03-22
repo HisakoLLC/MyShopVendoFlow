@@ -164,12 +164,15 @@ async function PurchasingContent() {
             Create PO
           </Link>
         </Button>
-        <Button asChild variant="outline" className="gap-2 rounded-sm hover:border-zinc-500">
-          <Link href="/purchasing/suppliers">
-            <Users className="h-4 w-4" />
-            Suppliers
-          </Link>
-        </Button>
+      </div>
+
+      <div className="mb-8">
+        <Link 
+          href="/purchasing/suppliers" 
+          className="text-xs text-zinc-500 hover:text-zinc-300 underline-offset-4 hover:underline inline-flex items-center gap-1"
+        >
+          Manage Suppliers →
+        </Link>
       </div>
 
       {/* Summary */}

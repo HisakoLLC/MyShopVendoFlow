@@ -67,28 +67,17 @@ async function SuppliersContent() {
   const suppliers = await fetchSuppliers()
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <Link 
-          href="/purchasing" 
-          className="group mb-4 flex items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500 transition-colors hover:text-zinc-200"
-        >
-          <ArrowLeft className="h-3 w-3 transition-transform group-hover:-translate-x-1" />
-          Purchasing
-        </Link>
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div>
-            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
-              MANAGE YOUR SUPPLIER CONTACTS AND PAYMENT TERMS
-            </p>
-            <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
-              Suppliers
-            </h1>
-          </div>
-          <SuppliersClient initialSuppliers={suppliers} />
-        </div>
-      </div>
+    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+      {/* BACK LINK */}
+      <Link 
+        href="/purchasing" 
+        className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6 group"
+      >
+        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+        Purchasing
+      </Link>
+
+      <SuppliersClient initialSuppliers={suppliers} />
     </div>
   )
 }
