@@ -71,6 +71,16 @@ export function BulkInventoryAdjustmentModal({
   selectedVariantIds,
 }: BulkInventoryAdjustmentModalProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const inputRef = React.useRef<HTMLInputElement>(null)
+
+  React.useEffect(() => {
+    if (open) {
+      setTimeout(() => {
+        inputRef.current?.focus()
+        inputRef.current?.select()
+      }, 50)
+    }
+  }, [open])
 
   const form = useForm<BulkFormValues>({
     resolver: zodResolver(bulkFormSchema),
@@ -120,37 +130,39 @@ export function BulkInventoryAdjustmentModal({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-[500px] bg-zinc-900 border-zinc-800 text-zinc-100 rounded-lg shadow-2xl p-6">
-        <DialogHeader>
-          <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">Bulk adjust inventory</DialogTitle>
-          <DialogDescription className="text-zinc-400">
-            Apply the same adjustment to {count} selected variant{count !== 1 ? "s" : ""} at one store.
+      <DialogContent className="sm:max-w-[500px] bg-zinc-950 border-zinc-800 text-zinc-100 rounded-none shadow-2xl p-0 gap-0 overflow-hidden max-h-[90vh] flex flex-col">
+        <DialogHeader className="px-8 py-8 border-b border-zinc-900 bg-zinc-900/50 shrink-0">
+          <DialogTitle className="font-editorial text-2xl font-bold text-zinc-50 leading-tight">
+            Bulk Adjustment
+          </DialogTitle>
+          <DialogDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 mt-2">
+            APPLYING TO {count} SELECTED VARIANT{count !== 1 ? "S" : ""}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 overflow-y-auto px-8 py-8 space-y-8 min-h-0">
             <FormField
               control={form.control}
               name="store_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Store</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">Target Store</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm">
+                      <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-11 rounded-none focus:ring-1 focus:ring-zinc-700 transition-all">
                         <SelectValue placeholder="Select store" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
+                    <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-100 rounded-none">
                       {stores.map((s) => (
-                        <SelectItem key={s.store_id} value={s.store_id} className="hover:bg-zinc-800 focus:bg-zinc-800">
+                        <SelectItem key={s.store_id} value={s.store_id} className="hover:bg-zinc-900 focus:bg-zinc-900 cursor-pointer">
                           {s.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
+                  <FormMessage className="text-[10px] uppercase font-bold tracking-widest text-red-400 mt-2" />
                 </FormItem>
               )}
             />
@@ -159,29 +171,40 @@ export function BulkInventoryAdjustmentModal({
               control={form.control}
               name="adjustmentType"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Adjustment type</FormLabel>
+                <FormItem className="space-y-4">
+                  <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">Adjustment mode</FormLabel>
                   <FormControl>
                     <RadioGroup
                       value={field.value}
                       onValueChange={field.onChange}
-                      className="grid grid-cols-3 gap-2"
+                      className="grid grid-cols-1 gap-3"
                     >
-                      <div className="flex items-center space-x-2 rounded-sm border border-zinc-800 p-2 bg-zinc-800/50">
-                        <RadioGroupItem value="add" id="bulk-add" className="border-zinc-700 text-white" />
-                        <Label htmlFor="bulk-add" className="cursor-pointer text-sm text-zinc-100">Add</Label>
+                      <div className={`flex items-start space-x-3 rounded-none border p-4 transition-all cursor-pointer ${field.value === 'add' ? 'bg-zinc-900 border-zinc-600' : 'bg-transparent border-zinc-900 hover:border-zinc-800'}`}>
+                        <RadioGroupItem value="add" id="bulk-add" className="mt-1 border-zinc-700 text-white" />
+                        <Label htmlFor="bulk-add" className="flex-1 cursor-pointer">
+                          <div className="text-[0.65rem] font-bold uppercase tracking-widest text-zinc-100 mb-1">Add Incrementally</div>
+                          <div className="text-[10px] text-zinc-500 uppercase tracking-wider leading-relaxed">Increase stock by quantity</div>
+                        </Label>
                       </div>
-                      <div className="flex items-center space-x-2 rounded-sm border border-zinc-800 p-2 bg-zinc-800/50">
-                        <RadioGroupItem value="remove" id="bulk-remove" className="border-zinc-700 text-white" />
-                        <Label htmlFor="bulk-remove" className="cursor-pointer text-sm text-zinc-100">Remove</Label>
+
+                      <div className={`flex items-start space-x-3 rounded-none border p-4 transition-all cursor-pointer ${field.value === 'remove' ? 'bg-zinc-900 border-zinc-600' : 'bg-transparent border-zinc-900 hover:border-zinc-800'}`}>
+                        <RadioGroupItem value="remove" id="bulk-remove" className="mt-1 border-zinc-700 text-white" />
+                        <Label htmlFor="bulk-remove" className="flex-1 cursor-pointer">
+                          <div className="text-[0.65rem] font-bold uppercase tracking-widest text-zinc-100 mb-1">Remove Incrementally</div>
+                          <div className="text-[10px] text-zinc-500 uppercase tracking-wider leading-relaxed">Decrease stock by quantity</div>
+                        </Label>
                       </div>
-                      <div className="flex items-center space-x-2 rounded-sm border border-zinc-800 p-2 bg-zinc-800/50">
-                        <RadioGroupItem value="set" id="bulk-set" className="border-zinc-700 text-white" />
-                        <Label htmlFor="bulk-set" className="cursor-pointer text-sm text-zinc-100">Set to</Label>
+
+                      <div className={`flex items-start space-x-3 rounded-none border p-4 transition-all cursor-pointer ${field.value === 'set' ? 'bg-zinc-900 border-zinc-600' : 'bg-transparent border-zinc-900 hover:border-zinc-800'}`}>
+                        <RadioGroupItem value="set" id="bulk-set" className="mt-1 border-zinc-700 text-white" />
+                        <Label htmlFor="bulk-set" className="flex-1 cursor-pointer">
+                          <div className="text-[0.65rem] font-bold uppercase tracking-widest text-zinc-100 mb-1">Absolute Override</div>
+                          <div className="text-[10px] text-zinc-500 uppercase tracking-wider leading-relaxed">Set all items to exact quantity</div>
+                        </Label>
                       </div>
                     </RadioGroup>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[10px] uppercase font-bold tracking-widest text-red-400 mt-2" />
                 </FormItem>
               )}
             />
@@ -191,24 +214,23 @@ export function BulkInventoryAdjustmentModal({
               name="quantity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">
-                    {adjustmentType === "add"
-                      ? "Quantity to add"
-                      : adjustmentType === "remove"
-                        ? "Quantity to remove"
-                        : "New quantity (set for all)"}
+                  <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">
+                    {adjustmentType === "set" ? "Quantity" : "Change"}
                   </FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       inputMode="numeric"
-                      min={0}
-                      className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm"
+                      className="bg-zinc-900 border-zinc-800 text-zinc-100 h-12 rounded-none font-mono text-lg focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 transition-all"
                       {...field}
+                      ref={(e) => {
+                        field.ref(e)
+                        inputRef.current = e
+                      }}
                       onChange={(e) => field.onChange(e.target.value === "" ? 0 : Number(e.target.value))}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[10px] uppercase font-bold tracking-widest text-red-400 mt-2" />
                 </FormItem>
               )}
             />
@@ -218,27 +240,36 @@ export function BulkInventoryAdjustmentModal({
               name="reason"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Reason</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">Reason for audit</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="e.g., Bulk restock, Physical count..."
-                      maxLength={200}
+                      placeholder="e.g., Bulk physical count correction..."
                       rows={2}
-                      className="bg-zinc-800 border-zinc-700 text-zinc-100 rounded-sm"
+                      className="bg-zinc-900 border-zinc-800 text-zinc-100 rounded-none focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 transition-all resize-none text-xs"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[10px] uppercase font-bold tracking-widest text-red-400 mt-2" />
                 </FormItem>
               )}
             />
 
-            <DialogFooter className="gap-2 sm:gap-0">
-              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="rounded-sm border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white">
+            <DialogFooter className="pt-8 gap-4 sm:gap-0 mt-4 -mx-8 px-8 py-6 bg-zinc-900/20 border-t border-zinc-900">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onClose} 
+                disabled={isSubmitting} 
+                className="rounded-none border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-all text-[10px] font-bold uppercase tracking-widest h-12 px-8"
+              >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting} className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-200">
-                {isSubmitting ? "Updating…" : `Apply to ${count} variant${count !== 1 ? "s" : ""}`}
+              <Button 
+                type="submit" 
+                disabled={isSubmitting} 
+                className="rounded-none bg-white text-zinc-950 hover:bg-zinc-100 transition-all text-[10px] font-bold uppercase tracking-widest h-12 px-8 flex-1 sm:flex-none"
+              >
+                {isSubmitting ? "Processing…" : `Update ${count} items`}
               </Button>
             </DialogFooter>
           </form>

@@ -94,6 +94,15 @@ export function InventoryAdjustmentModal({
 }: InventoryAdjustmentModalProps) {
   const [adjustmentType, setAdjustmentType] = React.useState<AdjustmentType>("add")
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const inputRef = React.useRef<HTMLInputElement>(null)
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      inputRef.current?.focus()
+      inputRef.current?.select()
+    }, 50)
+    return () => clearTimeout(timer)
+  }, [])
 
   const schema = React.useMemo(
     () => createAdjustmentSchema(adjustmentType, currentStock),
@@ -159,8 +168,8 @@ export function InventoryAdjustmentModal({
 
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[550px] bg-zinc-950 border-zinc-800 text-zinc-100 rounded-none shadow-2xl p-0 gap-0 overflow-hidden">
-        <DialogHeader className="px-8 py-8 border-b border-zinc-900 bg-zinc-900/50">
+      <DialogContent className="sm:max-w-[550px] bg-zinc-950 border-zinc-800 text-zinc-100 rounded-none shadow-2xl p-0 gap-0 overflow-hidden max-h-[90vh] flex flex-col">
+        <DialogHeader className="px-8 py-8 border-b border-zinc-900 bg-zinc-900/50 shrink-0">
           <DialogTitle className="font-editorial text-2xl font-bold text-zinc-50 leading-tight">
             Adjust Stock
           </DialogTitle>
@@ -179,7 +188,7 @@ export function InventoryAdjustmentModal({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="px-8 py-8 space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 overflow-y-auto px-8 py-8 space-y-8 min-h-0">
             <FormField
               control={form.control}
               name="adjustmentType"
@@ -246,6 +255,10 @@ export function InventoryAdjustmentModal({
                         inputMode="numeric"
                         className="bg-zinc-900 border-zinc-800 text-zinc-100 h-12 rounded-none font-mono text-lg focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 transition-all"
                         {...field}
+                        ref={(e) => {
+                          field.ref(e)
+                          inputRef.current = e
+                        }}
                         onChange={(e) => {
                           const value = e.target.value
                           field.onChange(value === "" ? "" : Number(value))

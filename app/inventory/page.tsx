@@ -225,13 +225,13 @@ async function InventoryPageContent() {
           </h1>
         </div>
         <div className="flex shrink-0 gap-3">
-          <Button asChild className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors">
+          <Button asChild className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-none h-9 px-5 text-xs font-bold tracking-[0.12em] uppercase transition-all shadow-none border-none">
             <Link href="/inventory/transfer">
               <ArrowLeftRight className="mr-2 w-3.5 h-3.5" />
               Transfer
             </Link>
           </Button>
-          <Button asChild className="bg-transparent border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors">
+          <Button asChild variant="outline" className="bg-transparent border-zinc-800 text-zinc-400 hover:bg-white hover:text-zinc-950 hover:border-white rounded-none h-9 px-5 text-xs font-bold tracking-[0.12em] uppercase transition-all shadow-none">
             <Link href="/inventory/intelligence">
               <BarChart2 className="mr-2 w-3.5 h-3.5" />
               Intelligence

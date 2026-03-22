@@ -60,6 +60,16 @@ export function VariantCellEditor({
   onSave,
   onCancel,
 }: VariantCellEditorProps) {
+  const inputRef = React.useRef<HTMLInputElement>(null)
+
+  React.useEffect(() => {
+    if (open) {
+      setTimeout(() => {
+        inputRef.current?.focus()
+        inputRef.current?.select()
+      }, 50)
+    }
+  }, [open])
   const form = useForm<VariantCellFormValues>({
     resolver: zodResolver(variantCellSchema),
     defaultValues: {
@@ -96,8 +106,8 @@ export function VariantCellEditor({
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleCancel()}>
-      <DialogContent className="sm:max-w-[450px] bg-zinc-950 border-zinc-800 text-zinc-100 rounded-none shadow-2xl p-0 gap-0 overflow-hidden">
-        <DialogHeader className="px-8 py-8 border-b border-zinc-900 bg-zinc-900/50">
+      <DialogContent className="sm:max-w-[450px] bg-zinc-950 border-zinc-800 text-zinc-100 rounded-none shadow-2xl p-0 gap-0 overflow-hidden max-h-[90vh] flex flex-col">
+        <DialogHeader className="px-8 py-8 border-b border-zinc-900 bg-zinc-900/50 shrink-0">
           <DialogTitle className="font-editorial text-2xl font-bold text-zinc-50 leading-tight">
             Edit Variant
           </DialogTitle>
@@ -107,7 +117,7 @@ export function VariantCellEditor({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="px-8 py-8 space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 overflow-y-auto px-8 py-8 space-y-6 min-h-0">
             <FormField
               control={form.control}
               name="sku"
@@ -117,6 +127,10 @@ export function VariantCellEditor({
                   <FormControl>
                     <Input
                       {...field}
+                      ref={(e) => {
+                        field.ref(e)
+                        inputRef.current = e
+                      }}
                       placeholder="e.g., OLS-M-NAV"
                       className="bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 rounded-none h-11 font-mono text-sm tracking-wider"
                       onChange={(e) => {
