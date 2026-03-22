@@ -5,6 +5,7 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { X } from "lucide-react"
 
 import {
   Dialog,
@@ -13,6 +14,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from "@/components/ui/dialog"
 import {
   Form,
@@ -84,79 +86,116 @@ export function SupplierQuickAddModal({
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add New Supplier</DialogTitle>
-          <DialogDescription>Add a new supplier to your vendor list.</DialogDescription>
+      <DialogContent 
+        overlayClassName="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+        className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-lg p-0 [&>button]:hidden"
+      >
+        <DialogHeader className="px-6 py-5 border-b border-zinc-800 flex flex-row items-center justify-between space-y-0 text-left">
+          <div className="flex flex-col">
+            <DialogTitle className="font-editorial text-lg font-bold text-zinc-50">Add New Supplier</DialogTitle>
+            <DialogDescription className="text-sm text-zinc-400 mt-1">Add a new supplier to your vendor list.</DialogDescription>
+          </div>
+          <DialogClose asChild>
+            <button className="w-8 h-8 rounded-sm hover:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-100 transition-colors">
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </button>
+          </DialogClose>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Supplier Name *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter supplier name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="contents">
+            <div className="px-6 py-5 space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="space-y-0">
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1.5 block">Supplier Name *</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Enter supplier name" 
+                        className="bg-zinc-800 border border-zinc-700 rounded-md text-sm text-zinc-100 h-9 px-3 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 focus-visible:ring-0 focus-visible:ring-offset-0" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs text-red-400 mt-1" />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="supplier@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem className="space-y-0">
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1.5 block">Email</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="email" 
+                        placeholder="supplier@example.com" 
+                        className="bg-zinc-800 border border-zinc-700 rounded-md text-sm text-zinc-100 h-9 px-3 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 focus-visible:ring-0 focus-visible:ring-offset-0" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs text-red-400 mt-1" />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone</FormLabel>
-                  <FormControl>
-                    <Input type="tel" placeholder="+1 (555) 123-4567" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem className="space-y-0">
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1.5 block">Phone</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="tel" 
+                        placeholder="+1 (555) 123-4567" 
+                        className="bg-zinc-800 border border-zinc-700 rounded-md text-sm text-zinc-100 h-9 px-3 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 focus-visible:ring-0 focus-visible:ring-offset-0" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs text-red-400 mt-1" />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="payment_terms"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Payment Terms</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="e.g., Net 30, COD, 2/10 Net 30"
-                      className="min-h-[80px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="payment_terms"
+                render={({ field }) => (
+                  <FormItem className="space-y-0">
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1.5 block">Payment Terms</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="e.g., Net 30, COD, 2/10 Net 30"
+                        className="bg-zinc-800 border border-zinc-700 rounded-md text-sm text-zinc-100 min-h-[80px] px-3 py-2 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs text-red-400 mt-1" />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+            <DialogFooter className="px-6 py-4 border-t border-zinc-800 flex flex-row gap-3 justify-end sm:justify-end space-x-0">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onClose} 
+                disabled={isSubmitting}
+                className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold uppercase tracking-[0.12em] bg-transparent"
+              >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold uppercase tracking-[0.12em] border-none"
+              >
                 {isSubmitting ? "Adding..." : "Add Supplier"}
               </Button>
             </DialogFooter>
