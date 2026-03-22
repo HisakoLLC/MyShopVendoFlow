@@ -211,28 +211,28 @@ export function InventoryIntelligenceClient({
   return (
     <div className="space-y-8">
       <Tabs defaultValue="deadstock" className="space-y-8">
-        <TabsList className="flex items-center gap-8 bg-transparent border-b border-zinc-800 w-full h-auto p-0 rounded-none justify-start">
+        <TabsList className="flex border-b border-zinc-800 mb-6 bg-transparent h-auto p-0 rounded-none w-full justify-start">
           <TabsTrigger 
             value="deadstock" 
-            className="rounded-none border-b-2 border-transparent px-0 pb-4 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-zinc-500 data-[state=active]:border-white data-[state=active]:text-white bg-transparent shadow-none transition-all"
+            className="px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase cursor-pointer transition-colors rounded-none border-b-2 border-transparent text-zinc-500 hover:text-zinc-300 data-[state=active]:border-white data-[state=active]:text-zinc-100 bg-transparent shadow-none"
           >
             Dead Stock
           </TabsTrigger>
           <TabsTrigger 
             value="lowstock" 
-            className="rounded-none border-b-2 border-transparent px-0 pb-4 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-zinc-500 data-[state=active]:border-white data-[state=active]:text-white bg-transparent shadow-none transition-all"
+            className="px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase cursor-pointer transition-colors rounded-none border-b-2 border-transparent text-zinc-500 hover:text-zinc-300 data-[state=active]:border-white data-[state=active]:text-zinc-100 bg-transparent shadow-none"
           >
             Low Stock Alerts
           </TabsTrigger>
           <TabsTrigger 
             value="health" 
-            className="rounded-none border-b-2 border-transparent px-0 pb-4 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-zinc-500 data-[state=active]:border-white data-[state=active]:text-white bg-transparent shadow-none transition-all"
+            className="px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase cursor-pointer transition-colors rounded-none border-b-2 border-transparent text-zinc-500 hover:text-zinc-300 data-[state=active]:border-white data-[state=active]:text-zinc-100 bg-transparent shadow-none"
           >
             Stock Health
           </TabsTrigger>
           <TabsTrigger 
             value="heatmap" 
-            className="rounded-none border-b-2 border-transparent px-0 pb-4 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-zinc-500 data-[state=active]:border-white data-[state=active]:text-white bg-transparent shadow-none transition-all"
+            className="px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase cursor-pointer transition-colors rounded-none border-b-2 border-transparent text-zinc-500 hover:text-zinc-300 data-[state=active]:border-white data-[state=active]:text-zinc-100 bg-transparent shadow-none"
           >
             Size/Color Heatmap
           </TabsTrigger>
@@ -242,17 +242,17 @@ export function InventoryIntelligenceClient({
           <div className="grid gap-6">
             <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-8 flex items-center justify-between">
               <div>
-                <div className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-3 flex items-center gap-2">
+                <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-3 flex items-center gap-2">
                   <TrendingDown className="h-3 w-3 text-red-400" />
                   Total Dead Stock Value
                 </div>
-                <div className="font-editorial text-5xl font-bold text-zinc-50 tracking-tight">
+                <div className="font-editorial text-3xl font-bold text-zinc-50">
                   {formatPrice(totalDeadStockValue)}
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-1">Impacted Items</div>
-                <div className="font-mono text-2xl font-bold text-zinc-400">
+                <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">Impacted Items</div>
+                <div className="font-mono text-xl font-bold text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded-sm">
                   {deadStock.length}
                 </div>
               </div>
@@ -337,15 +337,15 @@ export function InventoryIntelligenceClient({
         <TabsContent value="lowstock" className="space-y-6 outline-none">
           <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-8 flex items-center justify-between">
             <div>
-              <div className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-3 flex items-center gap-2">
+              <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-3 flex items-center gap-2">
                 <AlertTriangle className="h-3 w-3 text-yellow-400" />
                 Critical Stock Alerts
               </div>
-              <div className="font-editorial text-5xl font-bold text-zinc-50 tracking-tight">
+              <div className="font-editorial text-3xl font-bold text-zinc-50">
                 {lowStockAlerts.length}
               </div>
             </div>
-            <div className="text-right text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500">
+            <div className="text-right text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">
               Action Required
             </div>
           </div>
@@ -383,14 +383,20 @@ export function InventoryIntelligenceClient({
                       <TableCell className="px-6 py-4 text-right font-mono text-[10px] text-zinc-400">
                         {item.avg_daily_sales_30d?.toFixed(2)} / day
                       </TableCell>
-                      <TableCell className={`px-6 py-4 text-right font-mono text-sm font-bold ${item.daysRemaining < 3 ? 'text-red-400' : 'text-yellow-400'}`}>
-                        {item.isOutOfStock ? "STOCKED OUT" : `${item.daysRemaining.toFixed(1)} DAYS`}
+                      <TableCell className="px-6 py-4 text-right">
+                        {item.isOutOfStock ? (
+                          <span className="bg-red-400/10 text-red-400 border border-red-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5 inline-block">STOCKED OUT</span>
+                        ) : (
+                          <span className={`${item.daysRemaining < 3 ? 'text-red-400' : 'text-yellow-400'} font-mono text-sm font-bold`}>
+                            {item.daysRemaining.toFixed(1)} DAYS
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell className="px-6 py-4 text-right">
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="h-8 rounded-sm bg-transparent border-zinc-700 text-zinc-400 hover:bg-white hover:text-zinc-950 hover:border-white transition-all text-[10px] font-bold uppercase tracking-widest"
+                          className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-7 px-3 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors"
                         >
                           Restock
                         </Button>
@@ -407,49 +413,49 @@ export function InventoryIntelligenceClient({
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500">Healthy</span>
+                <span className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Healthy</span>
                 <Package className="h-4 w-4 text-green-400/50" />
               </div>
-              <div className="font-editorial text-4xl font-bold text-zinc-50">{stockHealthSummary.healthy}</div>
-              <div className="text-[10px] font-mono text-zinc-500 mt-1 uppercase tracking-wider">{stockHealthSummary.healthyPercent.toFixed(1)}% of variants</div>
+              <div className="font-editorial text-3xl font-bold text-zinc-50">{stockHealthSummary.healthy}</div>
+              <div className="text-xs text-zinc-500 mt-1">{stockHealthSummary.healthyPercent.toFixed(1)}% OF VARIANTS</div>
             </div>
 
             <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500">Low Stock</span>
+                <span className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Low Stock</span>
                 <AlertTriangle className="h-4 w-4 text-yellow-400/50" />
               </div>
-              <div className="font-editorial text-4xl font-bold text-zinc-50">{stockHealthSummary.lowStock}</div>
-              <div className="text-[10px] font-mono text-zinc-500 mt-1 uppercase tracking-wider">{stockHealthSummary.lowStockPercent.toFixed(1)}% of variants</div>
+              <div className="font-editorial text-3xl font-bold text-zinc-50">{stockHealthSummary.lowStock}</div>
+              <div className="text-xs text-zinc-500 mt-1">{stockHealthSummary.lowStockPercent.toFixed(1)}% OF VARIANTS</div>
             </div>
 
             <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500">Dead stock</span>
+                <span className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Dead stock</span>
                 <TrendingDown className="h-4 w-4 text-red-400/50" />
               </div>
-              <div className="font-editorial text-4xl font-bold text-zinc-50">{stockHealthSummary.deadStock}</div>
-              <div className="text-[10px] font-mono text-zinc-500 mt-1 uppercase tracking-wider">{stockHealthSummary.deadStockPercent.toFixed(1)}% of variants</div>
+              <div className="font-editorial text-3xl font-bold text-zinc-50">{stockHealthSummary.deadStock}</div>
+              <div className="text-xs text-zinc-500 mt-1">{stockHealthSummary.deadStockPercent.toFixed(1)}% OF VARIANTS</div>
             </div>
 
             <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500">Out of stock</span>
+                <span className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Out of stock</span>
                 <DollarSign className="h-4 w-4 text-zinc-600" />
               </div>
-              <div className="font-editorial text-4xl font-bold text-zinc-50">{stockHealthSummary.outOfStock}</div>
-              <div className="text-[10px] font-mono text-zinc-500 mt-1 uppercase tracking-wider">{stockHealthSummary.outOfStockPercent.toFixed(1)}% of variants</div>
+              <div className="font-editorial text-3xl font-bold text-zinc-50">{stockHealthSummary.outOfStock}</div>
+              <div className="text-xs text-zinc-500 mt-1">{stockHealthSummary.outOfStockPercent.toFixed(1)}% OF VARIANTS</div>
             </div>
           </div>
 
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-editorial text-2xl font-bold text-zinc-50">All Variants</h3>
-                <p className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500">FILTER BY STOCK HEALTH STATUS</p>
+                <h3 className="font-editorial text-xl font-bold text-zinc-50">All Variants</h3>
+                <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">FILTER BY STOCK HEALTH STATUS</p>
               </div>
               <Select value={healthFilter} onValueChange={setHealthFilter}>
-                <SelectTrigger className="w-[200px] h-10 bg-zinc-900 border-zinc-800 text-zinc-100 rounded-sm">
+                <SelectTrigger className="w-[200px] h-9 bg-zinc-900 border border-zinc-800 text-zinc-100 rounded-md px-3 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
@@ -506,9 +512,15 @@ export function InventoryIntelligenceClient({
                           {vm.days_of_inventory?.toFixed(1) || "0.0"}
                         </TableCell>
                         <TableCell className="px-6 py-4">
-                          <Badge className={`${healthColor} rounded-sm px-2 py-0.5 border text-[10px] font-bold uppercase tracking-widest bg-transparent shadow-none`}>
-                            {healthStatus.replace("_", " ")}
-                          </Badge>
+                          {healthStatus === "out_of_stock" ? (
+                            <span className="bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5 inline-block">OUT OF STOCK</span>
+                          ) : healthStatus === "healthy" ? (
+                            <span className="bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5 inline-block">HEALTHY</span>
+                          ) : healthStatus === "low_stock" ? (
+                            <span className="bg-amber-400/10 text-amber-400 border border-amber-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5 inline-block">LOW STOCK</span>
+                          ) : (
+                            <span className="bg-red-400/10 text-red-400 border border-red-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5 inline-block">DEAD STOCK</span>
+                          )}
                         </TableCell>
                       </TableRow>
                     )
@@ -544,15 +556,15 @@ export function InventoryIntelligenceClient({
 
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-none bg-green-400/20 border border-green-500/50"></div>
+                  <div className="h-3 w-3 rounded-sm bg-green-400/20 border border-green-500/50"></div>
                   <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">High (&gt;50%)</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-none bg-yellow-400/20 border border-yellow-500/50"></div>
+                  <div className="h-3 w-3 rounded-sm bg-yellow-400/20 border border-yellow-500/50"></div>
                   <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Med (25-50%)</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-none bg-red-400/20 border border-red-500/50"></div>
+                  <div className="h-3 w-3 rounded-sm bg-red-400/20 border border-red-500/50"></div>
                   <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Low (&lt;25%)</span>
                 </div>
               </div>

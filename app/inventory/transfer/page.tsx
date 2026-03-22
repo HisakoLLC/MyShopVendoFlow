@@ -86,10 +86,10 @@ export default async function TransferInventoryPage() {
 
       <div className="mt-12 space-y-6">
         <div>
-          <h2 className="font-editorial text-2xl font-bold text-zinc-50 mb-1">
+          <h2 className="font-editorial text-xl font-bold text-zinc-50 mb-1">
             Recent Transfers
           </h2>
-          <p className="text-[0.65rem] font-semibold tracking-[0.1em] uppercase text-zinc-500">
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
             LAST 50 TRANSFERS FOR THIS ACCOUNT
           </p>
         </div>
