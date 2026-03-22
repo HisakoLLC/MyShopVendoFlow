@@ -109,7 +109,7 @@ export function TransferHistoryClient() {
 
   if (!rows || rows.length === 0) {
     return (
-      <div className="text-sm text-zinc-500 text-center py-8">
+      <div className="p-4 text-sm text-zinc-500 dark:text-zinc-400">
         No transfers recorded yet.
       </div>
     )

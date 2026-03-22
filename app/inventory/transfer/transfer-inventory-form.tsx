@@ -541,7 +541,7 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
                         <FormControl>
                           <Textarea
                             placeholder="Add internal notes for this transfer..."
-                            className="bg-zinc-800 border-zinc-700 text-zinc-100 rounded-sm min-h-[100px] focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                            className="bg-zinc-800 border-zinc-700 text-zinc-100 rounded-sm min-h-[100px] focus:border-zinc-500 transition-colors"
                             {...field}
                           />
                         </FormControl>
@@ -599,16 +599,16 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
                   <div className="pt-6 space-y-3">
                     <Button
                       type="submit"
-                      className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 w-full text-xs font-semibold tracking-[0.12em] uppercase mb-3 transition-colors"
+                      className="w-full h-11 rounded-sm bg-white text-zinc-950 hover:bg-zinc-100 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all"
                       disabled={isSubmitting || !watchedVariantId || !watchedFromStore || !watchedToStore}
                     >
-                      
+                      <Package className="h-4 w-4" />
                       {isSubmitting ? "Creating..." : "Confirm Transfer"}
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
-                      className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 bg-transparent rounded-sm h-9 w-full text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+                      className="w-full h-10 rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white"
                       onClick={() => router.push("/inventory")}
                       disabled={isSubmitting}
                     >
@@ -660,7 +660,7 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
               <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4 relative">
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                    <div className="bg-zinc-800 rounded-sm p-2 border border-zinc-700">
+                    <div className="bg-zinc-800 rounded-full p-2 border border-zinc-700">
                       <ArrowRight className="h-4 w-4 text-zinc-300" />
                     </div>
                   </div>

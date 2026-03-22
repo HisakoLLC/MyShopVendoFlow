@@ -490,7 +490,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
             </div>
           ) : (
             filtered.map((item) => (
-              <div key={item.variant_id} className="group relative flex flex-col rounded-lg border border-zinc-700/50 bg-zinc-900 transition-all hover:border-zinc-700/50 overflow-hidden">
+              <div key={item.variant_id} className="group relative flex flex-col rounded-lg border border-zinc-800 bg-zinc-900 transition-all hover:border-zinc-700/50 overflow-hidden">
                 <div className="relative aspect-square overflow-hidden bg-zinc-950">
                   {item.style_image_url ? (
                     <Image
@@ -504,17 +504,29 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                       <Package className="h-10 w-10 text-zinc-800" />
                     </div>
                   )}
+                  <div className="absolute top-2 right-2">
+                    <button
+                      onClick={() => toggleRow(item.variant_id)}
+                      className={`h-6 w-6 rounded-full border flex items-center justify-center transition-colors ${
+                        selectedIds.has(item.variant_id)
+                          ? "bg-white border-white text-zinc-950"
+                          : "bg-black/40 border-white/20 text-white hover:bg-black/60"
+                      }`}
+                    >
+                      {selectedIds.has(item.variant_id) && <Check className="h-3 w-3" />}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex flex-1 flex-col p-4">
-                  <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mt-0.5">
+                  <div className="mb-1 text-[0.6rem] font-bold uppercase tracking-[0.15em] text-zinc-500">
                     {item.size} / {item.color}
                   </div>
                   <h3 className="line-clamp-1 font-editorial text-lg font-bold text-zinc-50 leading-tight">
                     {item.style_name}
                   </h3>
                   <div className="mt-2 flex items-center justify-between">
-                    <div className="font-mono text-xs text-zinc-500">
+                    <div className="font-mono text-[10px] uppercase tracking-wider text-zinc-400">
                       {item.sku}
                     </div>
                     <div className="flex items-baseline gap-1.5">
@@ -545,28 +557,34 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
-                    <button
-                      className="h-8 w-8 rounded-sm text-zinc-500 hover:bg-zinc-800 hover:text-zinc-100 flex items-center justify-center transition-colors"
-                      title="Adjust Stock"
-                      onClick={() =>
-                        setAdjustingVariant({
-                          variant: {
-                            variant_id: item.variant_id,
-                            style_name: item.style_name,
-                            size: item.size,
-                            color: item.color,
-                            sku: item.sku,
-                          },
-                          store: {
-                            store_id: stores[0].store_id,
-                            name: stores[0].name,
-                          },
-                          currentStock: item.stores[0]?.quantity_on_hand ?? 0,
-                        })
-                      }
-                    >
-                      <Layers className="h-3.5 w-3.5" />
-                    </button>
+                    {stores.map((store) => {
+                      const level = item.stores.find((s) => s.store_id === store.store_id)
+                      return (
+                        <button
+                          key={store.store_id}
+                          className="h-8 w-8 rounded-sm text-zinc-500 hover:bg-zinc-800 hover:text-zinc-100 flex items-center justify-center transition-colors"
+                          title={`Adjust ${store.name}`}
+                          onClick={() =>
+                            setAdjustingVariant({
+                              variant: {
+                                variant_id: item.variant_id,
+                                style_name: item.style_name,
+                                size: item.size,
+                                color: item.color,
+                                sku: item.sku,
+                              },
+                              store: {
+                                store_id: store.store_id,
+                                name: store.name,
+                              },
+                              currentStock: level?.quantity_on_hand ?? 0,
+                            })
+                          }
+                        >
+                          <Layers className="h-3.5 w-3.5" />
+                        </button>
+                      )
+                    })}
                   </div>
                   <button
                     className="h-8 w-8 rounded-sm text-zinc-500 hover:bg-red-500/10 hover:text-red-400 flex items-center justify-center transition-colors"

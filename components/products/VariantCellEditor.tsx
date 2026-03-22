@@ -96,12 +96,12 @@ export function VariantCellEditor({
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleCancel()}>
-      <DialogContent className="sm:max-w-[450px] bg-zinc-950 border-zinc-800 text-zinc-100 rounded-xl shadow-2xl p-0 gap-0 overflow-hidden">
+      <DialogContent className="sm:max-w-[450px] bg-zinc-950 border-zinc-800 text-zinc-100 rounded-none shadow-2xl p-0 gap-0 overflow-hidden">
         <DialogHeader className="px-8 py-8 border-b border-zinc-900 bg-zinc-900/50">
           <DialogTitle className="font-editorial text-2xl font-bold text-zinc-50 leading-tight">
             Edit Variant
           </DialogTitle>
-          <p className="text-sm text-zinc-500 font-normal normal-case tracking-normal mb-6">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 mt-2">
             STYLING FOR: {size} / {color}
           </p>
         </DialogHeader>
@@ -113,12 +113,12 @@ export function VariantCellEditor({
               name="sku"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">SKU Identifier</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">SKU Identifier</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       placeholder="e.g., OLS-M-NAV"
-                      className="bg-zinc-900 border-zinc-800 text-zinc-100 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 rounded-md h-11 font-mono text-sm tracking-wider"
+                      className="bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 rounded-none h-11 font-mono text-sm tracking-wider"
                       onChange={(e) => {
                         const value = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, "")
                         field.onChange(value)
@@ -136,12 +136,12 @@ export function VariantCellEditor({
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Retail Price</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">Retail Price</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         inputMode="decimal"
-                        className="bg-zinc-900 border-zinc-800 text-zinc-100 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 rounded-md h-11 font-mono text-sm"
+                        className="bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 rounded-none h-11 font-mono text-sm"
                         {...field}
                         onChange={(e) => {
                           const value = e.target.value
@@ -159,12 +159,12 @@ export function VariantCellEditor({
                 name="cost"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Unit Cost</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">Unit Cost</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         inputMode="decimal"
-                        className="bg-zinc-900 border-zinc-800 text-zinc-100 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 rounded-md h-11 font-mono text-sm"
+                        className="bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 rounded-none h-11 font-mono text-sm"
                         {...field}
                         onChange={(e) => {
                           const value = e.target.value
@@ -181,8 +181,8 @@ export function VariantCellEditor({
             {form.watch("price") > 0 && form.watch("cost") > 0 && (
               <div className="pt-4 border-t border-zinc-900">
                 <div className="flex justify-between items-center bg-zinc-900/30 p-4 border border-zinc-800">
-                  <span className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Est. Profit Margin</span>
-                  <span className="font-mono text-lg font-semibold text-zinc-100">
+                  <span className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500">Est. Profit Margin</span>
+                  <span className={`font-mono text-lg font-bold ${form.watch("price") > form.watch("cost") ? "text-green-400" : "text-red-400"}`}>
                     {form.watch("price") > form.watch("cost")
                       ? `${(((form.watch("price") - form.watch("cost")) / form.watch("price")) * 100).toFixed(1)}%`
                       : "INVALID"}

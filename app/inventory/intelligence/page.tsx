@@ -12,7 +12,7 @@ function LoadingState() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-950">
       <div className="text-center">
-        <div className="mb-4 h-8 w-8 animate-spin rounded-sm border-2 border-zinc-800 border-t-zinc-100 mx-auto"></div>
+        <div className="mb-4 h-8 w-8 animate-spin rounded-full border-2 border-zinc-800 border-t-zinc-100 mx-auto"></div>
         <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Loading Intelligence Data...</p>
       </div>
     </div>
