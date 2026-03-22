@@ -349,11 +349,10 @@ export async function GET(
     doc.setFont("helvetica", "normal")
     doc.setTextColor(160, 160, 160)
 
-    const footerLeft =
-      "This purchase order is issued by " + (bsData?.business_name || "the buyer") + ". Please confirm receipt and expected delivery date."
+    const footerLeft = "Please confirm receipt and expected delivery date."
     doc.text(footerLeft, margin, footerY, { maxWidth: 130 })
 
-    doc.text("This document is an official Purchase Order. · " + new Date().toLocaleDateString("en-GB"), pageWidth - margin, footerY, { align: "right" }) // Date line
+    doc.text(new Date().toLocaleDateString("en-GB", { day: 'numeric', month: 'short', year: 'numeric' }), pageWidth - margin, footerY, { align: "right" }) // Date line
 
 
     const filename = `PO-${(po as { po_number: string }).po_number}.pdf`
