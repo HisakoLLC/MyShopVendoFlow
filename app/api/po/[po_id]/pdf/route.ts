@@ -27,6 +27,8 @@ export async function GET(
     }
 
     const { data: bs } = await supabase.from("business_settings").select("*").eq("account_id", accountId).single()
+    console.log("bsData full:", JSON.stringify(bs))
+    const { data: account } = await supabase.from("accounts").select("business_name, owner_email").eq("account_id", accountId).single()
     const currency = (bs as any)?.currency ?? "KES"
 
     const { data: samplePO, error: sampleError } = await supabase.from("purchase_orders").select("*").limit(1)
@@ -41,7 +43,7 @@ export async function GET(
         expected_delivery_date,
         total_cost,
         status,
-        suppliers!inner(name, account_id)
+        suppliers!inner(name, account_id, email, phone, payment_terms)
       `)
       .eq("po_id", po_id)
       .maybeSingle()
@@ -57,7 +59,7 @@ export async function GET(
           expected_delivery_date,
           total_cost,
           status,
-          suppliers!inner(name, account_id)
+          suppliers!inner(name, account_id, email, phone, payment_terms)
         `)
         .eq("id", po_id)
         .maybeSingle()
@@ -138,7 +140,7 @@ export async function GET(
     }
 
     const bsData = bs as any
-    const supplier = (po as any).suppliers
+    const supplier = Array.isArray((po as any).suppliers) ? (po as any).suppliers[0] : (po as any).suppliers
 
     // SECTION 1 — TITLE
     y = margin
@@ -161,21 +163,21 @@ export async function GET(
     doc.setFontSize(10)
     doc.setFont("helvetica", "bold")
     doc.setTextColor(0, 0, 0)
-    const fromName = bsData?.business_name || "Your Business"
+    const fromName = (account as any)?.business_name || "Your Business"
     doc.text(fromName, col1x, y)
     gap(5)
     doc.setFont("helvetica", "normal")
     doc.setFontSize(9)
-    if (bsData?.address) {
-      doc.text(bsData.address, col1x, y)
+    if (bsData?.business_address) {
+      doc.text(bsData.business_address, col1x, y)
       gap(4)
     }
-    if (bsData?.phone) {
-      doc.text(bsData.phone, col1x, y)
+    if (bsData?.business_phone) {
+      doc.text(bsData.business_phone, col1x, y)
       gap(4)
     }
-    if (bsData?.email) {
-      doc.text(bsData.email, col1x, y)
+    if ((account as any)?.owner_email) {
+      doc.text((account as any).owner_email, col1x, y)
       gap(4)
     }
     if (bsData?.tax_id) {
