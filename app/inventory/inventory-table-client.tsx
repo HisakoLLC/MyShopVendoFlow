@@ -3,8 +3,17 @@
 import * as React from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import * as AlertDialog from "@radix-ui/react-alert-dialog"
-import { Download, LayoutGrid, LayoutList, Search, AlertTriangle, Pencil, Layers, Trash2, MoreHorizontal, Package } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Download, LayoutGrid, LayoutList, Search, AlertTriangle, Pencil, Layers, Trash2, MoreHorizontal, Package, Check } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -67,11 +76,18 @@ type InventoryTableClientProps = {
 
 type StockStatus = "all" | "in-stock" | "low-stock" | "out-of-stock"
 
-function getStockColorClass(quantity: number | null): string {
+function getStoreStockClass(quantity: number | null): string {
   const qty = quantity ?? 0
   if (qty < 0) return "text-sm text-red-400 tabular-nums font-semibold"
-  if (qty === 0) return "text-sm text-zinc-600 tabular-nums font-semibold"
-  return "text-sm text-zinc-100 tabular-nums font-semibold"
+  if (qty === 0) return "text-sm text-zinc-600 tabular-nums"
+  return "text-sm font-semibold text-zinc-100 tabular-nums"
+}
+
+function getTotalStockClass(quantity: number | null): string {
+  const qty = quantity ?? 0
+  if (qty < 0) return "text-sm text-red-400 tabular-nums font-semibold"
+  if (qty === 0) return "text-sm text-zinc-600 tabular-nums"
+  return "text-sm font-semibold text-zinc-50 tabular-nums"
 }
 
 export function InventoryTableClient({ stores, inventory }: InventoryTableClientProps) {
@@ -212,25 +228,25 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
     <>
       <div className="space-y-4">
         {/* Filters */}
-        <div className="flex flex-col gap-4 rounded-lg border border-zinc-700/50 bg-zinc-900 p-4 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
             <Input
               placeholder="Search by style name or SKU..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
+              className="pl-9 bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
             />
           </div>
 
           <Select value={selectedStore} onValueChange={setSelectedStore}>
-            <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px] bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600">
               <SelectValue placeholder="All Stores" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Stores</SelectItem>
+            <SelectContent className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-none py-1">
+              <SelectItem value="all" className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:text-zinc-50 hover:bg-zinc-800/50 cursor-pointer">All Stores</SelectItem>
               {stores.map((store) => (
-                <SelectItem key={store.store_id} value={store.store_id}>
+                <SelectItem key={store.store_id} value={store.store_id} className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:text-zinc-50 hover:bg-zinc-800/50 cursor-pointer">
                   {store.name}
                 </SelectItem>
               ))}
@@ -238,25 +254,25 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
           </Select>
 
           <Select value={stockStatus} onValueChange={(v) => setStockStatus(v as StockStatus)}>
-            <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px] bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Stock</SelectItem>
-              <SelectItem value="in-stock">In Stock</SelectItem>
-              <SelectItem value="low-stock">Low Stock (&lt;5)</SelectItem>
-              <SelectItem value="out-of-stock">Out of Stock</SelectItem>
+            <SelectContent className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-none py-1">
+              <SelectItem value="all" className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:text-zinc-50 hover:bg-zinc-800/50 cursor-pointer">All Stock</SelectItem>
+              <SelectItem value="in-stock" className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:text-zinc-50 hover:bg-zinc-800/50 cursor-pointer">In Stock</SelectItem>
+              <SelectItem value="low-stock" className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:text-zinc-50 hover:bg-zinc-800/50 cursor-pointer">Low Stock (&lt;5)</SelectItem>
+              <SelectItem value="out-of-stock" className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:text-zinc-50 hover:bg-zinc-800/50 cursor-pointer">Out of Stock</SelectItem>
             </SelectContent>
           </Select>
 
-          <div className="flex items-center rounded-sm border border-zinc-700 bg-zinc-800/50 p-0.5">
+          <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={() => setLayoutView("list")}
-              className={`rounded-md p-2 transition-colors ${
+              className={`rounded-sm h-9 w-9 flex items-center justify-center transition-colors ${
                 layoutView === "list"
-                  ? "bg-zinc-700 text-zinc-100 shadow-sm"
-                  : "text-zinc-500 hover:text-zinc-300"
+                  ? "text-zinc-100 bg-zinc-800"
+                  : "text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50"
               }`}
               title="List view"
               aria-label="List view"
@@ -266,10 +282,10 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
             <button
               type="button"
               onClick={() => setLayoutView("grid")}
-              className={`rounded-md p-2 transition-colors ${
+              className={`rounded-sm h-9 w-9 flex items-center justify-center transition-colors ${
                 layoutView === "grid"
-                  ? "bg-zinc-700 text-zinc-100 shadow-sm"
-                  : "text-zinc-500 hover:text-zinc-300"
+                  ? "text-zinc-100 bg-zinc-800"
+                  : "text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50"
               }`}
               title="Grid view"
               aria-label="Grid view"
@@ -278,14 +294,21 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
             </button>
           </div>
 
-          <Button variant="outline" onClick={handleExportCSV} className="w-full sm:w-auto">
-            <Download className="mr-2 h-4 w-4" />
+          <Button 
+            variant="outline" 
+            onClick={handleExportCSV} 
+            className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+          >
+            <Download className="mr-2 h-3.5 w-3.5" />
             Export CSV
           </Button>
 
           {someSelected && (
-            <Button onClick={openBulkModal} className="w-full sm:w-auto">
-              <Layers className="mr-2 h-4 w-4" />
+            <Button 
+              onClick={openBulkModal} 
+              className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+            >
+              <Layers className="mr-2 h-3.5 w-3.5" />
               Bulk adjust ({selectedIds.size})
             </Button>
           )}
@@ -297,9 +320,13 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
             <TableHeader className="bg-zinc-900">
               <TableRow className="border-b-2 border-zinc-700 hover:bg-transparent">
                 <TableHead className="w-12 px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500" aria-label="Select row">
-                  <span className="sr-only">Select</span>
+                  <Checkbox
+                    checked={allFilteredSelected}
+                    onCheckedChange={toggleSelectAll}
+                    aria-label="Select all"
+                  />
                 </TableHead>
-                <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 w-[200px]">Style</TableHead>
+                <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 w-[240px]">Style</TableHead>
                 <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Variant</TableHead>
                 <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">SKU</TableHead>
                 {hasMultipleStores &&
@@ -316,14 +343,14 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={hasMultipleStores ? stores.length + 7 : 8} className="h-24 text-center">
+                  <TableCell colSpan={hasMultipleStores ? stores.length + 7 : 8} className="h-24 text-center text-sm text-zinc-500">
                     No inventory found matching your filters.
                   </TableCell>
                 </TableRow>
               ) : (
                 filtered.map((item) => {
                   return (
-                    <TableRow key={item.variant_id} className="border-b border-zinc-700/40 hover:bg-zinc-800/40 transition-colors duration-100 last:border-0">
+                    <TableRow key={item.variant_id} className="border-b border-zinc-700/40 hover:bg-zinc-800/40 transition-colors duration-150 last:border-0">
                       <TableCell className="w-12 px-4 py-3.5">
                         <Checkbox
                           checked={selectedIds.has(item.variant_id)}
@@ -333,7 +360,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                       </TableCell>
                       <TableCell className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
-                          <div className={item.style_image_url ? "relative h-10 w-10 shrink-0 overflow-hidden rounded-sm" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-zinc-700 bg-zinc-800"}>
+                          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-zinc-800 border border-zinc-800">
                             {item.style_image_url ? (
                               <Image
                                 src={item.style_image_url}
@@ -342,18 +369,20 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                                 className="object-cover"
                               />
                             ) : (
-                              <Package className="h-4 w-4 text-zinc-600" />
+                              <div className="flex h-full w-full items-center justify-center">
+                                <Package className="h-4 w-4 text-zinc-600" />
+                              </div>
                             )}
                           </div>
-                          <div className="font-medium text-zinc-100">
+                          <div className="text-sm font-semibold text-zinc-100">
                             {item.style_name}
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="px-4 py-3.5 text-zinc-300">
+                      <TableCell className="px-4 py-3.5 text-sm text-zinc-300">
                         {item.size} / {item.color}
                       </TableCell>
-                      <TableCell className="px-4 py-3.5 font-mono text-xs text-zinc-400 tracking-wide">
+                      <TableCell className="px-4 py-3.5 font-mono text-xs text-zinc-400">
                         {item.sku}
                       </TableCell>
                       {hasMultipleStores
@@ -361,7 +390,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                             const level = item.stores.find((s) => s.store_id === store.store_id)
                             const qty = level?.quantity_on_hand ?? 0
                             return (
-                              <TableCell key={store.store_id} className={`px-4 py-3.5 text-right ${getStockColorClass(qty)}`}>
+                              <TableCell key={store.store_id} className={`px-4 py-3.5 text-right ${getStoreStockClass(qty)}`}>
                                 {qty}
                               </TableCell>
                             )
@@ -369,24 +398,24 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                         : (() => {
                             const qty = item.stores[0]?.quantity_on_hand ?? 0
                             return (
-                              <TableCell className={`px-4 py-3.5 text-right ${getStockColorClass(qty)}`}>
+                              <TableCell className={`px-4 py-3.5 text-right ${getStoreStockClass(qty)}`}>
                                 {qty}
                               </TableCell>
                             )
                           })()}
-                      <TableCell className={`px-4 py-3.5 text-right ${getStockColorClass(item.total_stock)}`}>
+                      <TableCell className={`px-4 py-3.5 text-right ${getTotalStockClass(item.total_stock)}`}>
                         {item.total_stock}
                       </TableCell>
                       <TableCell className="px-4 py-3.5 text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <button className="inline-flex w-8 h-8 rounded-sm hover:bg-zinc-800 items-center justify-center transition-colors text-zinc-500">
+                            <button className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-8 w-8 inline-flex items-center justify-center transition-colors">
                               <MoreHorizontal className="h-4 w-4" />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-zinc-900 border border-zinc-700 rounded-lg shadow-lg">
+                          <DropdownMenuContent align="end" className="bg-zinc-900 border border-zinc-700/50 rounded-lg shadow-none py-1 min-w-[200px]">
                             <DropdownMenuItem
-                              className="text-sm text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 px-3 py-2 cursor-pointer focus:bg-zinc-800 focus:text-zinc-100"
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:text-zinc-50 hover:bg-zinc-800/50 cursor-pointer focus:bg-zinc-800/50 focus:text-zinc-50"
                               onClick={() =>
                                 setEditingVariant({
                                   variant_id: item.variant_id,
@@ -399,14 +428,14 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                                 })
                               }
                             >
-                              <Pencil className="mr-2 h-4 w-4" /> Edit
+                              <Pencil className="h-4 w-4" /> Edit
                             </DropdownMenuItem>
                             {stores.map((store) => {
                               const level = item.stores.find((s) => s.store_id === store.store_id)
                               return (
                                 <DropdownMenuItem
                                   key={store.store_id}
-                                  className="text-sm text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 px-3 py-2 cursor-pointer focus:bg-zinc-800 focus:text-zinc-100"
+                                  className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:text-zinc-50 hover:bg-zinc-800/50 cursor-pointer focus:bg-zinc-800/50 focus:text-zinc-50"
                                   onClick={() =>
                                     setAdjustingVariant({
                                       variant: {
@@ -424,12 +453,13 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                                     })
                                   }
                                 >
-                                  <Layers className="mr-2 h-4 w-4" /> Adjust {store.name}
+                                  <Layers className="h-4 w-4" /> Adjust {store.name}
                                 </DropdownMenuItem>
                               )
                             })}
+                            <div className="w-full h-px bg-zinc-800 my-1" />
                             <DropdownMenuItem
-                              className="text-red-400 hover:bg-red-400/10 hover:text-red-300 px-3 py-2 cursor-pointer focus:bg-red-400/10 focus:text-red-300"
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer focus:bg-red-500/10 focus:text-red-300"
                               onClick={() =>
                                 setDeletingVariant({
                                   variant_id: item.variant_id,
@@ -439,7 +469,7 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                                 })
                               }
                             >
-                              <Trash2 className="mr-2 h-4 w-4" /> Delete
+                              <Trash2 className="h-4 w-4" /> Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -452,53 +482,67 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
           </Table>
         </div>
 
-        {/* Grid: Cards */}
-        <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${layoutView === "list" ? "hidden" : "block"}`}>
+        {/* Grid View */}
+        <div className={layoutView === "list" ? "hidden" : "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}>
           {filtered.length === 0 ? (
-            <div className="col-span-full rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 py-12 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white">
+            <div className="col-span-full h-24 flex items-center justify-center text-sm text-zinc-500">
               No inventory found matching your filters.
             </div>
           ) : (
-            filtered.map((item) => {
-              return (
-                <div
-                  key={item.variant_id}
-                  className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-4"
-                >
-                  <div className="flex gap-3">
-                    <div className={item.style_image_url ? "relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-sm" : "flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-sm border border-zinc-700 bg-zinc-800"}>
-                      {item.style_image_url ? (
-                        <Image
-                          src={item.style_image_url}
-                          alt={item.style_name}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <Package className="h-6 w-6 text-zinc-600" />
-                      )}
+            filtered.map((item) => (
+              <div key={item.variant_id} className="group relative flex flex-col rounded-lg border border-zinc-800 bg-zinc-900 transition-all hover:border-zinc-700/50 overflow-hidden">
+                <div className="relative aspect-square overflow-hidden bg-zinc-950">
+                  {item.style_image_url ? (
+                    <Image
+                      src={item.style_image_url}
+                      alt={item.style_name}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <Package className="h-10 w-10 text-zinc-800" />
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="font-medium text-zinc-100 truncate">
-                        {item.style_name}
-                      </div>
-                      <div className="mt-0.5 text-sm text-zinc-300">
-                        {item.size} / {item.color}
-                      </div>
-                      <div className="mt-1 font-mono text-xs text-zinc-400 tracking-wide">
-                        {item.sku}
-                      </div>
-                      <div className={`mt-2 ${getStockColorClass(item.total_stock)}`}>
-                        Total: {item.total_stock}
-                        {item.total_stock < 0 && <AlertTriangle className="ml-1 inline h-3.5 w-3.5" />}
-                      </div>
+                  )}
+                  <div className="absolute top-2 right-2">
+                    <button
+                      onClick={() => toggleRow(item.variant_id)}
+                      className={`h-6 w-6 rounded-full border flex items-center justify-center transition-colors ${
+                        selectedIds.has(item.variant_id)
+                          ? "bg-white border-white text-zinc-950"
+                          : "bg-black/40 border-white/20 text-white hover:bg-black/60"
+                      }`}
+                    >
+                      {selectedIds.has(item.variant_id) && <Check className="h-3 w-3" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-1 flex-col p-4">
+                  <div className="mb-1 text-[0.6rem] font-bold uppercase tracking-[0.15em] text-zinc-500">
+                    {item.size} / {item.color}
+                  </div>
+                  <h3 className="line-clamp-1 font-editorial text-lg font-bold text-zinc-50 leading-tight">
+                    {item.style_name}
+                  </h3>
+                  <div className="mt-2 flex items-center justify-between">
+                    <div className="font-mono text-[10px] uppercase tracking-wider text-zinc-400">
+                      {item.sku}
+                    </div>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider">Stock</span>
+                      <span className={`font-mono text-base font-bold ${getTotalStockClass(item.total_stock)}`}>
+                        {item.total_stock}
+                      </span>
                     </div>
                   </div>
-                  <div className="mt-3 flex flex-nowrap gap-1.5">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 flex-1 px-1.5 text-[10px] font-medium"
+                </div>
+
+                <div className="flex items-center justify-between border-t border-zinc-800 bg-zinc-900/50 p-2">
+                  <div className="flex items-center gap-1">
+                    <button
+                      className="h-8 w-8 rounded-sm text-zinc-500 hover:bg-zinc-800 hover:text-zinc-100 flex items-center justify-center transition-colors"
+                      title="Edit variant"
                       onClick={() =>
                         setEditingVariant({
                           variant_id: item.variant_id,
@@ -510,18 +554,16 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                           cost: item.cost,
                         })
                       }
-                      title="Edit price, cost, SKU"
                     >
-                      <Pencil className="h-3 w-3" />
-                    </Button>
-                    {stores.length > 0 && (() => {
-                      const firstStore = stores[0]
-                      const level = item.stores.find((s) => s.store_id === firstStore.store_id)
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    {stores.map((store) => {
+                      const level = item.stores.find((s) => s.store_id === store.store_id)
                       return (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-7 flex-1 px-1.5 text-[10px] font-medium"
+                        <button
+                          key={store.store_id}
+                          className="h-8 w-8 rounded-sm text-zinc-500 hover:bg-zinc-800 hover:text-zinc-100 flex items-center justify-center transition-colors"
+                          title={`Adjust ${store.name}`}
                           onClick={() =>
                             setAdjustingVariant({
                               variant: {
@@ -532,39 +574,35 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
                                 sku: item.sku,
                               },
                               store: {
-                                store_id: firstStore.store_id,
-                                name: firstStore.name,
+                                store_id: store.store_id,
+                                name: store.name,
                               },
                               currentStock: level?.quantity_on_hand ?? 0,
                             })
                           }
-                          title={hasMultipleStores ? `Adjust ${firstStore.name}` : "Adjust stock"}
                         >
-                          <Layers className="h-3 w-3" />
-                        </Button>
+                          <Layers className="h-3.5 w-3.5" />
+                        </button>
                       )
-                    })()}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 flex-1 px-1.5 text-[10px] font-medium text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30"
-                      title="Delete this variant"
-                      disabled={deletePending}
-                      onClick={() =>
-                        setDeletingVariant({
-                          variant_id: item.variant_id,
-                          style_name: item.style_name,
-                          size: item.size,
-                          color: item.color,
-                        })
-                      }
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
+                    })}
                   </div>
+                  <button
+                    className="h-8 w-8 rounded-sm text-zinc-500 hover:bg-red-500/10 hover:text-red-400 flex items-center justify-center transition-colors"
+                    title="Delete variant"
+                    onClick={() =>
+                      setDeletingVariant({
+                        variant_id: item.variant_id,
+                        style_name: item.style_name,
+                        size: item.size,
+                        color: item.color,
+                      })
+                    }
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
                 </div>
-              )
-            })
+              </div>
+            ))
           )}
         </div>
       </div>
@@ -596,59 +634,53 @@ export function InventoryTableClient({ stores, inventory }: InventoryTableClient
       />
 
       {/* Delete variant confirmation */}
-      <AlertDialog.Root
-        open={deletingVariant !== null}
-        onOpenChange={(open) => !open && setDeletingVariant(null)}
-      >
-        <AlertDialog.Portal>
-          <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" />
-          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-zinc-200 bg-white p-6 shadow-2xl outline-none">
-            <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-              Delete this variant?
-            </AlertDialog.Title>
-            <AlertDialog.Description className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              {deletingVariant && (
-                <>
-                  Remove <strong>{deletingVariant.style_name} – {deletingVariant.size} / {deletingVariant.color}</strong> only.
-                  This variant and its stock will be deleted. The style and other variants will remain. This cannot be undone.
-                </>
-              )}
-            </AlertDialog.Description>
-
-            <div className="mt-4 flex items-center justify-end gap-2">
-              <AlertDialog.Cancel asChild>
-                <Button variant="outline" disabled={deletePending}>
-                  Cancel
-                </Button>
-              </AlertDialog.Cancel>
-
-              <AlertDialog.Action asChild>
-                <Button
-                  variant="destructive"
-                  disabled={deletePending}
-                  onClick={() => {
-                    if (!deletingVariant) return
-                    startDeleteTransition(async () => {
-                      try {
-                        await deleteProductVariant(deletingVariant.variant_id)
-                        toast.success("Variant deleted.")
-                        setDeletingVariant(null)
-                        router.refresh()
-                      } catch (e) {
-                        toast.error(e instanceof Error ? e.message : "Failed to delete.")
-                      } finally {
-                        setDeletingVariant(null)
-                      }
-                    })
-                  }}
-                >
-                  {deletePending ? "Deleting..." : "Delete variant"}
-                </Button>
-              </AlertDialog.Action>
-            </div>
-          </AlertDialog.Content>
-        </AlertDialog.Portal>
-      </AlertDialog.Root>
+      <AlertDialog open={!!deletingVariant} onOpenChange={() => setDeletingVariant(null)}>
+        <AlertDialogContent className="bg-zinc-900 border border-zinc-800 rounded-xl max-w-md p-6">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-editorial text-xl font-bold text-zinc-50">
+              Are you absolutely sure?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-400">
+              This will permanently delete the variant{" "}
+              <span className="font-semibold text-zinc-200">
+                {deletingVariant?.style_name} ({deletingVariant?.size}/{deletingVariant?.color})
+              </span>{" "}
+              and all its associated inventory data. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-6 gap-2 sm:gap-0">
+            <AlertDialogCancel className="bg-transparent border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white rounded-sm h-10 px-6 transition-colors">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              asChild
+              className="bg-red-600 text-white hover:bg-red-700 rounded-sm h-10 px-6 transition-colors shadow-lg shadow-red-900/20"
+            >
+              <Button
+                variant="destructive"
+                disabled={deletePending}
+                onClick={() => {
+                  if (!deletingVariant) return
+                  startDeleteTransition(async () => {
+                    try {
+                      await deleteProductVariant(deletingVariant.variant_id)
+                      toast.success("Variant deleted.")
+                      setDeletingVariant(null)
+                      router.refresh()
+                    } catch (e) {
+                      toast.error(e instanceof Error ? e.message : "Failed to delete.")
+                    } finally {
+                      setDeletingVariant(null)
+                    }
+                  })
+                }}
+              >
+                {deletePending ? "Deleting..." : "Delete Variant"}
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Edit variant (price/cost/SKU) modal */}
       {editingVariant && (

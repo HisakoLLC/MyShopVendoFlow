@@ -10,10 +10,10 @@ export const dynamic = "force-dynamic"
 
 function LoadingState() {
   return (
-    <div className="flex h-screen items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center bg-zinc-950">
       <div className="text-center">
-        <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-zinc-300 border-t-zinc-900 dark:border-zinc-700 dark:border-t-zinc-100"></div>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">Loading intelligence data...</p>
+        <div className="mb-4 h-8 w-8 animate-spin rounded-full border-2 border-zinc-800 border-t-zinc-100 mx-auto"></div>
+        <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Loading Intelligence Data...</p>
       </div>
     </div>
   )
@@ -99,15 +99,26 @@ async function IntelligenceContent() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-6">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/inventory">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to inventory
-          </Link>
-        </Button>
+    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+      <Link 
+        href="/inventory" 
+        className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6 group"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to inventory
+      </Link>
+
+      <div className="flex items-start justify-between border-b border-zinc-800 pb-6 mb-6">
+        <div>
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+            AI-POWERED INSIGHTS, STOCK HEALTH, AND SALES VELOCITY
+          </p>
+          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+            Inventory Intelligence
+          </h1>
+        </div>
       </div>
+
       <InventoryIntelligenceClient
         variantMetrics={variantMetrics || []}
         inventoryByVariant={inventoryByVariant}

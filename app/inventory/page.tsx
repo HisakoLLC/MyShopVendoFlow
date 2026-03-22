@@ -6,7 +6,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { getSignedStorageUrl } from "@/lib/signed-storage-url"
 import type { Tables } from "@/types/database"
 import { Button } from "@/components/ui/button"
-import { ArrowRightLeft, Brain } from "lucide-react"
+import { ArrowLeftRight, BarChart2 } from "lucide-react"
 import { InventoryTableClient } from "./inventory-table-client"
 
 export const dynamic = "force-dynamic"
@@ -213,26 +213,27 @@ async function InventoryPageContent() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-6">
-      <div className="mb-6 flex items-start justify-between gap-4">
+    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+      {/* Page Header */}
+      <div className="flex items-start justify-between pb-6 mb-6 border-b border-zinc-800">
         <div>
           <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
-            View and manage stock levels across all stores
+            VIEW AND MANAGE STOCK LEVELS ACROSS ALL STORES
           </p>
           <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
             Inventory Management
           </h1>
         </div>
-        <div className="flex shrink-0 gap-2">
-          <Button variant="outline" asChild className="gap-2">
+        <div className="flex shrink-0 gap-3">
+          <Button asChild className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors">
             <Link href="/inventory/transfer">
-              <ArrowRightLeft className="h-4 w-4" />
+              <ArrowLeftRight className="mr-2 w-3.5 h-3.5" />
               Transfer
             </Link>
           </Button>
-          <Button variant="outline" asChild className="gap-2">
+          <Button asChild className="bg-transparent border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors">
             <Link href="/inventory/intelligence">
-              <Brain className="h-4 w-4" />
+              <BarChart2 className="mr-2 w-3.5 h-3.5" />
               Intelligence
             </Link>
           </Button>

@@ -561,51 +561,45 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
                 </CardHeader>
                 <CardContent className="p-6 space-y-6">
                   {watchedVariantId && watchedFromStore && watchedToStore && fromStock !== null && (
-                    <>
+                    <div className="space-y-6">
                       <div>
                         <div className="mb-4 text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">
-                          After Transfer:
+                          Transfer Summary
                         </div>
-                        <div className="space-y-4 rounded-lg border border-zinc-800 bg-zinc-800/20 p-4">
-                          <div className="space-y-2">
-                            <div className="text-xs text-zinc-500">Source Store</div>
-                            <div className="flex items-baseline justify-between gap-2">
-                              <div className="text-lg font-bold font-mono text-zinc-50">
-                                {afterTransferFrom !== null ? `${afterTransferFrom}` : "—"}
-                              </div>
-                              {afterTransferFrom !== null && (
-                                <span
-                                  className={
-                                    afterTransferFrom < 0
-                                      ? "text-[0.6rem] font-bold uppercase tracking-wider text-red-500"
-                                      : afterTransferFrom <= 2
-                                        ? "text-[0.6rem] font-bold uppercase tracking-wider text-zinc-500"
-                                        : "text-[0.6rem] font-bold uppercase tracking-wider text-zinc-400"
-                                  }
-                                >
-                                  {afterTransferFrom < 0
-                                    ? "Insufficient"
-                                    : afterTransferFrom <= 2
-                                      ? "Low Stock"
-                                      : "Healthy"}
-                                </span>
-                              )}
-                            </div>
+                        <div className="space-y-4 rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-zinc-500">Moving</span>
+                            <span className="font-mono text-sm font-bold text-zinc-100">{watchedQuantity} units</span>
                           </div>
-                          <div className="pt-4 border-t border-zinc-800 space-y-2">
-                            <div className="text-xs text-zinc-500">Destination Store</div>
-                            <div className="text-lg font-bold font-mono text-zinc-50">
-                              {afterTransferTo !== null ? `${afterTransferTo}` : "—"}
+                          <div className="h-px bg-zinc-800 w-full" />
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-zinc-500">Source Store</span>
+                              <div className="flex items-baseline gap-2">
+                                <span className="font-mono text-sm line-through text-zinc-600">{fromStock}</span>
+                                <span className="text-zinc-500">→</span>
+                                <span className={`font-mono text-sm font-bold ${afterTransferFrom !== null && afterTransferFrom < 2 ? 'text-red-400' : 'text-zinc-100'}`}>
+                                  {afterTransferFrom}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-zinc-500">Dest Store</span>
+                              <div className="flex items-baseline gap-2">
+                                <span className="font-mono text-sm line-through text-zinc-600">{toStock}</span>
+                                <span className="text-zinc-500">→</span>
+                                <span className="font-mono text-sm font-bold text-zinc-100">{afterTransferTo}</span>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </>
+                    </div>
                   )}
                   <div className="pt-6 space-y-3">
                     <Button
                       type="submit"
-                      className="w-full h-12 rounded-sm bg-white text-zinc-950 hover:bg-zinc-100 gap-2 font-semibold"
+                      className="w-full h-11 rounded-sm bg-white text-zinc-950 hover:bg-zinc-100 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all"
                       disabled={isSubmitting || !watchedVariantId || !watchedFromStore || !watchedToStore}
                     >
                       <Package className="h-4 w-4" />
@@ -629,84 +623,89 @@ export function TransferInventoryForm({ stores }: TransferInventoryFormProps) {
       </Form>
 
       <Dialog open={confirmOpen} onOpenChange={(open) => !isSubmitting && setConfirmOpen(open)}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 text-zinc-100 rounded-lg shadow-2xl p-6">
-          <DialogHeader>
-            <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">Confirm Transfer</DialogTitle>
-            <DialogDescription className="text-zinc-500">
-              Review stock movement details before final confirmation.
+        <DialogContent className="bg-zinc-900 border border-zinc-800 text-zinc-100 rounded-xl shadow-2xl p-0 overflow-hidden max-w-lg">
+          <DialogHeader className="p-6 border-b border-zinc-800">
+            <DialogTitle className="font-editorial text-2xl font-bold text-zinc-50">Confirm Stock Movement</DialogTitle>
+            <DialogDescription className="text-zinc-500 mt-1">
+              Please review the transfer details before final confirmation.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-6 pt-4">
-            <div className="rounded-lg border border-zinc-800 bg-zinc-800/50 p-4">
-              <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">Item to Transfer</div>
-              <div className="font-editorial text-lg font-bold text-zinc-50">
-                {selectedVariant?.product_styles?.name ?? "Selected product"}
-              </div>
-              <div className="text-sm font-mono text-zinc-400 mt-1">
-                {selectedVariant ? `${selectedVariant.size} / ${selectedVariant.color}` : ""}
-              </div>
-            </div>
-            {pendingValues && (
-              <div className="space-y-4">
-                <div className="flex flex-col gap-4 text-center py-4 px-2 border-y border-zinc-800">
-                  <div className="space-y-1">
-                    <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">From Store</div>
-                    <div className="text-sm text-zinc-300 font-medium">
-                      {stores.find((s) => s.store_id === pendingValues.from_store_id)?.name ?? "Source"}
-                    </div>
-                  </div>
-                  <div className="flex justify-center">
-                    <div className="bg-zinc-800 rounded-full p-2">
-                      <ArrowRight className="h-4 w-4 text-zinc-400 rotate-90 md:rotate-0" />
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">To Store</div>
-                    <div className="text-sm text-zinc-300 font-medium">
-                      {stores.find((s) => s.store_id === pendingValues.to_store_id)?.name ?? "Destination"}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="text-center">
-                  <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">Transfer Qty</div>
-                  <div className="text-3xl font-bold text-zinc-50 font-mono">{pendingValues.quantity}</div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2 rounded-lg border border-zinc-800 bg-zinc-800/20 p-4">
-                  <div className="space-y-1">
-                    <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Source After</div>
-                    <div className="text-sm font-mono text-zinc-300">
-                      {afterTransferFrom !== null ? `${afterTransferFrom}` : "—"}
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Dest After</div>
-                    <div className="text-sm font-mono text-zinc-300">
-                      {afterTransferTo !== null ? `${afterTransferTo}` : "—"}
-                    </div>
-                  </div>
-                    </div>
+          
+          <div className="p-6 space-y-6">
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+              <div className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-3">Produit & Variant</div>
+              <div className="flex items-center gap-4">
+                {selectedVariant?.product_styles?.image_url && (
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-sm border border-zinc-800">
+                    <Image
+                      src={selectedVariant.product_styles.image_url}
+                      alt={selectedVariant.product_styles.name}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                 )}
+                <div>
+                  <div className="font-editorial text-lg font-bold text-zinc-50">
+                    {selectedVariant?.product_styles?.name}
+                  </div>
+                  <div className="text-xs font-mono text-zinc-400 mt-0.5 uppercase tracking-wider">
+                    {selectedVariant?.size} / {selectedVariant?.color} — {selectedVariant?.sku}
+                  </div>
+                </div>
               </div>
-          <DialogFooter className="mt-8 gap-3 sm:gap-0">
+            </div>
+
+            {pendingValues && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4 relative">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                    <div className="bg-zinc-800 rounded-full p-2 border border-zinc-700">
+                      <ArrowRight className="h-4 w-4 text-zinc-300" />
+                    </div>
+                  </div>
+                  
+                  <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 text-center">
+                    <div className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-1">From</div>
+                    <div className="text-sm font-semibold text-zinc-100">
+                      {stores.find((s) => s.store_id === pendingValues.from_store_id)?.name}
+                    </div>
+                  </div>
+
+                  <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 text-center">
+                    <div className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-1">To</div>
+                    <div className="text-sm font-semibold text-zinc-100">
+                      {stores.find((s) => s.store_id === pendingValues.to_store_id)?.name}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-6 text-center">
+                  <div className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-2">Transfer Quantity</div>
+                  <div className="text-4xl font-bold text-zinc-50 font-mono tracking-tighter">
+                    {pendingValues.quantity}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="p-6 bg-zinc-900/50 border-t border-zinc-800 gap-3">
             <Button
               type="button"
               variant="outline"
               onClick={() => !isSubmitting && setConfirmOpen(false)}
               disabled={isSubmitting}
-              className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white"
+              className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white h-11 px-6 text-xs font-bold uppercase tracking-wider"
             >
               Cancel
             </Button>
             <Button
               type="button"
-              className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100 gap-2 font-semibold"
+              className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100 h-11 px-8 text-xs font-bold uppercase tracking-wider transition-all"
               onClick={performTransfer}
               disabled={isSubmitting || !pendingValues}
             >
-              <Package className="h-4 w-4" />
               {isSubmitting ? "Processing..." : "Complete Transfer"}
             </Button>
           </DialogFooter>

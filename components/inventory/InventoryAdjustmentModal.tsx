@@ -9,10 +9,9 @@ import { toast } from "sonner"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import {
   Form,
@@ -139,7 +138,6 @@ export function InventoryAdjustmentModal({
       } else if (values.adjustmentType === "remove") {
         adjustment = -values.quantity
       } else {
-        // Set stock: adjustment is difference from current
         adjustment = values.quantity - currentStock
       }
 
@@ -161,24 +159,33 @@ export function InventoryAdjustmentModal({
 
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[550px] bg-zinc-900 border-zinc-800 text-zinc-100 rounded-lg shadow-2xl p-6">
-        <DialogHeader>
-          <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">
-            Adjust Stock: {variant.style_name} ({variant.size}/{variant.color})
+      <DialogContent className="sm:max-w-[550px] bg-zinc-950 border-zinc-800 text-zinc-100 rounded-none shadow-2xl p-0 gap-0 overflow-hidden">
+        <DialogHeader className="px-8 py-8 border-b border-zinc-900 bg-zinc-900/50">
+          <DialogTitle className="font-editorial text-2xl font-bold text-zinc-50 leading-tight">
+            Adjust Stock
           </DialogTitle>
-          <DialogDescription className="text-zinc-400">
-            Current Stock at {store.name}: <span className="font-semibold text-zinc-100">{currentStock}</span> units
-          </DialogDescription>
+          <div className="mt-2 space-y-1">
+            <p className="font-editorial text-sm font-semibold text-zinc-200">
+              {variant.style_name}
+            </p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+              {variant.size} / {variant.color} — {variant.sku}
+            </p>
+          </div>
+          <div className="mt-6 pt-4 border-t border-zinc-800">
+            <p className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-1">Current Stock @ {store.name}</p>
+            <p className="font-mono text-2xl font-bold text-zinc-100">{currentStock}</p>
+          </div>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="px-8 py-8 space-y-8">
             <FormField
               control={form.control}
               name="adjustmentType"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Adjustment Type</FormLabel>
+                <FormItem className="space-y-4">
+                  <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">Adjustment Type</FormLabel>
                   <FormControl>
                     <RadioGroup
                       value={field.value}
@@ -186,34 +193,34 @@ export function InventoryAdjustmentModal({
                         setAdjustmentType(value as AdjustmentType)
                         field.onChange(value)
                       }}
-                      className="space-y-3"
+                      className="grid grid-cols-1 gap-3"
                     >
-                      <div className="flex items-center space-x-2 rounded-sm border border-zinc-800 p-3 bg-zinc-800/50">
-                        <RadioGroupItem value="add" id="add" className="border-zinc-700 text-white" />
+                      <div className={`flex items-start space-x-3 rounded-none border p-4 transition-all cursor-pointer ${field.value === 'add' ? 'bg-zinc-900 border-zinc-600' : 'bg-transparent border-zinc-800 hover:border-zinc-700'}`}>
+                        <RadioGroupItem value="add" id="add" className="mt-1 border-zinc-700 text-white" />
                         <Label htmlFor="add" className="flex-1 cursor-pointer">
-                          <div className="font-medium text-zinc-100">Add Stock</div>
-                          <div className="text-xs text-zinc-400">
-                            Received shipment, restock, etc.
+                          <div className="text-[0.65rem] font-bold uppercase tracking-widest text-zinc-100 mb-1">Add Stock</div>
+                          <div className="text-[10px] text-zinc-500 uppercase tracking-wider leading-relaxed">
+                            Received shipment or restock
                           </div>
                         </Label>
                       </div>
 
-                      <div className="flex items-center space-x-2 rounded-sm border border-zinc-800 p-3 bg-zinc-800/50">
-                        <RadioGroupItem value="remove" id="remove" className="border-zinc-700 text-white" />
+                      <div className={`flex items-start space-x-3 rounded-none border p-4 transition-all cursor-pointer ${field.value === 'remove' ? 'bg-zinc-900 border-zinc-600' : 'bg-transparent border-zinc-800 hover:border-zinc-700'}`}>
+                        <RadioGroupItem value="remove" id="remove" className="mt-1 border-zinc-700 text-white" />
                         <Label htmlFor="remove" className="flex-1 cursor-pointer">
-                          <div className="font-medium text-zinc-100">Remove Stock</div>
-                          <div className="text-xs text-zinc-400">
-                            Damaged, lost, returned, etc.
+                          <div className="text-[0.65rem] font-bold uppercase tracking-widest text-zinc-100 mb-1">Remove Stock</div>
+                          <div className="text-[10px] text-zinc-500 uppercase tracking-wider leading-relaxed">
+                            Damaged, lost, or returned
                           </div>
                         </Label>
                       </div>
 
-                      <div className="flex items-center space-x-2 rounded-sm border border-zinc-800 p-3 bg-zinc-800/50">
-                        <RadioGroupItem value="set" id="set" className="border-zinc-700 text-white" />
+                      <div className={`flex items-start space-x-3 rounded-none border p-4 transition-all cursor-pointer ${field.value === 'set' ? 'bg-zinc-900 border-zinc-600' : 'bg-transparent border-zinc-800 hover:border-zinc-700'}`}>
+                        <RadioGroupItem value="set" id="set" className="mt-1 border-zinc-700 text-white" />
                         <Label htmlFor="set" className="flex-1 cursor-pointer">
-                          <div className="font-medium text-zinc-100">Set Stock</div>
-                          <div className="text-xs text-zinc-400">
-                            Override to exact count (physical count)
+                          <div className="text-[0.65rem] font-bold uppercase tracking-widest text-zinc-100 mb-1">Set Stock</div>
+                          <div className="text-[10px] text-zinc-500 uppercase tracking-wider leading-relaxed">
+                            Physical count override
                           </div>
                         </Label>
                       </div>
@@ -224,54 +231,54 @@ export function InventoryAdjustmentModal({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="quantity"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">
-                    {adjustmentType === "add"
-                      ? "Quantity to Add"
-                      : adjustmentType === "remove"
-                        ? "Quantity to Remove"
-                        : "New Stock Quantity"}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      inputMode="numeric"
-                      min={adjustmentType === "set" ? 0 : 1}
-                      max={adjustmentType === "remove" ? currentStock : undefined}
-                      className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm"
-                      {...field}
-                      onChange={(e) => {
-                        const value = e.target.value
-                        field.onChange(value === "" ? "" : Number(value))
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                  {adjustmentType === "remove" && (
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Maximum: {currentStock} units
-                    </p>
-                  )}
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-8">
+              <FormField
+                control={form.control}
+                name="quantity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">
+                      {adjustmentType === "set" ? "Quantity" : "Change"}
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        className="bg-zinc-900 border-zinc-800 text-zinc-100 h-12 rounded-none font-mono text-lg focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 transition-all"
+                        {...field}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          field.onChange(value === "" ? "" : Number(value))
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-[10px] uppercase font-bold tracking-widest text-red-400 mt-2" />
+                  </FormItem>
+                )}
+              />
+
+              <div className="rounded-none border border-zinc-800 bg-zinc-900/30 p-4 h-full flex flex-col justify-center">
+                <div className="text-[0.6rem] font-bold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+                  Preview
+                </div>
+                <div className="font-mono text-2xl font-bold text-zinc-100">
+                  {calculatedNewStock}
+                  <span className="text-[10px] uppercase tracking-widest text-zinc-500 ml-2">units</span>
+                </div>
+              </div>
+            </div>
 
             <FormField
               control={form.control}
               name="reason"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Reason (Optional)</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">Reason (Optional)</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="e.g., Received shipment, Damaged goods, Physical count correction..."
-                      maxLength={500}
-                      rows={3}
-                      className="bg-zinc-800 border-zinc-700 text-zinc-100 rounded-sm"
+                      placeholder="e.g., Physical count correction..."
+                      rows={2}
+                      className="bg-zinc-900 border-zinc-800 text-zinc-100 rounded-none focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 transition-all resize-none text-xs"
                       {...field}
                     />
                   </FormControl>
@@ -280,33 +287,22 @@ export function InventoryAdjustmentModal({
               )}
             />
 
-            {/* Preview */}
-            <div className="rounded-sm border border-zinc-800 bg-zinc-800/30 p-4">
-              <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">
-                Preview
-              </div>
-              <div className="mt-2 text-sm text-zinc-400">
-                New Stock:{" "}
-                <span
-                  className={`font-editorial text-xl font-bold tabular-nums ${
-                    calculatedNewStock < 0
-                      ? "text-red-400"
-                      : calculatedNewStock === 0
-                        ? "text-yellow-400"
-                        : "text-green-400"
-                  }`}
-                >
-                  {calculatedNewStock} units
-                </span>
-              </div>
-            </div>
-
-            <DialogFooter className="gap-2 sm:gap-0">
-              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="rounded-sm border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white">
+            <DialogFooter className="pt-4 gap-4 sm:gap-0 border-t border-zinc-900 mt-4 -mx-8 px-8 py-6 bg-zinc-900/20">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onClose} 
+                disabled={isSubmitting} 
+                className="rounded-none border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-all text-[10px] font-bold uppercase tracking-widest h-12 px-8"
+              >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting} className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-200">
-                {isSubmitting ? "Updating..." : "Apply Adjustment"}
+              <Button 
+                type="submit" 
+                disabled={isSubmitting} 
+                className="rounded-none bg-white text-zinc-950 hover:bg-zinc-100 transition-all text-[10px] font-bold uppercase tracking-widest h-12 px-8 flex-1 sm:flex-none"
+              >
+                {isSubmitting ? "Processing..." : "Apply Adjustment"}
               </Button>
             </DialogFooter>
           </form>

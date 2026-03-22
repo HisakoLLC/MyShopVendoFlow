@@ -8,10 +8,9 @@ import { useForm } from "react-hook-form"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import {
   Form,
@@ -71,7 +70,6 @@ export function VariantCellEditor({
     mode: "onChange",
   })
 
-  // Reset form when dialog opens/closes or defaults change
   React.useEffect(() => {
     if (open) {
       form.reset({
@@ -98,127 +96,116 @@ export function VariantCellEditor({
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleCancel()}>
-      <DialogContent className="sm:max-w-[425px] !bg-zinc-900 !border-zinc-800 !text-zinc-100 !rounded-sm !shadow-2xl">
-        <DialogHeader>
-          <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">
-            Edit Variant: {size} - {color}
+      <DialogContent className="sm:max-w-[450px] bg-zinc-950 border-zinc-800 text-zinc-100 rounded-none shadow-2xl p-0 gap-0 overflow-hidden">
+        <DialogHeader className="px-8 py-8 border-b border-zinc-900 bg-zinc-900/50">
+          <DialogTitle className="font-editorial text-2xl font-bold text-zinc-50 leading-tight">
+            Edit Variant
           </DialogTitle>
-          <DialogDescription className="text-sm text-zinc-400">
-            Update the SKU, price, and cost for this size and color combination.
-          </DialogDescription>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 mt-2">
+            STYLING FOR: {size} / {color}
+          </p>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="px-8 py-8 space-y-6">
             <FormField
               control={form.control}
               name="sku"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">SKU</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">SKU Identifier</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       placeholder="e.g., OLS-M-NAV"
-                      className="bg-zinc-950 border-zinc-800 text-zinc-100 focus:border-zinc-600 focus:ring-1 focus:ring-white/10 rounded-sm"
+                      className="bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 rounded-none h-11 font-mono text-sm tracking-wider"
                       onChange={(e) => {
                         const value = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, "")
                         field.onChange(value)
                       }}
                     />
                   </FormControl>
-                  <FormMessage />
-                  <p className="text-[0.65rem] text-zinc-500 tracking-wide">
-                    UPPERCASE LETTERS, NUMBERS, AND HYPHENS ONLY
-                  </p>
+                  <FormMessage className="text-[10px] uppercase font-bold tracking-widest text-red-400 mt-2" />
                 </FormItem>
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Price (KES)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      inputMode="decimal"
-                      min={0.01}
-                      step="0.01"
-                      {...field}
-                      className="bg-zinc-950 border-zinc-800 text-zinc-100 focus:border-zinc-600 focus:ring-1 focus:ring-white/10 rounded-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      onChange={(e) => {
-                        const value = e.target.value
-                        field.onChange(value === "" ? "" : Number(value))
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                  <p className="text-[0.65rem] text-zinc-500 tracking-wide">
-                    PREVIEW: KES{" "}
-                    {field.value
-                      ? new Intl.NumberFormat("en-KE", {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 2,
-                        }).format(Number(field.value))
-                      : "0"}
-                  </p>
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">Retail Price</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        inputMode="decimal"
+                        className="bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 rounded-none h-11 font-mono text-sm"
+                        {...field}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          field.onChange(value === "" ? "" : Number(value))
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-[10px] uppercase font-bold tracking-widest text-red-400 mt-2" />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="cost"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Cost (KES)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      inputMode="decimal"
-                      min={0.01}
-                      step="0.01"
-                      {...field}
-                      className="bg-zinc-950 border-zinc-800 text-zinc-100 focus:border-zinc-600 focus:ring-1 focus:ring-white/10 rounded-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      onChange={(e) => {
-                        const value = e.target.value
-                        field.onChange(value === "" ? "" : Number(value))
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                  <p className="text-[0.65rem] text-zinc-500 tracking-wide">
-                    PREVIEW: KES{" "}
-                    {field.value
-                      ? new Intl.NumberFormat("en-KE", {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 2,
-                        }).format(Number(field.value))
-                      : "0"}
-                  </p>
-                  {form.watch("price") > 0 && form.watch("cost") > 0 && (
-                    <p className="text-[0.65rem] text-zinc-500 tracking-wide mt-1">
-                      MARGIN:{" "}
-                      {form.watch("price") > form.watch("cost")
-                        ? `${(
-                            ((form.watch("price") - form.watch("cost")) / form.watch("price")) *
-                            100
-                          ).toFixed(1)}%`
-                        : "INVALID"}
-                    </p>
-                  )}
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="cost"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">Unit Cost</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        inputMode="decimal"
+                        className="bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 rounded-none h-11 font-mono text-sm"
+                        {...field}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          field.onChange(value === "" ? "" : Number(value))
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-[10px] uppercase font-bold tracking-widest text-red-400 mt-2" />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            <DialogFooter className="pt-4 border-t border-zinc-800">
-              <Button type="button" variant="outline" onClick={handleCancel} className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white h-9 px-5 text-xs font-semibold tracking-wider uppercase transition-colors shadow-none">
+            {form.watch("price") > 0 && form.watch("cost") > 0 && (
+              <div className="pt-4 border-t border-zinc-900">
+                <div className="flex justify-between items-center bg-zinc-900/30 p-4 border border-zinc-800">
+                  <span className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500">Est. Profit Margin</span>
+                  <span className={`font-mono text-lg font-bold ${form.watch("price") > form.watch("cost") ? "text-green-400" : "text-red-400"}`}>
+                    {form.watch("price") > form.watch("cost")
+                      ? `${(((form.watch("price") - form.watch("cost")) / form.watch("price")) * 100).toFixed(1)}%`
+                      : "INVALID"}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <DialogFooter className="pt-8 gap-4 sm:gap-0 mt-4 -mx-8 px-8 py-6 bg-zinc-900/20 border-t border-zinc-900">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleCancel} 
+                className="rounded-none border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-all text-[10px] font-bold uppercase tracking-widest h-12 px-8"
+              >
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100 h-9 px-5 text-xs font-semibold tracking-wider uppercase transition-colors shadow-none">Save Changes</Button>
+              <Button 
+                type="submit" 
+                className="rounded-none bg-white text-zinc-950 hover:bg-zinc-100 transition-all text-[10px] font-bold uppercase tracking-widest h-12 px-8 flex-1 sm:flex-none"
+              >
+                Save Changes
+              </Button>
             </DialogFooter>
           </form>
         </Form>

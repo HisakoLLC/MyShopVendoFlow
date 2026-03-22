@@ -60,54 +60,43 @@ export default async function TransferInventoryPage() {
     })) ?? []
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-8">
-      <div className="mb-6 flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800">
-            <ArrowRightLeft className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
-          </div>
-          <div>
-            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
-              Move stock between stores when one location is low and another has excess.
-            </p>
-            <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
-              Transfer Inventory
-            </h1>
-          </div>
-        </div>
-        <div className="shrink-0">
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/inventory">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to inventory
-            </Link>
-          </Button>
+    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+      <Link 
+        href="/inventory" 
+        className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6 group"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to inventory
+      </Link>
+
+      <div className="flex items-start justify-between border-b border-zinc-800 pb-6 mb-6">
+        <div>
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+            MOVE STOCK BETWEEN STORES WHEN ONE LOCATION IS LOW AND ANOTHER HAS EXCESS
+          </p>
+          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+            Inventory Transfer
+          </h1>
         </div>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,3fr)]">
+      <div className="grid gap-8">
         <TransferInventoryForm stores={safeStores} />
       </div>
 
-      <div className="mt-10 space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+      <div className="mt-12 space-y-6">
+        <div>
+          <h2 className="font-editorial text-2xl font-bold text-zinc-50 mb-1">
             Recent Transfers
           </h2>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Last 50 transfers for this account
+          <p className="text-[0.65rem] font-semibold tracking-[0.1em] uppercase text-zinc-500">
+            LAST 50 TRANSFERS FOR THIS ACCOUNT
           </p>
         </div>
-        <TransferHistoryTable />
+        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden">
+          <TransferHistoryClient />
+        </div>
       </div>
-    </div>
-  )
-}
-
-function TransferHistoryTable() {
-  return (
-    <div className="rounded-lg border border-zinc-200 bg-zinc-900 p-2 dark:border-zinc-800 dark:bg-zinc-900">
-      <TransferHistoryClient />
     </div>
   )
 }
