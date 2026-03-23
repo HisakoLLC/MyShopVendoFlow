@@ -206,17 +206,18 @@ async function fetchStaffData(): Promise<{
 
 function LoadingState() {
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-6">
-      <div className="mb-4 h-8 w-64 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-      <div className="h-96 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+      <div className="mb-6 h-4 w-32 animate-pulse rounded bg-zinc-800" />
+      <div className="mb-6 h-8 w-64 animate-pulse rounded bg-zinc-800" />
+      <div className="h-96 w-full animate-pulse rounded-lg bg-zinc-800" />
     </div>
   )
 }
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-10">
-      <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100">
+    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+      <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-5 text-red-200">
         <div className="text-base font-semibold">We couldn't load Staff</div>
         <div className="mt-1 text-sm opacity-90">{message}</div>
         <p className="mt-3 text-sm opacity-80">
@@ -234,7 +235,7 @@ async function StaffPageContent() {
       return <ErrorState message="Account not found. Please complete onboarding first." />
     }
     return (
-      <div className="mx-auto w-full max-w-7xl px-4 py-6">
+      <div className="min-h-screen bg-zinc-950 px-8 py-8">
         <StaffList
           initialStaff={Array.isArray(data.staff) ? data.staff : []}
           planTier={data.account?.plan_tier || "starter"}

@@ -106,10 +106,10 @@ export function EditStaffModal({
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[500px] bg-zinc-900 border-zinc-800 text-zinc-100 rounded-lg shadow-2xl p-6">
+      <DialogContent className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-6 w-full max-w-md text-zinc-100">
         <DialogHeader>
-          <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">Edit Staff Member</DialogTitle>
-          <DialogDescription className="text-zinc-400">Update staff information and role.</DialogDescription>
+          <DialogTitle className="font-editorial text-xl font-bold text-zinc-50 mb-1">Edit Staff Member</DialogTitle>
+          <DialogDescription className="text-sm text-zinc-500 mb-6">Update staff information and role.</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -120,9 +120,9 @@ export function EditStaffModal({
                 name="first_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">First Name *</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">First Name *</FormLabel>
                     <FormControl>
-                      <Input placeholder="John" {...field} className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm" />
+                      <Input placeholder="John" {...field} className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -134,9 +134,9 @@ export function EditStaffModal({
                 name="last_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Last Name *</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Last Name *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Doe" {...field} className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm" />
+                      <Input placeholder="Doe" {...field} className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -144,10 +144,10 @@ export function EditStaffModal({
               />
             </div>
 
-            <div className="rounded-lg border border-zinc-800 bg-zinc-800/30 p-4">
-              <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Email</div>
-              <div className="font-mono text-sm text-zinc-300 mt-1">{staff.email}</div>
-              <p className="mt-2 text-[0.65rem] text-zinc-500 uppercase tracking-wider">
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+              <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">Email</div>
+              <div className="font-mono text-sm text-zinc-300">{staff.email}</div>
+              <p className="mt-2 text-[0.6rem] text-zinc-600 uppercase tracking-widest">
                 Email cannot be changed
               </p>
             </div>
@@ -157,14 +157,14 @@ export function EditStaffModal({
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Role *</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Role *</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm">
+                      <SelectTrigger className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full focus:ring-1 focus:ring-white/20">
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
+                    <SelectContent className="bg-zinc-900 border border-zinc-800 text-zinc-100">
                       <SelectItem value="cashier">Cashier</SelectItem>
                       <SelectItem value="manager">Manager</SelectItem>
                       <SelectItem value="owner">Owner</SelectItem>
@@ -175,14 +175,23 @@ export function EditStaffModal({
               )}
             />
 
-            <DialogFooter className="gap-2 sm:gap-0 mt-6">
-              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white">
+            <div className="flex gap-3 justify-end mt-6">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isSubmitting}
+                className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors"
+              >
                 Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting} className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100">
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+              >
                 {isSubmitting ? "Updating..." : "Update Staff Member"}
-              </Button>
-            </DialogFooter>
+              </button>
+            </div>
           </form>
         </Form>
       </DialogContent>
