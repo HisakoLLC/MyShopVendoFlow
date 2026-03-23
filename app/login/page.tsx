@@ -27,6 +27,14 @@ function LoginContent() {
   const [supabaseError, setSupabaseError] = React.useState<string | null>(null)
   const [timeoutMessage, setTimeoutMessage] = React.useState<string | null>(null)
 
+  React.useEffect(() => {
+    if (timeout === "idle") {
+      setTimeoutMessage("Your session expired due to inactivity. Please log in again.")
+    } else if (timeout === "expired") {
+      setTimeoutMessage("Your session has expired. Please log in again.")
+    }
+  }, [timeout])
+
   const supabase = React.useMemo(() => {
     try {
       return createClient()
@@ -36,21 +44,6 @@ function LoginContent() {
       return null as any
     }
   }, [])
-
-  React.useEffect(() => {
-    if (timeout === "idle") {
-      setTimeoutMessage("Your session expired due to inactivity. Please log in again.")
-    } else if (timeout === "expired") {
-      setTimeoutMessage("Your session has expired. Please log in again.")
-    } else if (!timeout && !deletedParam) {
-      // Proactively redirect if already logged in (no timeout/deleted context)
-      supabase.auth.getSession().then(({ data }: { data: { session: any } }) => {
-        if (data.session) {
-          router.push("/dashboard")
-        }
-      })
-    }
-  }, [timeout, deletedParam, supabase, router])
 
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
@@ -239,7 +232,7 @@ function LoginContent() {
                     id="pin"
                     type="password"
                     inputMode="numeric"
-                    placeholder="••••••"
+                    placeholder="••••"
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
                     required
@@ -316,7 +309,7 @@ function LoginContent() {
             </form>
           )}
 
-          <div className="mt-8 pt-6 border-t border-zinc-800 text-center lg:text-left space-y-4">
+          <div className="mt-8 pt-6 border-t border-zinc-800 text-center lg:text-left">
             <p className="text-sm text-zinc-500">
               New to the platform?{" "}
               <Link
@@ -324,15 +317,6 @@ function LoginContent() {
                 className="font-bold text-white hover:underline underline-offset-4"
               >
                 Create an account
-              </Link>
-            </p>
-            <p className="text-sm text-zinc-500">
-              Are you staff?{" "}
-              <Link
-                href="/auth/pin-login"
-                className="font-bold text-white hover:underline underline-offset-4"
-              >
-                Login with PIN
               </Link>
             </p>
           </div>

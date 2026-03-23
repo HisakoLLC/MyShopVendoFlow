@@ -16,15 +16,6 @@ import { AuthImageRotation } from "@/components/auth/AuthImageRotation"
 export default function SignupPage() {
   const router = useRouter()
   const supabase = React.useMemo(() => createClient(), [])
-
-  React.useEffect(() => {
-    // Proactively redirect if already logged in
-    supabase.auth.getSession().then(({ data }: { data: { session: any } }) => {
-      if (data.session) {
-        router.push("/dashboard")
-      }
-    })
-  }, [supabase, router])
   const [businessName, setBusinessName] = React.useState("")
   const [yourName, setYourName] = React.useState("")
   const [email, setEmail] = React.useState("")

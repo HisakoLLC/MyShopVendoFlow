@@ -4,18 +4,10 @@ VendoFlow's authentication pages (Login and Signup) have been redesigned for a p
 
 ## 1. Visual Layout
 - **Two-Column Design**: Desktop views feature a 50/50 split layout.
-- **Form Side (Left)**: Concentrated white-on-black interface.
-- **Dedicated Staff Portal**: A "Login with PIN" link allows staff to jump straight to the 6-digit entry screen without needing an email address.
-- **Experience Side (Right)**: A rounded dark pane displaying high-fashion imagery.
+- **Form Side (Left)**: Concentrated white-on-black interface with a focus on high-legibility inputs.
+- **Experience Side (Right)**: A rounded dark pane (`rounded-[2.5rem]`) displaying high-fashion imagery and branding.
 
-## 2. Staff PIN Login Feature
-The PIN login system is specifically optimized for floor staff and managers.
-
-- **Security Enforcement**: The system strictly requires a **6-digit PIN**.
-- **User Interface**: A specialized monochromatic keypad redesign for rapid entry.
-- **Global Store Search**: The PIN system automatically identifies the staff member's assigned store regardless of the device's session state.
-
-## 3. Image Rotation Logic
+## 2. Image Rotation Logic
 The `AuthImageRotation` component handles the dynamic experience on the right side of the screen.
 
 - **Storage Path**: `public/assets/auth/`
