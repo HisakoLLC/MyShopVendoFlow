@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 
 const IMAGES = [
   "/assets/auth/fashion-1.webp",
-  "/assets/auth/fashion-2.webp",
+  "//auth/fashion-2.webp",
   "/assets/auth/fashion-3.webp",
   "/assets/auth/fashion-4.webp",
   "/assets/auth/fashion-5.webp",
@@ -42,7 +42,7 @@ export function AuthImageRotation() {
           transition={{ duration: 1.2, ease: "easeInOut" }}
         />
       </AnimatePresence>
-      
+
       {/* Overlay for subtle texture and high-end feel */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
       <div className="absolute bottom-12 left-12 right-12">
