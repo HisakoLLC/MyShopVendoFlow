@@ -7,11 +7,12 @@ import { toast, Toaster } from "sonner"
 import { Check, X } from "lucide-react"
 
 import { createClient } from "@/lib/supabase/client"
+
+export const dynamic = "force-dynamic"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { createAccountAfterSignup } from "./actions"
-import { AuthImageRotation } from "@/components/auth/AuthImageRotation"
 
 export default function SignupPage() {
   const router = useRouter()
@@ -26,13 +27,13 @@ export default function SignupPage() {
   // Password strength checker
   const passwordStrength = React.useMemo(() => {
     if (!password) return { score: 0, checks: [] }
-    
+
     const checks = [
       { label: "At least 8 characters", met: password.length >= 8 },
       { label: "One uppercase letter", met: /[A-Z]/.test(password) },
       { label: "One number", met: /[0-9]/.test(password) },
     ]
-    
+
     const score = checks.filter((c) => c.met).length
     return { score, checks }
   }, [password])
@@ -40,8 +41,14 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!businessName.trim() || !yourName.trim()) {
-      toast.error("All fields are required")
+    // Validation
+    if (!businessName.trim()) {
+      toast.error("Business name is required")
+      return
+    }
+
+    if (!yourName.trim()) {
+      toast.error("Your name is required")
       return
     }
 
@@ -58,13 +65,20 @@ export default function SignupPage() {
     setIsLoading(true)
 
     try {
+      // Step 1: Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
       })
 
       if (authError) {
-        toast.error(authError.message)
+        if (authError.message.includes("signup not allowed")) {
+          toast.error(
+            "Signup is disabled. Please enable it in Supabase Dashboard → Authentication → Settings."
+          )
+        } else {
+          toast.error(authError.message)
+        }
         return
       }
 
@@ -73,162 +87,181 @@ export default function SignupPage() {
         return
       }
 
+      // Always create account + account_members (uses service role, does not require session).
+      // This way when email confirmation is required, the account exists after they confirm and log in.
+      console.log("Calling createAccountAfterSignup with:", { userId: authData.user.id, businessName, email })
       try {
         const result = await createAccountAfterSignup(authData.user.id, businessName, email)
         if (!result?.account_id) {
-          throw new Error("Account creation failed")
+          throw new Error("Account creation returned no account ID")
         }
-      } catch (accountError: any) {
-        toast.error(accountError.message)
+      } catch (accountError) {
+        console.error("Account creation error:", accountError)
+        const errorMessage = accountError instanceof Error
+          ? accountError.message
+          : "Failed to create account. Please check your environment variables and try again."
+        toast.error(errorMessage)
         setIsLoading(false)
         return
       }
 
+      // If no session (e.g. email confirmation required), do not redirect; account is already created.
       if (!authData.session) {
         await new Promise((resolve) => setTimeout(resolve, 500))
         const { data: { session } } = await supabase.auth.getSession()
         if (!session) {
-          toast.info("Check your email to confirm your account.")
+          toast.info("Please check your email to confirm your account. After confirming, log in and you’ll be taken to setup.")
           setIsLoading(false)
           return
         }
       }
 
-      toast.success("Account created successfully!")
+      toast.success("Account created successfully! Redirecting to onboarding...")
       setTimeout(() => {
         router.push("/onboarding")
         router.refresh()
       }, 1500)
-    } catch (err: any) {
-      toast.error(err.message || "Failed to create account")
+    } catch (err) {
+      console.error("Signup error:", err)
+      toast.error(err instanceof Error ? err.message : "Failed to create account")
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="flex min-h-screen bg-black overflow-hidden font-sans">
+    <div className="flex min-h-screen items-center justify-center bg-background-light px-4 py-12 dark:bg-background-dark">
       <Toaster richColors position="top-right" />
-      
-      {/* Form Side */}
-      <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-20 xl:px-24">
-        <div className="mx-auto w-full max-w-sm lg:w-96">
-          <div className="mb-10 text-center lg:text-left">
-            <h1 className="font-editorial text-4xl font-bold tracking-tight text-white mb-2 underline decoration-zinc-800 decoration-4 underline-offset-8">
-              VendoFlow
-            </h1>
-            <h2 className="text-xl font-medium text-zinc-100 mt-6 capitalize">
-              Join the future of fashion.
-            </h2>
-            <p className="mt-2 text-sm text-zinc-500">
-              Create your account to start managing your boutique with precision.
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="businessName" className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Business Name</Label>
-                <Input
-                  id="businessName"
-                  placeholder="Boutique Name"
-                  value={businessName}
-                  onChange={(e) => setBusinessName(e.target.value)}
-                  required
-                  disabled={isLoading}
-                  className="bg-zinc-900 border-zinc-800 text-white h-11 focus-visible:ring-zinc-600 rounded-sm"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="yourName" className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Your Name</Label>
-                <Input
-                  id="yourName"
-                  placeholder="John Doe"
-                  value={yourName}
-                  onChange={(e) => setYourName(e.target.value)}
-                  required
-                  disabled={isLoading}
-                  className="bg-zinc-900 border-zinc-800 text-white h-11 focus-visible:ring-zinc-600 rounded-sm"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Owner Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="name@boutique.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={isLoading}
-                className="bg-zinc-900 border-zinc-800 text-white h-11 focus-visible:ring-zinc-600 rounded-sm"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Create Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-                className="bg-zinc-900 border-zinc-800 text-white h-11 focus-visible:ring-zinc-600 rounded-sm"
-              />
-              {password && (
-                <div className="grid grid-cols-3 gap-2 mt-2">
-                    {passwordStrength.checks.map((check, idx) => (
-                      <div key={idx} className="flex flex-col gap-1 items-center">
-                        <div className={`h-1 w-full rounded-full ${check.met ? "bg-white" : "bg-zinc-800"}`} />
-                        <span className="text-[0.5rem] uppercase tracking-tighter text-zinc-500">{check.label.split(' ')[2] || 'Length'}</span>
-                      </div>
-                    ))}
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                disabled={isLoading}
-                className={`bg-zinc-900 border-zinc-800 text-white h-11 focus-visible:ring-zinc-600 rounded-sm ${
-                  confirmPassword && password !== confirmPassword ? "border-red-900/50" : ""
-                }`}
-              />
-            </div>
-
-            <Button type="submit" className="w-full h-11 bg-white text-black hover:bg-zinc-200 transition-all rounded-sm font-semibold uppercase tracking-wider text-xs mt-4" disabled={isLoading || passwordStrength.score < 3}>
-              {isLoading ? "Provisioning Account..." : "Create Account"}
-            </Button>
-          </form>
-
-          <div className="mt-8 pt-6 border-t border-zinc-800 text-center lg:text-left">
-            <p className="text-sm text-zinc-500">
-              Already have an account?{" "}
-              <Link
-                href="/login"
-                className="font-bold text-white hover:underline underline-offset-4"
-              >
-                Sign in
-              </Link>
-            </p>
-          </div>
+      <div className="w-full max-w-md space-y-8 rounded-xl border border-zinc-200 bg-background-card-light p-8 shadow-lg dark:border-border-dark dark:bg-background-card-dark">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+            VendoFlow
+          </h1>
+          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+            Create your account to get started
+          </p>
         </div>
-      </div>
 
-      {/* Image Side */}
-      <div className="relative hidden w-0 flex-1 lg:block p-6">
-        <AuthImageRotation />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="businessName">Business Name *</Label>
+            <Input
+              id="businessName"
+              type="text"
+              placeholder="What's your boutique called?"
+              value={businessName}
+              onChange={(e) => setBusinessName(e.target.value)}
+              required
+              disabled={isLoading}
+              className="mt-1"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="yourName">Your Name *</Label>
+            <Input
+              id="yourName"
+              type="text"
+              placeholder="John Doe"
+              value={yourName}
+              onChange={(e) => setYourName(e.target.value)}
+              required
+              disabled={isLoading}
+              className="mt-1"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="email">Email *</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={isLoading}
+              className="mt-1"
+            />
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+              This will be your owner email
+            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="password">Password *</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={isLoading}
+              className="mt-1"
+            />
+            {password && (
+              <div className="mt-2 space-y-1">
+                <div className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  Password strength:
+                </div>
+                {passwordStrength.checks.map((check, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-xs">
+                    {check.met ? (
+                      <Check className="h-3 w-3 text-green-600" />
+                    ) : (
+                      <X className="h-3 w-3 text-zinc-400" />
+                    )}
+                    <span
+                      className={
+                        check.met
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-zinc-500 dark:text-zinc-400"
+                      }
+                    >
+                      {check.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="confirmPassword">Confirm Password *</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              disabled={isLoading}
+              className="mt-1"
+            />
+            {confirmPassword && password !== confirmPassword && (
+              <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                Passwords do not match
+              </p>
+            )}
+          </div>
+
+          <Button type="submit" className="w-full" disabled={isLoading || passwordStrength.score < 3}>
+            {isLoading ? "Creating account..." : "Create Account"}
+          </Button>
+        </form>
+
+        <div className="text-center text-sm text-zinc-600 dark:text-zinc-400">
+          <p>
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              className="font-medium text-zinc-900 hover:underline dark:text-zinc-100"
+            >
+              Log in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )
