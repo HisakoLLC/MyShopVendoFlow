@@ -22,6 +22,19 @@ export default function SignupPage() {
   const [password, setPassword] = React.useState("")
   const [confirmPassword, setConfirmPassword] = React.useState("")
   const [isLoading, setIsLoading] = React.useState(false)
+  
+  React.useEffect(() => {
+    let cancelled = false;
+    async function checkSession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (cancelled) return;
+      if (session?.user) {
+        router.push("/dashboard");
+      }
+    }
+    checkSession();
+    return () => { cancelled = true; };
+  }, [supabase, router]);
 
   // Password strength checker
   const passwordStrength = React.useMemo(() => {

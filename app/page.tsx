@@ -15,7 +15,7 @@ export default async function HomePage() {
     if (error || !user) {
       redirect("/login")
     } else {
-      redirect("/products")
+      redirect("/dashboard")
     }
   } catch (error) {
     // If Supabase client creation fails (e.g., missing env vars), redirect to login

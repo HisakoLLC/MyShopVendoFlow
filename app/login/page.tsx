@@ -61,41 +61,52 @@ function LoginContent() {
   const [pinLoading, setPinLoading] = React.useState(false)
 
   React.useEffect(() => {
-    let cancelled = false
-    async function validateAndSetSavedStore() {
-      try {
-        const storeId = localStorage.getItem(STORE_ID_KEY)
-        const storeName = localStorage.getItem(STORE_NAME_KEY)
-        const accountId = localStorage.getItem(ACCOUNT_ID_KEY)
-        if (!storeId || !storeName) return
+    let cancelled = false;
 
-        const res = await fetch(`/api/validate-store?store_id=${encodeURIComponent(storeId)}`)
+    async function initialize() {
+      // 1. Check for existing session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (cancelled) return;
+      if (session?.user) {
+        router.push("/dashboard");
+        return;
+      }
+
+      // 2. Validate saved store if no session
+      try {
+        const storeId = localStorage.getItem(STORE_ID_KEY);
+        const storeName = localStorage.getItem(STORE_NAME_KEY);
+        const accountId = localStorage.getItem(ACCOUNT_ID_KEY);
+        if (!storeId || !storeName) return;
+
+        const res = await fetch(`/api/validate-store?store_id=${encodeURIComponent(storeId)}`);
         const data = (await res.json().catch(() => ({}))) as {
-          valid?: boolean
-          store_name?: string
-          account_id?: string
-        }
-        if (cancelled) return
+          valid?: boolean;
+          store_name?: string;
+          account_id?: string;
+        };
+        if (cancelled) return;
 
         if (data.valid === true) {
           setSavedStore({
             store_id: storeId,
             store_name: data.store_name ?? storeName,
             account_id: data.account_id || accountId || undefined,
-          })
+          });
         } else {
-          localStorage.removeItem(STORE_ID_KEY)
-          localStorage.removeItem(STORE_NAME_KEY)
-          localStorage.removeItem(ACCOUNT_ID_KEY)
-          setSavedStore(null)
+          localStorage.removeItem(STORE_ID_KEY);
+          localStorage.removeItem(STORE_NAME_KEY);
+          localStorage.removeItem(ACCOUNT_ID_KEY);
+          setSavedStore(null);
         }
       } catch {
-        if (!cancelled) setSavedStore(null)
+        if (!cancelled) setSavedStore(null);
       }
     }
-    validateAndSetSavedStore()
-    return () => { cancelled = true }
-  }, [])
+
+    initialize();
+    return () => { cancelled = true; };
+  }, [supabase, router]);
 
   const handleInitialEmailCheck = async (e: React.FormEvent) => {
     e.preventDefault()

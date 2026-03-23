@@ -23,67 +23,48 @@ export async function middleware(request: NextRequest) {
 
     const pathname = request.nextUrl.pathname
 
-    // Public routes that don't require authentication (/onboarding is first-time only, not public)
-    const publicRoutes = ["/login", "/signup", "/reset-password", "/auth/pin-login", "/auth/callback"]
-    const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route))
-    const isApiRoute = pathname.startsWith("/api")
-
-    // Allow public routes and API routes
-    if (isPublicRoute || isApiRoute) {
+    // 1. API routes bypass
+    if (pathname.startsWith("/api")) {
       return response
     }
 
-    // Create Supabase client
+    // 2. Initialize Supabase client
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
         get(name: string) {
           return request.cookies.get(name)?.value
         },
         set(name: string, value: string, options: any) {
-          request.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          })
+          request.cookies.set({ name, value, ...options })
+          response = NextResponse.next({ request: { headers: request.headers } })
+          response.cookies.set({ name, value, ...options })
         },
         remove(name: string, options: any) {
-          request.cookies.set({
-            name,
-            value: "",
-            ...options,
-          })
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-          response.cookies.set({
-            name,
-            value: "",
-            ...options,
-          })
+          request.cookies.set({ name, value: "", ...options })
+          response = NextResponse.next({ request: { headers: request.headers } })
+          response.cookies.set({ name, value: "", ...options })
         },
       },
     })
 
-    // Get current user session
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+    // 3. Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-    // If error getting user or no user session: /pos -> pin-login, else -> login
-    if (userError || !user) {
+    // 4. Handle Public Auth Routes (/login, /signup, etc.)
+    const publicAuthRoutes = ["/login", "/signup", "/auth/pin-login"]
+    const isPublicAuthRoute = publicAuthRoutes.some((route) => pathname.startsWith(route))
+
+    if (isPublicAuthRoute) {
+      if (user) {
+        // Already logged in, bounce to dashboard (or where they were going)
+        const redirectTo = request.nextUrl.searchParams.get("redirect") || "/dashboard"
+        return NextResponse.redirect(new URL(redirectTo, request.url))
+      }
+      return response
+    }
+
+    // 5. Handle Protected Routes
+    if (!user && pathname !== "/auth/callback" && pathname !== "/reset-password") {
       const isPos = pathname === "/pos" || pathname.startsWith("/pos/")
       const redirectPath = isPos ? "/auth/pin-login" : "/login"
       const redirectUrl = new URL(redirectPath, request.url)
@@ -91,17 +72,21 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    // SESSION TIMEOUT LOGIC
+    // If user query failed, we probably don't have a valid session
+    if (userError || !user) {
+        // Fallback for unexpected cases
+        return response
+    }
+
+    // 6. SESSION TIMEOUT LOGIC
     const now = Date.now()
     const lastActivityCookie = request.cookies.get("last_activity")?.value
     const sessionStartCookie = request.cookies.get("session_start")?.value
 
-    // Determine if user is staff (has @vendoflow.internal email)
+    // Determine if user is staff
     const isStaff = user.email?.includes("@vendoflow.internal") ?? false
-
-    // Idle timeout: 8 hours for staff, 24 hours for owners
+    // Idle timeout: 8h for staff, 24h for owners
     const maxIdleMs = isStaff ? 8 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
-
     // Absolute timeout: 7 days
     const maxSessionMs = 7 * 24 * 60 * 60 * 1000
 
@@ -110,12 +95,7 @@ export async function middleware(request: NextRequest) {
       const idleMs = now - parseInt(lastActivityCookie)
       if (idleMs > maxIdleMs) {
         await supabase.auth.signOut()
-
-        const redirectUrl = new URL(
-          isStaff ? "/auth/pin-login?timeout=idle" : "/login?timeout=idle",
-          request.url
-        )
-
+        const redirectUrl = new URL(isStaff ? "/auth/pin-login?timeout=idle" : "/login?timeout=idle", request.url)
         const timeoutResponse = NextResponse.redirect(redirectUrl)
         timeoutResponse.cookies.delete("last_activity")
         timeoutResponse.cookies.delete("session_start")
@@ -129,12 +109,7 @@ export async function middleware(request: NextRequest) {
       const sessionAge = now - parseInt(sessionStartCookie)
       if (sessionAge > maxSessionMs) {
         await supabase.auth.signOut()
-
-        const redirectUrl = new URL(
-          isStaff ? "/auth/pin-login?timeout=expired" : "/login?timeout=expired",
-          request.url
-        )
-
+        const redirectUrl = new URL(isStaff ? "/auth/pin-login?timeout=expired" : "/login?timeout=expired", request.url)
         const timeoutResponse = NextResponse.redirect(redirectUrl)
         timeoutResponse.cookies.delete("last_activity")
         timeoutResponse.cookies.delete("session_start")
@@ -142,12 +117,11 @@ export async function middleware(request: NextRequest) {
         return timeoutResponse
       }
     } else {
-      // Set session start if it doesn't exist
       response.cookies.set("session_start", now.toString(), {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: Math.floor(maxSessionMs / 1000), // Convert to seconds
+        maxAge: Math.floor(maxSessionMs / 1000),
       })
     }
 
@@ -156,53 +130,45 @@ export async function middleware(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: Math.floor(maxIdleMs / 1000), // Convert to seconds
+      maxAge: Math.floor(maxIdleMs / 1000),
     })
 
-    // Check if user is staff (has auth_user_id in staff table)
+    // 7. Role & Access Checks
     const { data: staffRecord } = await supabase
       .from("staff")
       .select("role, account_id, active")
       .eq("auth_user_id", user.id)
       .maybeSingle()
 
-    // If staff user, check role-based access
     if (staffRecord) {
       if (!staffRecord.active) {
-        // Staff is deactivated, sign them out
         await supabase.auth.signOut()
         const redirectUrl = new URL("/auth/pin-login", request.url)
         redirectUrl.searchParams.set("error", "account_deactivated")
         return NextResponse.redirect(redirectUrl)
       }
 
-      // Staff cannot access onboarding (first-time is for account owners only)
       if (pathname === "/onboarding" || pathname.startsWith("/onboarding/")) {
         return NextResponse.redirect(new URL("/pos", request.url))
       }
 
-      // Get role from database (not user_metadata - more secure)
-      const role: StaffRole =
-        staffRecord.role === "owner" || staffRecord.role === "manager" || staffRecord.role === "cashier"
-          ? staffRecord.role
-          : "cashier"
+      const role: StaffRole = (staffRecord.role === "owner" || staffRecord.role === "manager" || staffRecord.role === "cashier") 
+        ? staffRecord.role as StaffRole 
+        : "cashier"
 
       if (!canAccessPath(pathname, role)) {
-        const redirectUrl = new URL("/pos", request.url)
-        return NextResponse.redirect(redirectUrl)
+        return NextResponse.redirect(new URL("/pos", request.url))
       }
-
       return response
     }
 
-    // Check if user has completed onboarding (has account_members record)
+    // 8. Onboarding Compliance
     const { data: accountMember, error: memberError } = await supabase
       .from("account_members")
       .select("account_id")
       .eq("user_id", user.id)
       .single()
 
-    // If no account_members record, send to ensure-route (then to /onboarding for first-time only)
     if (memberError || !accountMember) {
       if (pathname !== "/onboarding" && !pathname.startsWith("/api/auth/ensure-route")) {
         return NextResponse.redirect(new URL("/api/auth/ensure-route", request.url))
@@ -210,7 +176,6 @@ export async function middleware(request: NextRequest) {
       return response
     }
 
-    // Onboarding is first-time only: if user has at least one store (completed onboarding), redirect away
     if (pathname === "/onboarding" || pathname.startsWith("/onboarding/")) {
       const { count } = await supabase
         .from("stores")
@@ -221,14 +186,13 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // Check subscription status from accounts table
+    // 9. Subscription Check
     const { data: account, error: accountError } = await supabase
       .from("accounts")
       .select("subscription_status")
       .eq("account_id", accountMember.account_id)
       .single()
 
-    // If subscription is cancelled, redirect to settings (billing tab) with banner
     if (!accountError && account && account.subscription_status === "cancelled") {
       if (pathname !== "/settings") {
         const redirectUrl = new URL("/settings", request.url)
