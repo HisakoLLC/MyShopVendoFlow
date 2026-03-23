@@ -16,9 +16,12 @@ VendoFlow V3 is built on a custom monochromatic design system inspired by high-f
 ## 2. Authentication Experience (Auth UI)
 The Login and Signup pages were rebuilt to mirror the "two-column" layout of industry leaders like **Dodo Payments**.
 
-- **Two-Column Layout**: A modern dual-pane design on desktop.
-- **Dedicated Staff Entry**: A "Login with PIN" link is now visible on the main login screen, leading to a specialized staff portal.
-- **Improved Security**: The system now strictly enforces a **6-digit PIN** for all staff and managers, ensuring higher security than the previous 4-digit standard.
+- **6-Digit PIN Support**: Fixed the placeholder and validation to strictly enforce the 6-digit requirement for staff.
+- **Dedicated Staff Portal**: Added a "Login with PIN" entry point on the main login screen for quick access.
+- **Modern Keypad**: Rebuilt the `/auth/pin-login` page with the V3 two-column layout and animated monochromatic keypad.
+- **Security Hardening**: 
+    - Isolated all `/auth/*` routes from the main `AppShell` to prevent sidebar leaks on public pages.
+    - Implemented proactive session redirects: Authenticated users are automatically steered away from login/signup screens to their respective dashboards.
 - **AuthImageRotation component**:
     - Cycles through 10 fashion images stored in `public/assets/auth/`.
     - **Rotation Interval**: 10 minutes.

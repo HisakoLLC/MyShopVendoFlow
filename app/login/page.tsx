@@ -27,14 +27,6 @@ function LoginContent() {
   const [supabaseError, setSupabaseError] = React.useState<string | null>(null)
   const [timeoutMessage, setTimeoutMessage] = React.useState<string | null>(null)
 
-  React.useEffect(() => {
-    if (timeout === "idle") {
-      setTimeoutMessage("Your session expired due to inactivity. Please log in again.")
-    } else if (timeout === "expired") {
-      setTimeoutMessage("Your session has expired. Please log in again.")
-    }
-  }, [timeout])
-
   const supabase = React.useMemo(() => {
     try {
       return createClient()
@@ -44,6 +36,21 @@ function LoginContent() {
       return null as any
     }
   }, [])
+
+  React.useEffect(() => {
+    if (timeout === "idle") {
+      setTimeoutMessage("Your session expired due to inactivity. Please log in again.")
+    } else if (timeout === "expired") {
+      setTimeoutMessage("Your session has expired. Please log in again.")
+    } else if (!timeout && !deletedParam) {
+      // Proactively redirect if already logged in (no timeout/deleted context)
+      supabase.auth.getSession().then(({ data }: { data: { session: any } }) => {
+        if (data.session) {
+          router.push("/dashboard")
+        }
+      })
+    }
+  }, [timeout, deletedParam, supabase, router])
 
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")

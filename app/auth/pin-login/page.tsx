@@ -19,14 +19,22 @@ function PinLoginContent() {
   const [pin, setPin] = React.useState("")
   const [isLoading, setIsLoading] = React.useState(false)
   const [timeoutMessage, setTimeoutMessage] = React.useState<string | null>(null)
+  const supabase = React.useMemo(() => createClient(), [])
 
   React.useEffect(() => {
     if (timeout === "idle") {
       setTimeoutMessage("Your session expired due to inactivity. Please log in again.")
     } else if (timeout === "expired") {
       setTimeoutMessage("Your session has expired. Please log in again.")
+    } else if (!timeout) {
+      // Proactively redirect if already logged in (no timeout context)
+      supabase.auth.getSession().then(({ data }: { data: { session: any } }) => {
+        if (data.session) {
+          router.push(redirectTo)
+        }
+      })
     }
-  }, [timeout])
+  }, [timeout, supabase, router, redirectTo])
 
   const handleDigit = (d: string) => {
     if (d === "⌫") {
@@ -65,7 +73,6 @@ function PinLoginContent() {
         return
       }
 
-      const supabase = createClient()
       const { error: sessionError } = await supabase.auth.setSession({
         access_token: data.access_token,
         refresh_token: data.refresh_token,
