@@ -32,7 +32,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="VendoFlow" />
         <link rel="manifest" href="/site.webmanifest" />
       </head>
-      <body className={`${playfair.variable} antialiased`}>
+      <body className={`${playfair.variable} antialiased overflow-hidden`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <OfflineBanner />
           <AppShell>{children}</AppShell>

@@ -13,7 +13,10 @@ import {
   Users,
   Settings,
   UserCog,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
@@ -67,10 +70,14 @@ function Sidebar({
   user,
   role,
   storeName,
+  isExpanded,
+  setIsExpanded,
 }: {
   user: User | null
   role: StaffRole
   storeName: string
+  isExpanded: boolean
+  setIsExpanded: (val: boolean) => void
 }) {
   const pathname = usePathname()
   const visibleNavItems = navItems.filter((item) => canShowNavItem(item.href, role))
@@ -87,18 +94,45 @@ function Sidebar({
   }
 
   return (
-    <aside
+    <motion.aside
+      initial={false}
+      animate={{ width: isExpanded ? 240 : 60 }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
       className={cn(
-        "w-60 bg-zinc-950 border-r border-zinc-800 h-screen flex flex-col fixed left-0 top-0 z-40"
+        "bg-zinc-950 border-r border-zinc-800 h-full flex flex-col relative z-40 transition-shadow duration-300 shrink-0",
+        !isExpanded && "shadow-[4px_0_24px_rgba(0,0,0,0.5)]"
       )}
     >
       {/* Logo area */}
-      <div className="px-5 py-5 border-b border-zinc-800">
-        <div className="flex items-center gap-2.5">
-          <img src="/favicon.svg" alt="VendoFlow Logo" className="w-7 h-7" />
-          <span className="font-editorial text-lg font-bold text-zinc-50">VendoFlow</span>
+      <div className="px-5 py-5 border-b border-zinc-800 flex items-center justify-between min-h-[73px]">
+        <div className="flex items-center gap-2.5 overflow-hidden">
+          <img src="/favicon.svg" alt="VendoFlow Logo" className="w-7 h-7 shrink-0" />
+          <AnimatePresence mode="wait">
+            {isExpanded && (
+              <motion.span
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                className="font-editorial text-lg font-bold text-zinc-50 whitespace-nowrap"
+              >
+                VendoFlow
+              </motion.span>
+            )}
+          </AnimatePresence>
         </div>
       </div>
+
+      {/* Toggle Button */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-10 bg-zinc-950 border-y border-r border-zinc-800 rounded-r-md flex items-center justify-center text-zinc-500 hover:text-zinc-100 transition-colors z-50 group/toggle"
+      >
+        {isExpanded ? (
+          <ChevronsLeft className="w-4 h-4 group-hover/toggle:-translate-x-0.5 transition-transform" />
+        ) : (
+          <ChevronsRight className="w-4 h-4 group-hover/toggle:translate-x-0.5 transition-transform" />
+        )}
+      </button>
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
@@ -107,35 +141,62 @@ function Sidebar({
             key={href}
             href={href}
             className={cn(
-              "flex items-center gap-3 px-4 py-2.5 text-xs font-semibold tracking-[0.1em] uppercase transition-colors duration-150",
+              "group relative flex items-center gap-3 py-2.5 text-xs font-semibold tracking-[0.1em] uppercase transition-all duration-150 rounded-md mx-2",
+              isExpanded ? "px-4" : "px-0 justify-center",
               isActive(href)
                 ? "bg-zinc-800 border-l-2 border-l-white text-zinc-100"
                 : "text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50"
             )}
           >
-            <Icon className="w-4 h-4 shrink-0" />
-            <span>{label}</span>
+            <Icon className={cn("w-4 h-4 shrink-0 transition-transform duration-200", !isExpanded && "group-hover:scale-110")} />
+            
+            <AnimatePresence mode="wait">
+              {isExpanded ? (
+                <motion.span
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  className="whitespace-nowrap"
+                >
+                  {label}
+                </motion.span>
+              ) : (
+                /* Tooltip for collapsed state */
+                <span className="absolute left-10 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 bg-zinc-800 text-zinc-100 text-[0.65rem] py-1 px-3 rounded shadow-xl border border-zinc-700 whitespace-nowrap z-[100] translate-x-1 group-hover:translate-x-0">
+                  {label}
+                </span>
+              )}
+            </AnimatePresence>
           </Link>
         ))}
       </nav>
 
       {/* Bottom user area */}
-      <div className="mt-auto px-5 py-4 border-t border-zinc-800">
+      <div className="mt-auto px-5 py-4 border-t border-zinc-800 min-h-[69px] overflow-hidden">
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-sm bg-zinc-800 border border-zinc-700 flex items-center justify-center">
+          <div className="w-7 h-7 shrink-0 rounded-sm bg-zinc-800 border border-zinc-700 flex items-center justify-center">
             <span className="text-xs font-medium text-zinc-400">
               {initials}
             </span>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-zinc-300 truncate">
-              {displayName}
-            </p>
-            <p className="text-[0.65rem] tracking-[0.1em] uppercase text-zinc-600 truncate">{userRoleLabel}</p>
-          </div>
+          <AnimatePresence mode="wait">
+            {isExpanded && (
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                className="flex-1 min-w-0"
+              >
+                <p className="text-xs font-semibold text-zinc-300 truncate">
+                  {displayName}
+                </p>
+                <p className="text-[0.65rem] tracking-[0.1em] uppercase text-zinc-600 truncate">{userRoleLabel}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
-    </aside>
+    </motion.aside>
   )
 }
 
@@ -147,6 +208,7 @@ const ACCOUNT_ID_KEY = "vendoflow_last_account_id"
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const [isExpanded, setIsExpanded] = React.useState(true)
   const [user, setUser] = React.useState<User | null>(null)
   const supabase = React.useMemo(() => createClient(), [])
 
@@ -219,13 +281,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const effectiveRole: StaffRole = role ?? getRoleFromUser(user)
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-50">
+    <div className="flex h-screen bg-zinc-950 text-zinc-50 overflow-hidden">
       <Sidebar
         user={user}
         role={effectiveRole}
         storeName={storeName}
+        isExpanded={isExpanded}
+        setIsExpanded={setIsExpanded}
       />
-      <main className="min-h-screen ml-60">
+      <main className="flex-1 h-full overflow-y-auto overflow-x-hidden min-w-0">
         {children}
       </main>
     </div>
