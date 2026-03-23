@@ -205,7 +205,7 @@ export function ProductCreatedInventoryModal({
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
-              className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-7 px-3 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors"
+              className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-7 px-3 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent"
               onClick={setAllToZero}
             >
               Set All to 0

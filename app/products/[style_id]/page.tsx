@@ -192,7 +192,7 @@ async function StyleInventoryPageContent({ styleId }: { styleId: string }) {
         <div className="flex items-start gap-4">
           {/* Product image */}
           <div className="relative h-16 w-16 overflow-hidden rounded-md bg-zinc-800 flex-shrink-0 flex items-center justify-center">
-            {data.style.image_url ? (
+            {data.style.image_url && data.style.image_url !== "/placeholder-product.png" ? (
               <Image
                 src={data.style.image_url}
                 alt={data.style.name}

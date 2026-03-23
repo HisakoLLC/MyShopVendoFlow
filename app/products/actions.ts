@@ -119,7 +119,7 @@ export async function createProductStyle(formData: z.infer<typeof createStyleSer
     description: validated.description ?? null,
     base_price: validated.base_price,
     cost: validated.cost,
-    image_url: validated.image_url ?? "/placeholder-product.png",
+    image_url: validated.image_url ?? null,
     archived: false,
   }
 

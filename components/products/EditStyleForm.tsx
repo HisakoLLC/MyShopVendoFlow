@@ -123,7 +123,9 @@ export function EditStyleForm(props: {
 
   type FormValues = z.infer<typeof schema>
 
-  const [previewUrl, setPreviewUrl] = React.useState<string | null>(style.image_url ?? null)
+  const [previewUrl, setPreviewUrl] = React.useState<string | null>(
+    style.image_url && style.image_url !== "/placeholder-product.png" ? style.image_url : null
+  )
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [removeImage, setRemoveImage] = React.useState(false)
 
@@ -149,7 +151,11 @@ export function EditStyleForm(props: {
       setRemoveImage(false)
       return () => URL.revokeObjectURL(url)
     }
-    if (!removeImage) setPreviewUrl(style.image_url ?? null)
+    if (!removeImage) {
+      setPreviewUrl(
+        style.image_url && style.image_url !== "/placeholder-product.png" ? style.image_url : null
+      )
+    }
   }, [selectedImage, style.image_url, removeImage])
 
   async function onSubmit(values: FormValues) {

@@ -478,7 +478,7 @@ export function ProductsTableClient(props: {
                           )}
                           <td className="px-4 py-3.5">
                             <div className="h-10 w-10 overflow-hidden rounded-md bg-zinc-800 flex items-center justify-center">
-                              {s.image_url ? (
+                              {s.image_url && s.image_url !== "/placeholder-product.png" ? (
                                 <Image
                                   src={s.image_url}
                                   alt={s.name}
@@ -730,7 +730,7 @@ export function ProductsTableClient(props: {
                     >
                       <div className="flex gap-4">
                         <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-zinc-800 flex items-center justify-center">
-                          {s.image_url ? (
+                          {s.image_url && s.image_url !== "/placeholder-product.png" ? (
                             <Image
                               src={s.image_url}
                               alt={s.name}
@@ -779,7 +779,7 @@ export function ProductsTableClient(props: {
                     <div key={s.style_id} className="block rounded-sm border border-zinc-800 bg-zinc-900 p-4">
                       <div className="flex gap-4">
                         <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-zinc-800 flex items-center justify-center">
-                          {s.image_url ? (
+                          {s.image_url && s.image_url !== "/placeholder-product.png" ? (
                             <Image
                               src={s.image_url}
                               alt={s.name}

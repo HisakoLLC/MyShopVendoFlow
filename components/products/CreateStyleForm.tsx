@@ -153,7 +153,7 @@ export function CreateStyleForm(props: {
         throw new Error(accountIdError?.message ?? "Unable to resolve account.")
       }
 
-      let imageUrl = "/placeholder-product.png"
+      let imageUrl = null
 
       // Upload image to Supabase Storage if provided
       if (values.image) {
