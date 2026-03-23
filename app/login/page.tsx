@@ -232,7 +232,7 @@ function LoginContent() {
                     id="pin"
                     type="password"
                     inputMode="numeric"
-                    placeholder="••••"
+                    placeholder="••••••"
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
                     required
@@ -309,7 +309,7 @@ function LoginContent() {
             </form>
           )}
 
-          <div className="mt-8 pt-6 border-t border-zinc-800 text-center lg:text-left">
+          <div className="mt-8 pt-6 border-t border-zinc-800 text-center lg:text-left space-y-4">
             <p className="text-sm text-zinc-500">
               New to the platform?{" "}
               <Link
@@ -317,6 +317,15 @@ function LoginContent() {
                 className="font-bold text-white hover:underline underline-offset-4"
               >
                 Create an account
+              </Link>
+            </p>
+            <p className="text-sm text-zinc-500">
+              Are you staff?{" "}
+              <Link
+                href="/auth/pin-login"
+                className="font-bold text-white hover:underline underline-offset-4"
+              >
+                Login with PIN
               </Link>
             </p>
           </div>

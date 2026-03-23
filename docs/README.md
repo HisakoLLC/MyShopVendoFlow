@@ -4,7 +4,11 @@ All documentation for setting up, deploying, and troubleshooting VendoFlow.
 
 ## 📚 Quick Navigation
 
-### 🚀 Getting Started
+### 🎨 VendoFlow V3 Design
+- **[V3 Complete Redesign](./V3_COMPLETE_REDESIGN.md)** - Final V3 transformation overview
+- **[Authentication UI Spec](./AUTH_UI_SPEC.md)** - Login/Signup & Image Rotation spec
+- **[Sidebar & Layout Guide](./SIDEBAR_LAYOUT_GUIDE.md)** - Navigation & Padding standards
+- **[Marketing Handover](./MARKETING_HANDOVER.md)** - Summary for the marketing team
 - **[Environment Variables](../ENV_TEMPLATE.md)** (in root) - Copy to create `.env.local`
 - **[Database Setup](./DATABASE_SETUP.md)** - Complete database setup
 - **[Supabase Setup](./SUPABASE_SETUP.md)** - Supabase configuration
