@@ -302,13 +302,11 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
                     </div>
                   </TableCell>
                   <TableCell className="px-4 py-3">
-                    <span className={cn(
-                      "inline-flex items-center text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5 rounded-sm border",
-                      member.active !== false 
-                        ? "bg-emerald-400/10 text-emerald-400 border-emerald-400/20" 
-                        : "bg-zinc-800 text-zinc-500 border-zinc-700"
-                    )}>
-                      {member.active !== false ? "Active" : "Inactive"}
+                    <span className={member.active !== false 
+                      ? 'bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] px-2 py-0.5'
+                      : 'bg-zinc-800 text-zinc-500 border border-zinc-700 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] px-2 py-0.5'
+                    }>
+                      {member.active !== false ? "ACTIVE" : "INACTIVE"}
                     </span>
                   </TableCell>
                   <TableCell className="px-4 py-3 text-xs text-zinc-500 tabular-nums">

@@ -282,9 +282,9 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                   type="button"
                   onClick={onClose}
                   disabled={isSubmitting}
-                  className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent"
+                  className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] bg-transparent !bg-transparent"
                 >
-                  Cancel
+                  CANCEL
                 </button>
                 <button
                   type="submit"
