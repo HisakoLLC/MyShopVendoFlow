@@ -64,7 +64,7 @@ async function VariantsPageContent({ styleId }: { styleId: string }) {
         className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6"
       >
         <ArrowLeft className="w-4 h-4" />
-        Products
+        Back to products
       </Link>
 
       {/* Page header */}

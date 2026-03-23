@@ -190,7 +190,7 @@ export function ProductCreatedInventoryModal({
       <DialogContent className="max-h-[90vh] w-full max-w-3xl p-0 bg-zinc-900 border-zinc-800 text-zinc-100 rounded-sm gap-0">
         {/* Header */}
         <DialogHeader className="px-6 pt-6 pb-5 border-b border-zinc-800 shrink-0">
-          <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">
+          <DialogTitle className="font-editorial text-xl font-bold text-zinc-50 mb-2">
             Product Created Successfully!
           </DialogTitle>
           <DialogDescription className="text-sm text-zinc-400 mt-1">
@@ -205,7 +205,7 @@ export function ProductCreatedInventoryModal({
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
-              className="inline-flex h-7 items-center justify-center rounded-sm border border-zinc-700 bg-transparent px-3 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 transition-colors"
+              className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-7 px-3 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors"
               onClick={setAllToZero}
             >
               Set All to 0

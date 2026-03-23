@@ -263,7 +263,12 @@ export function VariantMatrixBuilder({
 
   // DS v3.0 chip classes
   const selectedChip = "bg-white text-zinc-950 rounded-sm px-3 py-1.5 text-xs font-semibold tracking-[0.05em] uppercase cursor-pointer transition-colors"
-  const unselectedChip = "border border-zinc-700 text-zinc-400 rounded-sm px-3 py-1.5 text-xs font-semibold tracking-[0.05em] uppercase hover:border-zinc-500 hover:text-zinc-200 transition-colors cursor-pointer"
+  const unselectedChip = "border border-zinc-700 text-zinc-400 rounded-sm px-3 py-1.5 text-xs font-semibold tracking-[0.05em] uppercase hover:border-zinc-500 hover:text-zinc-200 transition-colors cursor-pointer bg-transparent"
+
+  const selectedToggle = "bg-white text-zinc-950 rounded-sm h-8 px-4 text-xs font-semibold tracking-[0.12em] uppercase cursor-pointer transition-colors"
+  const unselectedToggle = "border border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 rounded-sm h-8 px-4 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors cursor-pointer"
+
+  const sublabelClass = "text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-3 block"
 
   // DS v3.0 input class
   const inputClass = "bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 placeholder:text-zinc-600 w-full max-w-xs"
@@ -279,19 +284,19 @@ export function VariantMatrixBuilder({
 
           <div className="space-y-4">
             <div>
-              <p className="text-sm font-semibold text-zinc-300 mb-3">Use Preset</p>
+              <p className={sublabelClass}>Choose Preset</p>
               <div className="flex items-center gap-3 flex-wrap">
                 <button
                   type="button"
                   onClick={() => setSizeMode("preset")}
-                  className={sizeMode === "preset" ? selectedChip : unselectedChip}
+                  className={sizeMode === "preset" ? selectedToggle : unselectedToggle}
                 >
                   Preset
                 </button>
                 <button
                   type="button"
                   onClick={() => setSizeMode("custom")}
-                  className={sizeMode === "custom" ? selectedChip : unselectedChip}
+                  className={sizeMode === "custom" ? selectedToggle : unselectedToggle}
                 >
                   Custom
                 </button>
@@ -300,7 +305,7 @@ export function VariantMatrixBuilder({
 
             {sizeMode === "preset" ? (
               <div>
-                <p className="text-sm font-semibold text-zinc-300 mb-3">Choose Preset</p>
+                <p className={sublabelClass}>Select Preset Group</p>
                 <select
                   value={selectedPreset}
                   onChange={(e) => setSelectedPreset(e.target.value)}
@@ -313,7 +318,7 @@ export function VariantMatrixBuilder({
               </div>
             ) : (
               <div>
-                <p className="text-sm font-semibold text-zinc-300 mb-3">Custom Sizes</p>
+                <p className={sublabelClass}>Custom Sizes (Comma-separated)</p>
                 <input
                   placeholder="e.g., XS, S, M, L"
                   value={customSizes}
@@ -326,7 +331,7 @@ export function VariantMatrixBuilder({
 
             {sizeArray.length > 0 && (
               <div>
-                <p className="text-sm font-semibold text-zinc-300 mb-3">Selected Sizes</p>
+                <p className={sublabelClass}>Selected Sizes</p>
                 <div className="flex flex-wrap gap-2">
                   {sizeArray.map((size) => (
                     <button
@@ -350,7 +355,7 @@ export function VariantMatrixBuilder({
 
           <div className="space-y-4">
             <div>
-              <p className="text-sm font-semibold text-zinc-300 mb-3">Standard Colors</p>
+              <p className={sublabelClass}>Standard Colors</p>
               <div className="flex flex-wrap gap-2">
                 {PREDEFINED_COLORS.map((color) => (
                   <button
@@ -359,7 +364,6 @@ export function VariantMatrixBuilder({
                     onClick={() => handleColorToggle(color.name)}
                     className={selectedColors.has(color.name) ? selectedChip : unselectedChip}
                   >
-                    {selectedColors.has(color.name) && <Check className="h-3 w-3 inline mr-1" />}
                     {color.name}
                   </button>
                 ))}
@@ -412,7 +416,7 @@ export function VariantMatrixBuilder({
 
             {colorArray.length > 0 && (
               <div>
-                <p className="text-sm font-semibold text-zinc-300 mb-3">Selected Colors</p>
+                <p className={sublabelClass}>Selected Colors</p>
                 <div className="flex flex-wrap gap-2">
                   {colorArray.map((color) => (
                     <button

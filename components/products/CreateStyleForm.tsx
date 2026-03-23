@@ -211,7 +211,7 @@ export function CreateStyleForm(props: {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Style Name</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Style Name</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g. Linen Midi Dress" maxLength={100} {...field} />
                   </FormControl>
@@ -226,14 +226,14 @@ export function CreateStyleForm(props: {
                 name="category_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Category</FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="h-11 w-full">
+                      <SelectTrigger className="h-11 w-full bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-white/20">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-zinc-900 border border-zinc-800 text-zinc-100">
                         {props.categories.map((c) => (
-                          <SelectItem key={c.category_id} value={c.category_id}>
+                          <SelectItem key={c.category_id} value={c.category_id} className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-50">
                             {c.name}
                           </SelectItem>
                         ))}
@@ -249,7 +249,7 @@ export function CreateStyleForm(props: {
                 name="season_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Season (optional)</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Season (optional)</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="e.g. Fall 2025, Summer, SS24"
@@ -270,7 +270,7 @@ export function CreateStyleForm(props: {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description (optional)</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Description (optional)</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Notes, fabric, fit, etc."
@@ -290,7 +290,7 @@ export function CreateStyleForm(props: {
                 name="base_price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Base Price (KES)</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Base Price (KES)</FormLabel>
                     <FormControl>
                       <Input
                         inputMode="numeric"
@@ -314,7 +314,7 @@ export function CreateStyleForm(props: {
                 name="cost"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cost (KES)</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Cost (KES)</FormLabel>
                     <FormControl>
                       <Input
                         inputMode="numeric"
@@ -335,26 +335,30 @@ export function CreateStyleForm(props: {
             </div>
 
             <div className="flex items-center gap-3 pt-2">
-              <Button type="submit" disabled={isSubmitting}>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="inline-flex h-9 items-center justify-center rounded-sm bg-white px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-950 hover:bg-zinc-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 {isSubmitting ? "Creating..." : "Create Style"}
-              </Button>
-              <Button
+              </button>
+              <button
                 type="button"
-                variant="outline"
                 disabled={isSubmitting}
                 onClick={() => router.push("/products")}
+                className="inline-flex h-9 items-center justify-center rounded-sm border border-zinc-700 bg-transparent px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 transition-colors disabled:opacity-50"
               >
                 Cancel
-              </Button>
+              </button>
             </div>
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-xl border border-zinc-200 bg-background p-4 dark:border-zinc-800 dark:bg-background">
-              <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            <div className="rounded-sm border border-zinc-800 bg-zinc-900 p-4">
+              <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-3">
                 Image
               </div>
-              <div className="mt-3 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/40">
+              <div className="mt-2 overflow-hidden rounded-md bg-zinc-800">
                 <div className="relative aspect-square w-full">
                   <Image
                     src={previewUrl ?? "/placeholder-product.png"}
@@ -376,6 +380,7 @@ export function CreateStyleForm(props: {
                         <Input
                           type="file"
                           accept="image/png,image/jpeg,image/jpg"
+                          className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-500 h-9 px-3 w-full file:hidden cursor-pointer"
                           onChange={(e) => {
                             const file = e.target.files?.[0] ?? null
                             if (file) {
@@ -401,7 +406,7 @@ export function CreateStyleForm(props: {
                         />
                       </FormControl>
                       <FormMessage />
-                      <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                      <p className="mt-1 text-xs text-zinc-600">
                         PNG/JPG only. Max 2MB.
                       </p>
                     </FormItem>

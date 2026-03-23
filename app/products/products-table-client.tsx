@@ -477,7 +477,7 @@ export function ProductsTableClient(props: {
                             </td>
                           )}
                           <td className="px-4 py-3.5">
-                            <div className={s.image_url ? "h-10 w-10 overflow-hidden rounded-md" : "flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
+                            <div className={s.image_url ? "h-10 w-10 overflow-hidden rounded-md" : "flex h-10 w-10 items-center justify-center rounded-md bg-zinc-800"}>
                               {s.image_url ? (
                                 <Image
                                   src={s.image_url}
