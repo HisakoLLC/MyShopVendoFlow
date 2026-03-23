@@ -225,236 +225,237 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
       <Toaster richColors position="top-right" />
       <div className="space-y-6">
         {/* Info: account deletion is available */}
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/40 dark:bg-blue-950/30">
-          <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+        <div className="rounded-lg border border-blue-400/20 bg-blue-400/10 px-4 py-3 flex items-start gap-3">
+          <p className="text-sm text-blue-400">
             Account deletion is available in the Danger Zone below. Your data is retained for 90 days; you can request a copy before then.
           </p>
         </div>
 
         {/* Account Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Account Information</CardTitle>
-            <CardDescription>Your account details and subscription plan</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <div className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                  Account ID
-                </div>
-                <div className="mt-1 font-mono text-sm text-zinc-900 dark:text-zinc-100">
-                  {account.account_id}
-                </div>
-              </div>
-              <div>
-                <div className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                  Owner Email
-                </div>
-                <div className="mt-1 text-sm text-zinc-900 dark:text-zinc-100">
-                  {account.owner_email}
-                </div>
-              </div>
-              <div>
-                <div className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Plan</div>
-                <div className="mt-1">
-                  <Badge variant="default">{planName}</Badge>
-                </div>
-              </div>
-              <div>
-                <div className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                  Stores Included
-                </div>
-                <div className="mt-1 flex items-center gap-2 text-sm text-zinc-900 dark:text-zinc-100">
-                  <Store className="h-3.5 w-3.5" />
-                  <span>{planStoreCopy[account.plan_tier || "starter"]}</span>
-                </div>
-              </div>
-              <div>
-                <div className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                  Subscription Status
-                </div>
-                <div className="mt-1">
-                  <Badge
-                    variant={
-                      account.subscription_status === "active"
-                        ? "default"
-                        : account.subscription_status === "cancelled"
-                          ? "destructive"
-                          : "secondary"
-                    }
-                  >
-                    {account.subscription_status === "trial" ? "Active" : (account.subscription_status || "Unknown")}
-                  </Badge>
-                </div>
+        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
+          <h3 className="font-editorial text-xl font-bold text-zinc-50 mb-1">
+            Account Information
+          </h3>
+          <p className="text-sm text-zinc-500 mb-6">
+            Your account details and current subscription plan.
+          </p>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <div>
+              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+                Account ID
+              </p>
+              <p className="font-mono text-sm text-zinc-100">{account.account_id}</p>
+            </div>
+            <div>
+              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+                Owner Email
+              </p>
+              <p className="text-sm font-semibold text-zinc-100">{account.owner_email}</p>
+            </div>
+            <div>
+              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+                Active Plan
+              </p>
+              <p className="text-sm font-semibold text-zinc-100">{planName.toUpperCase()}</p>
+            </div>
+            <div>
+              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+                Store Limit
+              </p>
+              <p className="text-sm font-semibold text-zinc-100">{planStoreCopy[account.plan_tier || "starter"]}</p>
+            </div>
+            <div>
+              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+                Status
+              </p>
+              <div className="mt-1">
+                <span className={`rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5 border ${
+                  account.subscription_status === 'active' || account.subscription_status === 'trial'
+                    ? 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20'
+                    : 'bg-zinc-800 text-zinc-500 border-zinc-700'
+                }`}>
+                  {account.subscription_status === 'trial' ? 'ACTIVE' : (account.subscription_status?.toUpperCase() || 'UNKNOWN')}
+                </span>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Billing Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Billing & Payment</CardTitle>
-            <CardDescription>Manage your subscription and payment method</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-                <div>
-                  <div className="font-medium text-zinc-900 dark:text-zinc-100">
-                    Payment Method
-                  </div>
-                  <div className="mt-1 flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                    <CreditCard className="h-4 w-4" />
-                    <span>
-                      Managed by Dodo Payments. Card details are stored securely with our
-                      payments provider.
-                    </span>
-                  </div>
-                </div>
+        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
+          <h3 className="font-editorial text-xl font-bold text-zinc-50 mb-1">
+            Billing & Payment
+          </h3>
+          <p className="text-sm text-zinc-500 mb-6">
+            Manage your subscription cycle and payment methods.
+          </p>
+
+          <div className="space-y-0 divide-y divide-zinc-700/40 border-t border-zinc-700/40 mb-6">
+            <div className="py-4">
+              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+                Payment Method
+              </p>
+              <div className="flex items-center gap-2 text-sm font-semibold text-zinc-100">
+                <CreditCard className="h-4 w-4 text-zinc-400" />
+                <span>Managed by Dodo Payments securely.</span>
               </div>
-              <div className="flex items-center justify-between rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-                <div>
-                  <div className="font-medium text-zinc-900 dark:text-zinc-100">
-                    Next Billing Date
-                  </div>
-                  <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                    {account.next_payment_date
-                      ? new Date(account.next_payment_date).toLocaleDateString("en-KE", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })
-                      : "Will be set after your first successful payment."}
-                  </div>
-                </div>
-              </div>
-              <Button onClick={handleManageSubscription} variant="outline" disabled={isProcessing}>
-                Manage Payment Method in Dodo
-              </Button>
             </div>
-          </CardContent>
-        </Card>
+            <div className="py-4">
+              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+                Next Billing Date
+              </p>
+              <p className="text-sm font-semibold text-zinc-100">
+                {account.next_payment_date
+                  ? new Date(account.next_payment_date).toLocaleDateString("en-KE", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })
+                  : "Automatic renewal not yet active."}
+              </p>
+            </div>
+          </div>
+
+          <Button 
+            onClick={handleManageSubscription} 
+            disabled={isProcessing}
+            className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent w-full md:w-auto"
+          >
+            Manage Billing in Dodo Portal
+          </Button>
+        </div>
 
         {/* Plans Section */}
-        <div id="plans-section" className="space-y-3">
-          <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-            {account.plan_tier ? "Change Plan" : "Choose Your Plan"}
-          </h3>
-          <div className="grid gap-4 md:grid-cols-3">
+        <div id="plans-section" className="space-y-6 pt-8 border-t border-zinc-700/40">
+          <div>
+            <h3 className="font-editorial text-xl font-bold text-zinc-50 mb-1">
+              {account.plan_tier ? "Change Subscription Plan" : "Choose Your Plan"}
+            </h3>
+            <p className="text-sm text-zinc-500">
+              Select the tier that best fits your business needs.
+            </p>
+          </div>
+          
+          <div className="grid gap-6 md:grid-cols-3">
             {Object.entries(plans).map(([key, plan]) => {
               const isCurrent = key === account.plan_tier
               const isUpgrade =
                 account.plan_tier &&
                 planPriority[key] > planPriority[account.plan_tier || "starter"]
               return (
-                <Card
+                <div
                   key={key}
-                  className={isCurrent ? "border-zinc-900 dark:border-zinc-100 border-2" : ""}
+                  className={`relative flex flex-col justify-between rounded-lg border p-6 transition-all ${
+                    isCurrent 
+                      ? "border-zinc-100 bg-zinc-900 shadow-[0_0_20px_rgba(255,255,255,0.05)]" 
+                      : "border-zinc-700/50 bg-zinc-900/50 opacity-80 hover:opacity-100 hover:border-zinc-600"
+                  }`}
                 >
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>{plan.name}</CardTitle>
-                      {isCurrent && <Badge>Current</Badge>}
+                  {isCurrent && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-zinc-100 text-zinc-950 text-[0.6rem] font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full">
+                      Current
                     </div>
-                    <CardDescription>
-                      KES {plan.price.toLocaleString()}/month
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="mb-4 space-y-2">
+                  )}
+                  <div>
+                    <h4 className="font-editorial text-xl font-bold text-zinc-50">{plan.name}</h4>
+                    <div className="mt-4 flex items-baseline gap-1">
+                      <span className="text-2xl font-bold text-zinc-50">KES {plan.price.toLocaleString()}</span>
+                      <span className="text-xs text-zinc-500 uppercase tracking-widest">/mo</span>
+                    </div>
+                    <ul className="mt-8 space-y-3">
                       {plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-center gap-2 text-sm">
-                          <span className="text-emerald-600">✓</span>
-                          <span>{feature}</span>
+                        <li key={i} className="flex items-start gap-3 text-xs text-zinc-400">
+                          <span className="text-zinc-100">/</span>
+                          {feature}
                         </li>
                       ))}
                     </ul>
-                    <Button
-                      onClick={() => handleChangePlan(key)}
-                      disabled={isProcessing || isCurrent}
-                      variant={isUpgrade ? "default" : "outline"}
-                      className="w-full"
-                    >
-                      {isCurrent
-                        ? "Current Plan"
+                  </div>
+                  <Button
+                    onClick={() => handleChangePlan(key)}
+                    disabled={isProcessing || isCurrent}
+                    className={`mt-10 w-full rounded-sm h-9 text-[0.65rem] font-semibold tracking-[0.12em] uppercase transition-all ${
+                      isCurrent
+                        ? "bg-zinc-800 text-zinc-500 cursor-default"
                         : isUpgrade
-                          ? "Upgrade"
-                          : "Switch to This Plan"}
-                    </Button>
-                  </CardContent>
-                </Card>
+                          ? "bg-white text-zinc-950 hover:bg-zinc-100"
+                          : "border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 bg-transparent"
+                    }`}
+                  >
+                    {isCurrent
+                      ? "CURRENT PLAN"
+                      : isUpgrade
+                        ? "UPGRADE NOW"
+                        : "SWITCH PLAN"}
+                  </Button>
+                </div>
               )
             })}
           </div>
         </div>
 
         {/* Danger Zone */}
-        <Card className="border-red-200 dark:border-red-900/40">
-          <CardHeader>
-            <CardTitle className="font-editorial text-xl font-bold text-red-500">Danger Zone</CardTitle>
-            <CardDescription>Irreversible and destructive actions</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg border border-red-200 p-4 dark:border-red-900/40">
+        {/* Danger Zone */}
+        <div className="rounded-lg border border-red-900/50 bg-red-950/10 p-6">
+          <h3 className="text-lg font-bold text-red-400 mb-1">Danger Zone</h3>
+          <p className="text-sm text-red-400/80 mb-6">
+            Actions that cannot be undone. Please proceed with extreme caution.
+          </p>
+
+          <div className="space-y-0 divide-y divide-red-900/30 border-t border-red-900/30">
+            <div className="flex items-center justify-between py-5">
               <div>
-                <div className="font-medium text-zinc-900 dark:text-zinc-100">
-                  Cancel Subscription
-                </div>
-                <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                  Cancel your subscription. You'll lose access at the end of the billing period.
-                </div>
+                <p className="text-sm font-semibold text-zinc-100">Cancel Subscription</p>
+                <p className="text-xs text-zinc-500 mt-1">Immediately stop your active billing cycle.</p>
               </div>
               <Button
-                variant="destructive"
                 onClick={() => setShowCancelDialog(true)}
-                disabled={!isPaid}
+                disabled={!isPaid || isProcessing}
+                className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase"
               >
-                Cancel Subscription
+                Cancel Plan
               </Button>
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border border-red-200 p-4 dark:border-red-900/40">
+            <div className="flex items-center justify-between py-5">
               <div>
-                <div className="font-medium text-zinc-900 dark:text-zinc-100">Delete Account</div>
-                <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                  Schedule account deletion. Your data is retained for 90 days, then permanently
-                  removed. You can request a copy of your data before the 90-day period.
-                </div>
+                <p className="text-sm font-semibold text-zinc-100">Delete Account</p>
+                <p className="text-xs text-zinc-500 mt-1">Permanently remove all your store data and files.</p>
               </div>
               <Button
-                variant="destructive"
                 onClick={() => setShowDeleteDialog(true)}
-                className="gap-2"
+                disabled={isProcessing}
+                className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase"
               >
-                <Trash2 className="h-4 w-4" />
                 Delete Account
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* Cancel Subscription Dialog */}
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-zinc-900 border border-zinc-700/50 max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Cancel Subscription?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="font-editorial text-xl font-bold text-zinc-50">Cancel Subscription?</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-zinc-500 mt-4">
               Are you sure you want to cancel your subscription? You'll continue to have access
               until the end of your current billing period, after which you'll lose access to all
-              features.
+              premium features.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Keep Subscription</AlertDialogCancel>
+          <AlertDialogFooter className="mt-8 gap-3">
+            <AlertDialogCancel className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent">
+              KEEP MY PLAN
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleCancelSubscription}
-              className="bg-red-600 hover:bg-red-500"
               disabled={isProcessing}
+              className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase"
             >
-              {isProcessing ? "Processing..." : "Cancel Subscription"}
+              {isProcessing ? "PROCESSING..." : "CONFIRM CANCELLATION"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -462,46 +463,46 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
 
       {/* Delete Account Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-zinc-900 border border-zinc-700/50 max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
-              <AlertTriangle className="h-5 w-5" />
-              Delete Account?
+            <AlertDialogTitle className="font-editorial text-xl font-bold text-red-500">
+              Permanent Deletion
             </AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div className="space-y-2">
+            <AlertDialogDescription className="text-sm text-zinc-500 mt-4">
+              <div className="space-y-4">
                 <p>
                   Your account will be marked for deletion and you will be signed out immediately.
                   All account data (stores, products, sales, etc.) is retained for 90 days, then
                   permanently removed.
                 </p>
-                <p>
-                  You can request a copy of your data within 90 days by contacting support (e.g.
-                  email or in-app support).
-                </p>
-                <p className="font-medium">This action cannot be undone.</p>
+                <p className="font-semibold text-zinc-300 uppercase tracking-tighter">This action is irreversible.</p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="my-4 space-y-2">
-            <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-              To confirm, type <span className="font-mono">DELETE</span> below:
-            </div>
+          <div className="my-6 space-y-2">
+            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+              Type DELETE to confirm
+            </p>
             <Input
               value={deleteConfirmText}
               onChange={(e) => setDeleteConfirmText(e.target.value)}
               placeholder="DELETE"
-              className="font-mono"
+              className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full focus:ring-1 focus:ring-white/20 font-mono"
             />
           </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteConfirmText("")}>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="gap-3">
+            <AlertDialogCancel 
+              onClick={() => setDeleteConfirmText("")}
+              className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent"
+            >
+              CANCEL
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteAccount}
-              className="bg-red-600 hover:bg-red-500"
               disabled={isProcessing || deleteConfirmText !== "DELETE"}
+              className="bg-red-600 text-white hover:bg-red-700 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase"
             >
-              {isProcessing ? "Deleting..." : "Delete Account"}
+              {isProcessing ? "DELETING..." : "DELETE EVERYTHING"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

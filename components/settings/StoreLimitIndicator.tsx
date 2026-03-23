@@ -123,18 +123,24 @@ export function StoreLimitIndicator({ planTier, stores }: Props) {
     <div className="space-y-4">
       <div className="mb-1 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <BarChart2 className="h-4 w-4 text-zinc-500 dark:text-zinc-400" />
-          <span className="text-sm text-zinc-600 dark:text-zinc-300">
+          <span className="text-xs font-semibold text-zinc-400">
             Stores: {currentStoreCount} / {maxStores}
           </span>
         </div>
-        <span className="text-xs uppercase text-zinc-500 dark:text-zinc-400">
+        <button
+          onClick={() => {
+            if (typeof window !== "undefined") {
+              window.location.href = "/settings?tab=billing"
+            }
+          }}
+          className="text-xs font-semibold tracking-[0.1em] uppercase text-zinc-400 hover:text-zinc-100 transition-colors"
+        >
           {(tierKey || "starter").toUpperCase()} plan
-        </span>
+        </button>
       </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
+      <div className="bg-zinc-800 rounded-full h-1.5 w-full mt-2 mb-1">
         <div
-          className="h-full rounded-full bg-emerald-600 transition-all dark:bg-emerald-500"
+          className="bg-emerald-400 rounded-full h-1.5 transition-all"
           style={{ width: `${utilization}%` }}
         />
       </div>
@@ -161,213 +167,164 @@ export function StoreLimitIndicator({ planTier, stores }: Props) {
         </Alert>
       )}
 
-      <div className="mt-4 space-y-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-            Manage stores
-          </span>
+      <div className="mt-8 rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
+        <div className="mb-6">
+          <h3 className="font-editorial text-xl font-bold text-zinc-50 mb-1">
+            Manage Stores
+          </h3>
+          <p className="text-sm text-zinc-500">
+            View and manage your outlet locations and store details.
+          </p>
         </div>
 
-        <div className="space-y-2">
+        <div className="divide-y divide-zinc-700/40">
           {stores.length === 0 ? (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="py-4 text-sm text-zinc-500">
               No stores yet. Create your first store below.
             </p>
           ) : (
             stores.map((store) => (
               <div
                 key={store.store_id}
-                className="flex items-center justify-between rounded-md border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-800"
+                className="flex items-start justify-between py-4 first:pt-0"
               >
                 <div>
-                  <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                  <div className="text-sm font-semibold text-zinc-100">
                     {store.name}
                   </div>
-                  {store.address && (
-                    <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {store.address}
-                    </div>
-                  )}
-                  {store.phone && (
-                    <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {store.phone}
-                    </div>
-                  )}
-                  <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                    Tax rate: {store.tax_rate != null ? `${store.tax_rate}%` : "Not set"}
+                  <div className="text-xs text-zinc-500 mt-0.5">
+                    {[
+                      store.address,
+                      store.tax_rate != null ? `${store.tax_rate}% Tax` : null
+                    ].filter(Boolean).join(" • ")}
                   </div>
                 </div>
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                <div className="flex items-center gap-1">
+                  <button
                     onClick={() => openEdit(store)}
+                    className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
                     title="Edit store profile"
                   >
                     <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-zinc-500 hover:text-red-600 dark:text-zinc-400 dark:hover:text-red-400"
+                  </button>
+                  <button
                     onClick={() => handleDelete(store.store_id)}
                     disabled={isDeletingId === store.store_id || stores.length <= 1}
+                    className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-sm h-7 w-7 flex items-center justify-center transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-zinc-500"
                     title={stores.length <= 1 ? "At least one store is required" : "Delete store"}
                   >
                     <Trash2 className="h-4 w-4" />
-                  </Button>
+                  </button>
                 </div>
               </div>
             ))
           )}
         </div>
 
-        <div className="mt-3 space-y-2">
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Input
-              placeholder="New store name"
+        <div className="mt-8 pt-8 border-t border-zinc-700/40">
+          <label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-4 block">
+            Add New Store
+          </label>
+          <div className="grid gap-4 md:grid-cols-2 mb-4">
+            <input
+              placeholder="Store Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="sm:flex-1"
+              className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
             />
-            <Input
-              placeholder="Address (optional)"
+            <input
+              placeholder="Address (City, Country)"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              className="sm:flex-1"
+              className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
             />
           </div>
-          <Button
-            className="mt-1 gap-2"
-            size="sm"
+          <button
             onClick={handleCreate}
             disabled={isPending || currentStoreCount >= maxStores}
+            className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors disabled:opacity-50"
           >
-            <Plus className="h-4 w-4" />
-            {isPending ? "Adding..." : "Add Store"}
-          </Button>
+            {isPending ? "ADDING..." : "ADD STORE"}
+          </button>
         </div>
       </div>
       <Dialog open={!!editingStore} onOpenChange={(open) => !open && setEditingStore(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit store profile</DialogTitle>
+        <DialogContent className="bg-zinc-900 border border-zinc-700/50 rounded-lg p-0 overflow-hidden max-w-md">
+          <DialogHeader className="p-6 pb-2">
+            <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">Edit Store Profile</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3">
-            <Input
-              placeholder="Store name"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-            />
-            <Input
-              placeholder="Address"
-              value={editAddress}
-              onChange={(e) => setEditAddress(e.target.value)}
-            />
-            <Input
-              placeholder="Phone"
-              value={editPhone}
-              onChange={(e) => setEditPhone(e.target.value)}
-            />
-            <Input
-              placeholder="Logo URL (optional)"
-              value={editLogoUrl}
-              onChange={(e) => setEditLogoUrl(e.target.value)}
-              disabled
-            />
-            <input
-              id="store-logo-file"
-              type="file"
-              accept="image/png,image/jpeg"
-              className="hidden"
-              onChange={async (e) => {
-                if (!editingStore) return
-                const file = e.target.files?.[0]
-                if (!file) return
-                try {
-                  setIsUploadingLogo(true)
-                  // Resolve account_id for path scoping
-                  const { data: accountIdRaw, error: accountError } = await supabase.rpc("get_account_id")
-                  if (accountError || !accountIdRaw) {
-                    toast.error("Account not found. Please reload and try again.")
-                    return
-                  }
-                  const accountId =
-                    typeof accountIdRaw === "string"
-                      ? accountIdRaw
-                      : Array.isArray(accountIdRaw)
-                        ? accountIdRaw[0]
-                        : accountIdRaw && typeof accountIdRaw === "object" && "account_id" in accountIdRaw
-                          ? (accountIdRaw as { account_id: string }).account_id
-                          : null
-                  if (!accountId) {
-                    toast.error("Account not found. Please reload and try again.")
-                    return
-                  }
+          <div className="px-6 space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-4">
+                <label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 block">
+                  Store Details
+                </label>
+                <div className="space-y-3">
+                  <input
+                    placeholder="Store name"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="bg-zinc-950 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                  />
+                  <input
+                    placeholder="Address"
+                    value={editAddress}
+                    onChange={(e) => setEditAddress(e.target.value)}
+                    className="bg-zinc-950 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                  />
+                  <input
+                    placeholder="Phone"
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    className="bg-zinc-950 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                  />
+                </div>
+              </div>
 
-                  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg"
-                  const filePath = `${accountId}/stores/${editingStore.store_id}/${Date.now()}.${ext}`
-
-                  const { error: uploadError } = await supabase.storage
-                    .from("business-logos")
-                    .upload(filePath, file, {
-                      cacheControl: "3600",
-                      upsert: false,
-                    })
-
-                  if (uploadError) {
-                    toast.error(uploadError.message || "Failed to upload logo.")
-                    return
-                  }
-
-                  const { data: publicData } = supabase.storage
-                    .from("business-logos")
-                    .getPublicUrl(filePath)
-
-                  const url = publicData.publicUrl
-                  setEditLogoUrl(url)
-                  setEditLogoOnReceipt(true)
-                  toast.success("Store logo uploaded.")
-                } catch (err) {
-                  toast.error(
-                    err instanceof Error ? err.message : "Failed to upload logo."
-                  )
-                } finally {
-                  setIsUploadingLogo(false)
-                  e.target.value = ""
-                }
-              }}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const input = document.getElementById("store-logo-file") as HTMLInputElement | null
-                input?.click()
-              }}
-              disabled={isUploadingLogo}
-            >
-              {isUploadingLogo ? "Uploading..." : "Upload Logo"}
-            </Button>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                checked={editLogoOnReceipt}
-                onCheckedChange={(v) => setEditLogoOnReceipt(v === true)}
-              />
-              <span className="text-sm text-zinc-700 dark:text-zinc-300">
-                Show this logo on receipt
-              </span>
+              <div className="space-y-4 pt-2">
+                <label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 block">
+                  Store Branding
+                </label>
+                <div className="flex items-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const input = document.getElementById("store-logo-file") as HTMLInputElement | null
+                      input?.click()
+                    }}
+                    disabled={isUploadingLogo}
+                    className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent"
+                  >
+                    {isUploadingLogo ? "UPLOADING..." : "UPLOAD LOGO"}
+                  </button>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={editLogoOnReceipt}
+                      onCheckedChange={(v) => setEditLogoOnReceipt(v === true)}
+                      className="border-zinc-700 data-[state=checked]:bg-white data-[state=checked]:text-zinc-950"
+                    />
+                    <span className="text-xs text-zinc-500">
+                      Show on receipt
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingStore(null)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveEdit} disabled={isPending}>
-              {isPending ? "Saving..." : "Save"}
-            </Button>
+          <DialogFooter className="p-6 bg-zinc-950/50 mt-6 gap-3">
+            <button 
+              onClick={() => setEditingStore(null)}
+              className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent"
+            >
+              CANCEL
+            </button>
+            <button 
+              onClick={handleSaveEdit} 
+              disabled={isPending}
+              className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+            >
+              {isPending ? "SAVING..." : "SAVE CHANGES"}
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -75,100 +75,92 @@ export function TaxSettingsTab({ stores, planTier }: TaxSettingsTabProps) {
       <Toaster richColors position="top-right" />
       <div className="space-y-6">
         {/* Tax Rate */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Tax Rate</CardTitle>
-            <CardDescription>
-              Set the tax rate (VAT) for your store. Kenya standard: 16% VAT.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6 mb-6">
+          <h2 className="font-editorial text-xl font-bold text-zinc-50 mb-1">Tax Rate</h2>
+          <p className="text-sm text-zinc-500 mb-6">
+            Set the tax rate (VAT) for your store. Kenya standard: 16% VAT.
+          </p>
             {stores.length === 0 ? (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              <p className="text-sm text-zinc-500">
                 Complete onboarding to set up your store.
               </p>
             ) : (
-              stores.map((store) => (
-                <div
-                  key={store.store_id}
-                  className="flex items-center justify-between rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
-                >
-                  <div className="flex-1">
-                    <div className="font-medium text-zinc-900 dark:text-zinc-100">{store.name}</div>
-                    <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                      Current rate: {store.tax_rate ? `${store.tax_rate}%` : "Not set"}
+              <div className="divide-y divide-zinc-700/40">
+                {stores.map((store) => (
+                  <div
+                    key={store.store_id}
+                    className="flex items-center justify-between py-4 first:pt-0 last:pb-0"
+                  >
+                    <div className="flex-1">
+                      <div className="text-sm font-semibold text-zinc-100">{store.name}</div>
+                      <div className="text-xs text-zinc-500 mt-0.5">
+                        Current rate: {store.tax_rate ? `${store.tax_rate}%` : "Not set"}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        max="100"
-                        value={taxRates[store.store_id] ?? ""}
-                        onChange={(e) => handleTaxRateChange(store.store_id, e.target.value)}
-                        className="w-24"
-                        placeholder="16.00"
-                      />
-                      <span className="text-sm text-zinc-600 dark:text-zinc-400">%</span>
+                      <div className="flex items-center">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          value={taxRates[store.store_id] ?? ""}
+                          onChange={(e) => handleTaxRateChange(store.store_id, e.target.value)}
+                          className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 w-20 px-3 text-right tabular-nums focus:outline-none focus:ring-1 focus:ring-white/20"
+                          placeholder="16.00"
+                        />
+                        <span className="text-sm text-zinc-500 mx-2">%</span>
+                      </div>
+                      <button
+                        onClick={() => handleSaveTaxRate(store.store_id)}
+                        disabled={savingStoreId === store.store_id}
+                        className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-7 px-3 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors disabled:opacity-50"
+                      >
+                        {savingStoreId === store.store_id ? "Saving..." : "Save"}
+                      </button>
                     </div>
-                    <Button
-                      size="sm"
-                      onClick={() => handleSaveTaxRate(store.store_id)}
-                      disabled={savingStoreId === store.store_id}
-                    >
-                      {savingStoreId === store.store_id ? "Saving..." : "Save"}
-                    </Button>
                   </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
 
         {/* Multi-Rate Tax */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Multi-Rate Tax</CardTitle>
-            <CardDescription>
-              Configure multiple tax rates (e.g., City Tax + County Tax).
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
+          <h2 className="font-editorial text-xl font-bold text-zinc-50 mb-1">Multi-Rate Tax</h2>
+          <p className="text-sm text-zinc-500 mb-6">
+            Configure multiple tax rates (e.g., City Tax + County Tax).
+          </p>
+          <div>
             {!isCoreOrScale ? (
-              <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-900/40 dark:bg-yellow-950/30">
-                <div className="flex items-start gap-3">
-                  <Info className="mt-0.5 h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-                  <div>
-                    <div className="font-medium text-yellow-900 dark:text-yellow-100">
-                      Upgrade Required
-                    </div>
-                    <div className="mt-1 text-sm text-yellow-800 dark:text-yellow-200">
-                      Multi-rate tax support is available on Core and Scale plans. Upgrade to
-                      configure multiple tax rates (e.g., City Tax 8% + County Tax 0.5%).
-                    </div>
+              <div className="bg-blue-400/10 border border-blue-400/20 rounded-lg px-4 py-3 flex items-start gap-3">
+                <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <div className="text-sm font-semibold text-blue-400">
+                    Upgrade Required
+                  </div>
+                  <div className="mt-1 text-sm text-blue-400/80">
+                    Multi-rate tax support is available on Core and Scale plans. Upgrade to
+                    configure multiple tax rates (e.g., City Tax 8% + County Tax 0.5%).
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/40 dark:bg-blue-950/30">
-                <div className="flex items-start gap-3">
-                  <Info className="mt-0.5 h-5 w-5 text-blue-600 dark:text-blue-400" />
-                  <div>
-                    <div className="font-medium text-blue-900 dark:text-blue-100">
-                      Multi-Rate Tax Available
-                    </div>
-                    <div className="mt-1 text-sm text-blue-800 dark:text-blue-200">
-                      Multi-rate tax configuration will be available in a future update. For now,
-                      use the single tax rate above.
-                    </div>
+              <div className="bg-blue-400/10 border border-blue-400/20 rounded-lg px-4 py-3 flex items-start gap-3">
+                <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <div className="text-sm font-semibold text-blue-400">
+                    Multi-Rate Tax Available
+                  </div>
+                  <div className="mt-1 text-sm text-blue-400/80">
+                    Multi-rate tax configuration will be available in a future update. For now,
+                    use the single tax rate above.
                   </div>
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </>
   )

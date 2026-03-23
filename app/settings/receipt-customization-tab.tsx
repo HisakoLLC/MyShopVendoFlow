@@ -100,9 +100,12 @@ export function ReceiptCustomizationTab({
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
         {/* Customization Form */}
         <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
-          <h2 className="mb-6 font-editorial text-xl font-bold text-zinc-50">
+          <h2 className="font-editorial text-xl font-bold text-zinc-50 mb-1">
             Receipt Customization
           </h2>
+          <p className="text-sm text-zinc-500 mb-6">
+            Configure how your printed and digital receipts look for your customers.
+          </p>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -110,15 +113,19 @@ export function ReceiptCustomizationTab({
                 control={form.control}
                 name="logo_on_receipt"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <FormItem className="flex flex-row items-center justify-between rounded-md border border-zinc-800 p-4 transition-colors hover:bg-zinc-800/30">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-base">Logo on Receipt</FormLabel>
-                      <FormDescription>
+                      <FormLabel className="text-sm font-semibold text-zinc-100">Logo on Receipt</FormLabel>
+                      <FormDescription className="text-xs text-zinc-500">
                         Display your business logo at the top of receipts
                       </FormDescription>
                     </div>
                     <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      <Switch 
+                        checked={field.value} 
+                        onCheckedChange={field.onChange} 
+                        className="data-[state=checked]:bg-emerald-500"
+                      />
                     </FormControl>
                   </FormItem>
                 )}
@@ -129,22 +136,24 @@ export function ReceiptCustomizationTab({
                 name="currency"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Currency</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">
+                      Currency
+                    </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value || "KES"}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full focus:ring-1 focus:ring-white/20">
                           <SelectValue placeholder="Select currency" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="bg-zinc-900 border border-zinc-800 text-zinc-100">
                         {CURRENCY_OPTIONS.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value}>
+                          <SelectItem key={opt.value} value={opt.value} className="focus:bg-zinc-800 focus:text-zinc-100">
                             {opt.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormDescription>Used on receipts and across the app</FormDescription>
+                    <FormDescription className="text-xs text-zinc-500 mt-1">Used on receipts and across the app</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -154,15 +163,19 @@ export function ReceiptCustomizationTab({
                 control={form.control}
                 name="tax_inclusive"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <FormItem className="flex flex-row items-center justify-between rounded-md border border-zinc-800 p-4 transition-colors hover:bg-zinc-800/30">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-base">Tax inclusive of price</FormLabel>
-                      <FormDescription>
+                      <FormLabel className="text-sm font-semibold text-zinc-100">Tax inclusive of price</FormLabel>
+                      <FormDescription className="text-xs text-zinc-500">
                         When on, displayed prices include tax; when off, tax is added on top
                       </FormDescription>
                     </div>
                     <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      <Switch 
+                        checked={field.value} 
+                        onCheckedChange={field.onChange} 
+                        className="data-[state=checked]:bg-emerald-500"
+                      />
                     </FormControl>
                   </FormItem>
                 )}
@@ -173,16 +186,19 @@ export function ReceiptCustomizationTab({
                 name="receipt_header"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Header Text</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">
+                      Header Text
+                    </FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Thank you for shopping with us!"
                         rows={3}
                         {...field}
                         value={field.value || ""}
+                        className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 px-3 py-2 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 min-h-[80px]"
                       />
                     </FormControl>
-                    <FormDescription>Text displayed at the top of the receipt</FormDescription>
+                    <FormDescription className="text-xs text-zinc-500 mt-1">Text displayed at the top of the receipt</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -193,16 +209,19 @@ export function ReceiptCustomizationTab({
                 name="receipt_footer"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Footer Text</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">
+                      Footer Text
+                    </FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Returns within 30 days with receipt"
                         rows={3}
                         {...field}
                         value={field.value || ""}
+                        className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 px-3 py-2 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 min-h-[80px]"
                       />
                     </FormControl>
-                    <FormDescription>Text displayed at the bottom of the receipt</FormDescription>
+                    <FormDescription className="text-xs text-zinc-500 mt-1">Text displayed at the bottom of the receipt</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -213,23 +232,30 @@ export function ReceiptCustomizationTab({
                 name="return_policy"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Return Policy</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">
+                      Return Policy
+                    </FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Items can be returned within 30 days of purchase with original receipt..."
                         rows={4}
                         {...field}
                         value={field.value || ""}
+                        className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 px-3 py-2 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 min-h-[100px]"
                       />
                     </FormControl>
-                    <FormDescription>Detailed return policy text</FormDescription>
+                    <FormDescription className="text-xs text-zinc-500 mt-1">Detailed return policy text</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <div className="flex justify-end">
-                <Button type="submit" disabled={isSubmitting}>
+              <div className="flex justify-end pt-4">
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+                >
                   {isSubmitting ? "Saving..." : "Save Changes"}
                 </Button>
               </div>

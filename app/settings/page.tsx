@@ -152,13 +152,15 @@ async function SettingsPageContent() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-6">
-      <div className="mb-6">
-        <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
-          Configure your business profile, tax settings, and receipt customization.
-        </p>
-        <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
-          Business Settings
-        </h1>
+      <div className="flex items-start justify-between pb-6 mb-6 border-b border-zinc-800">
+        <div>
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+            Configure your business profile, tax settings, and receipt customization.
+          </p>
+          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+            Business Settings
+          </h1>
+        </div>
       </div>
 
       <SettingsTabs
