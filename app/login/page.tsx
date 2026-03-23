@@ -195,11 +195,11 @@ function LoginContent() {
   }
 
   return (
-    <div className="flex min-h-screen bg-black overflow-hidden font-sans">
+    <div className="flex min-h-screen bg-black overflow-y-auto font-sans">
       <Toaster richColors position="top-right" />
       
       {/* Form Side */}
-      <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-20 xl:px-24">
+      <div className="flex flex-1 flex-col items-center py-12 lg:justify-center px-4 sm:px-6 lg:px-20 xl:px-24">
         <div className="mx-auto w-full max-w-sm lg:w-96">
           <div className="mb-10 text-center lg:text-left">
             <h1 className="font-editorial text-4xl font-bold tracking-tight text-white mb-2 underline decoration-zinc-800 decoration-4 underline-offset-8">

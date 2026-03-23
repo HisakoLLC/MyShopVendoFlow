@@ -69,7 +69,7 @@ export function AuthImageRotation() {
 
       {/* Decorative Overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-      
+
       <div className="absolute bottom-12 left-12 right-12 z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -79,15 +79,15 @@ export function AuthImageRotation() {
           <div className="h-0.5 w-12 bg-zinc-400 mb-6" />
           <h3 className="font-editorial text-4xl lg:text-5xl text-white leading-tight tracking-tight">
             Redefining Fashion <br />
-            <span className="italic opacity-80 decoration-zinc-500 underline underline-offset-8">Management.</span>
+            <span className="italic opacity-80 decoration-zinc-500 underline underline-offset-8">Tech.</span>
           </h3>
         </motion.div>
       </div>
 
       <div className="absolute top-12 left-12">
-         <span className="text-[0.65rem] font-bold uppercase tracking-[0.4em] text-white/40 vertical-text">
-            © {new Date().getFullYear()} VendoFlow Labs
-         </span>
+        <span className="text-[0.65rem] font-bold uppercase tracking-[0.4em] text-white/40 vertical-text">
+          © {new Date().getFullYear()} VendoFlow Labs
+        </span>
       </div>
     </div>
   )
