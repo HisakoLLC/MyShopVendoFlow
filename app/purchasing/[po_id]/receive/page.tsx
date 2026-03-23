@@ -135,7 +135,7 @@ async function fetchPOData(poId: string): Promise<{
 
 function LoadingState() {
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-6">
+    <div className="w-full px-8 py-8">
       <div className="mb-4 h-8 w-64 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
       <div className="h-96 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
     </div>
@@ -144,7 +144,7 @@ function LoadingState() {
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-10">
+    <div className="w-full px-8 py-10">
       <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-100">
         <div className="text-base font-semibold">Couldn't load purchase order</div>
         <div className="mt-1 text-sm opacity-90">{message}</div>
@@ -190,7 +190,7 @@ async function ReceiveInventoryContent({ poId }: { poId: string }) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-6">
+    <div className="w-full px-8 py-8">
       <div className="mb-6">
         <a
           href={`/purchasing/${poId}`}

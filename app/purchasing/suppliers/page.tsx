@@ -85,7 +85,7 @@ async function SuppliersContent() {
 export default function SuppliersPage() {
   return (
     <Suspense fallback={
-      <div className="mx-auto max-w-5xl px-4 py-8">
+      <div className="px-8 py-8">
         <div className="h-8 w-48 animate-pulse rounded bg-zinc-800" />
         <div className="mt-8 h-64 animate-pulse rounded-xl bg-zinc-800" />
       </div>

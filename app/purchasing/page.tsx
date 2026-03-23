@@ -109,7 +109,7 @@ function statusBadgeClass(status: string | null): string {
 
 function LoadingState() {
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
+    <div className="px-8 py-8">
       <div className="h-8 w-48 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
       <div className="mt-6 h-64 animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
     </div>
@@ -123,7 +123,7 @@ async function PurchasingContent() {
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to load purchase orders."
     return (
-      <div className="mx-auto max-w-5xl px-4 py-10">
+      <div className="px-8 py-10">
         <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-100">
           <div className="font-semibold">Couldn't load purchase orders</div>
           <div className="mt-1 text-sm opacity-90">{message}</div>
@@ -140,7 +140,7 @@ async function PurchasingContent() {
   const received = list.filter((po) => po.status === "received")
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
+    <div className="px-8 py-8">
       <div className="mb-8">
         <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
           Manage purchase orders, restock suggestions, and receive inventory.

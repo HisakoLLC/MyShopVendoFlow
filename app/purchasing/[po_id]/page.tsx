@@ -99,7 +99,7 @@ async function fetchPO(poId: string) {
 
 function LoadingState() {
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
+    <div className="px-8 py-8">
       <div className="h-8 w-48 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
       <div className="mt-6 h-64 animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
     </div>
@@ -118,7 +118,7 @@ export default async function PODetailPage({
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unable to load PO."
     return (
-      <div className="mx-auto max-w-4xl px-4 py-10">
+      <div className="px-8 py-10">
         <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-100">
           <div className="font-semibold">Couldn't load purchase order</div>
           <div className="mt-1 text-sm opacity-90">{message}</div>
@@ -141,7 +141,7 @@ export default async function PODetailPage({
           : "Draft"
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
+    <div className="px-8 py-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <a
