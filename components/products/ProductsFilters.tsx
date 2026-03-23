@@ -1,18 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { Search } from "lucide-react"
+import { Search, X } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 
 type CategoryOption = {
   category_id: string
@@ -68,13 +60,11 @@ export function ProductsFilters({ categories, seasons, onFilterChange }: Product
 
   const [debouncedSearch, setDebouncedSearch] = React.useState("")
 
-  // Debounce only the search input.
   React.useEffect(() => {
     const handle = setTimeout(() => setDebouncedSearch((search ?? "").trim()), 300)
     return () => clearTimeout(handle)
   }, [search])
 
-  // Emit changes: category/season immediate; search debounced.
   React.useEffect(() => {
     const parsed = schema.safeParse({ search: debouncedSearch, category, season })
     if (!parsed.success) return
@@ -89,67 +79,82 @@ export function ProductsFilters({ categories, seasons, onFilterChange }: Product
     onFilterChange({ search: "", category: "all", season: "all" })
   }
 
+  // DS v3.0 input/select classes
+  const inputClass =
+    "h-9 w-full bg-zinc-900 border border-zinc-800 rounded-md pl-9 pr-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 transition-colors"
+  const selectClass =
+    "h-9 w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 transition-colors appearance-none cursor-pointer"
+
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-center">
-      <div className="w-full md:basis-3/5">
+      {/* Search */}
+      <div className="w-full md:basis-2/4">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary-light dark:text-text-secondary-dark" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
           <input
             value={search ?? ""}
             onChange={(e) => form.setValue("search", e.target.value, { shouldValidate: true })}
             placeholder="Search styles..."
-            className="h-11 w-full rounded-lg border border-border-light bg-background-card-light pl-10 pr-3 text-sm text-text-primary-light outline-none ring-offset-2 transition placeholder:text-text-secondary-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary dark:border-border-dark dark:bg-background-card-dark dark:text-white dark:placeholder:text-text-secondary-dark dark:focus:ring-primary"
+            className={inputClass}
           />
         </div>
       </div>
 
-      <div className="flex w-full flex-col gap-3 md:basis-2/5 md:flex-row">
-        <div className="w-full md:basis-1/2">
-          <Select
+      {/* Category */}
+      <div className="w-full md:basis-1/4">
+        <div className="relative">
+          <select
             value={category}
-            onValueChange={(v) => form.setValue("category", v, { shouldValidate: true })}
+            onChange={(e) => form.setValue("category", e.target.value, { shouldValidate: true })}
+            className={selectClass}
           >
-            <SelectTrigger className="h-11 w-full">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {categories.map((c) => (
-                <SelectItem key={c.category_id} value={c.category_id}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="w-full md:basis-1/2">
-          <Select
-            value={season}
-            onValueChange={(v) => form.setValue("season", v, { shouldValidate: true })}
-          >
-            <SelectTrigger className="h-11 w-full">
-              <SelectValue placeholder="Season" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Seasons</SelectItem>
-              {seasons.map((s) => (
-                <SelectItem key={s.season_id} value={s.season_id}>
-                  {s.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <option value="all">All Categories</option>
+            {categories.map((c) => (
+              <option key={c.category_id} value={c.category_id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
+            <svg className="h-4 w-4 text-zinc-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+            </svg>
+          </div>
         </div>
       </div>
 
+      {/* Season */}
+      <div className="w-full md:basis-1/4">
+        <div className="relative">
+          <select
+            value={season}
+            onChange={(e) => form.setValue("season", e.target.value, { shouldValidate: true })}
+            className={selectClass}
+          >
+            <option value="all">All Seasons</option>
+            {seasons.map((s) => (
+              <option key={s.season_id} value={s.season_id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
+            <svg className="h-4 w-4 text-zinc-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* Clear Filters */}
       {hasActiveFilters && (
         <button
           type="button"
           onClick={handleClear}
-          className="inline-flex h-11 items-center justify-center rounded-lg border border-zinc-200 px-4 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-900"
+          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-sm border border-zinc-700 px-3 text-xs font-semibold uppercase text-zinc-400 transition-colors hover:border-zinc-500 hover:text-zinc-100"
         >
-          Clear Filters
+          <X className="h-3.5 w-3.5" />
+          Clear
         </button>
       )}
     </div>

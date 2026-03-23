@@ -14,16 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 
 type Store = {
@@ -187,77 +177,88 @@ export function ProductCreatedInventoryModal({
   const variantCount = variants.length
   const storeCount = stores.length
 
+  // DS v3.0 input class
+  const qtyInputClass = cn(
+    "bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100",
+    "h-8 px-3 w-24 text-right tabular-nums",
+    "focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600",
+    "[-moz-appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+  )
+
   return (
     <Dialog open={open} onOpenChange={(o) => !o && !isSaving && onClose()}>
-      <DialogContent className="max-h-[85vh] w-full max-w-3xl p-0">
-        <DialogHeader className="space-y-1 px-6 pt-6">
-          <DialogTitle>Product Created Successfully!</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="max-h-[90vh] w-full max-w-3xl p-0 bg-zinc-900 border-zinc-800 text-zinc-100 rounded-sm gap-0">
+        {/* Header */}
+        <DialogHeader className="px-6 pt-6 pb-5 border-b border-zinc-800 shrink-0">
+          <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">
+            Product Created Successfully!
+          </DialogTitle>
+          <DialogDescription className="text-sm text-zinc-400 mt-1">
             {styleName} created with {variantCount} variant{variantCount !== 1 ? "s" : ""} across{" "}
             {storeCount} store{storeCount !== 1 ? "s" : ""}. Set initial inventory for each store.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="px-6 pb-4 text-sm text-zinc-600 dark:text-zinc-400">
-          Products are shared across all stores, but inventory is tracked separately per store. Set how many
-          units you have at each location.
-        </div>
-
-        <div className="px-6 pb-3">
-          <div className="flex flex-wrap items-center gap-3 rounded-lg bg-zinc-50 p-3 text-xs text-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-300">
-            <span className="font-medium">Shortcuts:</span>
-            <Button type="button" size="sm" variant="outline" onClick={setAllToZero}>
-              Set all to 0
-            </Button>
+        {/* Shortcuts */}
+        <div className="px-6 py-4 border-b border-zinc-800 shrink-0">
+          <p className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-3">Quick Fill</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              className="inline-flex h-7 items-center justify-center rounded-sm border border-zinc-700 bg-transparent px-3 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 transition-colors"
+              onClick={setAllToZero}
+            >
+              Set All to 0
+            </button>
             <div className="flex items-center gap-2">
-              <span>Set all to</span>
-              <Input
-                className="h-8 w-20"
+              <span className="text-xs text-zinc-500">Set all to</span>
+              <input
                 type="number"
                 inputMode="numeric"
                 min={0}
                 step={1}
+                className="h-7 w-16 bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 px-3 text-right tabular-nums focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 [-moz-appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 {...form.register("allQuantity")}
               />
-              <Button type="button" size="sm" variant="outline" onClick={applyBulkQuantity}>
+              <button
+                type="button"
+                className="inline-flex h-7 items-center justify-center rounded-sm bg-white px-3 text-xs font-semibold uppercase text-zinc-950 hover:bg-zinc-100 transition-colors"
+                onClick={applyBulkQuantity}
+              >
                 Apply
-              </Button>
+              </button>
             </div>
           </div>
         </div>
 
+        {/* Store tables */}
         <form
           onSubmit={form.handleSubmit(handleSave)}
-          className="flex max-h-[60vh] flex-col"
+          className="flex flex-col min-h-0"
         >
-          <div className="flex-1 overflow-auto px-6">
+          <div className="flex-1 overflow-auto px-6 py-4">
             {stores.map((store) => (
-              <div key={store.store_id} className="mb-6 last:mb-4">
-                <div className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+              <div key={store.store_id} className="mb-6 last:mb-0">
+                <p className="text-xs font-semibold tracking-[0.1em] uppercase text-zinc-500 mb-3">
                   {store.name}
-                </div>
-                <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-zinc-50/80 dark:bg-zinc-900/60">
-                        <TableHead className="w-1/2">Variant</TableHead>
-                        <TableHead className="w-1/2 text-right">Quantity</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
+                </p>
+                <div className="overflow-hidden rounded-lg border border-zinc-800">
+                  <table className="w-full">
+                    <thead className="border-b border-zinc-800">
+                      <tr>
+                        <th className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-3 py-2 text-left">Variant</th>
+                        <th className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-3 py-2 text-right">Quantity</th>
+                      </tr>
+                    </thead>
+                    <tbody>
                       {variants.map((variant) => (
-                        <TableRow key={variant.variant_id}>
-                          <TableCell className="text-sm">
-                            <div className="font-medium">
-                              {variant.size}, {variant.color}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Input
-                              className={cn(
-                                "inline-block h-9 w-24 text-right",
-                                "[-moz-appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                              )}
+                        <tr key={variant.variant_id} className="border-b border-zinc-800/50 last:border-0">
+                          <td className="px-3 py-2.5 text-sm text-zinc-300">
+                            {variant.size}, {variant.color}
+                          </td>
+                          <td className="px-3 py-2.5 text-right">
+                            <input
+                              className={qtyInputClass}
                               type="number"
                               inputMode="numeric"
                               min={0}
@@ -274,27 +275,36 @@ export function ProductCreatedInventoryModal({
                                 }
                               }}
                             />
-                          </TableCell>
-                        </TableRow>
+                          </td>
+                        </tr>
                       ))}
-                    </TableBody>
-                  </Table>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             ))}
           </div>
 
-          <DialogFooter className="border-t border-zinc-200 bg-zinc-50 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-900/60">
-            <Button type="button" variant="ghost" onClick={onClose} disabled={isSaving}>
+          {/* Footer */}
+          <div className="flex items-center justify-end gap-3 border-t border-zinc-800 px-6 py-4 shrink-0">
+            <button
+              type="button"
+              className="inline-flex h-9 items-center justify-center rounded-sm border border-zinc-700 bg-transparent px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 transition-colors"
+              onClick={onClose}
+              disabled={isSaving}
+            >
               Skip for Now
-            </Button>
-            <Button type="submit" disabled={isSaving}>
+            </button>
+            <button
+              type="submit"
+              className="inline-flex h-9 items-center justify-center rounded-sm bg-white px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-950 hover:bg-zinc-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isSaving}
+            >
               {isSaving ? "Saving…" : "Set Inventory Now"}
-            </Button>
-          </DialogFooter>
+            </button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
   )
 }
-

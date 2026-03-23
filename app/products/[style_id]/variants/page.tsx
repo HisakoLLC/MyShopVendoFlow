@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { Suspense } from "react"
+import { ArrowLeft } from "lucide-react"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { VariantMatrixBuilder } from "@/components/products/VariantMatrixBuilder"
@@ -13,9 +14,10 @@ type PageProps = {
 
 function LoadingState() {
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6">
-      <div className="mb-6 h-8 w-64 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-      <div className="h-96 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+      <div className="mb-6 h-4 w-32 animate-pulse rounded bg-zinc-800" />
+      <div className="mb-6 h-8 w-64 animate-pulse rounded bg-zinc-800" />
+      <div className="h-96 w-full animate-pulse rounded-lg bg-zinc-800" />
     </div>
   )
 }
@@ -30,8 +32,8 @@ async function VariantsPageContent({ styleId }: { styleId: string }) {
 
   if (userError || !user) {
     return (
-      <div className="mx-auto w-full max-w-6xl px-4 py-10">
-        <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-100">
+      <div className="min-h-screen bg-zinc-950 px-8 py-8">
+        <div className="rounded-sm border border-red-900/40 bg-red-950/30 p-5 text-red-100">
           You must be signed in to create variants.
         </div>
       </div>
@@ -55,24 +57,26 @@ async function VariantsPageContent({ styleId }: { styleId: string }) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6">
-      <div className="mb-6">
-        <div className="mb-2">
-          <Link
-            href="/products"
-            className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
-          >
-            ← Back to products
-          </Link>
-        </div>
-        <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+      {/* Back link */}
+      <Link
+        href="/products"
+        className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Products
+      </Link>
+
+      {/* Page header */}
+      <div className="mb-8 pb-6 border-b border-zinc-800">
+        <h1 className="font-editorial text-3xl font-bold text-zinc-50">
           Generate Variants: {style.name}
         </h1>
-        <div className="mt-2 flex items-center gap-4 text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">
-          <span>Base Price: KES {new Intl.NumberFormat("en-KE").format(style.base_price)}</span>
-          <span>•</span>
-          <span>Cost: KES {new Intl.NumberFormat("en-KE").format(style.cost)}</span>
-        </div>
+        <p className="text-xs text-zinc-500 mt-2 tracking-[0.05em]">
+          BASE PRICE: KES {new Intl.NumberFormat("en-KE").format(style.base_price)}
+          {" · "}
+          COST: KES {new Intl.NumberFormat("en-KE").format(style.cost)}
+        </p>
       </div>
 
       <VariantMatrixBuilder

@@ -50,6 +50,12 @@ function marginPercent(basePrice: number, cost: number) {
   return ((basePrice - cost) / basePrice) * 100
 }
 
+function marginBadgeClass(margin: number) {
+  if (margin > 50) return "bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
+  if (margin >= 25) return "bg-amber-400/10 text-amber-400 border border-amber-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
+  return "bg-red-400/10 text-red-400 border border-red-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
+}
+
 /** True if discount should be applied (percent > 0 and not past end date). */
 function isDiscountActive(
   discountPercent: number | null | undefined,
@@ -83,6 +89,16 @@ function formatEndsAt(iso: string | null | undefined): string {
     return ""
   }
 }
+
+// DS v3 Alert Dialog content style
+const alertContentClass =
+  "fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-sm border border-zinc-800 bg-zinc-900 p-6 shadow-2xl outline-none"
+const alertCancelBtnClass =
+  "inline-flex h-9 items-center justify-center rounded-sm border border-zinc-700 bg-transparent px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+const alertConfirmBtnClass =
+  "inline-flex h-9 items-center justify-center rounded-sm bg-white px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-950 hover:bg-zinc-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+const alertDeleteBtnClass =
+  "inline-flex h-9 items-center justify-center rounded-sm bg-red-500 px-5 text-xs font-semibold tracking-[0.12em] uppercase text-white hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 
 export function ProductsTableClient(props: {
   styles: ProductStyleListRow[]
@@ -143,21 +159,25 @@ export function ProductsTableClient(props: {
 
   const hasProducts = props.styles.length > 0
 
+  // DS v3 dialog input class
+  const dialogInputClass =
+    "bg-zinc-800 border border-zinc-700 rounded-md text-sm text-zinc-100 h-9 px-3 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 w-full"
+
   return (
     <div className="w-full">
       {/* Single-style discount dialog */}
       <Dialog open={!!discountStyle} onOpenChange={(open) => !open && setDiscountStyle(null)}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Set discount</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="sm:max-w-sm bg-zinc-900 border-zinc-800 text-zinc-100 rounded-sm p-0 gap-0">
+          <DialogHeader className="px-6 py-5 border-b border-zinc-800">
+            <DialogTitle className="font-editorial text-lg font-bold text-zinc-50">Set Discount</DialogTitle>
+            <DialogDescription className="text-sm text-zinc-400 mt-1">
               {discountStyle ? `Apply a discount to "${discountStyle.name}". This affects all variants at POS and in listings.` : ""}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-2">
+          <div className="grid gap-4 px-6 py-5">
             <div className="grid gap-2">
-              <Label htmlFor="discount-percent">Discount % (0–100)</Label>
-              <Input
+              <Label htmlFor="discount-percent" className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Discount % (0–100)</Label>
+              <input
                 id="discount-percent"
                 type="number"
                 min={0}
@@ -166,22 +186,26 @@ export function ProductsTableClient(props: {
                 value={discountInput}
                 onChange={(e) => setDiscountInput(e.target.value)}
                 placeholder="0"
+                className={dialogInputClass}
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="discount-ends-at">Ends on (optional)</Label>
-              <Input
+              <Label htmlFor="discount-ends-at" className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Ends on (optional)</Label>
+              <input
                 id="discount-ends-at"
                 type="date"
                 value={discountEndsAtInput}
                 onChange={(e) => setDiscountEndsAtInput(e.target.value)}
+                className={dialogInputClass}
               />
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Leave empty for no end date.</p>
+              <p className="text-xs text-zinc-500">Leave empty for no end date.</p>
             </div>
+            {error && <p className="text-xs text-red-400">{error}</p>}
           </div>
-          <DialogFooter className="flex-row gap-2 sm:justify-end">
-            <Button
-              variant="outline"
+          <DialogFooter className="flex-row gap-2 sm:justify-end px-6 pb-5">
+            <button
+              type="button"
+              className={alertCancelBtnClass}
               onClick={() => {
                 setDiscountStyle(null)
                 setDiscountInput("")
@@ -189,10 +213,11 @@ export function ProductsTableClient(props: {
               }}
             >
               Cancel
-            </Button>
+            </button>
             {discountStyle && discountStyle.currentPercent > 0 && (
-              <Button
-                variant="outline"
+              <button
+                type="button"
+                className={alertCancelBtnClass}
                 disabled={isPending}
                 onClick={() => {
                   if (!discountStyle) return
@@ -210,10 +235,12 @@ export function ProductsTableClient(props: {
                   })
                 }}
               >
-                Clear discount
-              </Button>
+                Clear
+              </button>
             )}
-            <Button
+            <button
+              type="button"
+              className={alertConfirmBtnClass}
               disabled={isPending}
               onClick={() => {
                 if (!discountStyle) return
@@ -238,24 +265,24 @@ export function ProductsTableClient(props: {
               }}
             >
               Apply
-            </Button>
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Bulk discount dialog */}
       <Dialog open={bulkDiscountOpen} onOpenChange={setBulkDiscountOpen}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Bulk discount</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="sm:max-w-sm bg-zinc-900 border-zinc-800 text-zinc-100 rounded-sm p-0 gap-0">
+          <DialogHeader className="px-6 py-5 border-b border-zinc-800">
+            <DialogTitle className="font-editorial text-lg font-bold text-zinc-50">Bulk Discount</DialogTitle>
+            <DialogDescription className="text-sm text-zinc-400 mt-1">
               Apply the same discount to {selectedCount} selected style{selectedCount !== 1 ? "s" : ""}. Affects all variants at POS and in listings.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-2">
+          <div className="grid gap-4 px-6 py-5">
             <div className="grid gap-2">
-              <Label htmlFor="bulk-discount-percent">Discount % (0–100)</Label>
-              <Input
+              <Label htmlFor="bulk-discount-percent" className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Discount % (0–100)</Label>
+              <input
                 id="bulk-discount-percent"
                 type="number"
                 min={0}
@@ -264,22 +291,27 @@ export function ProductsTableClient(props: {
                 value={bulkDiscountPercent}
                 onChange={(e) => setBulkDiscountPercent(e.target.value)}
                 placeholder="0"
+                className={dialogInputClass}
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="bulk-discount-ends-at">Ends on (optional)</Label>
-              <Input
+              <Label htmlFor="bulk-discount-ends-at" className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Ends on (optional)</Label>
+              <input
                 id="bulk-discount-ends-at"
                 type="date"
                 value={bulkDiscountEndsAt}
                 onChange={(e) => setBulkDiscountEndsAt(e.target.value)}
+                className={dialogInputClass}
               />
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Leave empty for no end date.</p>
+              <p className="text-xs text-zinc-500">Leave empty for no end date.</p>
             </div>
+            {error && <p className="text-xs text-red-400">{error}</p>}
           </div>
-          <DialogFooter className="flex-row gap-2 sm:justify-end">
-            <Button variant="outline" onClick={() => setBulkDiscountOpen(false)}>Cancel</Button>
-            <Button
+          <DialogFooter className="flex-row gap-2 sm:justify-end px-6 pb-5">
+            <button type="button" className={alertCancelBtnClass} onClick={() => setBulkDiscountOpen(false)}>Cancel</button>
+            <button
+              type="button"
+              className={alertConfirmBtnClass}
               disabled={isPending}
               onClick={() => {
                 const num = parseInt(bulkDiscountPercent, 10)
@@ -304,67 +336,75 @@ export function ProductsTableClient(props: {
               }}
             >
               Apply to {selectedCount} styles
-            </Button>
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
+      {/* Bulk selection bar */}
       {selectedCount > 0 && viewMode === "active" && (
-        <div className="-mx-4 mb-4 flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900/50">
-          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        <div className="mb-4 flex items-center justify-between gap-3 rounded-sm border border-zinc-800 bg-zinc-900/60 px-4 py-3">
+          <span className="text-sm font-medium text-zinc-300">
             {selectedCount} style{selectedCount !== 1 ? "s" : ""} selected
           </span>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={clearSelection}>Clear</Button>
-            <Button size="sm" onClick={() => setBulkDiscountOpen(true)}>Bulk discount</Button>
+            <button
+              type="button"
+              className={alertCancelBtnClass}
+              onClick={clearSelection}
+            >
+              Clear
+            </button>
+            <button
+              type="button"
+              className={alertConfirmBtnClass}
+              onClick={() => setBulkDiscountOpen(true)}
+            >
+              Bulk Discount
+            </button>
           </div>
         </div>
       )}
 
-      <div className="sticky top-0 z-10 -mx-4 mb-4 border-b bg-zinc-900/80 px-4 py-3 backdrop-blur dark:bg-zinc-900/80">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="flex-1">
-            <ProductsFilters
-              categories={props.categories}
-              seasons={props.seasons}
-              onFilterChange={setFilters}
-            />
-          </div>
+      {/* Filter bar */}
+      <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex-1">
+          <ProductsFilters
+            categories={props.categories}
+            seasons={props.seasons}
+            onFilterChange={setFilters}
+          />
+        </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 md:justify-end">
-            {error ? (
-              <div className="text-sm text-red-600 dark:text-red-400">{error}</div>
-            ) : (
-              <div className="flex items-center gap-2 text-sm text-zinc-500">
-                <span className="text-xs">
-                  {viewMode === "active"
-                    ? `${filtered.length} ${filtered.length === 1 ? "style" : "styles"}`
-                    : `${filtered.length} archived`}
-                </span>
-                {archivedStyles.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setViewMode(viewMode === "archived" ? "active" : "archived")}
-                    className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-9 px-4 text-xs font-semibold uppercase tracking-[0.1em] transition-colors"
-                  >
-                    {viewMode === "archived" ? "Active" : `Archived (${archivedStyles.length})`}
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 md:justify-end">
+          {error ? (
+            <div className="text-sm text-red-400">{error}</div>
+          ) : (
+            <div className="flex items-center gap-3 text-sm text-zinc-500">
+              <span className="text-xs text-zinc-500">
+                {viewMode === "active"
+                  ? `${filtered.length} ${filtered.length === 1 ? "style" : "styles"}`
+                  : `${filtered.length} archived`}
+              </span>
+              {archivedStyles.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setViewMode(viewMode === "archived" ? "active" : "archived")}
+                  className="text-[0.65rem] font-semibold tracking-[0.12em] uppercase text-zinc-500 hover:text-zinc-100 transition-colors"
+                >
+                  {viewMode === "archived" ? "← Active" : `Archived (${archivedStyles.length})`}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
       {!hasProducts ? (
-        <div className="rounded-xl border border-dashed border-zinc-200 bg-background p-10 text-center dark:border-zinc-800 dark:bg-background">
+        <div className="rounded-sm border border-dashed border-zinc-800 bg-zinc-900/30 p-10 text-center">
           <div className="mx-auto max-w-md space-y-3">
-            <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              No products yet.
-            </p>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              Add your first style to get started.
-            </p>
+            <p className="text-lg font-semibold text-zinc-100">No products yet.</p>
+            <p className="text-sm text-zinc-500">Add your first style to get started.</p>
             <div className="pt-2">
               <Link
                 href="/products/new"
@@ -378,302 +418,294 @@ export function ProductsTableClient(props: {
       ) : (
         <>
           {/* Desktop: Table View */}
-        <div className="hidden overflow-hidden rounded-lg border border-zinc-700/50 bg-zinc-900 md:block">
+          <div className="hidden overflow-hidden rounded-lg border border-zinc-700/50 bg-zinc-900 md:block">
             <div className="overflow-x-auto">
               <table className="w-full">
-              <thead className="border-b-2 border-zinc-700">
-                <tr>
-                  {viewMode === "active" && (
-                    <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900">
-                      <Checkbox
-                        checked={filtered.length > 0 && filtered.every((s) => selectedIds.has(s.style_id))}
-                        onCheckedChange={(checked) => (checked ? selectAllFiltered() : clearSelection())}
-                        aria-label="Select all"
-                      />
-                    </th>
-                  )}
-                  <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900">Image</th>
-                  <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900">Style Name</th>
-                  <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900">Category</th>
-                  <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900">Season</th>
-                  <th className="px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900">Base Price</th>
-                  <th className="hidden px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900 lg:table-cell">Cost</th>
-                  <th className="hidden px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900 lg:table-cell">Margin %</th>
-                  <th className="px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 bg-zinc-900">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="text-sm">
-                {filtered.length === 0 ? (
+                <thead className="border-b-2 border-zinc-700">
                   <tr>
-                    <td className="px-4 py-10 text-center text-zinc-500 dark:text-zinc-400" colSpan={viewMode === "active" ? 9 : 8}>
-                      {viewMode === "archived"
-                        ? "No archived styles match your filters."
-                        : "No styles match your filters."}
-                    </td>
+                    {viewMode === "active" && (
+                      <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">
+                        <Checkbox
+                          checked={filtered.length > 0 && filtered.every((s) => selectedIds.has(s.style_id))}
+                          onCheckedChange={(checked) => (checked ? selectAllFiltered() : clearSelection())}
+                          aria-label="Select all"
+                        />
+                      </th>
+                    )}
+                    <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Image</th>
+                    <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Style Name</th>
+                    <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Category</th>
+                    <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Season</th>
+                    <th className="px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Base Price</th>
+                    <th className="hidden px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 lg:table-cell">Cost</th>
+                    <th className="hidden px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 lg:table-cell">Margin %</th>
+                    <th className="px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Actions</th>
                   </tr>
-                ) : (
-                  filtered.map((s) => {
-                    const base = Number(s.base_price ?? 0)
-                    const cost = Number(s.cost ?? 0)
-                    const discountPct = s.discount_percent ?? 0
-                    const active = isDiscountActive(s.discount_percent, s.discount_ends_at)
-                    const displayPrice = effectivePrice(base, s.discount_percent, s.discount_ends_at)
-                    const margin = marginPercent(displayPrice, cost)
-                    const categoryName = s.categories?.name ?? "—"
-                    const seasonName = s.seasons?.name ?? "—"
+                </thead>
+                <tbody className="text-sm">
+                  {filtered.length === 0 ? (
+                    <tr>
+                      <td className="px-4 py-10 text-center text-zinc-500" colSpan={viewMode === "active" ? 9 : 8}>
+                        {viewMode === "archived"
+                          ? "No archived styles match your filters."
+                          : "No styles match your filters."}
+                      </td>
+                    </tr>
+                  ) : (
+                    filtered.map((s) => {
+                      const base = Number(s.base_price ?? 0)
+                      const cost = Number(s.cost ?? 0)
+                      const discountPct = s.discount_percent ?? 0
+                      const active = isDiscountActive(s.discount_percent, s.discount_ends_at)
+                      const displayPrice = effectivePrice(base, s.discount_percent, s.discount_ends_at)
+                      const margin = marginPercent(displayPrice, cost)
+                      const categoryName = s.categories?.name ?? "—"
+                      const seasonName = s.seasons?.name
 
-                    return (
-                      <tr
-                        key={s.style_id}
-                        className="group border-b border-zinc-700/40 transition-colors duration-100 hover:bg-zinc-800/40 last:border-0"
-                      >
-                        {viewMode === "active" && (
-                          <td className="px-4 py-3.5 text-sm text-zinc-300">
-                            <Checkbox
-                              checked={selectedIds.has(s.style_id)}
-                              onCheckedChange={() => toggleSelection(s.style_id)}
-                              aria-label={`Select ${s.name}`}
-                            />
-                          </td>
-                        )}
-                        <td className="px-4 py-3.5 text-sm text-zinc-300">
-                          <div className={s.image_url ? "h-10 w-10 overflow-hidden rounded-md" : "flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
-                            {s.image_url ? (
-                              <Image
-                                src={s.image_url}
-                                alt={s.name}
-                                width={40}
-                                height={40}
-                                className="h-full w-full object-cover"
+                      return (
+                        <tr
+                          key={s.style_id}
+                          className="group border-b border-zinc-700/40 transition-colors duration-100 hover:bg-zinc-800/40 last:border-0"
+                        >
+                          {viewMode === "active" && (
+                            <td className="px-4 py-3.5">
+                              <Checkbox
+                                checked={selectedIds.has(s.style_id)}
+                                onCheckedChange={() => toggleSelection(s.style_id)}
+                                aria-label={`Select ${s.name}`}
                               />
-                            ) : (
-                              <Package className="h-4 w-4 text-zinc-600" />
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3.5 text-sm text-zinc-100 font-medium">
-                          {s.name}
-                        </td>
-                        <td className="px-4 py-3.5 text-sm text-zinc-300">{categoryName}</td>
-                        <td className="px-4 py-3.5 text-sm text-zinc-300">{seasonName}</td>
-                        <td className="px-4 py-3.5 text-right font-semibold text-zinc-100 tabular-nums">
-                          {active ? (
-                            <span className="flex flex-col items-end gap-0.5">
-                              <span className="text-[0.65rem] text-zinc-500 line-through">{formatKes(base)}</span>
-                              <span>{formatKes(displayPrice)}</span>
-                              <span className="text-[0.65rem] font-normal text-green-400">{discountPct}% off</span>
-                              {s.discount_ends_at && (
-                                <span className="text-[0.65rem] font-normal text-zinc-500">Until {formatEndsAt(s.discount_ends_at)}</span>
-                              )}
-                            </span>
-                          ) : (
-                            formatKes(base)
+                            </td>
                           )}
-                        </td>
-                        <td className="px-4 py-3.5 text-right font-semibold text-zinc-100 tabular-nums">
-                          {formatKes(cost)}
-                        </td>
-                        <td className="px-4 py-3.5 text-right text-sm">
-                          <span className="rounded-sm border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-[0.65rem] font-semibold tracking-[0.1em] text-zinc-300">
-                            {margin.toFixed(1)}%
-                          </span>
-                        </td>
-                        <td className="px-4 py-3.5 text-right">
-                          <div className="flex items-center justify-end gap-1 text-right">
-                            {viewMode === "active" ? (
-                              <>
-                                <Link
-                                  href={`/products/${s.style_id}/edit`}
-                                  className="flex h-8 w-8 items-center justify-center rounded-sm text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
-                                  title="Edit"
-                                >
-                                  <Pencil className="h-4 w-4" />
-                                </Link>
+                          <td className="px-4 py-3.5">
+                            <div className={s.image_url ? "h-10 w-10 overflow-hidden rounded-md" : "flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
+                              {s.image_url ? (
+                                <Image
+                                  src={s.image_url}
+                                  alt={s.name}
+                                  width={40}
+                                  height={40}
+                                  className="h-full w-full object-cover rounded-md"
+                                />
+                              ) : (
+                                <Package className="h-4 w-4 text-zinc-600" />
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <Link href={`/products/${s.style_id}`} className="text-sm font-semibold text-zinc-100 hover:text-white transition-colors">
+                              {s.name}
+                            </Link>
+                          </td>
+                          <td className="px-4 py-3.5 text-sm text-zinc-400">{categoryName}</td>
+                          <td className="px-4 py-3.5 text-sm text-zinc-400">
+                            {seasonName ?? <span className="text-zinc-600">—</span>}
+                          </td>
+                          <td className="px-4 py-3.5 text-right font-semibold text-zinc-100 tabular-nums font-mono">
+                            {active ? (
+                              <span className="flex flex-col items-end gap-0.5">
+                                <span className="text-[0.65rem] text-zinc-500 line-through">{formatKes(base)}</span>
+                                <span>{formatKes(displayPrice)}</span>
+                                <span className="text-[0.65rem] font-normal text-emerald-400">{discountPct}% off</span>
+                                {s.discount_ends_at && (
+                                  <span className="text-[0.65rem] font-normal text-zinc-500">Until {formatEndsAt(s.discount_ends_at)}</span>
+                                )}
+                              </span>
+                            ) : (
+                              formatKes(base)
+                            )}
+                          </td>
+                          <td className="hidden px-4 py-3.5 text-right font-semibold text-zinc-100 tabular-nums font-mono lg:table-cell">
+                            {formatKes(cost)}
+                          </td>
+                          <td className="hidden px-4 py-3.5 text-right lg:table-cell">
+                            <span className={marginBadgeClass(margin)}>
+                              {margin.toFixed(1)}%
+                            </span>
+                          </td>
+                          <td className="px-4 py-3.5 text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              {viewMode === "active" ? (
+                                <>
+                                  <Link
+                                    href={`/products/${s.style_id}/edit`}
+                                    className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
+                                    title="Edit"
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Link>
 
+                                  <button
+                                    type="button"
+                                    className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-7 w-7 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                    title="Discount"
+                                    disabled={isPending}
+                                    onClick={() => {
+                                      setDiscountStyle({ styleId: s.style_id, name: s.name, currentPercent: discountPct, endsAt: s.discount_ends_at })
+                                      setDiscountInput(String(discountPct))
+                                      setDiscountEndsAtInput(s.discount_ends_at ? new Date(s.discount_ends_at).toISOString().slice(0, 10) : "")
+                                    }}
+                                  >
+                                    <Percent className="h-4 w-4" />
+                                  </button>
+
+                                  <AlertDialog.Root
+                                    open={archivingId === s.style_id}
+                                    onOpenChange={(open) => setArchivingId(open ? s.style_id : null)}
+                                  >
+                                    <AlertDialog.Trigger asChild>
+                                      <button
+                                        type="button"
+                                        className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-7 w-7 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                        title="Archive"
+                                        disabled={isPending}
+                                      >
+                                        <Archive className="h-4 w-4" />
+                                      </button>
+                                    </AlertDialog.Trigger>
+
+                                    <AlertDialog.Portal>
+                                      <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/60" />
+                                      <AlertDialog.Content className={alertContentClass}>
+                                        <AlertDialog.Title className="font-editorial text-lg font-bold text-zinc-50 mb-2">
+                                          Archive this style?
+                                        </AlertDialog.Title>
+                                        <AlertDialog.Description className="text-sm text-zinc-400 mb-6">
+                                          This will hide the style from your active list. You can restore it anytime from Archived.
+                                        </AlertDialog.Description>
+
+                                        <div className="flex items-center justify-end gap-2">
+                                          <AlertDialog.Cancel asChild>
+                                            <button type="button" className={alertCancelBtnClass} disabled={isPending}>Cancel</button>
+                                          </AlertDialog.Cancel>
+
+                                          <AlertDialog.Action asChild>
+                                            <button
+                                              type="button"
+                                              className={alertConfirmBtnClass}
+                                              disabled={isPending}
+                                              onClick={() => {
+                                                setError(null)
+                                                startTransition(async () => {
+                                                  try {
+                                                    await archiveProductStyle(s.style_id)
+                                                    router.refresh()
+                                                  } catch (e) {
+                                                    setError(e instanceof Error ? e.message : "Failed to archive.")
+                                                  } finally {
+                                                    setArchivingId(null)
+                                                  }
+                                                })
+                                              }}
+                                            >
+                                              {isPending ? "Archiving..." : "Archive"}
+                                            </button>
+                                          </AlertDialog.Action>
+                                        </div>
+                                      </AlertDialog.Content>
+                                    </AlertDialog.Portal>
+                                  </AlertDialog.Root>
+                                </>
+                              ) : (
                                 <button
                                   type="button"
-                                  className="flex h-8 w-8 items-center justify-center rounded-sm text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
-                                  title="Discount"
+                                  className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-7 w-7 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                  title="Restore to active"
                                   disabled={isPending}
                                   onClick={() => {
-                                    setDiscountStyle({ styleId: s.style_id, name: s.name, currentPercent: discountPct, endsAt: s.discount_ends_at })
-                                    setDiscountInput(String(discountPct))
-                                    setDiscountEndsAtInput(s.discount_ends_at ? new Date(s.discount_ends_at).toISOString().slice(0, 10) : "")
+                                    setError(null)
+                                    startTransition(async () => {
+                                      try {
+                                        setRestoringId(s.style_id)
+                                        await unarchiveProductStyle(s.style_id)
+                                        setViewMode("active")
+                                        router.refresh()
+                                      } catch (e) {
+                                        setError(e instanceof Error ? e.message : "Failed to restore.")
+                                      } finally {
+                                        setRestoringId(null)
+                                      }
+                                    })
                                   }}
                                 >
-                                  <Percent className="h-4 w-4" />
+                                  <ArchiveRestore className="h-4 w-4" />
                                 </button>
+                              )}
 
-                                <AlertDialog.Root
-                                  open={archivingId === s.style_id}
-                                  onOpenChange={(open) => setArchivingId(open ? s.style_id : null)}
-                                >
-                                  <AlertDialog.Trigger asChild>
-                                    <button
-                                      type="button"
-                                      className="flex h-8 w-8 items-center justify-center rounded-sm text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
-                                      title="Archive"
-                                      disabled={isPending}
-                                    >
-                                      <Archive className="h-4 w-4" />
-                                    </button>
-                                  </AlertDialog.Trigger>
-
-                                  <AlertDialog.Portal>
-                                    <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
-                                    <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-background-card-light p-5 shadow-lg outline-none dark:border-border-dark dark:bg-background-card-dark">
-                                      <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                                        Archive this style?
-                                      </AlertDialog.Title>
-                                      <AlertDialog.Description className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                                        This will hide the style from your active list. You can restore it anytime from Archived.
-                                      </AlertDialog.Description>
-
-                                      <div className="mt-4 flex items-center justify-end gap-2">
-                                        <AlertDialog.Cancel asChild>
-                                          <button
-                                            type="button"
-                                            className="inline-flex h-10 items-center justify-center rounded-lg border border-border-light bg-background-card-light px-4 dark:border-border-dark dark:bg-background-card-dark text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background dark:text-zinc-100 dark:hover:bg-zinc-900"
-                                            disabled={isPending}
-                                          >
-                                            Cancel
-                                          </button>
-                                        </AlertDialog.Cancel>
-
-                                        <AlertDialog.Action asChild>
-                                          <button
-                                            type="button"
-                                            className="inline-flex items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                            disabled={isPending}
-                                            onClick={() => {
-                                              setError(null)
-                                              startTransition(async () => {
-                                                try {
-                                                  await archiveProductStyle(s.style_id)
-                                                  router.refresh()
-                                                } catch (e) {
-                                                  setError(e instanceof Error ? e.message : "Failed to archive.")
-                                                } finally {
-                                                  setArchivingId(null)
-                                                }
-                                              })
-                                            }}
-                                          >
-                                            {isPending ? "Archiving..." : "Archive"}
-                                          </button>
-                                        </AlertDialog.Action>
-                                      </div>
-                                    </AlertDialog.Content>
-                                  </AlertDialog.Portal>
-                                </AlertDialog.Root>
-                              </>
-                            ) : (
-                              <button
-                                type="button"
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-green-600 hover:bg-green-50 hover:text-green-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-green-400 dark:hover:bg-green-950/30 dark:hover:text-green-300"
-                                title="Restore to active"
-                                disabled={isPending}
-                                onClick={() => {
-                                  setError(null)
-                                  startTransition(async () => {
-                                    try {
-                                      setRestoringId(s.style_id)
-                                      await unarchiveProductStyle(s.style_id)
-                                      setViewMode("active")
-                                      router.refresh()
-                                    } catch (e) {
-                                      setError(e instanceof Error ? e.message : "Failed to restore.")
-                                    } finally {
-                                      setRestoringId(null)
-                                    }
-                                  })
-                                }}
+                              <AlertDialog.Root
+                                open={deletingId === s.style_id}
+                                onOpenChange={(open) => setDeletingId(open ? s.style_id : null)}
                               >
-                                <ArchiveRestore className="h-4 w-4" />
-                              </button>
-                            )}
+                                <AlertDialog.Trigger asChild>
+                                  <button
+                                    type="button"
+                                    className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-sm h-7 w-7 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                    title="Delete permanently"
+                                    disabled={isPending}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                </AlertDialog.Trigger>
 
-                            <AlertDialog.Root
-                              open={deletingId === s.style_id}
-                              onOpenChange={(open) => setDeletingId(open ? s.style_id : null)}
-                            >
-                              <AlertDialog.Trigger asChild>
-                                <button
-                                  type="button"
-                                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
-                                  title="Delete permanently"
-                                  disabled={isPending}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              </AlertDialog.Trigger>
+                                <AlertDialog.Portal>
+                                  <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/60" />
+                                  <AlertDialog.Content className={alertContentClass}>
+                                    <AlertDialog.Title className="font-editorial text-lg font-bold text-zinc-50 mb-2">
+                                      Delete &quot;{s.name}&quot; permanently?
+                                    </AlertDialog.Title>
+                                    <AlertDialog.Description className="text-sm text-zinc-400 mb-6">
+                                      This will remove the style and all its variants and inventory levels. This cannot be undone. Products with sales history cannot be deleted—use Archive instead.
+                                    </AlertDialog.Description>
 
-                              <AlertDialog.Portal>
-                                <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
-                                <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-background-card-light p-5 shadow-lg outline-none dark:border-border-dark dark:bg-background-card-dark">
-                                  <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                                    Delete &quot;{s.name}&quot; permanently?
-                                  </AlertDialog.Title>
-                                  <AlertDialog.Description className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                                    This will remove the style and all its variants and inventory levels. This cannot be undone. Products with sales history cannot be deleted—use Archive instead.
-                                  </AlertDialog.Description>
+                                    <div className="flex items-center justify-end gap-2">
+                                      <AlertDialog.Cancel asChild>
+                                        <button type="button" className={alertCancelBtnClass} disabled={isPending}>Cancel</button>
+                                      </AlertDialog.Cancel>
 
-                                  <div className="mt-4 flex items-center justify-end gap-2">
-                                    <AlertDialog.Cancel asChild>
-                                      <button
-                                        type="button"
-                                        className="inline-flex h-10 items-center justify-center rounded-lg border border-border-light bg-background-card-light px-4 dark:border-border-dark dark:bg-background-card-dark text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background dark:text-zinc-100 dark:hover:bg-zinc-900"
-                                        disabled={isPending}
-                                      >
-                                        Cancel
-                                      </button>
-                                    </AlertDialog.Cancel>
-
-                                    <AlertDialog.Action asChild>
-                                      <button
-                                        type="button"
-                                        className="inline-flex h-10 items-center justify-center rounded-lg bg-red-600 px-4 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-500 dark:hover:bg-red-600"
-                                        disabled={isPending}
-                                        onClick={() => {
-                                          setError(null)
-                                          startTransition(async () => {
-                                            try {
-                                              await deleteProductStyle(s.style_id)
-                                              setDeletingId(null)
-                                              router.push("/products")
-                                              router.refresh()
-                                            } catch (e) {
-                                              setError(e instanceof Error ? e.message : "Failed to delete.")
-                                            } finally {
-                                              setDeletingId(null)
-                                            }
-                                          })
-                                        }}
-                                      >
-                                        {isPending ? "Deleting..." : "Delete"}
-                                      </button>
-                                    </AlertDialog.Action>
-                                  </div>
-                                </AlertDialog.Content>
-                              </AlertDialog.Portal>
-                            </AlertDialog.Root>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })
-                )}
-              </tbody>
-            </table>
+                                      <AlertDialog.Action asChild>
+                                        <button
+                                          type="button"
+                                          className={alertDeleteBtnClass}
+                                          disabled={isPending}
+                                          onClick={() => {
+                                            setError(null)
+                                            startTransition(async () => {
+                                              try {
+                                                await deleteProductStyle(s.style_id)
+                                                setDeletingId(null)
+                                                router.push("/products")
+                                                router.refresh()
+                                              } catch (e) {
+                                                setError(e instanceof Error ? e.message : "Failed to delete.")
+                                              } finally {
+                                                setDeletingId(null)
+                                              }
+                                            })
+                                          }}
+                                        >
+                                          {isPending ? "Deleting..." : "Delete"}
+                                        </button>
+                                      </AlertDialog.Action>
+                                    </div>
+                                  </AlertDialog.Content>
+                                </AlertDialog.Portal>
+                              </AlertDialog.Root>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
 
           {/* Mobile: Card View */}
           <div className="md:hidden">
             <div className="space-y-3">
               {filtered.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-zinc-200 bg-background p-10 text-center dark:border-zinc-800 dark:bg-background">
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                <div className="rounded-sm border border-dashed border-zinc-800 bg-zinc-900/30 p-10 text-center">
+                  <p className="text-sm text-zinc-500">
                     {viewMode === "archived"
                       ? "No archived styles match your filters."
                       : "No styles match your filters."}
@@ -689,258 +721,90 @@ export function ProductsTableClient(props: {
                   const margin = marginPercent(displayPrice, cost)
                   const categoryName = s.categories?.name ?? "—"
                   const seasonName = s.seasons?.name ?? "—"
-                  const cardClassName =
-                    "block rounded-lg border border-border-light bg-background-card-light p-4 dark:border-border-dark dark:bg-background-card-dark transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
 
                   return viewMode === "active" ? (
                     <Link
                       key={s.style_id}
-                      href={`/products/${s.style_id}/edit`}
-                      className={cardClassName}
+                      href={`/products/${s.style_id}`}
+                      className="block rounded-sm border border-zinc-800 bg-zinc-900 p-4 transition-colors hover:border-zinc-700 hover:bg-zinc-800/60"
                     >
                       <div className="flex gap-4">
-                        {/* Image */}
-                        <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-background-card-dark dark:ring-border-dark">
+                        <div className={s.image_url ? "h-16 w-16 flex-shrink-0 overflow-hidden rounded-md" : "h-16 w-16 flex-shrink-0 flex items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
                           {s.image_url ? (
                             <Image
                               src={s.image_url}
                               alt={s.name}
-                              width={80}
-                              height={80}
-                              className="h-20 w-20 object-cover"
+                              width={64}
+                              height={64}
+                              className="h-16 w-16 object-cover"
                             />
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center text-xs text-zinc-500">
-                              No image
-                            </div>
+                            <Package className="h-5 w-5 text-zinc-600" />
                           )}
                         </div>
 
-                        {/* Details */}
                         <div className="flex-1 min-w-0">
-                          <h3 className="truncate font-medium text-zinc-900 dark:text-zinc-100">
-                            {s.name}
-                          </h3>
-                          <div className="mt-1 space-y-1 text-xs text-zinc-600 dark:text-zinc-400">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">Category:</span>
-                              <span>{categoryName}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">Season:</span>
-                              <span>{seasonName}</span>
-                            </div>
+                          <h3 className="truncate text-sm font-semibold text-zinc-100">{s.name}</h3>
+                          <div className="mt-1 space-y-0.5 text-xs text-zinc-500">
+                            <div>{categoryName} · {seasonName}</div>
                             <div className="flex items-center justify-between pt-1">
-                              <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                              <span className="font-semibold text-zinc-100 font-mono tabular-nums">
                                 {active ? (
                                   <>
-                                    <span className="text-zinc-500 line-through">{formatKes(base)}</span>{" "}
-                                    {formatKes(displayPrice)} <span className="text-xs text-green-600 dark:text-green-400">{discountPct}% off</span>
-                                    {s.discount_ends_at && (
-                                      <span className="block text-xs font-normal text-zinc-500 dark:text-zinc-400">Until {formatEndsAt(s.discount_ends_at)}</span>
-                                    )}
+                                    <span className="text-zinc-500 line-through mr-1">{formatKes(base)}</span>
+                                    {formatKes(displayPrice)}
                                   </>
                                 ) : (
                                   formatKes(base)
                                 )}
                               </span>
-                              <span className="rounded-md bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-                                {margin.toFixed(1)}% margin
+                              <span className={marginBadgeClass(margin)}>
+                                {margin.toFixed(1)}%
                               </span>
                             </div>
                           </div>
                         </div>
 
-                        {/* Actions */}
                         <div className="flex flex-col items-end gap-2">
-                          {viewMode === "active" ? (
-                            <>
-                            <div className="flex items-center gap-1">
-                              <Checkbox
-                                checked={selectedIds.has(s.style_id)}
-                                onCheckedChange={() => toggleSelection(s.style_id)}
-                                onClick={(e) => e.stopPropagation()}
-                                aria-label={`Select ${s.name}`}
-                              />
-                            </div>
-                            <Link
-                              href={`/products/${s.style_id}/edit`}
-                              onClick={(e) => e.stopPropagation()}
-                              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
-                              title="Edit"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Link>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                setDiscountStyle({ styleId: s.style_id, name: s.name, currentPercent: discountPct, endsAt: s.discount_ends_at })
-                                setDiscountInput(String(discountPct))
-                                setDiscountEndsAtInput(s.discount_ends_at ? new Date(s.discount_ends_at).toISOString().slice(0, 10) : "")
-                              }}
-                              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
-                              title="Discount"
-                            >
-                              <Percent className="h-4 w-4" />
-                            </button>
-                            </>
-                            ) : (
-                              <button
-                                type="button"
-                                className="flex h-8 w-8 items-center justify-center rounded-sm text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
-                                title="Restore to active"
-                                disabled={isPending}
-                                onClick={(e) => {
-                                  e.preventDefault()
-                                  e.stopPropagation()
-                                  setError(null)
-                                  startTransition(async () => {
-                                    try {
-                                      setRestoringId(s.style_id)
-                                      await unarchiveProductStyle(s.style_id)
-                                      setViewMode("active")
-                                      router.refresh()
-                                    } catch (err) {
-                                      setError(err instanceof Error ? err.message : "Failed to restore.")
-                                    } finally {
-                                      setRestoringId(null)
-                                    }
-                                  })
-                                }}
-                              >
-                                <ArchiveRestore className="h-4 w-4" />
-                              </button>
-                            )}
-                            <AlertDialog.Root
-                              open={deletingId === s.style_id}
-                              onOpenChange={(open) => setDeletingId(open ? s.style_id : null)}
-                            >
-                              <AlertDialog.Trigger asChild>
-                                <button
-                                  type="button"
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="flex h-8 w-8 items-center justify-center rounded-sm text-red-400 transition-colors hover:bg-zinc-800 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-50"
-                                  title="Delete permanently"
-                                  disabled={isPending}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              </AlertDialog.Trigger>
-
-                              <AlertDialog.Portal>
-                                <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
-                                <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-background-card-light p-5 shadow-lg outline-none dark:border-border-dark dark:bg-background-card-dark">
-                                  <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                                    Delete &quot;{s.name}&quot; permanently?
-                                  </AlertDialog.Title>
-                                  <AlertDialog.Description className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                                    This will remove the style and all its variants and inventory levels. This cannot be undone.
-                                  </AlertDialog.Description>
-
-                                <div className="mt-4 flex items-center justify-end gap-2">
-                                  <AlertDialog.Cancel asChild>
-                                    <button
-                                      type="button"
-                                      className="inline-flex h-10 items-center justify-center rounded-lg border border-border-light bg-background-card-light px-4 dark:border-border-dark dark:bg-background-card-dark text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background dark:text-zinc-100 dark:hover:bg-zinc-900"
-                                      disabled={isPending}
-                                    >
-                                      Cancel
-                                    </button>
-                                  </AlertDialog.Cancel>
-
-                                  <AlertDialog.Action asChild>
-                                    <button
-                                      type="button"
-                                      className="inline-flex h-10 items-center justify-center rounded-lg bg-red-600 px-4 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-500 dark:hover:bg-red-600"
-                                      disabled={isPending}
-                                      onClick={() => {
-                                        setError(null)
-                                        startTransition(async () => {
-                                          try {
-                                            await deleteProductStyle(s.style_id)
-                                            setDeletingId(null)
-                                            router.push("/products")
-                                            router.refresh()
-                                          } catch (e) {
-                                            setError(e instanceof Error ? e.message : "Failed to delete.")
-                                          } finally {
-                                            setDeletingId(null)
-                                          }
-                                        })
-                                      }}
-                                    >
-                                      {isPending ? "Deleting..." : "Delete"}
-                                    </button>
-                                  </AlertDialog.Action>
-                                </div>
-                              </AlertDialog.Content>
-                            </AlertDialog.Portal>
-                          </AlertDialog.Root>
+                          <Checkbox
+                            checked={selectedIds.has(s.style_id)}
+                            onCheckedChange={() => toggleSelection(s.style_id)}
+                            onClick={(e) => e.stopPropagation()}
+                            aria-label={`Select ${s.name}`}
+                          />
                         </div>
                       </div>
                     </Link>
                   ) : (
-                    <div key={s.style_id} className={cardClassName}>
+                    <div key={s.style_id} className="block rounded-sm border border-zinc-800 bg-zinc-900 p-4">
                       <div className="flex gap-4">
-                        {/* Image */}
-                        <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-background-card-dark dark:ring-border-dark">
+                        <div className={s.image_url ? "h-16 w-16 flex-shrink-0 overflow-hidden rounded-md" : "h-16 w-16 flex-shrink-0 flex items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
                           {s.image_url ? (
                             <Image
                               src={s.image_url}
                               alt={s.name}
-                              width={80}
-                              height={80}
-                              className="h-20 w-20 object-cover"
+                              width={64}
+                              height={64}
+                              className="h-16 w-16 object-cover"
                             />
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center text-xs text-zinc-500">
-                              No image
-                            </div>
+                            <Package className="h-5 w-5 text-zinc-600" />
                           )}
                         </div>
 
-                        {/* Details */}
                         <div className="flex-1 min-w-0">
-                          <h3 className="truncate font-medium text-zinc-900 dark:text-zinc-100">
-                            {s.name}
-                          </h3>
-                          <div className="mt-1 space-y-1 text-xs text-zinc-600 dark:text-zinc-400">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">Category:</span>
-                              <span>{categoryName}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">Season:</span>
-                              <span>{seasonName}</span>
-                            </div>
-                            <div className="flex items-center justify-between pt-1">
-                              <span className="font-semibold text-zinc-900 dark:text-zinc-100">
-                                {active ? (
-                                  <>
-                                    <span className="text-zinc-500 line-through">{formatKes(base)}</span>{" "}
-                                    {formatKes(displayPrice)} <span className="text-xs text-green-600 dark:text-green-400">{discountPct}% off</span>
-                                    {s.discount_ends_at && (
-                                      <span className="block text-xs font-normal text-zinc-500 dark:text-zinc-400">Until {formatEndsAt(s.discount_ends_at)}</span>
-                                    )}
-                                  </>
-                                ) : (
-                                  formatKes(base)
-                                )}
-                              </span>
-                              <span className="rounded-md bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-                                {margin.toFixed(1)}% margin
-                              </span>
-                            </div>
+                          <h3 className="truncate text-sm font-semibold text-zinc-100">{s.name}</h3>
+                          <div className="mt-1 text-xs text-zinc-500">{categoryName} · {seasonName}</div>
+                          <div className="mt-1 flex items-center gap-2">
+                            <span className="font-semibold text-zinc-100 font-mono tabular-nums text-xs">{formatKes(base)}</span>
+                            <span className={marginBadgeClass(margin)}>{margin.toFixed(1)}%</span>
                           </div>
                         </div>
 
-                        {/* Actions - archived: Restore + Delete */}
                         <div className="flex flex-col items-end gap-2">
                           <button
                             type="button"
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-green-600 hover:bg-green-50 hover:text-green-700 dark:text-green-400 dark:hover:bg-green-950/30 dark:hover:text-green-300"
+                            className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
                             title="Restore to active"
                             disabled={isPending}
                             onClick={() => {
@@ -969,7 +833,7 @@ export function ProductsTableClient(props: {
                               <button
                                 type="button"
                                 onClick={(e) => e.stopPropagation()}
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30"
+                                className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
                                 title="Delete permanently"
                                 disabled={isPending}
                               >
@@ -978,30 +842,24 @@ export function ProductsTableClient(props: {
                             </AlertDialog.Trigger>
 
                             <AlertDialog.Portal>
-                              <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
-                              <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-background-card-light p-5 shadow-lg outline-none dark:border-border-dark dark:bg-background-card-dark">
-                                <AlertDialog.Title className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                              <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/60" />
+                              <AlertDialog.Content className={alertContentClass}>
+                                <AlertDialog.Title className="font-editorial text-lg font-bold text-zinc-50 mb-2">
                                   Delete &quot;{s.name}&quot; permanently?
                                 </AlertDialog.Title>
-                                <AlertDialog.Description className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                                <AlertDialog.Description className="text-sm text-zinc-400 mb-6">
                                   This will remove the style and all its variants and inventory levels. This cannot be undone.
                                 </AlertDialog.Description>
 
-                                <div className="mt-4 flex items-center justify-end gap-2">
+                                <div className="flex items-center justify-end gap-2">
                                   <AlertDialog.Cancel asChild>
-                                    <button
-                                      type="button"
-                                      className="inline-flex h-10 items-center justify-center rounded-lg border border-border-light bg-background-card-light px-4 dark:border-border-dark dark:bg-background-card-dark text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background dark:text-zinc-100 dark:hover:bg-zinc-900"
-                                      disabled={isPending}
-                                    >
-                                      Cancel
-                                    </button>
+                                    <button type="button" className={alertCancelBtnClass} disabled={isPending}>Cancel</button>
                                   </AlertDialog.Cancel>
 
                                   <AlertDialog.Action asChild>
                                     <button
                                       type="button"
-                                      className="inline-flex h-10 items-center justify-center rounded-lg bg-red-600 px-4 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-500 dark:hover:bg-red-600"
+                                      className={alertDeleteBtnClass}
                                       disabled={isPending}
                                       onClick={() => {
                                         setError(null)
@@ -1036,7 +894,9 @@ export function ProductsTableClient(props: {
           </div>
         </>
       )}
+
+      {/* Suppress unused variable warning */}
+      {restoringId && null}
     </div>
   )
 }
-

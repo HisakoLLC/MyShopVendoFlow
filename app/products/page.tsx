@@ -107,27 +107,27 @@ async function fetchProductsData(): Promise<FetchResult> {
 
 function LoadingState() {
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="h-8 w-48 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-        <div className="h-10 w-36 animate-pulse rounded-lg bg-zinc-200 dark:bg-zinc-800" />
+    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+      <div className="mb-6 flex items-center justify-between border-b border-zinc-800 pb-6">
+        <div className="h-8 w-48 animate-pulse rounded bg-zinc-800" />
+        <div className="h-9 w-36 animate-pulse rounded-sm bg-zinc-800" />
       </div>
-      <div className="h-12 w-full animate-pulse rounded-lg bg-zinc-200 dark:bg-zinc-800" />
-      <div className="mt-4 h-80 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+      <div className="h-12 w-full animate-pulse rounded-lg bg-zinc-800" />
+      <div className="mt-4 h-80 w-full animate-pulse rounded-lg bg-zinc-800" />
     </div>
   )
 }
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10">
-      <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-100">
-        <div className="text-base font-semibold">Couldn’t load products</div>
+    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+      <div className="rounded-sm border border-red-900/40 bg-red-950/30 p-5 text-red-100">
+        <div className="text-base font-semibold">Couldn&apos;t load products</div>
         <div className="mt-1 text-sm opacity-90">{message}</div>
         <div className="mt-4">
           <Link
             href="/dashboard"
-            className="inline-flex h-10 items-center justify-center rounded-sm bg-white px-4 text-sm font-medium text-zinc-950 hover:bg-zinc-100"
+            className="inline-flex h-9 items-center justify-center rounded-sm bg-white px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-950 hover:bg-zinc-100 transition-colors"
           >
             Go to Dashboard
           </Link>
@@ -142,7 +142,6 @@ async function ProductsPageContent() {
   try {
     data = await fetchProductsData()
   } catch (err) {
-    // Re-throw redirect errors (Next.js uses special error for redirects)
     if (
       err &&
       typeof err === "object" &&
@@ -156,14 +155,13 @@ async function ProductsPageContent() {
     return <ErrorState message={message} />
   }
 
-  // Show empty state if no products
   if (data.styles.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-6xl px-4 py-6">
-        <div className="mb-4 flex items-start justify-between gap-4">
+      <div className="min-h-screen bg-zinc-950 px-8 py-8">
+        <div className="flex items-start justify-between pb-6 mb-6 border-b border-zinc-800">
           <div>
             <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
-              Manage your styles, pricing, and margins.
+              MANAGE YOUR STYLES, PRICING, AND MARGINS
             </p>
             <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
               Products
@@ -171,7 +169,7 @@ async function ProductsPageContent() {
           </div>
           <Link
             href="/products/new"
-            className="hidden items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase md:inline-flex"
+            className="inline-flex items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
           >
             Add New Style
           </Link>
@@ -191,21 +189,21 @@ async function ProductsPageContent() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6">
-      <div className="mb-4 flex items-start justify-between gap-4">
-          <div>
-            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
-              Manage your styles, pricing, and margins.
-            </p>
-            <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
-              Products
-            </h1>
-            {data.styles.length === 1 && <ProductsInventoryHint />}
-          </div>
-          <Link
-            href="/products/new"
-            className="hidden items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase md:inline-flex"
-          >
+    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+      <div className="flex items-start justify-between pb-6 mb-6 border-b border-zinc-800">
+        <div>
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+            MANAGE YOUR STYLES, PRICING, AND MARGINS
+          </p>
+          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+            Products
+          </h1>
+          {data.styles.length === 1 && <ProductsInventoryHint />}
+        </div>
+        <Link
+          href="/products/new"
+          className="inline-flex items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+        >
           Add New Style
         </Link>
       </div>
@@ -222,4 +220,3 @@ export default function Page() {
     </Suspense>
   )
 }
-

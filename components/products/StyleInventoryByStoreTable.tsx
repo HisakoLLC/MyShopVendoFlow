@@ -2,16 +2,6 @@
 
 import * as React from "react"
 import { toast } from "sonner"
-
-import { Button } from "@/components/ui/button"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
 
 type Store = {
@@ -52,12 +42,6 @@ export function StyleInventoryByStoreTable({ stores, inventory, styleName }: Pro
   React.useEffect(() => {
     setRows(inventory)
   }, [inventory])
-
-  const getQuantityColor = (qty: number) => {
-    if (qty === 0) return "text-red-600 dark:text-red-400"
-    if (qty > 0 && qty < 5) return "text-yellow-600 dark:text-yellow-400"
-    return "text-zinc-900 dark:text-zinc-100"
-  }
 
   const handleCellClick = (variant_id: string, store_id: string, current: number) => {
     setEditing({ variant_id, store_id })
@@ -126,47 +110,44 @@ export function StyleInventoryByStoreTable({ stores, inventory, styleName }: Pro
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 px-4 py-10 text-center text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+      <div className="rounded-sm border border-dashed border-zinc-800 bg-zinc-900/30 px-4 py-10 text-center text-sm text-zinc-500">
         No variants yet for this style. Create variants to start tracking inventory by store.
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-          Inventory by Store
-        </h2>
-        <p className="text-xs text-zinc-600 dark:text-zinc-400 max-w-xl">
-          Products are shared across all stores, but inventory is tracked separately per store. Set how
-          many units of <span className="font-medium">{styleName}</span> you have at each location.
+    <div className="space-y-6">
+      <div>
+        <h2 className="font-editorial text-xl font-bold text-zinc-50 mb-1">Inventory by Store</h2>
+        <p className="text-sm text-zinc-500 mb-6">
+          Products are shared across all stores, but inventory is tracked separately per store. Set how many units of <span className="text-zinc-300 font-medium">{styleName}</span> you have at each location. Click any cell to edit.
         </p>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-zinc-900 dark:border-zinc-800 dark:bg-zinc-900">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-48 dark:text-zinc-100">Variant</TableHead>
-              <TableHead className="w-40 dark:text-zinc-100">SKU</TableHead>
+      <div className="bg-zinc-900 border border-zinc-700/50 rounded-lg overflow-hidden overflow-x-auto">
+        <table className="w-full">
+          <thead className="border-b-2 border-zinc-700">
+            <tr>
+              <th className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-4 py-3 text-left">Variant</th>
+              <th className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-4 py-3 text-left">SKU</th>
               {stores.map((store) => (
-                <TableHead key={store.store_id} className="text-right dark:text-zinc-100">
+                <th key={store.store_id} className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-4 py-3 text-right">
                   {store.name}
-                </TableHead>
+                </th>
               ))}
-              <TableHead className="text-right dark:text-zinc-100">Total</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+              <th className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-4 py-3 text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
             {rows.map((row) => (
-              <TableRow key={row.variant_id}>
-                <TableCell className="text-sm text-zinc-900 dark:text-zinc-100">
+              <tr key={row.variant_id} className="border-b border-zinc-700/40 last:border-0 hover:bg-zinc-800/30 transition-colors">
+                <td className="px-4 py-3 text-sm text-zinc-300">
                   {row.size} / {row.color}
-                </TableCell>
-                <TableCell className="font-mono text-xs text-zinc-600 dark:text-zinc-300">
+                </td>
+                <td className="px-4 py-3 font-mono text-xs text-zinc-400">
                   {row.sku}
-                </TableCell>
+                </td>
                 {stores.map((store) => {
                   const level = row.stores.find((s) => s.store_id === store.store_id)
                   const qty = level?.quantity_on_hand ?? 0
@@ -175,10 +156,7 @@ export function StyleInventoryByStoreTable({ stores, inventory, styleName }: Pro
                     editing?.store_id === store.store_id
 
                   return (
-                    <TableCell
-                      key={store.store_id}
-                      className={`text-right align-middle ${getQuantityColor(qty)}`}
-                    >
+                    <td key={store.store_id} className="px-4 py-3 text-right align-middle">
                       {isEditing ? (
                         <div className="flex items-center justify-end gap-2">
                           <Input
@@ -186,45 +164,48 @@ export function StyleInventoryByStoreTable({ stores, inventory, styleName }: Pro
                             inputMode="numeric"
                             min={0}
                             step={1}
-                            className="h-8 w-20 text-right"
+                            className="h-8 w-20 text-right bg-zinc-800 border-zinc-700 text-zinc-100 rounded-sm focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
                             value={value}
                             onChange={(e) => setValue(e.target.value)}
+                            autoFocus
                           />
-                          <Button
-                            size="sm"
-                            variant="outline"
+                          <button
+                            type="button"
+                            className="inline-flex h-8 items-center justify-center rounded-sm border border-zinc-700 bg-transparent px-3 text-xs font-semibold uppercase text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 transition-colors"
                             onClick={handleCancel}
                             disabled={saving}
                           >
                             Cancel
-                          </Button>
-                          <Button size="sm" onClick={handleSave} disabled={saving}>
+                          </button>
+                          <button
+                            type="button"
+                            className="inline-flex h-8 items-center justify-center rounded-sm bg-white px-3 text-xs font-semibold uppercase text-zinc-950 hover:bg-zinc-100 transition-colors"
+                            onClick={handleSave}
+                            disabled={saving}
+                          >
                             Save
-                          </Button>
+                          </button>
                         </div>
                       ) : (
                         <button
                           type="button"
                           onClick={() => handleCellClick(row.variant_id, store.store_id, qty)}
-                          className="inline-flex min-w-[2.5rem] items-center justify-end text-sm hover:underline"
+                          className={`inline-flex min-w-[2.5rem] items-center justify-end text-sm tabular-nums hover:underline transition-colors ${qty === 0 ? "text-zinc-600" : "font-semibold text-zinc-100"}`}
                         >
                           {qty}
                         </button>
                       )}
-                    </TableCell>
+                    </td>
                   )
                 })}
-                <TableCell
-                  className={`text-right font-medium ${getQuantityColor(row.total_stock)}`}
-                >
+                <td className={`px-4 py-3 text-right text-sm tabular-nums ${row.total_stock === 0 ? "text-zinc-600" : "font-semibold text-zinc-50"}`}>
                   {row.total_stock}
-                </TableCell>
-              </TableRow>
+                </td>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
       </div>
     </div>
   )
 }
-

@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { notFound, redirect } from "next/navigation"
+import { ArrowLeft } from "lucide-react"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import type { Tables } from "@/types/database"
@@ -164,9 +165,10 @@ async function fetchStyleInventory(styleId: string): Promise<FetchResult> {
 
 function LoadingState() {
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6">
-      <div className="mb-6 h-8 w-64 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-      <div className="h-96 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+      <div className="mb-6 h-4 w-32 animate-pulse rounded bg-zinc-800" />
+      <div className="mb-6 h-8 w-64 animate-pulse rounded bg-zinc-800" />
+      <div className="h-96 w-full animate-pulse rounded-lg bg-zinc-800" />
     </div>
   )
 }
@@ -175,10 +177,21 @@ async function StyleInventoryPageContent({ styleId }: { styleId: string }) {
   const data = await fetchStyleInventory(styleId)
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6 space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+      {/* Back link */}
+      <Link
+        href="/products"
+        className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6 group"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Products
+      </Link>
+
+      {/* Page header */}
+      <div className="flex flex-wrap items-start justify-between gap-4 pb-6 mb-6 border-b border-zinc-800">
         <div className="flex items-start gap-4">
-          <div className="relative h-16 w-16 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
+          {/* Product image */}
+          <div className="relative h-16 w-16 overflow-hidden rounded-md bg-zinc-800 flex-shrink-0">
             {data.style.image_url ? (
               <Image
                 src={data.style.image_url}
@@ -186,25 +199,13 @@ async function StyleInventoryPageContent({ styleId }: { styleId: string }) {
                 fill
                 className="object-cover"
               />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-xs text-zinc-500 dark:text-zinc-400">
-                No image
-              </div>
-            )}
+            ) : null}
           </div>
           <div>
-            <div className="mb-1 text-sm">
-              <Link
-                href="/products"
-                className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
-              >
-                ← Back to products
-              </Link>
-            </div>
-            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 mt-2">
-              Inventory by store for each variant.
+            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+              INVENTORY BY STORE FOR EACH VARIANT
             </p>
-            <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+            <h1 className="font-editorial text-3xl font-bold text-zinc-50">
               {data.style.name}
             </h1>
           </div>
@@ -212,15 +213,15 @@ async function StyleInventoryPageContent({ styleId }: { styleId: string }) {
         <div className="flex flex-wrap gap-2">
           <Link
             href={`/products/${data.style.style_id}/edit`}
-            className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-background px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background-dark dark:text-zinc-100"
+            className="inline-flex h-9 items-center justify-center rounded-sm bg-white px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-950 hover:bg-zinc-100 transition-colors"
           >
-            Edit style
+            Edit Style
           </Link>
           <Link
             href="/inventory"
-            className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-background px-4 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-background-dark dark:text-zinc-100"
+            className="inline-flex h-9 items-center justify-center rounded-sm border border-zinc-700 px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 transition-colors bg-transparent"
           >
-            View all inventory
+            View All Inventory
           </Link>
         </div>
       </div>
@@ -243,4 +244,3 @@ export default async function Page({ params }: PageProps) {
     </Suspense>
   )
 }
-
