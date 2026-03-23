@@ -19,6 +19,8 @@ const STORE_ID_KEY = "vendoflow_last_store_id"
 const STORE_NAME_KEY = "vendoflow_last_store_name"
 const ACCOUNT_ID_KEY = "vendoflow_last_account_id"
 
+import { AuthImageRotation } from "@/components/auth/AuthImageRotation"
+
 function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -34,16 +36,17 @@ function LoginContent() {
       setTimeoutMessage("Your session has expired. Please log in again.")
     }
   }, [timeout])
+  
   const supabase = React.useMemo(() => {
     try {
       return createClient()
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to initialize Supabase client"
       setSupabaseError(errorMessage)
-      // Return a mock client that will fail gracefully
       return null as any
     }
   }, [])
+  
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
   const [rememberMe, setRememberMe] = React.useState(false)
@@ -102,27 +105,21 @@ function LoginContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
     if (supabaseError || !supabase) {
-      toast.error(supabaseError || "Supabase client not initialized. Please check your environment variables.")
+      toast.error(supabaseError || "Supabase client not initialized.")
       return
     }
-    
     setIsLoading(true)
-
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
-
       if (error) {
         toast.error("Invalid email or password")
         return
       }
-
       if (data.user) {
-        // Check if user has completed onboarding (has account_members record)
         const { data: accountMember, error: memberError } = await supabase
           .from("account_members")
           .select("account_id")
@@ -130,7 +127,6 @@ function LoginContent() {
           .single()
 
         if (memberError || !accountMember) {
-          // No account linked: check if account was deleted (scheduled for deletion)
           const deleted = await isAccountDeletedForCurrentUser()
           if (deleted) {
             await supabase.auth.signOut()
@@ -139,7 +135,6 @@ function LoginContent() {
           }
           router.push("/onboarding")
         } else {
-          // Account exists, redirect to dashboard
           router.push("/dashboard")
         }
         router.refresh()
@@ -156,13 +151,11 @@ function LoginContent() {
       toast.error("Please enter your email address first")
       return
     }
-
     setIsResetting(true)
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       })
-
       if (error) {
         toast.error(error.message)
       } else {
@@ -191,23 +184,11 @@ function LoginContent() {
           pin: pinTrimmed,
         }),
       })
-      const data = (await res.json().catch(() => ({}))) as {
-        error?: string
-        email?: string
-        sign_in_link?: string
-        access_token?: string
-        refresh_token?: string
-        user?: { id: string; email?: string }
-      }
+      const data = (await res.json().catch(() => ({}))) as any
       if (!res.ok) {
         toast.error(data.error || "Invalid PIN. Try again.")
         return
       }
-      if (data.sign_in_link) {
-        window.location.href = data.sign_in_link
-        return
-      }
-      // New API: returns tokens directly
       if (data.access_token && data.refresh_token) {
         const { error: sessionError } = await supabase.auth.setSession({
           access_token: data.access_token,
@@ -221,21 +202,6 @@ function LoginContent() {
         router.refresh()
         return
       }
-      // Legacy: API returned email, sign in with password
-      if (!data.email) {
-        toast.error("Invalid PIN. Try again.")
-        return
-      }
-      const { error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: pinTrimmed,
-      })
-      if (error) {
-        toast.error("Sign-in failed. Use the 6-digit PIN you were given, or ask an owner to reset your PIN in Staff settings.")
-        return
-      }
-      router.push("/dashboard")
-      router.refresh()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong")
     } finally {
@@ -244,173 +210,159 @@ function LoginContent() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background-light px-4 dark:bg-background-dark">
+    <div className="flex min-h-screen bg-black overflow-hidden font-sans">
       <Toaster richColors position="top-right" />
-      <div className="w-full max-w-md space-y-8 rounded-xl border border-zinc-200 bg-background-card-light p-8 shadow-lg dark:border-border-dark dark:bg-background-card-dark">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-            VendoFlow
-          </h1>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            {savedStore
-              ? `Sign in to ${savedStore.store_name}`
-              : "Sign in to your account"}
-          </p>
-          {savedStore && !showEmailPassword && (
-            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
-              Staff: enter your 6-digit PIN. Owner? Use email and password below.
-            </p>
-          )}
-          {(!savedStore || showEmailPassword) && (
-            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
-              Use your email and password to sign in.
-            </p>
-          )}
-        </div>
-
-        {timeoutMessage && (
-          <div className="rounded-lg border-l-4 border-amber-500 bg-amber-50 p-4 dark:bg-amber-950/30">
-            <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
-              {timeoutMessage}
+      
+      {/* Form Side */}
+      <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-20 xl:px-24">
+        <div className="mx-auto w-full max-w-sm lg:w-96">
+          <div className="mb-10 text-center lg:text-left">
+            <h1 className="font-editorial text-4xl font-bold tracking-tight text-white mb-2 underline decoration-zinc-800 decoration-4 underline-offset-8">
+              VendoFlow
+            </h1>
+            <h2 className="text-xl font-medium text-zinc-100 mt-6 capitalize">
+              {savedStore
+                ? `Sign in to ${savedStore.store_name}`
+                : "Welcome back"}
+            </h2>
+            <p className="mt-2 text-sm text-zinc-500">
+              {savedStore && !showEmailPassword && (
+                "Staff: enter your 6-digit PIN. Owner? Use email and password."
+              )}
+              {(!savedStore || showEmailPassword) && (
+                "Enter your details to manage your boutique."
+              )}
             </p>
           </div>
-        )}
 
-        {deletedParam && (
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/40 dark:bg-blue-950/30">
-            <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">Account scheduled for deletion</p>
-            <p className="mt-1 text-xs text-blue-800 dark:text-blue-200">
-              Your account has been marked for deletion. All data will be permanently removed after 90 days.
-              You can request a copy of your data before then by contacting support.
-            </p>
-          </div>
-        )}
+          <div className="space-y-6">
+            {timeoutMessage && (
+              <div className="rounded-sm border-l-2 border-amber-500 bg-amber-500/5 p-4">
+                <p className="text-sm font-medium text-amber-200">
+                  {timeoutMessage}
+                </p>
+              </div>
+            )}
 
-        {supabaseError && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/40 dark:bg-red-950/30">
-            <p className="text-sm font-semibold text-red-900 dark:text-red-100">Configuration Error</p>
-            <p className="mt-1 text-xs text-red-800 dark:text-red-200">{supabaseError}</p>
-            <p className="mt-2 text-xs text-red-700 dark:text-red-300">
-              In Vercel: Settings → Environment Variables, add <strong>NEXT_PUBLIC_SUPABASE_URL</strong> and <strong>NEXT_PUBLIC_SUPABASE_ANON_KEY</strong> (use the same values as your Supabase project URL and anon key). Redeploy after saving.
-            </p>
-          </div>
-        )}
+            {deletedParam && (
+              <div className="rounded-sm border border-zinc-800 bg-zinc-900/50 p-4">
+                <p className="text-sm font-semibold text-zinc-100 uppercase tracking-wider">Account scheduled for deletion</p>
+                <p className="mt-1 text-xs text-zinc-400">
+                  Your account has been marked for deletion. Data will be removed after 90 days.
+                </p>
+              </div>
+            )}
 
-        {savedStore && !showEmailPassword && (
-          <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-background-card-dark/50">
-            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-              Staff — enter your 6-digit PIN
-            </p>
-            <form onSubmit={handlePinLogin} className="mt-4 space-y-3">
-              <Input
-                type="password"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={8}
-                placeholder="••••••"
-                value={pin}
-                onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
-                disabled={pinLoading}
-                className="font-mono text-center text-2xl tracking-[0.5em]"
-                autoComplete="one-time-code"
-                autoFocus
-              />
-              <Button type="submit" className="w-full" disabled={pin.replace(/\D/g, "").length < 6 || pinLoading}>
-                {pinLoading ? "Signing in..." : "Sign in with PIN"}
-              </Button>
-            </form>
-            <button
-              type="button"
-              onClick={() => setShowEmailPassword(true)}
-              className="mt-3 block w-full text-center text-xs text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-            >
-              Owner? Sign in with email and password
-            </button>
-          </div>
-        )}
+            {savedStore && !showEmailPassword && (
+              <div className="space-y-4">
+                <form onSubmit={handlePinLogin} className="space-y-4">
+                  <Input
+                    type="password"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={8}
+                    placeholder="••••••"
+                    value={pin}
+                    onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
+                    disabled={pinLoading}
+                    className="font-mono text-center text-3xl tracking-[0.6em] h-16 bg-zinc-900 border-zinc-700 text-white rounded-sm focus-visible:ring-zinc-600"
+                    autoComplete="one-time-code"
+                    autoFocus
+                  />
+                  <Button type="submit" className="w-full h-11 bg-white text-black hover:bg-zinc-200 transition-all rounded-sm font-semibold uppercase tracking-wider text-xs" disabled={pin.replace(/\D/g, "").length < 6 || pinLoading}>
+                    {pinLoading ? "Authenticating..." : "Sign in with PIN"}
+                  </Button>
+                </form>
+                <button
+                  type="button"
+                  onClick={() => setShowEmailPassword(true)}
+                  className="w-full text-center text-xs text-zinc-500 hover:text-zinc-300 transition-colors uppercase tracking-[0.15em] font-semibold"
+                >
+                  Owner login instead
+                </button>
+              </div>
+            )}
 
-        {(!savedStore || showEmailPassword) && (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={isLoading}
-              className="mt-1"
-            />
-          </div>
+            {(!savedStore || showEmailPassword) && (
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="name@boutique.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    disabled={isLoading}
+                    className="bg-zinc-900 border-zinc-800 text-white h-11 focus-visible:ring-zinc-600 rounded-sm"
+                  />
+                </div>
 
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={isLoading}
-              className="mt-1"
-            />
-          </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password" className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Password</Label>
+                    <button
+                      type="button"
+                      onClick={handleForgotPassword}
+                      disabled={isLoading || isResetting}
+                      className="text-[0.65rem] font-semibold uppercase tracking-[0.1em] text-zinc-500 hover:text-zinc-300"
+                    >
+                      {isResetting ? "Sending..." : "Forgot?"}
+                    </button>
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={isLoading}
+                    className="bg-zinc-900 border-zinc-800 text-white h-11 focus-visible:ring-zinc-600 rounded-sm"
+                  />
+                </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="remember"
-                checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked === true)}
-                disabled={isLoading}
-              />
-              <Label
-                htmlFor="remember"
-                className="text-sm font-normal cursor-pointer"
-              >
-                Remember me
-              </Label>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="remember"
+                    checked={rememberMe}
+                    onCheckedChange={(checked) => setRememberMe(checked === true)}
+                    disabled={isLoading}
+                    className="border-zinc-700 data-[state=checked]:bg-white data-[state=checked]:text-black"
+                  />
+                  <Label
+                    htmlFor="remember"
+                    className="text-xs font-medium text-zinc-400 cursor-pointer select-none"
+                  >
+                    Keep me signed in
+                  </Label>
+                </div>
+
+                <Button type="submit" className="w-full h-11 bg-white text-black hover:bg-zinc-200 transition-all rounded-sm font-semibold uppercase tracking-wider text-xs" disabled={isLoading}>
+                  {isLoading ? "Signing in..." : "Continue"}
+                </Button>
+              </form>
+            )}
+
+            <div className="pt-6 border-t border-zinc-800 text-center lg:text-left">
+              <p className="text-sm text-zinc-500">
+                New to the platform?{" "}
+                <Link
+                  href="/signup"
+                  className="font-bold text-white hover:underline underline-offset-4"
+                >
+                  Create an account
+                </Link>
+              </p>
             </div>
-            <button
-              type="button"
-              onClick={handleForgotPassword}
-              disabled={isLoading || isResetting}
-              className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-            >
-              {isResetting ? "Sending..." : "Forgot password?"}
-            </button>
           </div>
-
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Signing in..." : "Login"}
-          </Button>
-        </form>
-        )}
-
-        {showEmailPassword && savedStore && (
-          <button
-            type="button"
-            onClick={() => setShowEmailPassword(false)}
-            className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-          >
-            ← Back to PIN login for {savedStore.store_name}
-          </button>
-        )}
-
-        <div className="text-center text-sm text-zinc-600 dark:text-zinc-400">
-          <p>
-            Don't have an account?{" "}
-            <Link
-              href="/signup"
-              className="font-medium text-zinc-900 hover:underline dark:text-zinc-100"
-            >
-              Sign up
-            </Link>
-          </p>
         </div>
+      </div>
+
+      {/* Image Side */}
+      <div className="relative hidden w-0 flex-1 lg:block p-6">
+        <AuthImageRotation />
       </div>
     </div>
   )
@@ -418,14 +370,12 @@ function LoginContent() {
 
 function LoginFallback() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background-light px-4 dark:bg-background-dark">
-      <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-background-card-light p-8 shadow-lg dark:border-border-dark dark:bg-background-card-dark">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-            VendoFlow
-          </h1>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Loading...</p>
-        </div>
+    <div className="flex min-h-screen items-center justify-center bg-black">
+      <div className="text-center">
+        <h1 className="font-editorial text-4xl font-bold tracking-tight text-white mb-2">
+          VendoFlow
+        </h1>
+        <p className="text-sm text-zinc-500 animate-pulse">Initializing editor...</p>
       </div>
     </div>
   )
