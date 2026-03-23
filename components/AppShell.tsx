@@ -135,7 +135,7 @@ function Sidebar({
       </button>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto overflow-x-hidden">
         {visibleNavItems.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
@@ -144,7 +144,7 @@ function Sidebar({
               "group relative flex items-center gap-3 py-2.5 text-xs font-semibold tracking-[0.1em] uppercase transition-all duration-150 rounded-md mx-2",
               isExpanded ? "px-4" : "px-0 justify-center",
               isActive(href)
-                ? "bg-zinc-800 border-l-2 border-l-white text-zinc-100"
+                ? "bg-zinc-800 border-l-2 border-l-zinc-600 text-zinc-100"
                 : "text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50"
             )}
           >
