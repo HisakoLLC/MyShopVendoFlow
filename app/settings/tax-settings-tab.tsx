@@ -111,13 +111,15 @@ export function TaxSettingsTab({ stores, planTier }: TaxSettingsTabProps) {
                         />
                         <span className="text-sm text-zinc-500 mx-2">%</span>
                       </div>
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleSaveTaxRate(store.store_id)}
                         disabled={savingStoreId === store.store_id}
-                        className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-7 px-3 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors disabled:opacity-50"
+                        className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-7 px-3 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent"
                       >
                         {savingStoreId === store.store_id ? "Saving..." : "Save"}
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ))}
