@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { CreditCard, AlertTriangle, Trash2, Store, CheckCircle2 } from "lucide-react"
+import { CreditCard, AlertTriangle, Trash2, Store } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { requestAccountDeletion } from "./actions"
 import { Button } from "@/components/ui/button"
@@ -257,14 +257,7 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
               <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
                 Active Plan
               </p>
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-zinc-100">{planName.toUpperCase()}</p>
-                {account.plan_tier === 'scale' && (
-                  <span className="bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5">
-                    SCALE
-                  </span>
-                )}
-              </div>
+              <p className="text-sm font-semibold text-zinc-100">{planName.toUpperCase()}</p>
             </div>
             <div>
               <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
@@ -372,8 +365,8 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
                     </div>
                     <ul className="mt-8 space-y-3">
                       {plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-start gap-0 text-sm text-zinc-300">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mr-2 mt-0.5" />
+                        <li key={i} className="flex items-start gap-3 text-xs text-zinc-400">
+                          <span className="text-zinc-100">/</span>
                           {feature}
                         </li>
                       ))}
@@ -384,10 +377,10 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
                     disabled={isProcessing || isCurrent}
                     className={`mt-10 w-full rounded-sm h-9 text-[0.65rem] font-semibold tracking-[0.12em] uppercase transition-all ${
                       isCurrent
-                        ? "bg-zinc-800 text-zinc-500 cursor-default shadow-none border-zinc-700"
+                        ? "bg-zinc-800 text-zinc-500 cursor-default"
                         : isUpgrade
-                          ? "bg-white text-zinc-950 hover:bg-zinc-100 shadow-none"
-                          : "border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 bg-transparent shadow-none"
+                          ? "bg-white text-zinc-950 hover:bg-zinc-100"
+                          : "border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 bg-transparent"
                     }`}
                   >
                     {isCurrent
@@ -460,7 +453,7 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
             <AlertDialogAction
               onClick={handleCancelSubscription}
               disabled={isProcessing}
-              className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase shrink-0"
+              className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase"
             >
               {isProcessing ? "PROCESSING..." : "CONFIRM CANCELLATION"}
             </AlertDialogAction>

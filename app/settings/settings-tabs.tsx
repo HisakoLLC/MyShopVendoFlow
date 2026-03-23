@@ -59,31 +59,31 @@ export function SettingsTabs({ account, stores, businessSettings }: SettingsTabs
       <TabsList className="flex h-auto w-full justify-start rounded-none border-b border-zinc-800 bg-transparent p-0 mb-6">
         <TabsTrigger
           value="profile"
-          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300 shadow-none ring-0 border-t-0 border-l-0 border-r-0"
+          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300"
         >
           Business Profile
         </TabsTrigger>
         <TabsTrigger
           value="tax"
-          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300 shadow-none ring-0 border-t-0 border-l-0 border-r-0"
+          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300"
         >
           Tax Settings
         </TabsTrigger>
         <TabsTrigger
           value="stores"
-          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300 shadow-none ring-0 border-t-0 border-l-0 border-r-0"
+          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300"
         >
           Stores
         </TabsTrigger>
         <TabsTrigger
           value="receipt"
-          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300 shadow-none ring-0 border-t-0 border-l-0 border-r-0"
+          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300"
         >
           Receipt
         </TabsTrigger>
         <TabsTrigger
           value="billing"
-          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300 shadow-none ring-0 border-t-0 border-l-0 border-r-0"
+          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300"
         >
           Account & Billing
         </TabsTrigger>
