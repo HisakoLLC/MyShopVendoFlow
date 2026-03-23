@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { notFound, redirect } from "next/navigation"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Package } from "lucide-react"
 
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import type { Tables } from "@/types/database"
@@ -191,7 +191,7 @@ async function StyleInventoryPageContent({ styleId }: { styleId: string }) {
       <div className="flex flex-wrap items-start justify-between gap-4 pb-6 mb-6 border-b border-zinc-800">
         <div className="flex items-start gap-4">
           {/* Product image */}
-          <div className="relative h-16 w-16 overflow-hidden rounded-md bg-zinc-800 flex-shrink-0">
+          <div className="relative h-16 w-16 overflow-hidden rounded-md bg-zinc-800 flex-shrink-0 flex items-center justify-center">
             {data.style.image_url ? (
               <Image
                 src={data.style.image_url}
@@ -199,7 +199,9 @@ async function StyleInventoryPageContent({ styleId }: { styleId: string }) {
                 fill
                 className="object-cover"
               />
-            ) : null}
+            ) : (
+              <Package className="h-6 w-6 text-zinc-700" />
+            )}
           </div>
           <div>
             <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">

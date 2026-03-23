@@ -477,7 +477,7 @@ export function ProductsTableClient(props: {
                             </td>
                           )}
                           <td className="px-4 py-3.5">
-                            <div className={s.image_url ? "h-10 w-10 overflow-hidden rounded-md" : "flex h-10 w-10 items-center justify-center rounded-md bg-zinc-800"}>
+                            <div className="h-10 w-10 overflow-hidden rounded-md bg-zinc-800 flex items-center justify-center">
                               {s.image_url ? (
                                 <Image
                                   src={s.image_url}
@@ -729,7 +729,7 @@ export function ProductsTableClient(props: {
                       className="block rounded-sm border border-zinc-800 bg-zinc-900 p-4 transition-colors hover:border-zinc-700 hover:bg-zinc-800/60"
                     >
                       <div className="flex gap-4">
-                        <div className={s.image_url ? "h-16 w-16 flex-shrink-0 overflow-hidden rounded-md" : "h-16 w-16 flex-shrink-0 flex items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
+                        <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-zinc-800 flex items-center justify-center">
                           {s.image_url ? (
                             <Image
                               src={s.image_url}
@@ -778,7 +778,7 @@ export function ProductsTableClient(props: {
                   ) : (
                     <div key={s.style_id} className="block rounded-sm border border-zinc-800 bg-zinc-900 p-4">
                       <div className="flex gap-4">
-                        <div className={s.image_url ? "h-16 w-16 flex-shrink-0 overflow-hidden rounded-md" : "h-16 w-16 flex-shrink-0 flex items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
+                        <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-zinc-800 flex items-center justify-center">
                           {s.image_url ? (
                             <Image
                               src={s.image_url}

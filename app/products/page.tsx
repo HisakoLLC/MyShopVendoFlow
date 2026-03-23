@@ -158,7 +158,7 @@ async function ProductsPageContent() {
   if (data.styles.length === 0) {
     return (
       <div className="min-h-screen bg-zinc-950 px-8 py-8">
-        <div className="flex items-start justify-between pb-6 mb-6 border-b border-zinc-800">
+        <div className="flex items-start justify-between border-b border-zinc-800 pb-6 mb-6">
           <div>
             <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
               MANAGE YOUR STYLES, PRICING, AND MARGINS
@@ -190,7 +190,7 @@ async function ProductsPageContent() {
 
   return (
     <div className="min-h-screen bg-zinc-950 px-8 py-8">
-      <div className="flex items-start justify-between pb-6 mb-6 border-b border-zinc-800">
+      <div className="flex items-start justify-between border-b border-zinc-800 pb-6 mb-6">
         <div>
           <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
             MANAGE YOUR STYLES, PRICING, AND MARGINS

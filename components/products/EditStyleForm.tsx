@@ -3,6 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { Package } from "lucide-react"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -394,20 +395,24 @@ export function EditStyleForm(props: {
                   Remove image
                 </button>
               </div>
-              <div className="mt-3 overflow-hidden rounded-md bg-zinc-800">
-                <div className="relative aspect-square w-full">
-                  <Image
-                    src={previewUrl ?? "/placeholder-product.png"}
-                    alt="Style image"
-                    fill
-                    className="object-cover"
-                    unoptimized={
-                      !previewUrl ||
-                      previewUrl.startsWith("blob:") ||
-                      previewUrl.startsWith("http")
-                    }
-                  />
-                </div>
+              <div className="mt-3 overflow-hidden rounded-md bg-zinc-800 flex items-center justify-center aspect-square w-full">
+                {previewUrl ? (
+                  <div className="relative h-full w-full">
+                    <Image
+                      src={previewUrl}
+                      alt="Style image"
+                      fill
+                      className="object-cover"
+                      unoptimized={
+                        !previewUrl ||
+                        previewUrl.startsWith("blob:") ||
+                        previewUrl.startsWith("http")
+                      }
+                    />
+                  </div>
+                ) : (
+                  <Package className="h-12 w-12 text-zinc-700" />
+                )}
               </div>
 
               <div className="mt-3">
