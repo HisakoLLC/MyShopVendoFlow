@@ -165,7 +165,7 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                     <FormItem>
                       <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">First Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="John" {...field} className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 transition-all" />
+                        <Input placeholder="John" {...field} className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -179,7 +179,7 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                     <FormItem>
                       <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Last Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Doe" {...field} className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 transition-all" />
+                        <Input placeholder="Doe" {...field} className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -194,7 +194,7 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                   <FormItem>
                     <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Email *</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="john@example.com" {...field} className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 transition-all" />
+                      <Input type="email" placeholder="john@example.com" {...field} className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -282,7 +282,7 @@ export function AddStaffModal({ open, onClose, onSuccess, stores }: AddStaffModa
                   type="button"
                   onClick={onClose}
                   disabled={isSubmitting}
-                  className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors"
+                  className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent"
                 >
                   Cancel
                 </button>

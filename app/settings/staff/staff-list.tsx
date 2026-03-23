@@ -498,7 +498,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
             <AlertDialogCancel className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors">
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-500 text-white hover:bg-red-600 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase">
+            <AlertDialogAction onClick={handleDelete} className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase">
               Delete
             </AlertDialogAction>
           </div>
