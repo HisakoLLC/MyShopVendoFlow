@@ -9,7 +9,7 @@ export async function middleware(request: NextRequest) {
     // Fires when the request is from the admin subdomain OR NEXT_PUBLIC_APP_MODE=admin.
     // Main-app logic below this block is skipped entirely when admin mode is active.
     const hostname = request.headers.get("host") ?? ""
-    const isAdminSubdomain = hostname.startsWith("admin.")
+    const isAdminSubdomain = hostname.startsWith("admin.") || hostname.startsWith("command.")
     const isAdminEnvMode = process.env.NEXT_PUBLIC_APP_MODE === "admin"
     const requestPath = request.nextUrl.pathname
 
