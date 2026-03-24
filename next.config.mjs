@@ -36,8 +36,8 @@ const nextConfig = {
       beforeFiles: [
         // Ensure all top-level routes map to /admin/* for the admin project
         {
-          source: '/((?!admin|api|_next/static|_next/image|favicon.ico).*)',
-          destination: '/admin/:1',
+          source: '/:path((?!admin|api|_next/static|_next/image|favicon.ico).*)',
+          destination: '/admin/:path',
         },
         // Handle root path
         {
