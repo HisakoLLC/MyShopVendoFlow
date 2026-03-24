@@ -56,7 +56,7 @@ export async function aggregateReportData(
     
     // 2. Process Aggregates
     let totalRevenue = 0
-    const storeRevenue: Record<string, { name: string, revenue: number, count: number }> = {}
+    const storeRevenue: Record<string, { id: string, name: string, revenue: number, count: number }> = {}
     const paymentMethods: Record<string, number> = {}
     const productSales: Record<string, { name: string, revenue: number, units: number }> = {}
 
@@ -65,7 +65,7 @@ export async function aggregateReportData(
       paymentMethods[sale.payment_method] = (paymentMethods[sale.payment_method] || 0) + (sale.grand_total || 0)
       
       if (!storeRevenue[sale.store_id]) {
-        storeRevenue[sale.store_id] = { name: `Store ${sale.store_id.slice(0, 4)}`, revenue: 0, count: 0 }
+        storeRevenue[sale.store_id] = { id: sale.store_id, name: `Store ${sale.store_id.slice(0, 4)}`, revenue: 0, count: 0 }
       }
       storeRevenue[sale.store_id].revenue += (sale.grand_total || 0)
       storeRevenue[sale.store_id].count += 1
