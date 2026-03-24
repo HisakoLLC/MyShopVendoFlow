@@ -9,24 +9,18 @@ export const revalidate = 0
 async function MerchantsData() {
   // 1. Fetch accounts with related store/product counts and owner staff
   // Filter staff to role='owner' via the query
-  const { data: accounts, error: accountError } = await supabaseAdmin
+  // Use explicit casting to bypass inferred join errors from the Supabase client types
+  const { data: accounts, error: accountError } = (await supabaseAdmin
     .from("accounts")
     .select(`
       account_id,
       business_name,
       created_at,
-      staff (
-        email,
-        role
-      ),
-      stores (
-        count
-      ),
-      product_styles (
-        count
-      )
+      staff(email, role),
+      stores(count),
+      product_styles(count)
     `)
-    .order("created_at", { ascending: false })
+    .order("created_at", { ascending: false })) as any
 
   if (accountError) {
     console.error("Error fetching accounts:", accountError)
@@ -58,7 +52,7 @@ async function MerchantsData() {
   })
 
   // 4. Map to MerchantListItem shape
-  const merchantList: MerchantListItem[] = accounts.map((acc) => {
+  const merchantList: MerchantListItem[] = (accounts as any[]).map((acc: any) => {
     // Find the owner email (first staff with role 'owner')
     const owner = acc.staff?.find((s: any) => s.role === "owner")
     
