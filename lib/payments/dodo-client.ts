@@ -29,13 +29,23 @@ interface CreateCheckoutResponse {
 }
 
 export class DodoPaymentsClient {
-  private client: any
+  private _client: any
+
+  private get client() {
+    if (!this._client) {
+      if (!DODO_API_KEY) {
+        throw new Error("The DODO_PAYMENTS_API_KEY environment variable is missing or empty.")
+      }
+      this._client = new DodoPayments({
+        bearerToken: DODO_API_KEY,
+        environment: DODO_ENV,
+      })
+    }
+    return this._client
+  }
 
   constructor() {
-    this.client = new DodoPayments({
-      bearerToken: DODO_API_KEY,
-      environment: DODO_ENV,
-    })
+    // Lazy initialize to prevent build-time crashes when keys are missing
   }
 
   /**
