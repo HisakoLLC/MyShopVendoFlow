@@ -4,13 +4,13 @@ import * as React from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
 const IMAGES = [
-  "/assets/auth/fashion-1.webp",
-  "/assets/auth/fashion-2.webp",
-  "/assets/auth/fashion-3.webp",
-  "/assets/auth/fashion-4.webp",
-  "/assets/auth/fashion-5.webp",
-  "/assets/auth/fashion-6.webp",
-  "/assets/auth/fashion-7.webp",
+  "/assets/auth/fashion_1.webp",
+  "/assets/auth/fashion_2.webp",
+  "/assets/auth/fashion_3.webp",
+  "/assets/auth/fashion_4.webp",
+  "/assets/auth/fashion_5.webp",
+  "/assets/auth/fashion_6.webp",
+  "/assets/auth/fashion_7.webp",
   "/assets/auth/fashion-8.webp",
   "/assets/auth/fashion-9.webp",
   "/assets/auth/fashion-10.webp",
