@@ -12,10 +12,8 @@ export default function AdminRootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body style={{ margin: 0, padding: 0, background: "#0a0a0a", color: "#fff" }}>
-        {children}
-      </body>
-    </html>
+    <div style={{ margin: 0, padding: 0, background: "#0a0a0a", color: "#fff", minHeight: "100vh" }}>
+      {children}
+    </div>
   )
 }

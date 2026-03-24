@@ -222,6 +222,13 @@ const ACCOUNT_ID_KEY = "vendoflow_last_account_id"
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const isAdminMode = process.env.NEXT_PUBLIC_APP_MODE === 'admin'
+
+  // If in admin mode, bypass the merchant AppShell entirely
+  if (isAdminMode) {
+    return <>{children}</>
+  }
+
   const [isExpanded, setIsExpanded] = React.useState(true)
   const [user, setUser] = React.useState<User | null>(null)
   const supabase = React.useMemo(() => createClient(), [])

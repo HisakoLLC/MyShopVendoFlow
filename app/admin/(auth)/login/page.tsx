@@ -35,18 +35,15 @@ export default function AdminLoginPage() {
       return
     }
 
-    // 2. Verify user exists in admin.admin_users and is_active = true
-    const { data: adminRecord, error: adminError } = await supabase
-      .schema("admin" as any)
-      .from("admin_users")
-      .select("id, is_active")
-      .eq("id", authData.user.id)
-      .maybeSingle()
+    // 2. Verify user exists in admin.admin_users and is_active = true via Server Action
+    // This avoids schema exposure issues in the browser client
+    const { verifyAdminAccess } = await import("./actions")
+    const { success, error: verifyError } = await verifyAdminAccess(authData.user.id)
 
-    if (adminError || !adminRecord || !adminRecord.is_active) {
+    if (!success) {
       // Not an admin — sign them out immediately and show error
       await supabase.auth.signOut()
-      setError("Your account does not have admin access.")
+      setError(verifyError || "Your account does not have admin access.")
       setLoading(false)
       return
     }
