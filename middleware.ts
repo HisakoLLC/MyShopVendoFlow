@@ -24,69 +24,29 @@ export async function middleware(request: NextRequest) {
       const isAdminAuthRoute = requestPath.startsWith("/admin/login") ||
                                requestPath.startsWith("/admin/(auth)/")
       if (isAdminAuthRoute) {
-        // If user already has a session, bounce them to the dashboard
-        const supabaseUrl = getSupabaseUrl()
-        const supabaseAnonKey = getSupabaseAnonKey()
-        if (supabaseUrl && supabaseAnonKey) {
-          let authCheckResponse = NextResponse.next({ request: { headers: request.headers } })
-          const authClient = createServerClient(supabaseUrl, supabaseAnonKey, {
-            cookies: {
-              get: (name) => request.cookies.get(name)?.value,
-              set: (name, value, options) => {
-                request.cookies.set({ name, value, ...options })
-                authCheckResponse = NextResponse.next({ request: { headers: request.headers } })
-                authCheckResponse.cookies.set({ name, value, ...options })
-              },
-              remove: (name, options) => {
-                request.cookies.set({ name, value: "", ...options })
-                authCheckResponse = NextResponse.next({ request: { headers: request.headers } })
-                authCheckResponse.cookies.set({ name, value: "", ...options })
-              },
-            },
-          })
-          const { data: { user } } = await authClient.auth.getUser()
-          if (user) {
-            return NextResponse.redirect(new URL("/admin/dashboard", request.url))
-          }
+        // If user already has a custom admin session, bounce them to the merchants page
+        const adminSessionId = request.cookies.get("vendoflow_admin_session")?.value
+        if (adminSessionId) {
+          return NextResponse.redirect(new URL("/admin/merchants", request.url))
         }
         return NextResponse.next()
       }
 
-      // C. Protected admin routes — require a valid session
-      //    Matches: /admin/dashboard, /admin/merchants, etc.
-      const supabaseUrl = getSupabaseUrl()
-      const supabaseAnonKey = getSupabaseAnonKey()
-      if (!supabaseUrl || !supabaseAnonKey) {
-        // Can't verify session — send to login as a safe fallback
-        return NextResponse.redirect(new URL("/admin/login", request.url))
-      }
-
-      let adminResponse = NextResponse.next({ request: { headers: request.headers } })
-      const adminClient = createServerClient(supabaseUrl, supabaseAnonKey, {
-        cookies: {
-          get: (name) => request.cookies.get(name)?.value,
-          set: (name, value, options) => {
-            request.cookies.set({ name, value, ...options })
-            adminResponse = NextResponse.next({ request: { headers: request.headers } })
-            adminResponse.cookies.set({ name, value, ...options })
-          },
-          remove: (name, options) => {
-            request.cookies.set({ name, value: "", ...options })
-            adminResponse = NextResponse.next({ request: { headers: request.headers } })
-            adminResponse.cookies.set({ name, value: "", ...options })
-          },
-        },
-      })
-
-      const { data: { user: adminUser } } = await adminClient.auth.getUser()
-      if (!adminUser) {
+      // C. Protected admin routes — require a valid custom admin session
+      const adminSessionId = request.cookies.get("vendoflow_admin_session")?.value
+      if (!adminSessionId) {
         const loginUrl = new URL("/admin/login", request.url)
         loginUrl.searchParams.set("redirect", requestPath)
         return NextResponse.redirect(loginUrl)
       }
 
-      // Session valid — allow through. admin_users table check happens in the layout.
-      return adminResponse
+      // Basic structure check for UUID-like session token
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      if (!uuidRegex.test(adminSessionId)) {
+        return NextResponse.redirect(new URL("/admin/login", request.url))
+      }
+
+      return NextResponse.next()
     }
     // ────────────────────────────────────────────────────────────────────────
 

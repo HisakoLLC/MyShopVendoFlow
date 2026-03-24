@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { getSupabaseBrowserClient } from "@/lib/supabase"
+import { signInAdmin } from "./actions"
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -16,40 +16,17 @@ export default function AdminLoginPage() {
     setLoading(true)
     setError(null)
 
-    const supabase = getSupabaseBrowserClient()
-    if (!supabase) {
-      setError("Unable to connect. Please refresh and try again.")
+    // Call the custom server action that bypasses broken GoTrue service
+    const result = await signInAdmin(email, password)
+    
+    if (!result.success) {
+      setError(result.error || "Invalid email or password.")
       setLoading(false)
       return
     }
 
-    // 1. Sign in with Supabase auth
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (authError || !authData.user) {
-      setError(authError?.message ?? "Invalid email or password.")
-      setLoading(false)
-      return
-    }
-
-    // 2. Verify user exists in admin.admin_users and is_active = true via Server Action
-    // This avoids schema exposure issues in the browser client
-    const { verifyAdminAccess } = await import("./actions")
-    const { success, error: verifyError } = await verifyAdminAccess(authData.user.id)
-
-    if (!success) {
-      // Not an admin — sign them out immediately and show error
-      await supabase.auth.signOut()
-      setError(verifyError || "Your account does not have admin access.")
-      setLoading(false)
-      return
-    }
-
-    // 3. Success — go to admin dashboard
-    router.push("/admin/dashboard")
+    // 3. Success — redirect to merchants page
+    router.push("/admin/merchants")
     router.refresh()
   }
 

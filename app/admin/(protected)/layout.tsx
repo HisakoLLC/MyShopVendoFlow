@@ -9,31 +9,43 @@ export default async function AdminProtectedLayout({
 }: {
   children: React.ReactNode
 }) {
-  // 1. Get session via server-side Supabase client
-  const supabase = await createServerSupabaseClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { cookies } = await import("next/headers")
+  const cookieStore = await cookies()
+  const sessionId = cookieStore.get("vendoflow_admin_session")?.value
 
-  // 2. No session → send to login
-  if (!user) {
+  // 1. No custom session → send to login
+  if (!sessionId) {
     redirect("/admin/login")
   }
 
-  // 3. Verify the user exists in admin.admin_users and is active.
-  //    Uses the service-role client (bypasses RLS) — server-side only.
+  // 2. Verify the session in the DB
+  const { data: sessionData, error: sessionError } = await supabaseAdmin
+    .schema("vendo_admin" as any)
+    .from("admin_sessions")
+    .select("user_id, expires_at")
+    .eq("id", sessionId)
+    .maybeSingle()
+
+  if (sessionError || !sessionData) {
+    redirect("/admin/login")
+  }
+
+  // 3. Check if session expired
+  if (new Date(sessionData.expires_at) < new Date()) {
+    redirect("/admin/login")
+  }
+
+  // 4. Fetch the admin record for this user
   const { data: adminRecord, error: adminError } = await supabaseAdmin
     .schema("vendo_admin" as any)
     .from("admin_users")
     .select("id, email, full_name, role, avatar_url, is_active")
-    .eq("email", user.email!)
+    .eq("id", sessionData.user_id)
     .eq("is_active", true)
     .maybeSingle()
 
-  // 4. Not in admin_users (or inactive) → sign out + redirect
+  // 5. Inactive or missing record → error
   if (adminError || !adminRecord) {
-    // We can't call supabase.auth.signOut() from a Server Component —
-    // the middleware + login page will handle clearing stale sessions.
     redirect("/admin/login")
   }
 

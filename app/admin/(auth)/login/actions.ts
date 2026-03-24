@@ -1,6 +1,8 @@
 "use server"
 
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
+import bcrypt from "bcryptjs"
+import { cookies } from "next/headers"
 
 interface VerifyAdminResult {
   success: boolean
@@ -37,5 +39,83 @@ export async function verifyAdminAccess(userId: string): Promise<VerifyAdminResu
   } catch (err) {
     console.error("Unexpected admin verification error:", err)
     return { success: false, error: "An unexpected error occurred during verification" }
+  }
+}
+
+/**
+ * Custom sign-in for administrators that bypasses GoTrue/Supabase Auth service.
+ * Used as a workaround for the 'Database error querying schema' infrastructure issue.
+ */
+export async function signInAdmin(email: string, pass: string): Promise<VerifyAdminResult> {
+  try {
+    const supabase = supabaseAdmin
+    const cookieStore = await cookies()
+
+    // 1. Fetch the user's password hash directly from auth.users (via service role)
+    const { data: userData, error: userError } = await supabase
+      .schema("auth" as any)
+      .from("users")
+      .select("id, encrypted_password")
+      .eq("email", email)
+      .maybeSingle()
+
+    if (userError || !userData) {
+      return { success: false, error: "Invalid email or password" }
+    }
+
+    // 2. Verify password using bcryptjs
+    const isPasswordValid = await bcrypt.compare(pass, userData.encrypted_password || "")
+    if (!isPasswordValid) {
+      return { success: false, error: "Invalid email or password" }
+    }
+
+    // 3. Verify they are in the vendo_admin.admin_users table
+    const { data: adminRecord, error: adminError } = await supabase
+      .schema("vendo_admin" as any)
+      .from("admin_users")
+      .select("id, is_active")
+      .eq("id", userData.id)
+      .maybeSingle()
+
+    if (adminError || !adminRecord) {
+      return { success: false, error: "Account not authorized for admin console" }
+    }
+
+    if (!adminRecord.is_active) {
+      return { success: false, error: "Administrator account is inactive" }
+    }
+
+    // 4. Create a custom session
+    const expiresAt = new Date()
+    expiresAt.setDate(expiresAt.getDate() + 7) // 7 days session
+
+    const { data: sessionData, error: sessionError } = await supabase
+      .schema("vendo_admin" as any)
+      .from("admin_sessions")
+      .insert({
+        user_id: userData.id,
+        expires_at: expiresAt.toISOString()
+      })
+      .select("id")
+      .single()
+
+    if (sessionError) {
+      console.error("Failed to create admin session:", sessionError)
+      return { success: false, error: "Login failed (Session Error)" }
+    }
+
+    // 5. Set the session cookie
+    cookieStore.set("vendoflow_admin_session", sessionData.id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      expires: expiresAt,
+      path: "/"
+    })
+
+    return { success: true }
+  } catch (err) {
+    console.error("Critical sign-in error:", err)
+    return { success: false, error: "An unexpected error occurred" }
   }
 }
