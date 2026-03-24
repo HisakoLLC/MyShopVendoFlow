@@ -206,11 +206,11 @@ function LoginContent() {
   }
 
   return (
-    <div className="flex min-h-screen bg-zinc-950">
+    <div className="flex h-screen bg-zinc-950 overflow-hidden">
       <Toaster richColors position="top-right" />
       
-      {/* Left form panel */}
-      <div className="flex-1 lg:w-1/2 flex items-center justify-center px-8 py-12 overflow-y-auto">
+      {/* Left form panel - scrollable */}
+      <div className="flex-1 lg:w-1/2 flex items-center justify-center px-8 py-12 overflow-y-auto h-full scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
         <div className="w-full max-w-sm">
           <div className="mb-8">
             <h1 className="font-editorial text-2xl font-bold text-zinc-50 mb-8">
@@ -336,8 +336,8 @@ function LoginContent() {
         </div>
       </div>
 
-      {/* Right image panel */}
-      <div className="hidden lg:block lg:w-1/2 h-screen sticky top-0 rounded-[2rem] overflow-hidden m-3">
+      {/* Right image panel - fixed */}
+      <div className="hidden lg:block lg:w-1/2 h-full p-3 overflow-hidden">
         <AuthImageRotation />
       </div>
     </div>

@@ -122,18 +122,18 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-zinc-950">
+    <div className="flex h-screen bg-zinc-950 overflow-hidden">
       <Toaster richColors position="top-right" />
-
-      {/* Left form panel */}
-      <div className="flex-1 lg:w-1/2 flex items-center justify-center px-8 py-12 overflow-y-auto">
+      
+      {/* Left form panel - scrollable */}
+      <div className="flex-1 lg:w-1/2 flex items-center justify-center px-8 py-12 overflow-y-auto h-full scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
         <div className="w-full max-w-sm">
           <div className="mb-8">
             <h1 className="font-editorial text-2xl font-bold text-zinc-50 mb-8">
               VendoFlow
             </h1>
             <h2 className="font-editorial text-3xl font-bold text-zinc-50 mb-2">
-              Join The Future Of Fashion Tech.
+              Join The Future Of Fashion.
             </h2>
             <p className="text-sm text-zinc-500 mb-8">
               Create your account to start managing your boutique with precision.
@@ -249,8 +249,8 @@ export default function SignupPage() {
         </div>
       </div>
 
-      {/* Right image panel */}
-      <div className="hidden lg:block lg:w-1/2 h-screen sticky top-0 rounded-[2rem] overflow-hidden m-3">
+      {/* Right image panel - fixed */}
+      <div className="hidden lg:block lg:w-1/2 h-full p-3 overflow-hidden">
         <AuthImageRotation />
       </div>
     </div>
