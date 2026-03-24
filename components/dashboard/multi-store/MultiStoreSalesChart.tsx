@@ -145,7 +145,7 @@ export function MultiStoreSalesChart({
               border: "1px solid rgb(228 228 231)",
               borderRadius: "0.5rem",
             }}
-            formatter={(value: unknown, name?: string) => {
+            formatter={(value: any, name: any) => {
               const key = name ?? ""
               const label =
                 key === "all"
