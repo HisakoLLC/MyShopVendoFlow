@@ -5,6 +5,91 @@ import { getRoleFromUser, canAccessPath, type StaffRole } from "@/lib/auth/roles
 
 export async function middleware(request: NextRequest) {
   try {
+    // ─── ADMIN ROUTING GUARD ────────────────────────────────────────────────
+    // Fires when the request is from the admin subdomain OR NEXT_PUBLIC_APP_MODE=admin.
+    // Main-app logic below this block is skipped entirely when admin mode is active.
+    const hostname = request.headers.get("host") ?? ""
+    const isAdminSubdomain = hostname.startsWith("admin.")
+    const isAdminEnvMode = process.env.NEXT_PUBLIC_APP_MODE === "admin"
+    const requestPath = request.nextUrl.pathname
+
+    if (isAdminSubdomain || isAdminEnvMode) {
+      // A. Force all traffic onto /admin/* when in admin mode
+      if (!requestPath.startsWith("/admin/") && requestPath !== "/admin") {
+        return NextResponse.redirect(new URL("/admin/login", request.url))
+      }
+
+      // B. Public admin auth routes — allow through with no session check
+      //    Matches: /admin/login  (i.e. /admin/(auth)/login)
+      const isAdminAuthRoute = requestPath.startsWith("/admin/login") ||
+                               requestPath.startsWith("/admin/(auth)/")
+      if (isAdminAuthRoute) {
+        // If user already has a session, bounce them to the dashboard
+        const supabaseUrl = getSupabaseUrl()
+        const supabaseAnonKey = getSupabaseAnonKey()
+        if (supabaseUrl && supabaseAnonKey) {
+          let authCheckResponse = NextResponse.next({ request: { headers: request.headers } })
+          const authClient = createServerClient(supabaseUrl, supabaseAnonKey, {
+            cookies: {
+              get: (name) => request.cookies.get(name)?.value,
+              set: (name, value, options) => {
+                request.cookies.set({ name, value, ...options })
+                authCheckResponse = NextResponse.next({ request: { headers: request.headers } })
+                authCheckResponse.cookies.set({ name, value, ...options })
+              },
+              remove: (name, options) => {
+                request.cookies.set({ name, value: "", ...options })
+                authCheckResponse = NextResponse.next({ request: { headers: request.headers } })
+                authCheckResponse.cookies.set({ name, value: "", ...options })
+              },
+            },
+          })
+          const { data: { user } } = await authClient.auth.getUser()
+          if (user) {
+            return NextResponse.redirect(new URL("/admin/dashboard", request.url))
+          }
+        }
+        return NextResponse.next()
+      }
+
+      // C. Protected admin routes — require a valid session
+      //    Matches: /admin/dashboard, /admin/merchants, etc.
+      const supabaseUrl = getSupabaseUrl()
+      const supabaseAnonKey = getSupabaseAnonKey()
+      if (!supabaseUrl || !supabaseAnonKey) {
+        // Can't verify session — send to login as a safe fallback
+        return NextResponse.redirect(new URL("/admin/login", request.url))
+      }
+
+      let adminResponse = NextResponse.next({ request: { headers: request.headers } })
+      const adminClient = createServerClient(supabaseUrl, supabaseAnonKey, {
+        cookies: {
+          get: (name) => request.cookies.get(name)?.value,
+          set: (name, value, options) => {
+            request.cookies.set({ name, value, ...options })
+            adminResponse = NextResponse.next({ request: { headers: request.headers } })
+            adminResponse.cookies.set({ name, value, ...options })
+          },
+          remove: (name, options) => {
+            request.cookies.set({ name, value: "", ...options })
+            adminResponse = NextResponse.next({ request: { headers: request.headers } })
+            adminResponse.cookies.set({ name, value: "", ...options })
+          },
+        },
+      })
+
+      const { data: { user: adminUser } } = await adminClient.auth.getUser()
+      if (!adminUser) {
+        const loginUrl = new URL("/admin/login", request.url)
+        loginUrl.searchParams.set("redirect", requestPath)
+        return NextResponse.redirect(loginUrl)
+      }
+
+      // Session valid — allow through. admin_users table check happens in the layout.
+      return adminResponse
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
     // Check for required environment variables (supports both NEXT_PUBLIC_* and SUPABASE_* names)
     const supabaseUrl = getSupabaseUrl()
     const supabaseAnonKey = getSupabaseAnonKey()

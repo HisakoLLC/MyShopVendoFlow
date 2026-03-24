@@ -26,6 +26,27 @@ const nextConfig = {
       },
     ]
   },
+  // Subdomain routing for Admin Console
+  async rewrites() {
+    const isAdminMode = process.env.NEXT_PUBLIC_APP_MODE === 'admin'
+    
+    if (!isAdminMode) return []
+
+    return {
+      beforeFiles: [
+        // Ensure all top-level routes map to /admin/* for the admin project
+        {
+          source: '/((?!admin|api|_next/static|_next/image|favicon.ico).*)',
+          destination: '/admin/:1',
+        },
+        // Handle root path
+        {
+          source: '/',
+          destination: '/admin',
+        },
+      ]
+    }
+  },
 }
 
 export default nextConfig

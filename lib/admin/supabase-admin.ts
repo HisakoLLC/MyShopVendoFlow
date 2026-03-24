@@ -1,0 +1,18 @@
+import { createClient } from "@supabase/supabase-js"
+import type { Database } from "@/types/database"
+
+/**
+ * Admin-scoped Supabase client using the service role key.
+ * This client bypasses Row Level Security — use only in server-side admin contexts.
+ * Never expose this client or the service role key to the browser.
+ */
+export const supabaseAdmin = createClient<Database>(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  }
+)

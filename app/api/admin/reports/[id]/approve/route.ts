@@ -1,0 +1,54 @@
+import { NextResponse } from "next/server"
+import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { supabaseAdmin } from "@/lib/admin/supabase-admin"
+import { PERMISSIONS, hasPermission } from "@/lib/admin/permissions"
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const supabase = await createServerSupabaseClient()
+    
+    // 1. Auth & Admin Check
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+    const { data: adminUser } = await supabaseAdmin
+      .schema("admin" as any)
+      .from("admin_users")
+      .select("id, role, is_active")
+      .eq("email", session.user.email)
+      .single()
+
+    if (!adminUser || !adminUser.is_active) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
+    // 1b. Verify Role-Based Permission
+    if (!hasPermission(adminUser.role, 'reports_approve')) {
+      return NextResponse.json({ 
+        error: "Permission Denied", 
+        detail: `Role '${adminUser.role}' is not authorized to approve reports.` 
+      }, { status: 403 })
+    }
+
+    // 2. Approve Report
+    const { error } = await supabaseAdmin
+      .schema("admin" as any)
+      .from("reports")
+      .update({
+        status: "approved",
+        approved_by: adminUser.id,
+        approved_at: new Date().toISOString()
+      })
+      .eq("id", id)
+
+    if (error) throw error
+
+    return NextResponse.json({ success: true })
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}

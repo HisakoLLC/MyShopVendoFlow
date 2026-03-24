@@ -1,0 +1,160 @@
+import { NextResponse } from "next/server"
+import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { supabaseAdmin } from "@/lib/admin/supabase-admin"
+import { PERMISSIONS, hasPermission } from "@/lib/admin/permissions"
+
+const WHATSAPP_ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN
+const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID
+
+export async function POST(req: Request) {
+  try {
+    const supabase = await createServerSupabaseClient()
+    
+    // 1. Verify User Session
+    const { data: { session }, error: authError } = await supabase.auth.getSession()
+    if (authError || !session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+    // 2. Verify Admin Status & role
+    const { data: adminUser, error: adminError } = await supabaseAdmin
+      .schema("admin" as any)
+      .from("admin_users")
+      .select("id, is_active, role")
+      .eq("email", session.user.email)
+      .single()
+
+    if (adminError || !adminUser || !adminUser.is_active) {
+      return NextResponse.json({ error: "Forbidden: Admin access only" }, { status: 403 })
+    }
+
+    // 2b. Verify Role-Based Permission
+    if (!hasPermission(adminUser.role, 'whatsapp_send')) {
+      return NextResponse.json({ 
+        error: "Permission Denied", 
+        detail: `Role '${adminUser.role}' is not authorized to send messages.` 
+      }, { status: 403 })
+    }
+
+    const { 
+      conversationId, 
+      type, 
+      content, 
+      templateName, 
+      templateParams, 
+      isInternalNote 
+    } = await req.json()
+
+    if (!conversationId) return NextResponse.json({ error: "Missing conversation ID" }, { status: 400 })
+
+    // 3. Fetch Conversation for Phone Number
+    const { data: conversation, error: convError } = await supabaseAdmin
+      .schema("admin" as any)
+      .from("whatsapp_conversations")
+      .select("contact_phone")
+      .eq("id", conversationId)
+      .single()
+
+    if (convError || !conversation) return NextResponse.json({ error: "Conversation not found" }, { status: 404 })
+
+    // 4. Handle Internal Note
+    if (isInternalNote) {
+      const { error: noteError } = await supabaseAdmin
+        .schema("admin" as any)
+        .from("internal_notes")
+        .insert({
+          conversation_id: conversationId,
+          author_id: adminUser.id,
+          content: content
+        })
+
+      if (noteError) throw noteError
+      
+      // Also save as system message for real-time history
+      await supabaseAdmin.schema("admin" as any).from("whatsapp_messages").insert({
+        conversation_id: conversationId,
+        direction: "outbound",
+        message_type: "system",
+        content: { text: content }
+      })
+
+      return NextResponse.json({ success: true, type: "internal_note" })
+    }
+
+    // 5. Send WhatsApp Message
+    let payload: any = {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: conversation.contact_phone,
+    }
+
+    if (type === "template") {
+      payload.type = "template"
+      payload.template = {
+        name: templateName,
+        language: { code: "en_US" },
+        components: [
+          {
+            type: "body",
+            parameters: Object.values(templateParams || {}).map(val => ({
+              type: "text",
+              text: val
+            }))
+          }
+        ]
+      }
+    } else {
+      payload.type = "text"
+      payload.text = { body: content }
+    }
+
+    const response = await fetch(
+      `https://graph.facebook.com/v18.0/${WHATSAPP_PHONE_NUMBER_ID}/messages`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${WHATSAPP_ACCESS_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    )
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      console.error("Meta API error:", result)
+      // Save failed message
+      await supabaseAdmin.schema("admin" as any).from("whatsapp_messages").insert({
+        conversation_id: conversationId,
+        direction: "outbound",
+        message_type: type,
+        content: type === "text" ? { text: content } : { template: templateName, params: templateParams },
+        status: "failed",
+        error_detail: JSON.stringify(result)
+      })
+      return NextResponse.json({ error: "WhatsApp Cloud API failed", details: result }, { status: 500 })
+    }
+
+    // 7. Save successful message
+    await supabaseAdmin.schema("admin" as any).from("whatsapp_messages").insert({
+      conversation_id: conversationId,
+      message_id: result.messages?.[0]?.id,
+      direction: "outbound",
+      message_type: type,
+      content: type === "text" ? { text: content } : { template: templateName, params: templateParams },
+      status: "sent"
+    })
+
+    // 8. Update conversation
+    await supabaseAdmin
+      .schema("admin" as any)
+      .from("whatsapp_conversations")
+      .update({ last_message_at: new Date().toISOString() })
+      .eq("id", conversationId)
+
+    return NextResponse.json({ success: true, message_id: result.messages?.[0]?.id })
+
+  } catch (error: any) {
+    console.error("WhatsApp Route Error:", error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
