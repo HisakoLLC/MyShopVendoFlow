@@ -47,6 +47,7 @@ export async function verifyAdminAccess(userId: string): Promise<VerifyAdminResu
  * Used as a workaround for the 'Database error querying schema' infrastructure issue.
  */
 export async function signInAdmin(email: string, pass: string): Promise<VerifyAdminResult> {
+  console.log(`[AUTH_DEBUG] Attempting sign-in for: ${email}`)
   try {
     const supabase = supabaseAdmin
     const cookieStore = await cookies()
@@ -59,15 +60,26 @@ export async function signInAdmin(email: string, pass: string): Promise<VerifyAd
       .eq("email", email)
       .maybeSingle()
 
-    if (userError || !userData) {
+    if (userError) {
+      console.error("[AUTH_DEBUG] Error fetching user from auth.users:", userError)
+      return { success: false, error: `Database error: ${userError.message}` }
+    }
+
+    if (!userData) {
+      console.warn("[AUTH_DEBUG] No user found for email:", email)
       return { success: false, error: "Invalid email or password" }
     }
+
+    console.log("[AUTH_DEBUG] User found in auth.users. Comparing passwords...")
 
     // 2. Verify password using bcryptjs
     const isPasswordValid = await bcrypt.compare(pass, userData.encrypted_password || "")
     if (!isPasswordValid) {
+      console.warn("[AUTH_DEBUG] BCrypt comparison failed for user:", email)
       return { success: false, error: "Invalid email or password" }
     }
+
+    console.log("[AUTH_DEBUG] BCrypt comparison successful. Verifying admin status...")
 
     // 3. Verify they are in the vendo_admin.admin_users table
     const { data: adminRecord, error: adminError } = await supabase
@@ -77,13 +89,22 @@ export async function signInAdmin(email: string, pass: string): Promise<VerifyAd
       .eq("id", userData.id)
       .maybeSingle()
 
-    if (adminError || !adminRecord) {
+    if (adminError) {
+      console.error("[AUTH_DEBUG] Error verifying admin status:", adminError)
+      return { success: false, error: `Admin verification error: ${adminError.message}` }
+    }
+
+    if (!adminRecord) {
+      console.warn("[AUTH_DEBUG] User is not in admin_users table:", email)
       return { success: false, error: "Account not authorized for admin console" }
     }
 
     if (!adminRecord.is_active) {
+      console.warn("[AUTH_DEBUG] Admin account is inactive:", email)
       return { success: false, error: "Administrator account is inactive" }
     }
+
+    console.log("[AUTH_DEBUG] Admin status verified. Creating session...")
 
     // 4. Create a custom session
     const expiresAt = new Date()
@@ -100,9 +121,11 @@ export async function signInAdmin(email: string, pass: string): Promise<VerifyAd
       .single()
 
     if (sessionError) {
-      console.error("Failed to create admin session:", sessionError)
-      return { success: false, error: "Login failed (Session Error)" }
+      console.error("[AUTH_DEBUG] Failed to create admin session:", sessionError)
+      return { success: false, error: `Session Error: ${sessionError.message}` }
     }
+
+    console.log("[AUTH_DEBUG] Session created successfully. Setting cookie...")
 
     // 5. Set the session cookie
     cookieStore.set("vendoflow_admin_session", sessionData.id, {
@@ -113,9 +136,10 @@ export async function signInAdmin(email: string, pass: string): Promise<VerifyAd
       path: "/"
     })
 
+    console.log("[AUTH_DEBUG] Sign-in successful for:", email)
     return { success: true }
   } catch (err) {
-    console.error("Critical sign-in error:", err)
+    console.error("[AUTH_DEBUG] Critical sign-in error:", err)
     return { success: false, error: "An unexpected error occurred" }
   }
 }
