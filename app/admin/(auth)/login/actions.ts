@@ -14,7 +14,7 @@ interface VerifyAdminResult {
 export async function verifyAdminAccess(userId: string): Promise<VerifyAdminResult> {
   try {
     const { data: adminRecord, error } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema("vendo_admin" as any)
       .from("admin_users")
       .select("id, is_active")
       .eq("id", userId)

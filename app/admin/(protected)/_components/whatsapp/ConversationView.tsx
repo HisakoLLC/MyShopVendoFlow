@@ -73,13 +73,13 @@ export default function ConversationView({ conversationId }: { conversationId: s
       
       const [msgRes, convRes] = await Promise.all([
         supabase
-          .schema("admin")
+          .schema("vendo_admin")
           .from("whatsapp_messages")
           .select("*")
           .eq("conversation_id", conversationId)
           .order("created_at", { ascending: true }),
         supabase
-          .schema("admin")
+          .schema("vendo_admin")
           .from("whatsapp_conversations")
           .select("*, accounts:merchant_id(business_name)")
           .eq("id", conversationId)

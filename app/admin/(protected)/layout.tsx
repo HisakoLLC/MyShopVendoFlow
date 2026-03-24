@@ -23,7 +23,7 @@ export default async function AdminProtectedLayout({
   // 3. Verify the user exists in admin.admin_users and is active.
   //    Uses the service-role client (bypasses RLS) — server-side only.
   const { data: adminRecord, error: adminError } = await supabaseAdmin
-    .schema("admin" as any)
+    .schema("vendo_admin" as any)
     .from("admin_users")
     .select("id, email, full_name, role, avatar_url, is_active")
     .eq("email", user.email!)
