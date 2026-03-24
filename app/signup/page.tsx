@@ -22,7 +22,7 @@ export default function SignupPage() {
   const [password, setPassword] = React.useState("")
   const [confirmPassword, setConfirmPassword] = React.useState("")
   const [isLoading, setIsLoading] = React.useState(false)
-  
+
   React.useEffect(() => {
     let cancelled = false;
     async function checkSession() {
@@ -39,13 +39,13 @@ export default function SignupPage() {
   // Password strength checker
   const passwordStrength = React.useMemo(() => {
     if (!password) return { score: 0, checks: [] }
-    
+
     const checks = [
       { label: "At least 8 characters", met: password.length >= 8 },
       { label: "One uppercase letter", met: /[A-Z]/.test(password) },
       { label: "One number", met: /[0-9]/.test(password) },
     ]
-    
+
     const score = checks.filter((c) => c.met).length
     return { score, checks }
   }, [password])
@@ -122,20 +122,20 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-black overflow-y-auto font-sans">
+    <div className="flex min-h-screen bg-zinc-950">
       <Toaster richColors position="top-right" />
-      
-      {/* Form Side */}
-      <div className="flex flex-1 flex-col items-center py-12 lg:justify-center px-4 sm:px-6 lg:px-20 xl:px-24">
-        <div className="mx-auto w-full max-w-sm lg:w-96">
-          <div className="mb-10 text-center lg:text-left">
-            <h1 className="font-editorial text-4xl font-bold tracking-tight text-white mb-2 underline decoration-zinc-800 decoration-4 underline-offset-8">
+
+      {/* Left form panel */}
+      <div className="flex-1 lg:w-1/2 flex items-center justify-center px-8 py-12 overflow-y-auto">
+        <div className="w-full max-w-sm">
+          <div className="mb-8">
+            <h1 className="font-editorial text-2xl font-bold text-zinc-50 mb-8">
               VendoFlow
             </h1>
-            <h2 className="text-xl font-medium text-zinc-100 mt-6 capitalize">
-              Join the future of fashion.
+            <h2 className="font-editorial text-3xl font-bold text-zinc-50 mb-2">
+              Join The Future Of Fashion Tech.
             </h2>
-            <p className="mt-2 text-sm text-zinc-500">
+            <p className="text-sm text-zinc-500 mb-8">
               Create your account to start managing your boutique with precision.
             </p>
           </div>
@@ -143,7 +143,7 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="businessName" className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Business Name</Label>
+                <Label htmlFor="businessName" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Business Name</Label>
                 <Input
                   id="businessName"
                   placeholder="Boutique Name"
@@ -151,11 +151,11 @@ export default function SignupPage() {
                   onChange={(e) => setBusinessName(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="bg-zinc-900 border-zinc-800 text-white h-11 focus-visible:ring-zinc-600 rounded-sm"
+                  className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-11 px-4 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="yourName" className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Your Name</Label>
+                <Label htmlFor="yourName" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Your Name</Label>
                 <Input
                   id="yourName"
                   placeholder="John Doe"
@@ -163,13 +163,13 @@ export default function SignupPage() {
                   onChange={(e) => setYourName(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="bg-zinc-900 border-zinc-800 text-white h-11 focus-visible:ring-zinc-600 rounded-sm"
+                  className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-11 px-4 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Owner Email</Label>
+              <Label htmlFor="email" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Owner Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -178,12 +178,12 @@ export default function SignupPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={isLoading}
-                className="bg-zinc-900 border-zinc-800 text-white h-11 focus-visible:ring-zinc-600 rounded-sm"
+                className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-11 px-4 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Create Password</Label>
+              <Label htmlFor="password" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Create Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -192,22 +192,29 @@ export default function SignupPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={isLoading}
-                className="bg-zinc-900 border-zinc-800 text-white h-11 focus-visible:ring-zinc-600 rounded-sm"
+                className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-11 px-4 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
               />
               {password && (
                 <div className="grid grid-cols-3 gap-2 mt-2">
-                    {passwordStrength.checks.map((check, idx) => (
-                      <div key={idx} className="flex flex-col gap-1 items-center">
-                        <div className={`h-1 w-full rounded-full ${check.met ? "bg-white" : "bg-zinc-800"}`} />
-                        <span className="text-[0.5rem] uppercase tracking-tighter text-zinc-500">{check.label.split(' ')[2] || 'Length'}</span>
-                      </div>
-                    ))}
+                  {passwordStrength.checks.map((check, idx) => (
+                    <div key={idx} className="flex flex-col gap-1">
+                      <div className={`h-1 rounded-full transition-colors ${check.met
+                          ? passwordStrength.score === 1 ? "bg-red-400"
+                            : passwordStrength.score === 2 ? "bg-amber-400"
+                              : "bg-emerald-400"
+                          : "bg-zinc-800"
+                        }`} />
+                      <span className="text-[0.6rem] font-semibold tracking-[0.1em] uppercase text-zinc-600 mt-1">
+                        {idx === 0 ? "8" : idx === 1 ? "Letter" : "Length"}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Confirm Password</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -216,23 +223,24 @@ export default function SignupPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 disabled={isLoading}
-                className={`bg-zinc-900 border-zinc-800 text-white h-11 focus-visible:ring-zinc-600 rounded-sm ${
-                  confirmPassword && password !== confirmPassword ? "border-red-900/50" : ""
-                }`}
+                className={`bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-11 px-4 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 ${confirmPassword && password !== confirmPassword ? "border-red-900/50" : ""
+                  }`}
               />
             </div>
 
-            <Button type="submit" className="w-full h-11 bg-white text-black hover:bg-zinc-200 transition-all rounded-sm font-semibold uppercase tracking-wider text-xs mt-4" disabled={isLoading || passwordStrength.score < 3}>
+            <Button type="submit" className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-11 w-full text-xs font-semibold tracking-[0.15em] uppercase mt-4" disabled={isLoading || passwordStrength.score < 3}>
               {isLoading ? "Provisioning Account..." : "Create Account"}
             </Button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-zinc-800 text-center lg:text-left">
+          <div className="w-full h-px bg-zinc-800 my-6" />
+
+          <div className="text-center lg:text-left">
             <p className="text-sm text-zinc-500">
               Already have an account?{" "}
               <Link
                 href="/login"
-                className="font-bold text-white hover:underline underline-offset-4"
+                className="text-sm font-semibold text-zinc-100 hover:text-white"
               >
                 Sign in
               </Link>
@@ -241,8 +249,8 @@ export default function SignupPage() {
         </div>
       </div>
 
-      {/* Image Side */}
-      <div className="relative hidden w-0 flex-1 lg:block p-6">
+      {/* Right image panel */}
+      <div className="hidden lg:block lg:w-1/2 h-screen sticky top-0 rounded-[2rem] overflow-hidden m-3">
         <AuthImageRotation />
       </div>
     </div>

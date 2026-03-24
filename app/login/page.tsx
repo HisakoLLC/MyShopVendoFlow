@@ -206,39 +206,39 @@ function LoginContent() {
   }
 
   return (
-    <div className="flex min-h-screen bg-black overflow-y-auto font-sans">
+    <div className="flex min-h-screen bg-zinc-950">
       <Toaster richColors position="top-right" />
       
-      {/* Form Side */}
-      <div className="flex flex-1 flex-col items-center py-12 lg:justify-center px-4 sm:px-6 lg:px-20 xl:px-24">
-        <div className="mx-auto w-full max-w-sm lg:w-96">
-          <div className="mb-10 text-center lg:text-left">
-            <h1 className="font-editorial text-4xl font-bold tracking-tight text-white mb-2 underline decoration-zinc-800 decoration-4 underline-offset-8">
+      {/* Left form panel */}
+      <div className="flex-1 lg:w-1/2 flex items-center justify-center px-8 py-12 overflow-y-auto">
+        <div className="w-full max-w-sm">
+          <div className="mb-8">
+            <h1 className="font-editorial text-2xl font-bold text-zinc-50 mb-8">
               VendoFlow
             </h1>
-            <h2 className="text-xl font-medium text-zinc-100 mt-6 capitalize">
+            <h2 className="font-editorial text-3xl font-bold text-zinc-50 mb-2">
               Welcome Back
             </h2>
-            <p className="mt-2 text-sm text-zinc-500">
+            <p className="text-sm text-zinc-500 mb-8">
               Enter your details to manage your boutique.
             </p>
           </div>
 
           {!showEmailPassword && savedStore ? (
             <div className="space-y-6">
-              <div className="p-4 rounded-sm border border-zinc-800 bg-zinc-900 flex items-center gap-4">
+              <div className="p-4 rounded-md border border-zinc-800 bg-zinc-900 flex items-center gap-4">
                 <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center text-black font-bold text-lg">
                   {savedStore.store_name[0].toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Active Store</p>
+                  <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Active Store</p>
                   <p className="text-white font-medium">{savedStore.store_name}</p>
                 </div>
               </div>
 
               <form onSubmit={handlePinLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="pin" className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Quick Pin Access</Label>
+                  <Label htmlFor="pin" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Quick Pin Access</Label>
                   <Input
                     id="pin"
                     type="password"
@@ -247,10 +247,10 @@ function LoginContent() {
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
                     required
-                    className="bg-zinc-900 border-zinc-800 text-white h-11 text-center text-xl tracking-[1em] focus-visible:ring-zinc-600 rounded-sm"
+                    className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-11 px-4 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 text-center text-xl tracking-[1em]"
                   />
                 </div>
-                <Button type="submit" className="w-full h-11 bg-white text-black hover:bg-zinc-200 transition-all rounded-sm font-semibold uppercase tracking-wider text-xs" disabled={pinLoading}>
+                <Button type="submit" className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-11 w-full text-xs font-semibold tracking-[0.15em] uppercase" disabled={pinLoading}>
                   {pinLoading ? "Authenticating..." : "Open POS"}
                 </Button>
                 <button
@@ -265,7 +265,7 @@ function LoginContent() {
           ) : (
             <form onSubmit={showEmailPassword ? handleLogin : handleInitialEmailCheck} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Email Address</Label>
+                <Label htmlFor="email" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Email Address</Label>
                 <Input
                   id="email"
                   type="email"
@@ -274,18 +274,18 @@ function LoginContent() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="bg-zinc-900 border-zinc-800 text-white h-11 focus-visible:ring-zinc-600 rounded-sm"
+                  className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-11 px-4 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
                 />
               </div>
 
               {showEmailPassword && (
                 <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                  <div className="flex items-center justify-between px-1">
-                    <Label htmlFor="password" className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Password</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Password</Label>
                     <button
                       type="button"
                       onClick={handleForgotPassword}
-                      className="text-[0.6rem] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors"
+                      className="text-[0.65rem] font-semibold tracking-[0.1em] uppercase text-zinc-500 hover:text-zinc-100"
                     >
                       Forgot?
                     </button>
@@ -298,7 +298,7 @@ function LoginContent() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={isLoading}
-                    className="bg-zinc-900 border-zinc-800 text-white h-11 focus-visible:ring-zinc-600 rounded-sm"
+                    className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-11 px-4 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
                   />
                   <div className="flex items-center space-x-2 pt-2">
                     <Checkbox
@@ -314,18 +314,20 @@ function LoginContent() {
                 </div>
               )}
 
-              <Button type="submit" className="w-full h-11 bg-white text-black hover:bg-zinc-200 transition-all rounded-sm font-semibold uppercase tracking-wider text-xs mt-4" disabled={isLoading}>
-                {isLoading ? "Authenticating..." : showEmailPassword ? "Continue" : "Continue"}
+              <Button type="submit" className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-11 w-full text-xs font-semibold tracking-[0.15em] uppercase mt-4" disabled={isLoading}>
+                {isLoading ? "Authenticating..." : "Continue"}
               </Button>
             </form>
           )}
 
-          <div className="mt-8 pt-6 border-t border-zinc-800 text-center lg:text-left">
+          <div className="w-full h-px bg-zinc-800 my-6" />
+
+          <div className="text-center lg:text-left">
             <p className="text-sm text-zinc-500">
               New to the platform?{" "}
               <Link
                 href="/signup"
-                className="font-bold text-white hover:underline underline-offset-4"
+                className="text-sm font-semibold text-zinc-100 hover:text-white"
               >
                 Create an account
               </Link>
@@ -334,8 +336,8 @@ function LoginContent() {
         </div>
       </div>
 
-      {/* Image Side */}
-      <div className="relative hidden w-0 flex-1 lg:block p-6">
+      {/* Right image panel */}
+      <div className="hidden lg:block lg:w-1/2 h-screen sticky top-0 rounded-[2rem] overflow-hidden m-3">
         <AuthImageRotation />
       </div>
     </div>

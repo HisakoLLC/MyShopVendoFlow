@@ -41,7 +41,7 @@ export function AuthImageRotation() {
   const doesActiveImageExist = imageExists[activeImageUrl]
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-[2.5rem] bg-zinc-900 shadow-2xl">
+    <div className="relative h-full w-full overflow-hidden rounded-[2rem] bg-zinc-900 shadow-2xl">
       <AnimatePresence mode="wait">
         <motion.div
           key={activeImageUrl}
@@ -54,8 +54,8 @@ export function AuthImageRotation() {
           {doesActiveImageExist ? (
             <img
               src={activeImageUrl}
-              alt="Fashion Inspiration"
-              className="h-full w-full object-cover opacity-60 brightness-75 grayscale-[0.2]"
+              alt="Fashion"
+              className="absolute inset-0 w-full h-full object-cover object-center"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-900 to-black">
@@ -68,26 +68,19 @@ export function AuthImageRotation() {
       </AnimatePresence>
 
       {/* Decorative Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-
-      <div className="absolute bottom-12 left-12 right-12 z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 1 }}
-        >
-          <div className="h-0.5 w-12 bg-zinc-400 mb-6" />
-          <h3 className="font-editorial text-4xl lg:text-5xl text-white leading-tight tracking-tight">
-            Redefining Fashion <br />
-            <span className="italic opacity-80 decoration-zinc-500 underline underline-offset-8">Tech.</span>
-          </h3>
-        </motion.div>
-      </div>
-
-      <div className="absolute top-12 left-12">
-        <span className="text-[0.65rem] font-bold uppercase tracking-[0.4em] text-white/40 vertical-text">
-          © {new Date().getFullYear()} VendoFlow Labs
-        </span>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 flex flex-col justify-between p-8">
+        <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-white/60">
+          © {new Date().getFullYear()} VENDOFLOW LABS
+        </p>
+        
+        <div>
+          <div className="w-8 h-px bg-white/60 mb-4" />
+          <p className="font-editorial text-4xl font-bold text-white leading-tight">
+            Redefining Fashion<br />
+            <em className="italic text-white/80">Tech.</em>
+          </p>
+          <div className="w-12 h-px bg-white/60 mt-3" />
+        </div>
       </div>
     </div>
   )

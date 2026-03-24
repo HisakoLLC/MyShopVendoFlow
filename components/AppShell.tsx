@@ -15,6 +15,7 @@ import {
   UserCog,
   ChevronsLeft,
   ChevronsRight,
+  LogOut,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -72,12 +73,14 @@ function Sidebar({
   storeName,
   isExpanded,
   setIsExpanded,
+  onSignOut,
 }: {
   user: User | null
   role: StaffRole
   storeName: string
   isExpanded: boolean
   setIsExpanded: (val: boolean) => void
+  onSignOut: () => void
 }) {
   const pathname = usePathname()
   const visibleNavItems = navItems.filter((item) => canShowNavItem(item.href, role))
@@ -91,6 +94,10 @@ function Sidebar({
       return pathname === "/dashboard"
     }
     return pathname === href || pathname.startsWith(`${href}/`)
+  }
+
+  const handleSignOut = () => {
+    onSignOut()
   }
 
   return (
@@ -191,6 +198,13 @@ function Sidebar({
                   {displayName}
                 </p>
                 <p className="text-[0.65rem] tracking-[0.1em] uppercase text-zinc-600 truncate">{userRoleLabel}</p>
+                <button 
+                  onClick={handleSignOut}
+                  className="flex items-center gap-3 px-0 py-2 w-full text-[0.65rem] font-semibold tracking-[0.1em] uppercase text-zinc-600 hover:text-red-400 hover:bg-red-500/5 rounded-sm transition-colors mt-1"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  Sign Out
+                </button>
               </motion.div>
             )}
           </AnimatePresence>
@@ -288,6 +302,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         storeName={storeName}
         isExpanded={isExpanded}
         setIsExpanded={setIsExpanded}
+        onSignOut={async () => {
+          await supabase.auth.signOut()
+          window.location.href = "/login"
+        }}
       />
       <main className="flex-1 h-full overflow-y-auto overflow-x-hidden min-w-0">
         {children}
