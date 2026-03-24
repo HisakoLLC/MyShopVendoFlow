@@ -4,16 +4,11 @@ import * as React from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
 const IMAGES = [
-  "/assets/auth/fashion-1.webp",
-  "/assets/auth/fashion-2.webp",
-  "/assets/auth/fashion-3.webp",
-  "/assets/auth/fashion-4.webp",
-  "/assets/auth/fashion-5.webp",
-  "/assets/auth/fashion-6.webp",
-  "/assets/auth/fashion-7.webp",
-  "/assets/auth/fashion-8.webp",
-  "/assets/auth/fashion-9.webp",
-  "/assets/auth/fashion-10.webp",
+  "/assets/auth/fashion-1.png",
+  "/assets/auth/fashion-2.png",
+  "/assets/auth/fashion-3.png",
+  "/assets/auth/fashion-4.png",
+  "/assets/auth/fashion-5.png",
 ]
 
 const ROTATION_INTERVAL = 10 * 60 * 1000 // 10 minutes
@@ -55,7 +50,7 @@ export function AuthImageRotation() {
             <img
               src={activeImageUrl}
               alt="Fashion"
-              className="absolute inset-0 w-full h-full object-contain object-center"
+              className="absolute inset-0 w-full h-full object-cover object-center"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-900 to-black">
