@@ -1,9 +1,10 @@
 import { createClient } from "@supabase/supabase-js"
+import { createBrowserClient } from "@supabase/ssr"
 import type { Database } from "../types/database.ts"
 import { getSupabaseUrl, getSupabaseAnonKey } from "./supabase/env"
 
 // Create a singleton client for the browser
-let browserClientInstance: ReturnType<typeof createClient<Database>> | null = null
+let browserClientInstance: ReturnType<typeof createBrowserClient<Database>> | null = null
 
 export function getSupabaseBrowserClient() {
   if (!browserClientInstance && typeof window !== "undefined") {
@@ -16,16 +17,7 @@ export function getSupabaseBrowserClient() {
     }
 
     try {
-      browserClientInstance = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-        auth: {
-          persistSession: true,
-          storageKey: "vendoflow-auth",
-          autoRefreshToken: true,
-          detectSessionInUrl: true,
-          // Prefer PKCE for browser auth flows.
-          flowType: "pkce",
-        },
-      })
+      browserClientInstance = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
     } catch (error) {
       console.error("Error creating Supabase browser client:", error)
       return null
