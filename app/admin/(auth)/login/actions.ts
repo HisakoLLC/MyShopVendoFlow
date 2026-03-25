@@ -63,83 +63,43 @@ export async function signInAdmin(email: string, pass: string): Promise<VerifyAd
     const supabase = supabaseAdmin
     const cookieStore = await cookies()
 
-    // 1. Fetch the user's password hash directly from auth.users (via service role)
-    const { data: userData, error: userError } = await supabase
-      .schema("auth" as any)
-      .from("users")
-      .select("id, encrypted_password")
-      .eq("email", email)
-      .maybeSingle()
+    // 1. Call the secure RPC that handles verification and session creation
+    // This bypasses PostgREST schema visibility restrictions.
+    const { data: sessionId, error: rpcError } = await (supabase
+      .rpc as any)("authenticate_admin", {
+        p_email: email,
+        p_password: pass
+      })
 
-    if (userError) {
-      console.error("[AUTH_DEBUG] Error fetching user from auth.users:", userError)
-      return { success: false, error: `Database error: ${userError.message}` }
+    if (rpcError) {
+      console.error("[AUTH_DEBUG] RPC Authentication Error:", rpcError)
+      // Map common PG exceptions to user-friendly messages
+      const msg = rpcError.message || ""
+      if (msg.includes("Invalid email or password")) {
+        return { success: false, error: "Invalid email or password" }
+      }
+      if (msg.includes("Account not authorized")) {
+        return { success: false, error: "Account not authorized for admin console" }
+      }
+      if (msg.includes("Administrator account is inactive")) {
+        return { success: false, error: "Administrator account is inactive" }
+      }
+      
+      return { success: false, error: `Authentication Error: ${rpcError.message}` }
     }
 
-    if (!userData) {
-      console.warn("[AUTH_DEBUG] No user found for email:", email)
-      return { success: false, error: "Invalid email or password" }
+    if (!sessionId) {
+      console.error("[AUTH_DEBUG] Authentication failed: No session ID returned")
+      return { success: false, error: "Authentication failed. Please try again." }
     }
 
-    console.log("[AUTH_DEBUG] User found in auth.users. Comparing passwords...")
+    console.log("[AUTH_DEBUG] RPC Authentication successful. Setting cookie...")
 
-    // 2. Verify password using bcryptjs
-    const isPasswordValid = await bcrypt.compare(pass, userData.encrypted_password || "")
-    if (!isPasswordValid) {
-      console.warn("[AUTH_DEBUG] BCrypt comparison failed for user:", email)
-      return { success: false, error: "Invalid email or password" }
-    }
-
-    console.log("[AUTH_DEBUG] BCrypt comparison successful. Verifying admin status...")
-
-    // 3. Verify they are in the vendo_admin.admin_users table
-    const { data: adminRecord, error: adminError } = await supabase
-      .schema("vendo_admin" as any)
-      .from("admin_users")
-      .select("id, is_active")
-      .eq("id", userData.id)
-      .maybeSingle()
-
-    if (adminError) {
-      console.error("[AUTH_DEBUG] Error verifying admin status:", adminError)
-      return { success: false, error: `Admin verification error: ${adminError.message}` }
-    }
-
-    if (!adminRecord) {
-      console.warn("[AUTH_DEBUG] User is not in admin_users table:", email)
-      return { success: false, error: "Account not authorized for admin console" }
-    }
-
-    if (!adminRecord.is_active) {
-      console.warn("[AUTH_DEBUG] Admin account is inactive:", email)
-      return { success: false, error: "Administrator account is inactive" }
-    }
-
-    console.log("[AUTH_DEBUG] Admin status verified. Creating session...")
-
-    // 4. Create a custom session
+    // 2. Set the session cookie
     const expiresAt = new Date()
     expiresAt.setDate(expiresAt.getDate() + 7) // 7 days session
 
-    const { data: sessionData, error: sessionError } = await supabase
-      .schema("vendo_admin" as any)
-      .from("admin_sessions")
-      .insert({
-        user_id: userData.id,
-        expires_at: expiresAt.toISOString()
-      })
-      .select("id")
-      .single()
-
-    if (sessionError) {
-      console.error("[AUTH_DEBUG] Failed to create admin session:", sessionError)
-      return { success: false, error: `Session Error: ${sessionError.message}` }
-    }
-
-    console.log("[AUTH_DEBUG] Session created successfully. Setting cookie...")
-
-    // 5. Set the session cookie
-    cookieStore.set("vendoflow_admin_session", sessionData.id, {
+    cookieStore.set("vendoflow_admin_session", sessionId, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
