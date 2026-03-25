@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js"
 import type { Database } from "@/types/database"
+import { getSupabaseUrl, getSupabaseServiceRoleKey } from "@/lib/supabase/env"
 
 /**
  * Admin-scoped Supabase client using the service role key.
@@ -7,8 +8,8 @@ import type { Database } from "@/types/database"
  * Never expose this client or the service role key to the browser.
  */
 export const supabaseAdmin = createClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  getSupabaseUrl()!,
+  getSupabaseServiceRoleKey()!,
   {
     auth: {
       autoRefreshToken: false,

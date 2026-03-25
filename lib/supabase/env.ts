@@ -18,3 +18,12 @@ export function getSupabaseAnonKey(): string | undefined {
     process.env.SUPABASE_ANON_KEY
   )
 }
+
+export function getSupabaseServiceRoleKey(): string | undefined {
+  // Never prefix this with NEXT_PUBLIC_ as it must stay server-side only.
+  return (
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SERVICE_KEY ||
+    process.env.SERVICE_ROLE_KEY
+  )
+}

@@ -42,6 +42,8 @@ export async function verifyAdminAccess(userId: string): Promise<VerifyAdminResu
   }
 }
 
+import { getSupabaseServiceRoleKey } from "@/lib/supabase/env"
+
 /**
  * Custom sign-in for administrators that bypasses GoTrue/Supabase Auth service.
  * Used as a workaround for the 'Database error querying schema' infrastructure issue.
@@ -49,6 +51,15 @@ export async function verifyAdminAccess(userId: string): Promise<VerifyAdminResu
 export async function signInAdmin(email: string, pass: string): Promise<VerifyAdminResult> {
   console.log(`[AUTH_DEBUG] Attempting sign-in for: ${email}`)
   try {
+    const serviceRoleKey = getSupabaseServiceRoleKey()
+    if (!serviceRoleKey) {
+      console.error("[AUTH_DEBUG] Critical: SUPABASE_SERVICE_ROLE_KEY is missing in environment")
+      return { 
+        success: false, 
+        error: "Server Configuration Error: Missing Service Role Key. Please ensure SUPABASE_SERVICE_ROLE_KEY is set in Vercel environment variables." 
+      }
+    }
+
     const supabase = supabaseAdmin
     const cookieStore = await cookies()
 
