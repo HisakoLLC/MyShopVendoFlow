@@ -69,11 +69,12 @@ export async function POST(req: Request) {
       if (noteError) throw noteError
       
       // Also save as system message for real-time history
-      await supabaseAdmin.schema("admin" as any).from("whatsapp_messages").insert({
+      await supabaseAdmin.schema("vendo_admin" as any).from("whatsapp_messages").insert({
         conversation_id: conversationId,
         direction: "outbound",
         message_type: "system",
-        content: { text: content }
+        content: content, // Fixed: passing string directly as per table schema
+        sent_by_id: adminUser.id
       })
 
       return NextResponse.json({ success: true, type: "internal_note" })
@@ -123,25 +124,28 @@ export async function POST(req: Request) {
     if (!response.ok) {
       console.error("Meta API error:", result)
       // Save failed message
-      await supabaseAdmin.schema("admin" as any).from("whatsapp_messages").insert({
+      await supabaseAdmin.schema("vendo_admin" as any).from("whatsapp_messages").insert({
         conversation_id: conversationId,
         direction: "outbound",
         message_type: type,
-        content: type === "text" ? { text: content } : { template: templateName, params: templateParams },
+        content: type === "text" ? content : `${templateName} (Params: ${JSON.stringify(templateParams)})`,
         status: "failed",
-        error_detail: JSON.stringify(result)
+        sent_by_id: adminUser.id
       })
       return NextResponse.json({ error: "WhatsApp Cloud API failed", details: result }, { status: 500 })
     }
 
     // 7. Save successful message
-    await supabaseAdmin.schema("admin" as any).from("whatsapp_messages").insert({
+    await supabaseAdmin.schema("vendo_admin" as any).from("whatsapp_messages").insert({
       conversation_id: conversationId,
-      message_id: result.messages?.[0]?.id,
+      meta_message_id: result.messages?.[0]?.id,
       direction: "outbound",
       message_type: type,
-      content: type === "text" ? { text: content } : { template: templateName, params: templateParams },
-      status: "sent"
+      content: type === "text" ? content : `${templateName}`,
+      template_name: type === "template" ? templateName : undefined,
+      template_params: type === "template" ? templateParams : undefined,
+      status: "sent",
+      sent_by_id: adminUser.id
     })
 
     // 8. Update conversation
