@@ -283,7 +283,6 @@ export default function ReportsClient({ initialReports, merchants }: ReportsClie
       {showGenerateModal && (
         <GenerateReportModal 
           onClose={() => setShowGenerateModal(false)}
-          merchants={merchants}
           onSuccess={() => router.refresh()}
         />
       )}

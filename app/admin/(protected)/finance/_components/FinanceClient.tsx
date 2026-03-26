@@ -80,7 +80,6 @@ export default function FinanceClient({ initialTransactions, merchants, trendDat
           <RecordPaymentModal 
             onClose={() => setShowModal(false)}
             onSuccess={handleSuccess}
-            merchants={merchants}
           />
         )}
       </div>

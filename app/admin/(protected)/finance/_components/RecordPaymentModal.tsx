@@ -1,16 +1,18 @@
-"use client"
-
-import { useState } from "react"
-import { X, Loader2, DollarSign, Calendar, FileText, ChevronRight, Check } from "lucide-react"
+import { useState, useEffect, useMemo, useRef } from "react"
+import { X, Loader2, DollarSign, Calendar, Check, Search, ChevronDown, AlertCircle } from "lucide-react"
 import { adminToast } from "@/lib/admin/toast"
+
+interface Merchant {
+  id: string
+  name: string
+}
 
 interface RecordPaymentModalProps {
   onClose: () => void
   onSuccess: () => void
-  merchants: { id: string, name: string }[]
 }
 
-export default function RecordPaymentModal({ onClose, onSuccess, merchants }: RecordPaymentModalProps) {
+export default function RecordPaymentModal({ onClose, onSuccess }: RecordPaymentModalProps) {
   const [formData, setFormData] = useState({
     amount: "",
     type: "subscription",
@@ -19,6 +21,55 @@ export default function RecordPaymentModal({ onClose, onSuccess, merchants }: Re
     notes: ""
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  // New States for Searchable Merchant Selection
+  const [merchants, setMerchants] = useState<Merchant[]>([])
+  const [isLoadingMerchants, setIsLoadingMerchants] = useState(true)
+  const [merchantsError, setMerchantsError] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    fetchMerchants()
+    
+    // Close dropdown on click outside
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const fetchMerchants = async () => {
+    setIsLoadingMerchants(true)
+    setMerchantsError(false)
+    try {
+      const res = await fetch("/api/admin/merchants")
+      if (!res.ok) throw new Error("Failed to load")
+      const data = await res.json()
+      setMerchants(data || [])
+    } catch (err) {
+      console.error(err)
+      setMerchantsError(true)
+    } finally {
+      setIsLoadingMerchants(false)
+    }
+  }
+
+  const filteredMerchants = useMemo(() => {
+    if (!searchQuery) return merchants
+    return merchants.filter(m => 
+      m.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  }, [merchants, searchQuery])
+
+  const selectedMerchant = useMemo(() => 
+    merchants.find(m => m.id === formData.merchantId),
+    [merchants, formData.merchantId]
+  )
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -100,18 +151,97 @@ export default function RecordPaymentModal({ onClose, onSuccess, merchants }: Re
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2" ref={dropdownRef}>
             <label className="text-[10px] text-[#444] uppercase font-bold tracking-widest">Link Merchant (Optional)</label>
-            <select 
-              value={formData.merchantId}
-              onChange={(e) => setFormData({ ...formData, merchantId: e.target.value })}
-              className="w-full bg-white/5 border border-[#1f1f1f] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#22c55e] appearance-none"
-            >
-              <option value="">No Merchant Linked</option>
-              {merchants.map(m => (
-                <option key={m.id} value={m.id}>{m.name}</option>
-              ))}
-            </select>
+            <div className="relative">
+              {isLoadingMerchants ? (
+                <div className="w-full bg-white/5 border border-[#1f1f1f] rounded-xl px-4 py-3 text-xs text-[#444] flex items-center gap-2">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Loading merchants...
+                </div>
+              ) : merchantsError ? (
+                <button 
+                  onClick={fetchMerchants}
+                  type="button"
+                  className="w-full bg-red-500/5 border border-red-500/20 rounded-xl px-4 py-3 text-xs text-red-500 flex items-center justify-between hover:bg-red-500/10 transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <AlertCircle className="w-3 h-3" />
+                    Failed to load merchants
+                  </span>
+                  <span className="text-[9px] font-bold uppercase tracking-widest underline">Retry</span>
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    type="button"
+                    className={`w-full bg-white/5 border border-[#1f1f1f] rounded-xl px-4 py-3 text-sm text-left flex items-center justify-between hover:border-[#333] transition-colors ${selectedMerchant ? "text-white" : "text-[#444]"}`}
+                  >
+                    <span className="truncate">
+                      {selectedMerchant ? selectedMerchant.name : "No Merchant Linked"}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 text-[#444] transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {isDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-[#111] border border-[#1f1f1f] rounded-2xl shadow-2xl z-[10] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="p-2 border-b border-[#1f1f1f] flex items-center gap-2 bg-white/[0.02]">
+                        <Search className="w-4 h-4 text-[#444]" />
+                        <input
+                          autoFocus
+                          type="text"
+                          placeholder="Search merchants..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="bg-transparent border-none outline-none text-xs text-white placeholder-[#444] w-full py-1"
+                        />
+                      </div>
+                      <div className="max-h-[200px] overflow-y-auto p-1 custom-scrollbar">
+                        <button
+                          key="none"
+                          onClick={() => {
+                            setFormData({ ...formData, merchantId: "" })
+                            setIsDropdownOpen(false)
+                            setSearchQuery("")
+                          }}
+                          className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-colors flex items-center justify-between group ${
+                            !formData.merchantId ? "bg-white/10 text-white" : "text-[#444] hover:bg-white/5 hover:text-white"
+                          }`}
+                        >
+                          <span className="truncate italic">No Merchant Linked</span>
+                          {!formData.merchantId && <Check className="w-3 h-3" />}
+                        </button>
+                        
+                        {filteredMerchants.length > 0 ? (
+                          filteredMerchants.map((m) => (
+                            <button
+                              key={m.id}
+                              onClick={() => {
+                                setFormData({ ...formData, merchantId: m.id })
+                                setIsDropdownOpen(false)
+                                setSearchQuery("")
+                              }}
+                              className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-colors flex items-center justify-between group ${
+                                formData.merchantId === m.id ? "bg-[#22c55e]/10 text-[#22c55e]" : "text-[#888] hover:bg-white/5 hover:text-white"
+                              }`}
+                            >
+                              <span className="truncate">{m.name}</span>
+                              {formData.merchantId === m.id && <Check className="w-3 h-3" />}
+                            </button>
+                          ))
+                        ) : searchQuery && (
+                          <div className="py-8 text-center space-y-2">
+                             <Search className="w-6 h-6 text-[#1f1f1f] mx-auto" />
+                             <p className="text-[10px] text-[#444] uppercase font-bold tracking-widest">No merchants found</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
 
           <div className="space-y-2">
