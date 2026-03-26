@@ -46,8 +46,8 @@ async function MerchantDetailData({ id }: { id: string }) {
       product_variants(count)
     `).eq("account_id", id),
     supabaseAdmin.from("purchase_orders").select("*, suppliers(name)").eq("account_id", id).order("order_date", { ascending: false }),
-    supabaseAdmin.schema("admin" as any).from("whatsapp_conversations").select("*").eq("merchant_id", id).order("last_message_at", { ascending: false }),
-    supabaseAdmin.schema("admin" as any).from("reports").select("*").eq("merchant_id", id).order("created_at", { ascending: false })
+    supabaseAdmin.schema("vendo_admin" as any).from("whatsapp_conversations").select("*").eq("merchant_id", id).order("last_message_at", { ascending: false }),
+    supabaseAdmin.schema("vendo_admin" as any).from("reports").select("*").eq("merchant_id", id).order("created_at", { ascending: false })
   ])
 
   if (accountError || !account) {

@@ -11,7 +11,7 @@ async function ReportsData() {
   // merchant_id -> public.accounts
   // approver_id -> admin.admin_users
   const { data: reports, error: reportsError } = await supabaseAdmin
-    .schema("admin" as any)
+    .schema("vendo_admin" as any)
     .from("reports")
     .select(`
       *,

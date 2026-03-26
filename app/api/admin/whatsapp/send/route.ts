@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 
     // 2. Verify Admin Status & role
     const { data: adminUser, error: adminError } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema("vendo_admin" as any)
       .from("admin_users")
       .select("id, is_active, role")
       .eq("email", session.user.email)
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 
     // 3. Fetch Conversation for Phone Number
     const { data: conversation, error: convError } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema("vendo_admin" as any)
       .from("whatsapp_conversations")
       .select("contact_phone")
       .eq("id", conversationId)
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
     // 4. Handle Internal Note
     if (isInternalNote) {
       const { error: noteError } = await supabaseAdmin
-        .schema("admin" as any)
+        .schema("vendo_admin" as any)
         .from("internal_notes")
         .insert({
           conversation_id: conversationId,
@@ -146,7 +146,7 @@ export async function POST(req: Request) {
 
     // 8. Update conversation
     await supabaseAdmin
-      .schema("admin" as any)
+      .schema("vendo_admin" as any)
       .from("whatsapp_conversations")
       .update({ last_message_at: new Date().toISOString() })
       .eq("id", conversationId)

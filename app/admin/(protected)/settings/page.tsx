@@ -7,7 +7,7 @@ export const revalidate = 0
 
 async function SettingsData() {
   const { data: rawSettings } = await supabaseAdmin
-    .schema("admin" as any)
+    .schema("vendo_admin" as any)
     .from("settings")
     .select("*")
 

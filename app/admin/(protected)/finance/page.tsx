@@ -9,7 +9,7 @@ export const revalidate = 0
 async function FinanceData() {
   // 1. Fetch Transactions
   const { data: transactions, error } = await supabaseAdmin
-    .schema("admin" as any)
+    .schema("vendo_admin" as any)
     .from("finance_transactions")
     .select(`
       *,

@@ -8,9 +8,9 @@ export const revalidate = 0
 
 async function WhatsappData({ merchantId }: { merchantId?: string }) {
   // 1. Fetch conversations with merchant names
-  // We use .schema('admin') for the conversations table
+  // We use .schema('vendo_admin') for the conversations table
   const { data: conversations, error } = await supabaseAdmin
-    .schema("admin" as any)
+    .schema("vendo_admin" as any)
     .from("whatsapp_conversations")
     .select(`
       *,

@@ -101,7 +101,7 @@ export default function ConversationView({ conversationId }: { conversationId: s
         "postgres_changes", 
         { 
           event: "INSERT", 
-          schema: "admin", 
+          schema: "vendo_admin", 
           table: "whatsapp_messages", 
           filter: `conversation_id=eq.${conversationId}` 
         }, 
