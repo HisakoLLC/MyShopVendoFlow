@@ -20,8 +20,14 @@ async function FinanceData() {
     .select("id:account_id, name:business_name")
     .order("business_name")
 
-  if (error) {
-    console.error(error)
+  // 3. Fetch Platform Volume (Sum of all completed sales)
+  const { data: sales, error: salesError } = await supabaseAdmin
+    .from("sales")
+    .select("grand_total, sale_date")
+    .eq("status", "completed")
+
+  if (error || salesError) {
+    console.error(error || salesError)
     return <div className="p-8 text-red-500 font-bold uppercase tracking-widest text-[10px]">Error loading financial data</div>
   }
 
@@ -33,37 +39,48 @@ async function FinanceData() {
     }
   }))
   
-  // 3. Process Aggregates
-  const totalRevenue = txList.reduce((acc, tx) => acc + (tx.type !== 'expense' ? parseFloat(tx.amount) : -parseFloat(tx.amount)), 0)
+  // 4. Process Aggregates (SaaS Revenue)
+  const saasRevenue = txList.reduce((acc, tx) => acc + (tx.type !== 'expense' ? parseFloat(tx.amount) : -parseFloat(tx.amount)), 0)
   
+  // 5. Process Platform GMV (Gross Merchant Volume)
+  const platformGMV = (sales as any[] || []).reduce((acc, s) => acc + parseFloat(s.grand_total), 0)
+
   const now = new Date()
   const thisMonth = now.getMonth()
   const thisYear = now.getFullYear()
+  
   const currentMonthTx = txList.filter(tx => {
     const d = new Date(tx.transaction_date)
     return d.getMonth() === thisMonth && d.getFullYear() === thisYear
   })
-  const lastMonthTx = txList.filter(tx => {
-    const d = new Date(tx.transaction_date)
-    const lm = thisMonth === 0 ? 11 : thisMonth - 1
-    const ly = thisMonth === 0 ? thisYear - 1 : thisYear
-    return d.getMonth() === lm && d.getFullYear() === ly
+  
+  const currentMonthSales = (sales as any[] || []).filter(s => {
+    const d = new Date(s.sale_date)
+    return d.getMonth() === thisMonth && d.getFullYear() === thisYear
   })
 
   const thisMonthRevenue = currentMonthTx.reduce((acc, tx) => acc + (tx.type !== 'expense' ? parseFloat(tx.amount) : -parseFloat(tx.amount)), 0)
-  const lastMonthRevenue = lastMonthTx.reduce((acc, tx) => acc + (tx.type !== 'expense' ? parseFloat(tx.amount) : -parseFloat(tx.amount)), 0)
-  
-  const growth = lastMonthRevenue === 0 ? 100 : ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
+  const thisMonthGMV = currentMonthSales.reduce((acc, s) => acc + parseFloat(s.grand_total), 0)
 
-  // 4. Trend Data (last 6 months)
+  // 6. Trend Data (last 6 months - Combining Platform GMV and SaaS Revenue)
   const months = []
   for (let i = 5; i >= 0; i--) {
      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
      const mStr = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`
-     const monthTotal = txList
+     
+     const monthSaaS = txList
        .filter(tx => tx.transaction_date.startsWith(mStr))
        .reduce((acc, tx) => acc + (tx.type !== 'expense' ? parseFloat(tx.amount) : -parseFloat(tx.amount)), 0)
-     months.push({ month: mStr, amount: Math.max(0, monthTotal) })
+       
+     const monthGMV = (sales as any[] || [])
+       .filter(s => s.sale_date.startsWith(mStr))
+       .reduce((acc, s) => acc + parseFloat(s.grand_total), 0)
+
+     months.push({ 
+       month: mStr, 
+       amount: Math.max(0, monthSaaS), // Primary chart still shows SaaS
+       gmv: Math.max(0, monthGMV) 
+     })
   }
 
   return (
@@ -80,10 +97,10 @@ async function FinanceData() {
         merchants={merchants || []} 
         trendData={months}
         aggregates={{
-          totalRevenue,
-          thisMonthRevenue,
-          lastMonthRevenue,
-          growth
+          totalRevenue: saasRevenue,
+          thisMonthRevenue: thisMonthRevenue,
+          platformGMV: platformGMV,
+          thisMonthGMV: thisMonthGMV
         }}
       />
 

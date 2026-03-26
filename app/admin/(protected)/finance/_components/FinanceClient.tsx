@@ -15,8 +15,8 @@ interface FinanceClientProps {
   aggregates: {
     totalRevenue: number
     thisMonthRevenue: number
-    lastMonthRevenue: number
-    growth: number
+    platformGMV: number
+    thisMonthGMV: number
   }
 }
 
@@ -24,7 +24,7 @@ export default function FinanceClient({ initialTransactions, merchants, trendDat
   const router = useRouter()
   const [showModal, setShowModal] = useState(false)
 
-  const { totalRevenue, thisMonthRevenue, lastMonthRevenue, growth } = aggregates
+  const { totalRevenue, thisMonthRevenue, platformGMV, thisMonthGMV } = aggregates
 
   const handleSuccess = () => {
     router.refresh()
@@ -46,19 +46,14 @@ export default function FinanceClient({ initialTransactions, merchants, trendDat
       <div className="space-y-8 animate-in fade-in duration-500">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[
-            { label: "Total Revenue", value: `KES ${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-[#22c55e]" },
-            { label: "Monthly Revenue", value: `KES ${thisMonthRevenue.toLocaleString()}`, icon: TrendingUp, color: "text-blue-400" },
-            { label: "Last Month", value: `KES ${lastMonthRevenue.toLocaleString()}`, icon: CreditCard, color: "text-[#444]" },
-            { label: "MoM Growth", value: `${growth > 0 ? '+' : ''}${growth.toFixed(1)}%`, icon: Rocket, color: growth >= 0 ? "text-[#22c55e]" : "text-red-400" },
+            { label: "SaaS Revenue (Total)", value: `KES ${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-[#22c55e]" },
+            { label: "SaaS This Month", value: `KES ${thisMonthRevenue.toLocaleString()}`, icon: TrendingUp, color: "text-blue-400" },
+            { label: "Platform Volume (GMV)", value: `KES ${platformGMV.toLocaleString()}`, icon: CreditCard, color: "text-purple-400" },
+            { label: "GMV This Month", value: `KES ${thisMonthGMV.toLocaleString()}`, icon: Rocket, color: "text-amber-400" },
           ].map((card, i) => (
             <div key={i} className="p-6 rounded-2xl bg-[#111] border border-[#1f1f1f] space-y-2">
               <div className="flex justify-between items-start">
                  <card.icon className={`w-4 h-4 ${card.color}`} />
-                 {i === 3 && (
-                   <div className={`text-[10px] font-black px-1.5 py-0.5 rounded ${growth >= 0 ? 'bg-[#22c55e]/10 text-[#22c55e]' : 'bg-red-400/10 text-red-400'}`}>
-                      {growth >= 0 ? 'UP' : 'DOWN'}
-                   </div>
-                 )}
               </div>
               <div className="text-2xl font-black text-white tracking-tighter">{card.value}</div>
               <div className="text-[10px] text-[#444] uppercase font-bold tracking-widest">{card.label}</div>
