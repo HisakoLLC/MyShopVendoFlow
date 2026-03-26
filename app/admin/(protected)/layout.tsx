@@ -18,43 +18,24 @@ export default async function AdminProtectedLayout({
     redirect("/admin/login")
   }
 
-  // 2. Verify the session in the DB
-  const { data: sessionData, error: sessionError } = await supabaseAdmin
-    .schema("vendo_admin" as any)
-    .from("admin_sessions")
-    .select("user_id, expires_at")
-    .eq("id", sessionId)
-    .maybeSingle()
+  // 2. Verify the session and get admin data via secure RPC
+  // This bypasses PostgREST schema visibility issues in the layout.
+  const { data: sessionInfo, error: sessionError } = await (supabaseAdmin
+    .rpc as any)("get_admin_session_data", {
+      p_session_id: sessionId
+    })
 
-  if (sessionError || !sessionData) {
-    redirect("/admin/login")
-  }
-
-  // 3. Check if session expired
-  if (new Date(sessionData.expires_at) < new Date()) {
-    redirect("/admin/login")
-  }
-
-  // 4. Fetch the admin record for this user
-  const { data: adminRecord, error: adminError } = await supabaseAdmin
-    .schema("vendo_admin" as any)
-    .from("admin_users")
-    .select("id, email, full_name, role, avatar_url, is_active")
-    .eq("id", sessionData.user_id)
-    .eq("is_active", true)
-    .maybeSingle()
-
-  // 5. Inactive or missing record → error
-  if (adminError || !adminRecord) {
+  if (sessionError || !sessionInfo) {
+    console.error("[AUTH_DEBUG] Layout Session Error:", sessionError)
     redirect("/admin/login")
   }
 
   const adminUser: AdminUser = {
-    id: adminRecord.id,
-    email: adminRecord.email,
-    full_name: adminRecord.full_name,
-    role: adminRecord.role as AdminUser["role"],
-    avatar_url: adminRecord.avatar_url ?? null,
+    id: sessionInfo.id,
+    email: sessionInfo.email,
+    full_name: sessionInfo.full_name,
+    role: sessionInfo.role as AdminUser["role"],
+    avatar_url: sessionInfo.avatar_url ?? null,
   }
 
   return (
