@@ -29,6 +29,8 @@ interface Message {
   content: any
   status: "sent" | "delivered" | "read" | "failed"
   created_at: string
+  type?: "whatsapp_message" | "internal_note"
+  author_name?: string
 }
 
 interface Conversation {
@@ -66,35 +68,43 @@ export default function ConversationView({ conversationId }: { conversationId: s
   const scrollRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
 
-  // 1. Fetch Chat History & Meta
+  // 1. Fetch Chat History & Meta with Polling
   useEffect(() => {
-    const fetchChat = async () => {
-      setLoading(true)
+    if (!conversationId) return
+    
+    let isMounted = true
+    const fetchChat = async (isInitial = false) => {
+      if (isInitial) setLoading(true)
       
-      const [msgRes, convRes] = await Promise.all([
-        supabase
-          .schema("vendo_admin")
-          .from("whatsapp_messages")
-          .select("*")
-          .eq("conversation_id", conversationId)
-          .order("created_at", { ascending: true }),
-        supabase
-          .schema("vendo_admin")
-          .from("whatsapp_conversations")
-          .select("*, accounts:merchant_id(business_name)")
-          .eq("id", conversationId)
-          .single()
-      ])
+      try {
+        const [msgRes, convRes] = await Promise.all([
+          fetch(`/api/admin/whatsapp/messages?conversationId=${conversationId}`).then(res => res.json()),
+          supabase
+            .schema("vendo_admin")
+            .from("whatsapp_conversations")
+            .select("*, accounts:merchant_id(business_name)")
+            .eq("id", conversationId)
+            .single()
+        ])
 
-      if (msgRes.data) setMessages(msgRes.data as Message[])
-      if (convRes.data) setConversation(convRes.data as Conversation)
-      setLoading(false)
-      scrollToBottom()
+        if (isMounted) {
+          if (msgRes.messages) setMessages(msgRes.messages)
+          if (convRes.data) setConversation(convRes.data as Conversation)
+          if (isInitial) {
+            setLoading(false)
+            scrollToBottom()
+          }
+        }
+      } catch (err) {
+        console.error("Fetch Error:", err)
+        if (isMounted && isInitial) setLoading(false)
+      }
     }
 
-    fetchChat()
+    fetchChat(true) // Initial load
+    const interval = setInterval(() => fetchChat(false), 3000)
 
-    // Real-time Subscription
+    // Optional Background Realtime
     const channel = supabase
       .channel(`chat_${conversationId}`)
       .on(
@@ -105,14 +115,15 @@ export default function ConversationView({ conversationId }: { conversationId: s
           table: "whatsapp_messages", 
           filter: `conversation_id=eq.${conversationId}` 
         }, 
-        (payload: any) => {
-          setMessages(prev => [...prev, payload.new as Message])
-          scrollToBottom()
-        }
+        () => fetchChat(false) // Just trigger a refresh on change
       )
       .subscribe()
 
-    return () => { supabase.removeChannel(channel) }
+    return () => { 
+      isMounted = false
+      clearInterval(interval)
+      supabase.removeChannel(channel) 
+    }
   }, [conversationId])
 
   const scrollToBottom = () => {
@@ -166,7 +177,14 @@ export default function ConversationView({ conversationId }: { conversationId: s
   }
 
   if (loading) {
-    return <div className="flex-1 flex items-center justify-center text-[#444] text-xs font-bold uppercase animate-pulse">Establishing secure link...</div>
+    return (
+      <div className="flex-1 flex items-center justify-center bg-[#0a0a0a]">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 text-[#22c55e] animate-spin" />
+          <div className="text-[10px] text-[#444] font-black uppercase tracking-[0.2em]">Loading Conversation...</div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -213,10 +231,12 @@ export default function ConversationView({ conversationId }: { conversationId: s
         className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-[#0a0a0a]"
       >
         {messages.map((msg) => {
-          if (msg.message_type === "system") {
+          if (msg.type === "internal_note" || msg.message_type === "system") {
             return (
-              <div key={msg.id} className="mx-12 py-3 px-4 rounded-lg bg-amber-400/5 border border-amber-400/20 text-center">
-                <span className="text-[10px] text-amber-200/50 font-black uppercase tracking-[0.2em] block mb-1">📝 Internal Note</span>
+              <div key={msg.id} className="mx-12 py-3 px-4 rounded-lg bg-amber-400/5 border border-amber-400/20 text-center ring-1 ring-amber-400/10">
+                <span className="text-[10px] text-amber-400 font-black uppercase tracking-[0.2em] block mb-1">
+                  📝 Internal Note {msg.author_name ? `• ${msg.author_name}` : ""}
+                </span>
                 <p className="text-xs text-amber-200/70 italic leading-relaxed">{msg.content.text}</p>
                 <span className="text-[9px] text-amber-200/30 font-mono mt-2 block">{formatTimestamp(msg.created_at)}</span>
               </div>
@@ -255,7 +275,9 @@ export default function ConversationView({ conversationId }: { conversationId: s
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center space-y-3 opacity-20">
             <Clock className="w-8 h-8 text-[#444]" />
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#444]">No History</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#444] text-center max-w-[200px]">
+              No messages yet. Send the first message below.
+            </p>
           </div>
         )}
       </div>

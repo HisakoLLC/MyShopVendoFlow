@@ -185,23 +185,9 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
               </div>
             </div>
 
-            {/* Messages Area (Placeholder for next prompt) */}
-            <div className="flex-1 flex flex-col items-center justify-center space-y-6 opacity-30">
-               <div className="relative">
-                 <div className="w-20 h-20 rounded-full border-2 border-dashed border-[#1f1f1f] animate-spin-slow" />
-                 <MessageSquare className="absolute inset-0 m-auto w-8 h-8 text-[#444]" />
-               </div>
-               <div className="text-center space-y-1">
-                 <h3 className="text-white text-xs font-bold uppercase tracking-widest">Loading Conversation</h3>
-                 <p className="text-[#444] text-[10px]">Connecting to WhatsApp infrastructure...</p>
-               </div>
-            </div>
-
-            {/* Input Bar Placeholder */}
-            <div className="p-4 border-t border-[#1a1a1a] bg-[#0d0d0d]">
-              <div className="h-10 bg-[#111] border border-[#1f1f1f] rounded-lg w-full flex items-center px-4">
-                 <span className="text-[#444] text-xs italic">Message {selectedConversation.contact_name || "Merchant"}...</span>
-              </div>
+            {/* Messages Area */}
+            <div className="flex-1 overflow-hidden">
+               <ConversationView conversationId={selectedConversation.id} />
             </div>
           </div>
         ) : (
