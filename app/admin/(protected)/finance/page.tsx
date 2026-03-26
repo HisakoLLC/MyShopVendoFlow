@@ -11,13 +11,10 @@ async function FinanceData() {
   const { data: transactions, error } = await supabaseAdmin
     .schema("vendo_admin" as any)
     .from("finance_transactions")
-    .select(`
-      *,
-      accounts:merchant_id ( business_name )
-    `)
+    .select("*")
     .order("transaction_date", { ascending: false })
 
-  // 2. Fetch Merchants for the modal
+  // 2. Fetch Merchants for the modal AND mapping
   const { data: merchants } = await supabaseAdmin
     .from("accounts")
     .select("id:account_id, name:business_name")
@@ -28,7 +25,13 @@ async function FinanceData() {
     return <div className="p-8 text-red-500 font-bold uppercase tracking-widest text-[10px]">Error loading financial data</div>
   }
 
-  const txList = (transactions as any[]) || []
+  // 3. In-memory join
+  const txList = (transactions as any[] || []).map(tx => ({
+    ...tx,
+    accounts: {
+      business_name: (merchants || []).find(m => m.id === tx.merchant_id)?.name || "Unknown Merchant"
+    }
+  }))
   
   // 3. Process Aggregates
   const totalRevenue = txList.reduce((acc, tx) => acc + (tx.type !== 'expense' ? parseFloat(tx.amount) : -parseFloat(tx.amount)), 0)
