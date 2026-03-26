@@ -14,9 +14,9 @@ async function WhatsappData({ merchantId }: { merchantId?: string }) {
     .from("whatsapp_conversations")
     .select(`
       *,
-      accounts:public.accounts!merchant_id (
+      accounts:merchant_id (
         business_name
-      )
+      ),
     `)
     .order("last_message_at", { ascending: false })
 

@@ -15,7 +15,7 @@ async function ReportsData() {
     .from("reports")
     .select(`
       *,
-      accounts:public.accounts!merchant_id (
+      accounts:merchant_id (
         business_name
       ),
       approver:approved_by (

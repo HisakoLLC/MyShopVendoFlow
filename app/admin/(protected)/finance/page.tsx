@@ -13,7 +13,7 @@ async function FinanceData() {
     .from("finance_transactions")
     .select(`
       *,
-      accounts:public.accounts!merchant_id ( business_name )
+      accounts:merchant_id ( business_name )
     `)
     .order("transaction_date", { ascending: false })
 
