@@ -14,7 +14,7 @@ async function WhatsappData({ merchantId }: { merchantId?: string }) {
     .from("whatsapp_conversations")
     .select(`
       *,
-      accounts:merchant_id (
+      accounts:public.accounts!merchant_id (
         business_name
       )
     `)
