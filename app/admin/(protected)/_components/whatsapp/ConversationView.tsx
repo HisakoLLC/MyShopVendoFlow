@@ -31,6 +31,8 @@ interface Message {
   created_at: string
   type?: "whatsapp_message" | "internal_note"
   author_name?: string
+  template_name?: string | null
+  template_params?: any
 }
 
 interface Conversation {
@@ -237,7 +239,9 @@ export default function ConversationView({ conversationId }: { conversationId: s
                 <span className="text-[10px] text-amber-400 font-black uppercase tracking-[0.2em] block mb-1">
                   📝 Internal Note {msg.author_name ? `• ${msg.author_name}` : ""}
                 </span>
-                <p className="text-xs text-amber-200/70 italic leading-relaxed">{msg.content.text}</p>
+                <p className="text-xs text-amber-200/70 italic leading-relaxed">
+                  {typeof msg.content === 'string' ? msg.content : (msg.content?.text || msg.content?.body || JSON.stringify(msg.content))}
+                </p>
                 <span className="text-[9px] text-amber-200/30 font-mono mt-2 block">{formatTimestamp(msg.created_at)}</span>
               </div>
             )
@@ -255,7 +259,9 @@ export default function ConversationView({ conversationId }: { conversationId: s
                   : "bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-tr-none text-white text-shadow-sm shadow-2xl shadow-[#22c55e]/5"
               }`}>
                 <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                  {msg.message_type === "template" ? `[Template: ${msg.content.template}]` : (msg.content.text || msg.content.body || "")}
+                  {msg.message_type === "template" 
+                    ? `[Template: ${msg.content?.template || msg.template_name || 'Generic'}]` 
+                    : (typeof msg.content === 'string' ? msg.content : (msg.content?.text || msg.content?.body || ""))}
                 </p>
                 
                 <div className={`mt-1.5 flex items-center gap-1.5 ${isInbound ? "text-[#444]" : "text-white/30"}`}>
