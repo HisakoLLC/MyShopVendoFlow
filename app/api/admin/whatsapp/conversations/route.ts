@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { getServerAdminUser } from "@/lib/admin/auth"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 
 export async function GET(req: Request) {
@@ -7,15 +7,15 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url)
     const merchantId = searchParams.get("merchantId")
     
-    const supabase = await createServerSupabaseClient()
-    
-    // 1. Auth Check
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // 1. Verify custom Admin Session
+    const adminUser = await getServerAdminUser()
+    if (!adminUser) {
+      return NextResponse.json({ error: "Unauthorized: Admin access only" }, { status: 401 })
+    }
 
     // 2. Fetch Conversations
     let query = supabaseAdmin
-      .schema("admin" as any)
+      .schema("vendo_admin" as any)
       .from("whatsapp_conversations")
       .select("*")
       .order("last_message_at", { ascending: false })

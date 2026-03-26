@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { getServerAdminUser } from "@/lib/admin/auth"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 
 export async function GET(req: Request) {
@@ -11,22 +11,10 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Missing conversationId" }, { status: 400 })
     }
 
-    const supabase = await createServerSupabaseClient()
-    const { data: { session }, error: authError } = await supabase.auth.getSession()
-    if (authError || !session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    // Verify admin access
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .schema("vendo_admin" as any)
-      .from("admin_users")
-      .select("id, is_active")
-      .eq("email", session.user.email)
-      .single()
-
-    if (adminError || !adminUser || !adminUser.is_active) {
-      return NextResponse.json({ error: "Forbidden: Admin access only" }, { status: 403 })
+    // 1. Verify custom Admin Session
+    const adminUser = await getServerAdminUser()
+    if (!adminUser) {
+      return NextResponse.json({ error: "Unauthorized: Admin access only" }, { status: 401 })
     }
 
     // 1. Fetch Whatsapp Messages

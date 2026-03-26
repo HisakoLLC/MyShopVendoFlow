@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { getServerAdminUser } from "@/lib/admin/auth"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import { PERMISSIONS, hasPermission } from "@/lib/admin/permissions"
 
@@ -8,25 +8,13 @@ const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID
 
 export async function POST(req: Request) {
   try {
-    const supabase = await createServerSupabaseClient()
-    
-    // 1. Verify User Session
-    const { data: { session }, error: authError } = await supabase.auth.getSession()
-    if (authError || !session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-
-    // 2. Verify Admin Status & role
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .schema("vendo_admin" as any)
-      .from("admin_users")
-      .select("id, is_active, role")
-      .eq("email", session.user.email)
-      .single()
-
-    if (adminError || !adminUser || !adminUser.is_active) {
-      return NextResponse.json({ error: "Forbidden: Admin access only" }, { status: 403 })
+    // 1. Verify custom Admin Session
+    const adminUser = await getServerAdminUser()
+    if (!adminUser) {
+      return NextResponse.json({ error: "Unauthorized: Admin access only" }, { status: 401 })
     }
 
-    // 2b. Verify Role-Based Permission
+    // 2. Verify Role-Based Permission
     if (!hasPermission(adminUser.role, 'whatsapp_send')) {
       return NextResponse.json({ 
         error: "Permission Denied", 
