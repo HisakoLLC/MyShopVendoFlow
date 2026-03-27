@@ -31,16 +31,17 @@ export async function GET(req: Request) {
     // 2. Fetch Stores
     const { data: stores, error: storesError } = await supabaseAdmin
       .from("stores")
-      .select("name, active")
+      .select("store_id, name, active")
       .eq("account_id", merchantId)
 
-    // 3. Aggregate Revenue (Simple aggregation for MVP)
+    const storeIds = (stores || []).map(s => s.store_id)
+
+    // 3. Aggregate Revenue
     const { data: sales, error: salesError } = await supabaseAdmin
       .from("sales")
       .select("grand_total")
-      .eq("store_id", stores?.[0]?.store_id || "") // Note: Need a better way for multi-store merchants
+      .in("store_id", storeIds.length > 0 ? storeIds : ["-1"]) 
 
-    // Actually, let's just get the count for now if sales join is complex
     const totalRevenue = sales?.reduce((acc, sale) => acc + (Number(sale.grand_total) || 0), 0) || 0
 
     return NextResponse.json({
