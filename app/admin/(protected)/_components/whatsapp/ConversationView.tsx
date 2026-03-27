@@ -81,17 +81,12 @@ export default function ConversationView({ conversationId }: { conversationId: s
       try {
         const [msgRes, convRes] = await Promise.all([
           fetch(`/api/admin/whatsapp/messages?conversationId=${conversationId}`).then(res => res.json()),
-          supabase
-            .schema("vendo_admin")
-            .from("whatsapp_conversations")
-            .select("*, accounts:merchant_id(business_name)")
-            .eq("id", conversationId)
-            .single()
+          fetch(`/api/admin/whatsapp/conversation?conversationId=${conversationId}`).then(res => res.json())
         ])
 
         if (isMounted) {
           if (msgRes.messages) setMessages(msgRes.messages)
-          if (convRes.data) setConversation(convRes.data as Conversation)
+          if (convRes.conversation) setConversation(convRes.conversation as Conversation)
           if (isInitial) {
             setLoading(false)
             scrollToBottom()

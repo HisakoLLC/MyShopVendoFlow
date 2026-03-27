@@ -64,7 +64,7 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
   }
 
   return (
-    <div className="h-[calc(100vh-48px)] flex overflow-hidden -m-6">
+    <div className="fixed top-12 left-56 right-0 bottom-0 flex overflow-hidden bg-[#0d0d0d]">
       {/* Left Panel: Conversation List */}
       <div className="w-80 border-r border-[#1a1a1a] flex flex-col bg-[#0d0d0d]">
         {/* Search & Filters */}
