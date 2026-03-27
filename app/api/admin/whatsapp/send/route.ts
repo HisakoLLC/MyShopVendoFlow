@@ -61,9 +61,19 @@ export async function POST(req: Request) {
         conversation_id: conversationId,
         direction: "outbound",
         message_type: "system",
-        content: content, // Fixed: passing string directly as per table schema
+        content: content,
         sent_by_id: adminUser.id
       })
+
+      // Update conversation snippet
+      await supabaseAdmin
+        .schema("vendo_admin" as any)
+        .from("whatsapp_conversations")
+        .update({ 
+          last_message_at: new Date().toISOString(),
+          last_message_content: `📝 Note: ${content.length > 50 ? content.substring(0, 47) + "..." : content}`
+        })
+        .eq("id", conversationId)
 
       return NextResponse.json({ success: true, type: "internal_note" })
     }
@@ -137,10 +147,14 @@ export async function POST(req: Request) {
     })
 
     // 8. Update conversation
+    const snippet = type === "text" ? content : `Template: ${templateName}`
     await supabaseAdmin
       .schema("vendo_admin" as any)
       .from("whatsapp_conversations")
-      .update({ last_message_at: new Date().toISOString() })
+      .update({ 
+        last_message_at: new Date().toISOString(),
+        last_message_content: snippet.length > 60 ? snippet.substring(0, 57) + "..." : snippet
+      })
       .eq("id", conversationId)
 
     return NextResponse.json({ success: true, message_id: result.messages?.[0]?.id })

@@ -204,7 +204,7 @@ export default function ConversationView({
     return (
       <div className="flex-1 flex items-center justify-center bg-[#0a0a0a]">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 text-[#0d9488] animate-spin" />
+          <Loader2 className="w-8 h-8 text-[#22c55e] animate-spin" />
           <div className="text-[10px] text-[#444] font-black uppercase tracking-[0.2em]">Loading Conversation...</div>
         </div>
       </div>
@@ -218,10 +218,10 @@ export default function ConversationView({
         <div className="flex items-center gap-4">
           <div className="relative group cursor-pointer" onClick={() => setShowStatusList(!showStatusList)}>
             <div className={`px-2 py-1 rounded border border-white/5 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all hover:bg-white/5 ${
-               conversation?.status === 'resolved' ? 'text-zinc-500' : 'text-[teal]'
+               conversation?.status === 'resolved' ? 'text-zinc-500' : 'text-[#22c55e]'
             }`}>
               <div className={`w-1.5 h-1.5 rounded-full ${
-                conversation?.status === 'open' ? 'bg-[teal]' : 
+                conversation?.status === 'open' ? 'bg-[#22c55e]' : 
                 conversation?.status === 'resolved' ? 'bg-zinc-600' : 'bg-amber-500'
               }`} />
               {conversation?.status?.replace("_", " ")}
@@ -237,7 +237,7 @@ export default function ConversationView({
                       handleUpdateMeta({ status: s })
                       setShowStatusList(false)
                     }}
-                    className={`w-full px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors ${conversation?.status === s ? 'text-[teal]' : 'text-[#666]'}`}
+                    className={`w-full px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors ${conversation?.status === s ? 'text-[#22c55e]' : 'text-[#666]'}`}
                   >
                     {s.replace("_", " ")}
                   </button>
@@ -256,7 +256,7 @@ export default function ConversationView({
               <div className="text-right">
                 <div className="text-[8px] text-[#444] uppercase font-black tracking-tighter">Assigned Agent</div>
                 <div className="text-[10px] text-white/50 italic flex items-center gap-1.5">
-                  <ShieldCheck className="w-2.5 h-2.5 text-[teal]/50" />
+                  <ShieldCheck className="w-2.5 h-2.5 text-[#22c55e]/50" />
                   {conversation?.assigned_agent?.full_name || "Unassigned"}
                 </div>
               </div>
@@ -330,12 +330,12 @@ export default function ConversationView({
           return (
             <div key={msg.id} className={`flex flex-col ${isInbound ? "items-start" : "items-end"}`}>
               {msg.message_type === "template" && (
-                <div className="text-[9px] font-black uppercase tracking-widest text-[#0d9488] mb-1 px-1">Meta Template</div>
+                <div className="text-[9px] font-black uppercase tracking-widest text-[#22c55e] mb-1 px-1">Meta Template</div>
               )}
               <div className={`max-w-[70%] p-3 px-4 rounded-2xl relative group ${
                 isInbound 
                   ? "bg-[#161616] border border-[#1f1f1f] rounded-tl-none text-[#ddd]" 
-                  : "bg-[#0d9488]/15 border border-[#0d9488]/30 rounded-tr-none text-white shadow-lg shadow-black/20"
+                  : "bg-[#22c55e]/15 border border-[#22c55e]/30 rounded-tr-none text-white shadow-lg shadow-black/20"
               }`}>
                 <p className="text-sm leading-relaxed whitespace-pre-wrap">
                   {msg.message_type === "template" 
@@ -409,7 +409,7 @@ export default function ConversationView({
                 }`}
               >
                 {tab}
-                  {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0d9488]" />}
+                  {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#22c55e]" />}
               </button>
             ))}
           </div>
@@ -446,7 +446,7 @@ export default function ConversationView({
                   onClick={handleSend}
                   disabled={isSending || !inputMessage}
                   className={`flex items-center gap-2 px-5 py-2 rounded-md font-bold text-[10px] uppercase tracking-widest transition-all ${
-                    isSending ? "bg-[#1a1a1a] text-[#444] opacity-50" : "bg-[#0d9488] text-white hover:bg-[#0f766e]"
+                    isSending ? "bg-[#1a1a1a] text-[#444] opacity-50" : "bg-[#22c55e] text-white hover:bg-[#16a34a]"
                   }`}
                 >
                   {isSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
@@ -465,7 +465,7 @@ export default function ConversationView({
                       setSelectedTemplate(e.target.value)
                       setTemplateParams({})
                     }}
-                    className="w-full bg-[#111] border border-[#1f1f1f] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-[#0d9488]"
+                    className="w-full bg-[#111] border border-[#1f1f1f] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-[#22c55e]"
                   >
                     <option value="">Select an approved template...</option>
                     {TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -502,7 +502,7 @@ export default function ConversationView({
                   <button
                     onClick={handleSend}
                     disabled={isSending}
-                    className="flex items-center gap-2 px-5 py-2 rounded-md bg-[#0d9488] text-white font-bold text-[10px] uppercase tracking-widest hover:bg-[#0f766e] transition-all"
+                    className="flex items-center gap-2 px-5 py-2 rounded-md bg-[#22c55e] text-white font-bold text-[10px] uppercase tracking-widest hover:bg-[#16a34a] transition-all"
                   >
                     Execute
                     {isSending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}

@@ -110,13 +110,14 @@ export async function POST(req: Request) {
         console.error("Error saving incoming message:", msgError)
       }
 
-      // 6. Update Conversation (unread count and timestamp)
+      // 6. Update Conversation (unread count, timestamp, and snippet)
       await supabaseAdmin
         .schema("vendo_admin" as any)
         .from("whatsapp_conversations")
         .update({ 
           last_message_at: new Date().toISOString(),
-          unread_count: 1 // For now just set to 1, or increment
+          unread_count: 1, // For now just set to 1, or increment
+          last_message_content: content.length > 60 ? content.substring(0, 57) + "..." : content
         })
         .eq("id", conversation.id)
     }

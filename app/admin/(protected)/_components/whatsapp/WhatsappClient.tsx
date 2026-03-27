@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Search, MessageSquare, Clock, CheckCircle2, AlertCircle, User, ChevronRight } from "lucide-react"
+import { Search, MessageSquare, Clock, CheckCircle2, AlertCircle, User, ChevronRight, ChevronDown, Filter } from "lucide-react"
 import ConversationView from "./ConversationView"
 import { useAdminUser } from "@/lib/admin/AdminUserContext"
 
@@ -12,6 +12,7 @@ export type WhatsappConversation = {
   status: "open" | "waiting_customer" | "waiting_internal" | "resolved" | "escalated"
   unread_count: number
   last_message_at: string | null
+  last_message_content?: string | null
   merchant_id: string | null
   assigned_agent_id: string | null
   assigned_agent?: {
@@ -118,48 +119,45 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
       <div className="w-80 border-r border-[#1a1a1a] flex flex-col bg-[#0d0d0d]">
         {/* Search & Filters */}
         <div className="p-4 space-y-4 border-b border-[#1a1a1a] bg-[#0d0d0d]">
-          <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#444] group-focus-within:text-[teal] transition-colors" />
+          <div className="relative group mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#444] group-focus-within:text-[#22c55e] transition-colors" />
             <input
               type="text"
               placeholder="Search conversations..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-[#111] border border-[#1f1f1f] rounded-md pl-9 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-[teal]/50 transition-colors"
+              className="w-full bg-[#111] border border-[#1f1f1f] rounded-md pl-9 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#22c55e]/50 transition-colors"
             />
           </div>
-          
-          <div className="flex flex-col gap-3">
-            <div className="flex gap-1 overflow-x-auto pb-1 no-scrollbar">
-              {(["all", "open", "waiting_customer", "waiting_internal", "resolved", "escalated"] as const).map((status) => (
-                <button
-                  key={status}
-                  onClick={() => setFilterStatus(status)}
-                  className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all border whitespace-nowrap ${
-                    filterStatus === status 
-                      ? "bg-[teal]/10 text-[teal] border-[teal]/20" 
-                      : "bg-white/5 text-[#444] border-transparent hover:text-[#666]"
-                  }`}
-                >
-                  {status.replace("_", " ")}
-                </button>
-              ))}
+
+          <div className="grid grid-cols-2 gap-2">
+            <div className="relative">
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value as any)}
+                className="w-full bg-[#111] border border-[#1f1f1f] rounded-md pl-3 pr-8 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#666] appearance-none focus:outline-none focus:border-[#22c55e]/50 transition-colors cursor-pointer"
+              >
+                <option value="all">All Status</option>
+                <option value="open">Open</option>
+                <option value="waiting_customer">Waiting Customer</option>
+                <option value="waiting_internal">Waiting Internal</option>
+                <option value="resolved">Resolved</option>
+                <option value="escalated">Escalated</option>
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-[#444] pointer-events-none" />
             </div>
 
-            <div className="flex bg-[#111] rounded p-0.5 border border-[#1f1f1f]">
-              {(["all", "me", "unassigned"] as const).map((agentFilter) => (
-                <button
-                  key={agentFilter}
-                  onClick={() => setFilterAgent(agentFilter)}
-                  className={`flex-1 py-1 text-[9px] font-black uppercase tracking-widest rounded transition-all ${
-                    filterAgent === agentFilter
-                      ? "bg-[#1f1f1f] text-white shadow-sm"
-                      : "text-[#444] hover:text-[#666]"
-                  }`}
-                >
-                  {agentFilter === 'me' ? 'Assigned to Me' : agentFilter}
-                </button>
-              ))}
+            <div className="relative">
+              <select
+                value={filterAgent}
+                onChange={(e) => setFilterAgent(e.target.value as any)}
+                className="w-full bg-[#111] border border-[#1f1f1f] rounded-md pl-3 pr-8 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#666] appearance-none focus:outline-none focus:border-[#22c55e]/50 transition-colors cursor-pointer"
+              >
+                <option value="all">All Agents</option>
+                <option value="me">Assigned to Me</option>
+                <option value="unassigned">Unassigned</option>
+              </select>
+              <User className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-[#444] pointer-events-none" />
             </div>
           </div>
         </div>
@@ -182,7 +180,7 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
                 </div>
                 {/* Status Dot */}
                 <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#0d0d0d] ${
-                  conv.status === 'open' ? 'bg-[teal]' : 
+                  conv.status === 'open' ? 'bg-[#22c55e]' : 
                   conv.status === 'resolved' ? 'bg-zinc-600' : 'bg-amber-500'
                 }`} />
               </div>
@@ -196,7 +194,7 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
                     {formatTime(conv.last_message_at)}
                   </span>
                 </div>
-                <div className="text-[10px] text-[teal] font-bold uppercase truncate mb-1 flex items-center gap-1.5">
+                <div className="text-[10px] text-[#22c55e] font-bold uppercase truncate mb-1 flex items-center gap-1.5">
                   <span className="truncate">{conv.accounts?.business_name}</span>
                   {conv.assigned_agent && (
                     <>
@@ -206,11 +204,11 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
                   )}
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="text-[11px] text-[#555] truncate pr-2">
-                    {conv.unread_count > 0 ? "New messages waiting..." : "Click to view chat"}
+                  <p className="text-[11px] text-[#555] truncate pr-2 italic">
+                    {conv.last_message_content || "No message history"}
                   </p>
                   {conv.unread_count > 0 && (
-                    <span className="bg-[teal] text-black text-[9px] font-black rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center animate-pulse">
+                    <span className="bg-[#22c55e] text-black text-[9px] font-black rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center animate-pulse">
                       {conv.unread_count}
                     </span>
                   )}
@@ -242,14 +240,14 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
                       <User className="w-5 h-5 text-[#444]" />
                     </div>
                     <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-[#0a0a0a] ${
-                      selectedConversation.status === 'open' ? 'bg-[teal]' : 
+                      selectedConversation.status === 'open' ? 'bg-[#22c55e]' : 
                       selectedConversation.status === 'resolved' ? 'bg-zinc-600' : 'bg-amber-500'
                     }`} />
                   </div>
                   <div>
                     <div className="text-sm text-white font-black tracking-tight">{selectedConversation.contact_name || "Merchant"}</div>
                     <div className="text-[10px] text-[#666] flex items-center gap-2 uppercase font-black tracking-widest mt-0.5">
-                      <span className="text-[teal]/80">{selectedConversation.accounts?.business_name}</span>
+                      <span className="text-[#22c55e]/80">{selectedConversation.accounts?.business_name}</span>
                       <span className="text-[#333]">|</span>
                       <span>{selectedConversation.contact_phone}</span>
                     </div>
@@ -257,12 +255,12 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-[#666]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[teal]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
                     {selectedConversation.status.replace("_", " ")}
                   </div>
                   <button 
                     onClick={() => setIsContextOpen(!isContextOpen)}
-                    className={`p-2 rounded-full transition-all ${isContextOpen ? 'bg-[teal]/10 text-[teal]' : 'text-[#444] hover:text-white'}`}
+                    className={`p-2 rounded-full transition-all ${isContextOpen ? 'bg-[#22c55e]/10 text-[#22c55e]' : 'text-[#444] hover:text-white'}`}
                   >
                     <User className="w-4 h-4" />
                   </button>
@@ -287,7 +285,7 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center p-12 space-y-6 min-h-0 bg-[radial-gradient(circle_at_center,_#0d0d0d_0%,_#0a0a0a_100%)]">
               <div className="w-24 h-24 rounded-full bg-[#111] border border-[#1f1f1f] flex items-center justify-center shadow-2xl relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-tr from-[teal]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#22c55e]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <MessageSquare className="w-10 h-10 text-[#222]" />
               </div>
               <div className="text-center space-y-2">
@@ -330,7 +328,7 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
                    <div className="space-y-3">
                       <div className="text-[#666] text-[9px] font-black uppercase tracking-tighter">Last Activity</div>
                       <div className="text-[10px] text-white/70 italic flex items-center gap-2">
-                         <div className="w-1 h-1 rounded-full bg-[teal]" />
+                         <div className="w-1 h-1 rounded-full bg-[#22c55e]" />
                          {loadingContext ? "Checking..." : `Plan: ${merchantContext?.plan_tier?.toUpperCase() || "N/A"}`}
                       </div>
                       <div className="text-[9px] text-[#444] font-bold uppercase tracking-widest pl-3">
