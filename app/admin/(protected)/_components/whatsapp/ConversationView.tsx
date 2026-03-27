@@ -230,7 +230,7 @@ export default function ConversationView({ conversationId }: { conversationId: s
       {/* Messages Stream */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-[#0a0a0a]"
+        className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-[#0a0a0a]"
       >
         {messages.map((msg) => {
           if (msg.type === "internal_note" || msg.message_type === "system") {
