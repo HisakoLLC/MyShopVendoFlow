@@ -75,9 +75,7 @@ export default function ConversationView({ conversationId }: { conversationId: s
     if (!conversationId) return
     
     let isMounted = true
-    const fetchChat = async (isInitial = false) => {
-      if (isInitial) setLoading(true)
-      
+    const fetchData = async () => {
       try {
         const [msgRes, convRes] = await Promise.all([
           fetch(`/api/admin/whatsapp/messages?conversationId=${conversationId}`).then(res => res.json()),
@@ -90,38 +88,24 @@ export default function ConversationView({ conversationId }: { conversationId: s
           if (isInitial) {
             setLoading(false)
             scrollToBottom()
+            setIsInitial(false)
           }
         }
       } catch (err) {
-        console.error("Fetch Error:", err)
-        if (isMounted && isInitial) setLoading(false)
+        console.error("Failed to fetch WhatsApp data:", err)
       }
     }
 
-    fetchChat(true) // Initial load
-    const interval = setInterval(() => fetchChat(false), 3000)
+    fetchData()
 
-    // Optional Background Realtime
-    const channel = supabase
-      .channel(`chat_${conversationId}`)
-      .on(
-        "postgres_changes", 
-        { 
-          event: "INSERT", 
-          schema: "vendo_admin", 
-          table: "whatsapp_messages", 
-          filter: `conversation_id=eq.${conversationId}` 
-        }, 
-        () => fetchChat(false) // Just trigger a refresh on change
-      )
-      .subscribe()
+    // Simplified polling instead of failing realtime
+    const pollInterval = setInterval(fetchData, 10000)
 
-    return () => { 
+    return () => {
       isMounted = false
-      clearInterval(interval)
-      supabase.removeChannel(channel) 
+      clearInterval(pollInterval)
     }
-  }, [conversationId])
+  }, [conversationId, isInitial])
 
   const scrollToBottom = () => {
     setTimeout(() => {

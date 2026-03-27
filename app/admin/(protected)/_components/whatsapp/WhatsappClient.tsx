@@ -156,9 +156,9 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
       </div>
 
       {/* Right Panel: Chat View Placeholder */}
-      <div className="flex-1 flex flex-col bg-[#0a0a0a]">
+      <div className="flex-1 flex flex-col bg-[#0a0a0a] min-h-0">
         {selectedConversation ? (
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-h-0">
             {/* Chat Header */}
             <div className="h-16 border-b border-[#1a1a1a] flex items-center px-6 justify-between bg-[#0d0d0d]/50 backdrop-blur-sm">
               <div className="flex gap-3 items-center">
@@ -185,13 +185,15 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
               </div>
             </div>
 
-            {/* Messages Area */}
-            <div className="flex-1 overflow-hidden">
-               <ConversationView conversationId={selectedConversation.id} />
+            {/* Messages Area - FORCED CONSTRAINT */}
+            <div className="flex-1 relative min-h-0 bg-[#0a0a0a]">
+              <div className="absolute inset-0">
+                <ConversationView conversationId={selectedConversation.id} />
+              </div>
             </div>
           </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-4">
+          <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-4 min-h-0">
             <div className="w-20 h-20 rounded-full bg-[#111] border border-[#1f1f1f] flex items-center justify-center shadow-inner">
               <MessageSquare className="w-10 h-10 text-[#1f1f1f]" />
             </div>
