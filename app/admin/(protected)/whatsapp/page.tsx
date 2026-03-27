@@ -7,11 +7,14 @@ export const dynamic = "force-dynamic"
 export const revalidate = 0
 
 async function WhatsappData({ merchantId }: { merchantId?: string }) {
-  // 1. Fetch conversations
+  // 1. Fetch conversations with agent info
   const { data: conversations, error } = await supabaseAdmin
     .schema("vendo_admin" as any)
     .from("whatsapp_conversations")
-    .select("*")
+    .select(`
+      *,
+      assigned_agent:admin_users(id, full_name, avatar_url)
+    `)
     .order("last_message_at", { ascending: false })
 
   // 2. Fetch Merchants separately to avoid cross-schema join failure
@@ -24,7 +27,7 @@ async function WhatsappData({ merchantId }: { merchantId?: string }) {
     return <div className="p-8 text-red-500">Failed to load conversations.</div>
   }
 
-  // 3. Map data to client type with in-memory join
+  // 3. Map data to client type
   const mappedConversations: WhatsappConversation[] = (conversations || []).map((c: any) => ({
     id: c.id,
     contact_name: c.contact_name,
@@ -33,6 +36,8 @@ async function WhatsappData({ merchantId }: { merchantId?: string }) {
     unread_count: c.unread_count || 0,
     last_message_at: c.last_message_at,
     merchant_id: c.merchant_id,
+    assigned_agent_id: c.assigned_agent_id,
+    assigned_agent: c.assigned_agent,
     accounts: {
       business_name: merchants?.find(m => m.account_id === c.merchant_id)?.business_name || "Unknown Merchant"
     }
