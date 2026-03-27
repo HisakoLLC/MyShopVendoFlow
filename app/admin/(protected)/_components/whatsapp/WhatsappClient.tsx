@@ -24,6 +24,8 @@ export type WhatsappConversation = {
   accounts?: {
     business_name: string
   }
+  tags?: string[] | null
+  notes?: string | null
 }
 
 interface WhatsappClientProps {
@@ -54,6 +56,10 @@ export default function WhatsappClient({ initialConversations, merchantId, merch
   const [isContextOpen, setIsContextOpen] = useState(true)
   const [merchantContext, setMerchantContext] = useState<any>(null)
   const [loadingContext, setLoadingContext] = useState(false)
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [tempName, setTempName] = useState("")
+  const [newTag, setNewTag] = useState("")
+  const [isSavingContext, setIsSavingContext] = useState(false)
 
   const adminUser = useAdminUser()
 
@@ -126,6 +132,38 @@ export default function WhatsappClient({ initialConversations, merchantId, merch
       adminToast.dismiss(toastId)
       setIsCreatingChat(false)
     }
+  }
+
+  const handleUpdateContext = async (id: string, updates: Partial<WhatsappConversation>) => {
+    setIsSavingContext(true)
+    try {
+      const res = await fetch(`/api/admin/whatsapp/conversation?conversationId=${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates)
+      })
+      if (!res.ok) throw new Error("Update failed")
+      handleUpdateLocalConversation(id, updates)
+      adminToast.success("Context synchronized")
+    } catch (err) {
+      adminToast.error("Handshake failed")
+    } finally {
+      setIsSavingContext(false)
+    }
+  }
+
+  const handleAddTag = (id: string, tag: string) => {
+    if (!tag) return
+    const currentTags = conversations.find(c => c.id === id)?.tags || []
+    if (!currentTags.includes(tag)) {
+      handleUpdateContext(id, { tags: [...currentTags, tag] })
+      setNewTag("")
+    }
+  }
+
+  const handleRemoveTag = (id: string, tag: string) => {
+    const currentTags = conversations.find(c => c.id === id)?.tags || []
+    handleUpdateContext(id, { tags: currentTags.filter(t => t !== tag) })
   }
 
   // Fetch Merchant Context
@@ -369,46 +407,150 @@ export default function WhatsappClient({ initialConversations, merchantId, merch
         {selectedConversation && (
           <div className={`bg-[#0d0d0d] border-l border-[#1a1a1a] transition-all duration-300 overflow-hidden ${isContextOpen ? 'w-80' : 'w-0'}`}>
             <div className="w-80 h-full flex flex-col min-h-0">
-              <div className="p-6 border-b border-[#1a1a1a]">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#444] mb-4">Customer Context</h3>
-                <div className="space-y-6">
-                   <div className="space-y-1">
-                      <div className="text-[#666] text-[9px] font-black uppercase tracking-tighter">Merchant Info</div>
-                      <div className="text-white text-sm font-bold">{selectedConversation.accounts?.business_name}</div>
-                   </div>
-                   
-                   <div className="grid grid-cols-2 gap-4">
-                      <div className="p-3 rounded bg-white/5 border border-white/5">
-                        <div className="text-[#444] text-[8px] font-black uppercase">Revenue</div>
-                        <div className="text-white text-xs font-bold font-mono">
-                          {loadingContext ? "..." : `KES ${merchantContext?.totalRevenue?.toLocaleString() || "0"}`}
-                        </div>
+              {/* Profile Section */}
+              <div className="p-6 border-b border-[#1a1a1a] bg-[#0d0d0d]">
+                <div className="flex flex-col items-center gap-4 py-8">
+                  <div className="w-20 h-20 rounded-full bg-[#161616] border border-[#1f1f1f] flex items-center justify-center text-2xl text-[#22c55e] font-black shadow-2xl ring-4 ring-[#22c55e]/5">
+                    {selectedConversation.contact_name?.[0] || selectedConversation.contact_phone.slice(-1)}
+                  </div>
+                  
+                  <div className="text-center w-full px-4">
+                    {isEditingName ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          autoFocus
+                          value={tempName}
+                          onChange={(e) => setTempName(e.target.value)}
+                          onBlur={() => {
+                            if (tempName !== selectedConversation.contact_name) {
+                               handleUpdateContext(selectedConversation.id, { contact_name: tempName })
+                            }
+                            setIsEditingName(false)
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                               if (tempName !== selectedConversation.contact_name) {
+                                  handleUpdateContext(selectedConversation.id, { contact_name: tempName })
+                               }
+                               setIsEditingName(false)
+                            }
+                          }}
+                          className="w-full bg-[#111] border border-[#22c55e] rounded px-3 py-1.5 text-sm text-white text-center focus:outline-none"
+                        />
                       </div>
-                      <div className="p-3 rounded bg-white/5 border border-white/5">
-                        <div className="text-[#444] text-[8px] font-black uppercase">Orders</div>
-                        <div className="text-white text-xs font-bold font-mono">
-                          {loadingContext ? "..." : (merchantContext?.orderCount || "0")}
-                        </div>
+                    ) : (
+                      <div className="group flex items-center justify-center gap-2 cursor-pointer" onClick={() => {
+                        setTempName(selectedConversation.contact_name || "")
+                        setIsEditingName(true)
+                      }}>
+                        <h2 className="text-lg font-bold text-white tracking-tight">{selectedConversation.contact_name || "New Contact"}</h2>
+                        <Plus className="w-3 h-3 text-[#444] opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
-                   </div>
-
-                   <div className="space-y-3">
-                      <div className="text-[#666] text-[9px] font-black uppercase tracking-tighter">Last Activity</div>
-                      <div className="text-[10px] text-white/70 italic flex items-center gap-2">
-                         <div className="w-1 h-1 rounded-full bg-[#22c55e]" />
-                         {loadingContext ? "Checking..." : `Plan: ${merchantContext?.plan_tier?.toUpperCase() || "N/A"}`}
-                      </div>
-                      <div className="text-[9px] text-[#444] font-bold uppercase tracking-widest pl-3">
-                         {merchantContext?.subscription_status || "Inactive"}
-                      </div>
-                   </div>
+                    )}
+                    <p className="text-[11px] text-[#444] font-mono mt-1">{selectedConversation.contact_phone}</p>
+                  </div>
                 </div>
               </div>
-              
-              <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#444] mb-4">Risk Flags</h3>
-                <div className="p-3 rounded border border-amber-500/20 bg-amber-500/5 text-[10px] text-amber-500/80 font-bold uppercase tracking-wider text-center">
-                   No immediate risk detected
+
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
+                {/* Merchant Bio */}
+                <div className="space-y-4">
+                  <div className="text-[#444] text-[9px] font-black uppercase tracking-[0.2em] flex justify-between items-center">
+                    <span>Merchant Intel</span>
+                    {loadingContext && <Loader2 className="w-3 h-3 animate-spin text-[#22c55e]" />}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-4 rounded-xl bg-[#111] border border-[#1f1f1f] group hover:border-[#22c55e]/30 transition-colors">
+                      <div className="text-[#444] text-[8px] font-black uppercase mb-1">Total Revenue</div>
+                      <div className="text-white text-xs font-bold font-mono">
+                        {loadingContext ? "..." : `KES ${merchantContext?.totalRevenue?.toLocaleString() || "0"}`}
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-xl bg-[#111] border border-[#1f1f1f] group hover:border-[#22c55e]/30 transition-colors">
+                      <div className="text-[#444] text-[8px] font-black uppercase mb-1">Order Count</div>
+                      <div className="text-white text-xs font-bold font-mono">
+                         {loadingContext ? "..." : (merchantContext?.orderCount || "0")}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-[#111] border border-[#1f1f1f] space-y-2">
+                    <div className="text-[#444] text-[8px] font-black uppercase">Business Segment</div>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-1.5 h-1.5 rounded-full ${merchantContext?.plan_tier ? 'bg-[#22c55e]' : 'bg-[#444]'}`} />
+                      <span className="text-[10px] text-white/70 font-bold uppercase tracking-widest">{selectedConversation.accounts?.business_name || "Unlinked Account"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tags Section */}
+                <div className="space-y-4">
+                  <h3 className="text-[#444] text-[9px] font-black uppercase tracking-[0.2em]">Contact Tags</h3>
+                  <div className="flex flex-wrap gap-2 min-h-[40px] items-center">
+                    {selectedConversation.tags?.map((tag: string) => (
+                      <span key={tag} className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#22c55e]/10 border border-[#22c55e]/20 text-[9px] font-black uppercase tracking-wider text-[#22c55e]">
+                        {tag}
+                        <X 
+                          className="w-2.5 h-2.5 cursor-pointer hover:text-white transition-colors" 
+                          onClick={() => handleRemoveTag(selectedConversation.id, tag)}
+                        />
+                      </span>
+                    ))}
+                    {(selectedConversation.tags?.length || 0) === 0 && (
+                      <span className="text-[9px] text-[#333] italic">No active tags assigned</span>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-3">
+                     <div className="flex flex-wrap gap-1.5">
+                        {['VIP', 'Lead', 'Customer', 'Support', 'Billing', 'Urgent'].map(t => (
+                          <button
+                            key={t}
+                            onClick={() => handleAddTag(selectedConversation.id, t)}
+                            className="px-2 py-0.5 rounded border border-[#1f1f1f] hover:border-[#22c55e]/30 text-[8px] font-bold text-[#444] hover:text-[#22c55e] transition-all bg-[#0a0a0a]"
+                          >
+                            + {t}
+                          </button>
+                        ))}
+                     </div>
+                     <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="Custom tag..."
+                          value={newTag}
+                          onChange={(e) => setNewTag(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleAddTag(selectedConversation.id, newTag)}
+                          className="w-full bg-transparent border-b border-[#1f1f1f] focus:border-[#22c55e] py-1 text-[10px] text-white outline-none transition-all pr-8"
+                        />
+                        <button 
+                          onClick={() => handleAddTag(selectedConversation.id, newTag)}
+                          className="absolute right-0 top-1/2 -translate-y-1/2 p-1 text-[#444] hover:text-white"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                     </div>
+                  </div>
+                </div>
+
+                {/* Notes Section */}
+                <div className="space-y-4">
+                  <h3 className="text-[#444] text-[9px] font-black uppercase tracking-[0.2em]">Persistent Notes</h3>
+                  <div className="space-y-3">
+                    <textarea
+                      placeholder="Add notes about this contact..."
+                      defaultValue={selectedConversation.notes || ""}
+                      onBlur={(e) => {
+                        if (e.target.value !== (selectedConversation.notes || "")) {
+                           handleUpdateContext(selectedConversation.id, { notes: e.target.value })
+                        }
+                      }}
+                      className="w-full bg-[#111] border border-[#1f1f1f] rounded-xl p-4 text-[11px] text-[#888] h-32 resize-none focus:outline-none focus:border-[#22c55e]/30 focus:shadow-[0_0_20px_rgba(34,197,94,0.03)] transition-all leading-relaxed"
+                    />
+                    <div className="text-[8px] text-[#333] font-bold italic text-right">
+                      {isSavingContext ? "Synchronizing Context..." : "Context persistent in encrypted protocol"}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

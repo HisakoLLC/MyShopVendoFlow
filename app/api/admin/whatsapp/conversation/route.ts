@@ -56,8 +56,7 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Missing conversationId" }, { status: 400 })
     }
 
-    const body = await req.json()
-    const { status, assigned_agent_id } = body
+    const { status, assigned_agent_id, contact_name, tags, notes } = await req.json()
 
     // Fetch old values for logging
     const { data: oldData } = await supabaseAdmin
@@ -70,6 +69,9 @@ export async function PATCH(req: Request) {
     const updateData: any = {}
     if (status) updateData.status = status
     if (assigned_agent_id !== undefined) updateData.assigned_agent_id = assigned_agent_id
+    if (contact_name !== undefined) updateData.contact_name = contact_name
+    if (tags !== undefined) updateData.tags = tags
+    if (notes !== undefined) updateData.notes = notes
 
     const { data, error } = await supabaseAdmin
       .schema("vendo_admin" as any)
