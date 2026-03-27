@@ -25,7 +25,7 @@ import { createClient } from "@/lib/supabase/client"
 interface Message {
   id: string
   direction: "inbound" | "outbound"
-  message_type: "text" | "template" | "system" | "image"
+  message_type: "text" | "template" | "system" | "image" | "document" | "video" | "audio" | "voice"
   content: any
   status: "sent" | "delivered" | "read" | "failed"
   created_at: string
@@ -33,6 +33,10 @@ interface Message {
   author_name?: string
   template_name?: string | null
   template_params?: any
+  media_url?: string | null
+  mime_type?: string | null
+  file_name?: string | null
+  file_size?: number | null
 }
 
 interface Conversation {
@@ -85,6 +89,8 @@ export default function ConversationView({
   
   const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [templateParams, setTemplateParams] = useState<Record<string, string>>({})
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
@@ -158,19 +164,23 @@ export default function ConversationView({
     }, 100)
   }
 
-  const handleSend = async () => {
-    if ((!inputMessage && activeTab === "message") || isSending) return
+  const handleSend = async (mediaData?: { url: string, name: string, type: string, size: number }) => {
+    if ((!inputMessage && activeTab === "message" && !mediaData) || isSending) return
     setIsSending(true)
-    const toastId = adminToast.loading(isInternalNote ? "Saving Note..." : "Transmitting...")
+    const toastId = adminToast.loading(isInternalNote ? "Saving Note..." : (mediaData ? "Sending Attachment..." : "Transmitting..."))
 
     try {
       const body: any = {
         conversationId,
         isInternalNote,
-        type: activeTab === "message" ? "text" : "template",
+        type: mediaData ? (mediaData.type.includes("image") ? "image" : "document") : (activeTab === "message" ? "text" : "template"),
         content: inputMessage,
         templateName: selectedTemplate,
-        templateParams: templateParams
+        templateParams: templateParams,
+        mediaUrl: mediaData?.url,
+        fileName: mediaData?.name,
+        mimeType: mediaData?.type,
+        fileSize: mediaData?.size
       }
 
       const res = await fetch("/api/admin/whatsapp/send", {
@@ -193,6 +203,44 @@ export default function ConversationView({
     } finally {
       adminToast.dismiss(toastId)
       setIsSending(false)
+    }
+  }
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    const toastId = adminToast.loading(`Uploading ${file.name}...`)
+
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const res = await fetch("/api/admin/whatsapp/upload", {
+        method: "POST",
+        body: formData
+      })
+
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Upload failed")
+      }
+
+      const data = await res.json()
+      // Now send the message with this media
+      await handleSend({
+        url: data.media_url,
+        name: data.file_name,
+        type: data.mime_type,
+        size: data.file_size
+      })
+    } catch (err: any) {
+      adminToast.error(err.message)
+    } finally {
+      adminToast.dismiss(toastId)
+      setIsUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ""
     }
   }
 
@@ -318,6 +366,20 @@ export default function ConversationView({
                 <span className="text-[10px] text-amber-400 font-black uppercase tracking-[0.2em] block mb-1">
                   📝 Internal Note {msg.author_name ? `• ${msg.author_name}` : ""}
                 </span>
+                
+                {msg.media_url && (
+                   <div className="mb-2 max-w-xs mx-auto">
+                     {msg.mime_type?.includes("image") ? (
+                       <img src={msg.media_url} className="rounded border border-amber-400/20 w-full" alt="Attachment" />
+                     ) : (
+                       <a href={msg.media_url} target="_blank" className="flex items-center gap-2 p-2 rounded bg-amber-400/10 border border-amber-400/20 text-amber-200">
+                         <FileText className="w-4 h-4" />
+                         <span className="text-[10px] truncate">{msg.file_name || "Attachment"}</span>
+                       </a>
+                     )}
+                   </div>
+                )}
+
                 <p className="text-xs text-amber-200/70 italic leading-relaxed">
                   {typeof msg.content === 'string' ? msg.content : (msg.content?.text || msg.content?.body || JSON.stringify(msg.content))}
                 </p>
@@ -342,6 +404,35 @@ export default function ConversationView({
                     ? `[Template: ${msg.content?.template || msg.template_name || 'Generic'}]` 
                     : (typeof msg.content === 'string' ? msg.content : (msg.content?.text || msg.content?.body || ""))}
                 </p>
+
+                {msg.media_url && (
+                  <div className="mt-2 group/media relative">
+                    {msg.mime_type?.includes("image") ? (
+                      <div className="relative rounded overflow-hidden border border-white/10 shadow-2xl">
+                        <img src={msg.media_url} className="w-full h-auto max-h-[300px] object-cover transition-transform group-hover/media:scale-105 cursor-pointer" onClick={() => window.open(msg.media_url!, '_blank')} />
+                        <div className="absolute inset-0 bg-black/0 group-hover/media:bg-black/10 transition-colors" />
+                      </div>
+                    ) : (
+                      <a 
+                        href={msg.media_url} 
+                        target="_blank" 
+                        className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
+                          isInbound 
+                            ? "bg-[#111] border-[#1f1f1f] hover:bg-[#1a1a1a]" 
+                            : "bg-white/5 border-white/10 hover:bg-white/10"
+                        }`}
+                      >
+                        <div className={`w-10 h-10 rounded flex items-center justify-center ${isInbound ? "bg-zinc-800" : "bg-[#22c55e]/20"}`}>
+                           <FileText className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                           <div className="text-[11px] font-bold truncate">{msg.file_name || "Attachment"}</div>
+                           <div className="text-[9px] opacity-40 uppercase font-black">{msg.mime_type?.split('/')[1] || "File"} • {(msg.file_size ? (msg.file_size / 1024).toFixed(1) : "?")} KB</div>
+                        </div>
+                      </a>
+                    )}
+                  </div>
+                )}
                 
                 <div className={`mt-1.5 flex items-center gap-1.5 ${isInbound ? "text-[#444]" : "text-white/30"}`}>
                   <span className="text-[9px] font-mono">{formatTimestamp(msg.created_at)}</span>
@@ -366,15 +457,14 @@ export default function ConversationView({
           </div>
         )}
       </div>
-
-      {/* Composer */}
+      
       <div className="border-t border-[#1a1a1a] p-4 bg-[#0d0d0d] space-y-4 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
         {isSessionExpired() && activeTab === 'message' && !isInternalNote && (
            <div className="p-3 rounded border border-amber-500/20 bg-amber-500/5 mb-2">
               <div className="flex items-center gap-3">
                  <AlertCircle className="w-4 h-4 text-amber-500" />
                  <div className="flex-1">
-                    <p className="text-[10px] text-amber-500 font-black uppercase tracking-widest">24-Hour Session Expired</p>
+                    <p className="text-[10px] text-amber-500 font-black uppercase tracking_widest">24-Hour Session Expired</p>
                     <p className="text-[9px] text-amber-500/60 font-bold uppercase tracking-tighter">You must use an approved template to re-engage with this merchant.</p>
                  </div>
                  <button 
@@ -442,16 +532,33 @@ export default function ConversationView({
                   }`}>Internal Note</span>
                 </label>
                 
-                <button
-                  onClick={handleSend}
-                  disabled={isSending || !inputMessage}
-                  className={`flex items-center gap-2 px-5 py-2 rounded-md font-bold text-[10px] uppercase tracking-widest transition-all ${
-                    isSending ? "bg-[#1a1a1a] text-[#444] opacity-50" : "bg-[#22c55e] text-white hover:bg-[#16a34a]"
-                  }`}
-                >
-                  {isSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                  Transmit Message
-                </button>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    onChange={handleFileSelect}
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isSending || isUploading}
+                    className="p-2 rounded-md hover:bg-white/5 text-[#444] hover:text-white transition-colors border border-transparent hover:border-white/5"
+                    title="Attach File"
+                  >
+                    {isUploading ? <Loader2 className="w-4 h-4 animate-spin text-[#22c55e]" /> : <Paperclip className="w-4 h-4" />}
+                  </button>
+
+                  <button
+                    onClick={() => handleSend()}
+                    disabled={isSending || isUploading || (!inputMessage && activeTab === "message")}
+                    className={`flex items-center gap-2 px-5 py-2 rounded-md font-bold text-[10px] uppercase tracking-widest transition-all ${
+                      isSending || isUploading ? "bg-[#1a1a1a] text-[#444] opacity-50" : "bg-[#22c55e] text-white hover:bg-[#16a34a]"
+                    }`}
+                  >
+                    {isSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                    Transmit
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
@@ -483,7 +590,7 @@ export default function ConversationView({
                          placeholder={`Param: ${p}`}
                          value={templateParams[p] || ""}
                          onChange={(e) => setTemplateParams(prev => ({ ...prev, [p]: e.target.value }))}
-                         className="bg-[#111] border border-[#1f1f1f] rounded p-2 text-[10px] text-white focus:border-[#0d9488] outline-none"
+                         className="bg-[#111] border border-[#1f1f1f] rounded p-2 text-[10px] text-white focus:border-[#22c55e] outline-none"
                        />
                      ))}
                    </div>
@@ -500,7 +607,7 @@ export default function ConversationView({
                      </div>
                   </div>
                   <button
-                    onClick={handleSend}
+                    onClick={() => handleSend()}
                     disabled={isSending}
                     className="flex items-center gap-2 px-5 py-2 rounded-md bg-[#22c55e] text-white font-bold text-[10px] uppercase tracking-widest hover:bg-[#16a34a] transition-all"
                   >

@@ -35,6 +35,7 @@ async function WhatsappData({ merchantId }: { merchantId?: string }) {
     status: c.status,
     unread_count: c.unread_count || 0,
     last_message_at: c.last_message_at,
+    last_message_content: c.last_message_content,
     merchant_id: c.merchant_id,
     assigned_agent_id: c.assigned_agent_id,
     assigned_agent: c.assigned_agent,

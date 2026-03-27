@@ -3,18 +3,35 @@ import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || process.env.WHATSAPP_ACCESS_TOKEN || "vendoflow_secure_v1"
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url)
-  const mode = searchParams.get("hub.mode")
-  const token = searchParams.get("hub.verify_token")
-  const challenge = searchParams.get("hub.challenge")
+const WHATSAPP_ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN
 
-  if (mode === "subscribe" && token === VERIFY_TOKEN) {
-    console.log("WEBHOOK_VERIFIED")
-    return new Response(challenge, { status: 200 })
+async function downloadMedia(mediaId: string): Promise<{ buffer: Buffer, contentType: string, fileName: string } | null> {
+  try {
+    // 1. Get Media URL from Meta
+    const metaRes = await fetch(`https://graph.facebook.com/v18.0/${mediaId}`, {
+      headers: { "Authorization": `Bearer ${WHATSAPP_ACCESS_TOKEN}` }
+    })
+    const metaData = await metaRes.json()
+    if (!metaRes.ok || !metaData.url) return null
+
+    // 2. Download binary data
+    const mediaRes = await fetch(metaData.url, {
+      headers: { "Authorization": `Bearer ${WHATSAPP_ACCESS_TOKEN}` }
+    })
+    if (!mediaRes.ok) return null
+
+    const buffer = Buffer.from(await mediaRes.arrayBuffer())
+    const contentType = mediaRes.headers.get("content-type") || "application/octet-stream"
+    
+    // Guess extension if possible, or use a default
+    const ext = contentType.split("/")[1]?.split(";")[0] || "bin"
+    const fileName = `${mediaId}.${ext}`
+
+    return { buffer, contentType, fileName }
+  } catch (err) {
+    console.error("Media download error:", err)
+    return null
   }
-
-  return new Response("Forbidden", { status: 403 })
 }
 
 export async function POST(req: Request) {
@@ -47,7 +64,7 @@ export async function POST(req: Request) {
 
     // 2. Process incoming messages
     for (const msg of messages) {
-      const from = msg.from // Phone number with country code
+      const from = msg.from
       const formattedPhone = from.startsWith("+") ? from : `+${from}`
       const contact = contacts?.find((c: any) => c.wa_id === from)
       const contactName = contact?.profile?.name || null
@@ -81,14 +98,40 @@ export async function POST(req: Request) {
         conversation = newConv
       }
 
-      // 4. Determine Message Content
+      // 4. Determine Message Content & Media
       let content = ""
+      let mediaUrl = null
+      let mimeType = null
+      let fileName = null
+      let fileSize = null
+
+      const mediaTypes = ["image", "document", "video", "audio", "voice"]
       if (msg.type === "text") {
         content = msg.text.body
-      } else if (msg.type === "image") {
-        content = "[Image Message]"
-      } else if (msg.type === "document") {
-        content = "[Document Message]"
+      } else if (mediaTypes.includes(msg.type)) {
+        const mediaObj = msg[msg.type]
+        const mediaId = mediaObj.id
+        content = mediaObj.caption || `[${msg.type.toUpperCase()}]`
+        fileName = mediaObj.filename || `${mediaId}`
+        
+        // Attempt to download and store
+        const downloaded = await downloadMedia(mediaId)
+        if (downloaded) {
+          const storagePath = `inbound/${conversation.id}/${downloaded.fileName}`
+          const { error: uploadError } = await supabaseAdmin.storage
+            .from("whatsapp-media")
+            .upload(storagePath, downloaded.buffer, {
+               contentType: downloaded.contentType,
+               upsert: true
+            })
+          
+          if (!uploadError) {
+            const { data: publicData } = supabaseAdmin.storage.from("whatsapp-media").getPublicUrl(storagePath)
+            mediaUrl = publicData.publicUrl
+            mimeType = downloaded.contentType
+            fileSize = downloaded.buffer.length
+          }
+        }
       } else {
         content = `[${msg.type.toUpperCase()} Message]`
       }
@@ -101,23 +144,28 @@ export async function POST(req: Request) {
           conversation_id: conversation.id,
           meta_message_id: msg.id,
           direction: "inbound",
-          message_type: msg.type === "text" ? "text" : "image", // simplified mapping
+          message_type: msg.type === "text" ? "text" : (msg.type === "voice" ? "voice" : (msg.type === "audio" ? "audio" : (msg.type === "video" ? "video" : msg.type))),
           content: content,
-          status: "sent", // received messages are technically 'sent' from the user's perspective
+          status: "read",
+          media_url: mediaUrl,
+          mime_type: mimeType,
+          file_name: fileName,
+          file_size: fileSize
         })
 
       if (msgError) {
         console.error("Error saving incoming message:", msgError)
       }
 
-      // 6. Update Conversation (unread count, timestamp, and snippet)
+      // 6. Update Conversation
+      const snippet = mediaUrl ? `📎 ${fileName || 'Attachment'}` : content
       await supabaseAdmin
         .schema("vendo_admin" as any)
         .from("whatsapp_conversations")
         .update({ 
           last_message_at: new Date().toISOString(),
-          unread_count: 1, // For now just set to 1, or increment
-          last_message_content: content.length > 60 ? content.substring(0, 57) + "..." : content
+          unread_count: 1,
+          last_message_content: snippet.length > 60 ? snippet.substring(0, 57) + "..." : snippet
         })
         .eq("id", conversation.id)
     }

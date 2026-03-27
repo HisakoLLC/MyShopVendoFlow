@@ -28,7 +28,11 @@ export async function POST(req: Request) {
       content, 
       templateName, 
       templateParams, 
-      isInternalNote 
+      isInternalNote,
+      mediaUrl,
+      fileName,
+      mimeType,
+      fileSize
     } = await req.json()
 
     if (!conversationId) return NextResponse.json({ error: "Missing conversation ID" }, { status: 400 })
@@ -51,7 +55,7 @@ export async function POST(req: Request) {
         .insert({
           conversation_id: conversationId,
           author_id: adminUser.id,
-          content: content
+          content: content || "📎 Attachment (Note)"
         })
 
       if (noteError) throw noteError
@@ -60,18 +64,23 @@ export async function POST(req: Request) {
       await supabaseAdmin.schema("vendo_admin" as any).from("whatsapp_messages").insert({
         conversation_id: conversationId,
         direction: "outbound",
-        message_type: "system",
+        message_type: mediaUrl ? (mimeType?.includes("image") ? "image" : "document") : "system",
         content: content,
-        sent_by_id: adminUser.id
+        sent_by_id: adminUser.id,
+        media_url: mediaUrl,
+        file_name: fileName,
+        mime_type: mimeType,
+        file_size: fileSize
       })
 
       // Update conversation snippet
+      const snippet = content || (mediaUrl ? "📎 Attachment" : "Note")
       await supabaseAdmin
         .schema("vendo_admin" as any)
         .from("whatsapp_conversations")
         .update({ 
           last_message_at: new Date().toISOString(),
-          last_message_content: `📝 Note: ${content.length > 50 ? content.substring(0, 47) + "..." : content}`
+          last_message_content: `📝 Note: ${snippet.length > 50 ? snippet.substring(0, 47) + "..." : snippet}`
         })
         .eq("id", conversationId)
 
@@ -100,6 +109,12 @@ export async function POST(req: Request) {
           }
         ]
       }
+    } else if (type === "image") {
+      payload.type = "image"
+      payload.image = { link: mediaUrl, caption: content }
+    } else if (type === "document") {
+      payload.type = "document"
+      payload.document = { link: mediaUrl, caption: content, filename: fileName }
     } else {
       payload.type = "text"
       payload.text = { body: content }
@@ -126,9 +141,13 @@ export async function POST(req: Request) {
         conversation_id: conversationId,
         direction: "outbound",
         message_type: type,
-        content: type === "text" ? content : `${templateName} (Params: ${JSON.stringify(templateParams)})`,
+        content: type === "text" ? content : (type === "template" ? `${templateName}` : (content || fileName)),
         status: "failed",
-        sent_by_id: adminUser.id
+        sent_by_id: adminUser.id,
+        media_url: mediaUrl,
+        file_name: fileName,
+        mime_type: mimeType,
+        file_size: fileSize
       })
       return NextResponse.json({ error: "WhatsApp Cloud API failed", details: result }, { status: 500 })
     }
@@ -139,15 +158,21 @@ export async function POST(req: Request) {
       meta_message_id: result.messages?.[0]?.id,
       direction: "outbound",
       message_type: type,
-      content: type === "text" ? content : `${templateName}`,
+      content: type === "text" ? content : (type === "template" ? `${templateName}` : (content || fileName)),
       template_name: type === "template" ? templateName : undefined,
       template_params: type === "template" ? templateParams : undefined,
       status: "sent",
-      sent_by_id: adminUser.id
+      sent_by_id: adminUser.id,
+      media_url: mediaUrl,
+      file_name: fileName,
+      mime_type: mimeType,
+      file_size: fileSize
     })
 
     // 8. Update conversation
-    const snippet = type === "text" ? content : `Template: ${templateName}`
+    let snippet = type === "text" ? content : (type === "template" ? `Template: ${templateName}` : `📎 ${fileName || 'Attachment'}`)
+    if (!snippet && content) snippet = content
+    
     await supabaseAdmin
       .schema("vendo_admin" as any)
       .from("whatsapp_conversations")
