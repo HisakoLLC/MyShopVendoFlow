@@ -415,6 +415,18 @@ export default function WhatsappClient({ initialConversations, merchantId, merch
           </div>
         )}
       </div>
+      
+      <NewChatModal 
+        isOpen={isNewChatOpen}
+        onClose={() => setIsNewChatOpen(false)}
+        onCreate={handleCreateChat}
+        isCreating={isCreatingChat}
+        newPhone={newChatPhone}
+        setNewPhone={setNewChatPhone}
+        newMerchant={newChatMerchant}
+        setNewMerchant={setNewChatMerchant}
+        merchants={merchants}
+      />
     </div>
   )
 }
