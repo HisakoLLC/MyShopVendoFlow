@@ -59,6 +59,7 @@ export default function ConversationView({ conversationId }: { conversationId: s
   const [conversation, setConversation] = useState<Conversation | null>(null)
   const [loading, setLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
+  const [isInitial, setIsInitial] = useState(true)
   
   const [activeTab, setActiveTab] = useState<"message" | "template">("message")
   const [inputMessage, setInputMessage] = useState("")

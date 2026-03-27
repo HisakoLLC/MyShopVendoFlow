@@ -19,7 +19,7 @@ export async function GET(req: Request) {
     const { data, error } = await supabaseAdmin
       .schema("vendo_admin" as any)
       .from("whatsapp_conversations")
-      .select("*, accounts:merchant_id(business_name)")
+      .select("*")
       .eq("id", conversationId)
       .single()
 
