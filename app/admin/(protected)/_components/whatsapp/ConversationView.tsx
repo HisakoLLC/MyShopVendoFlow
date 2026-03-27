@@ -39,7 +39,14 @@ interface Conversation {
   id: string
   contact_name: string | null
   contact_phone: string
-  status: string
+  status: "open" | "waiting_customer" | "waiting_internal" | "resolved" | "escalated"
+  assigned_agent_id: string | null
+  last_message_at: string | null
+  assigned_agent?: {
+    id: string
+    full_name: string
+    avatar_url: string | null
+  }
   accounts?: {
     business_name: string
   }
@@ -54,12 +61,23 @@ const TEMPLATES = [
   { id: "daily_sales_report", name: "Daily Sales Report", params: ["name", "date"] },
 ]
 
-export default function ConversationView({ conversationId }: { conversationId: string }) {
+export default function ConversationView({ 
+  conversationId, 
+  currentStatus, 
+  assignedAgentId 
+}: { 
+  conversationId: string, 
+  currentStatus?: string, 
+  assignedAgentId?: string | null 
+}) {
   const [messages, setMessages] = useState<Message[]>([])
   const [conversation, setConversation] = useState<Conversation | null>(null)
   const [loading, setLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
   const [isInitial, setIsInitial] = useState(true)
+  const [adminUsers, setAdminUsers] = useState<any[]>([])
+  const [showAgentList, setShowAgentList] = useState(false)
+  const [showStatusList, setShowStatusList] = useState(false)
   
   const [activeTab, setActiveTab] = useState<"message" | "template">("message")
   const [inputMessage, setInputMessage] = useState("")
@@ -78,14 +96,17 @@ export default function ConversationView({ conversationId }: { conversationId: s
     let isMounted = true
     const fetchData = async () => {
       try {
-        const [msgRes, convRes] = await Promise.all([
+        const [msgRes, convRes, usersRes] = await Promise.all([
           fetch(`/api/admin/whatsapp/messages?conversationId=${conversationId}`).then(res => res.json()),
-          fetch(`/api/admin/whatsapp/conversation?conversationId=${conversationId}`).then(res => res.json())
+          fetch(`/api/admin/whatsapp/conversation?conversationId=${conversationId}`).then(res => res.json()),
+          fetch(`/api/admin/users`).then(res => res.json())
         ])
 
         if (isMounted) {
           if (msgRes.messages) setMessages(msgRes.messages)
           if (convRes.conversation) setConversation(convRes.conversation as Conversation)
+          if (usersRes.users) setAdminUsers(usersRes.users)
+          
           if (isInitial) {
             setLoading(false)
             scrollToBottom()
@@ -98,8 +119,6 @@ export default function ConversationView({ conversationId }: { conversationId: s
     }
 
     fetchData()
-
-    // Simplified polling instead of failing realtime
     const pollInterval = setInterval(fetchData, 10000)
 
     return () => {
@@ -107,6 +126,29 @@ export default function ConversationView({ conversationId }: { conversationId: s
       clearInterval(pollInterval)
     }
   }, [conversationId, isInitial])
+
+  const handleUpdateMeta = async (updates: { status?: string, assigned_agent_id?: string | null }) => {
+    try {
+      const res = await fetch(`/api/admin/whatsapp/conversation?conversationId=${conversationId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates)
+      })
+      if (!res.ok) throw new Error("Update failed")
+      const { conversation: updated } = await res.json()
+      setConversation(updated)
+      adminToast.success("Conversation updated")
+    } catch (err) {
+      adminToast.error("Failed to update status")
+    }
+  }
+
+  const isSessionExpired = () => {
+    if (!conversation?.last_message_at) return false
+    const lastMsg = new Date(conversation.last_message_at).getTime()
+    const now = new Date().getTime()
+    return (now - lastMsg) > 24 * 60 * 60 * 1000
+  }
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -162,7 +204,7 @@ export default function ConversationView({ conversationId }: { conversationId: s
     return (
       <div className="flex-1 flex items-center justify-center bg-[#0a0a0a]">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 text-[#22c55e] animate-spin" />
+          <Loader2 className="w-8 h-8 text-[#0d9488] animate-spin" />
           <div className="text-[10px] text-[#444] font-black uppercase tracking-[0.2em]">Loading Conversation...</div>
         </div>
       </div>
@@ -172,38 +214,95 @@ export default function ConversationView({ conversationId }: { conversationId: s
   return (
     <div className="flex flex-col h-full bg-[#0a0a0a]">
       {/* Header */}
-      <div className="h-16 border-b border-[#1a1a1a] px-6 flex items-center justify-between bg-[#0d0d0d]">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#161616] border border-[#1f1f1f] flex items-center justify-center font-bold text-white uppercase italic">
-            {conversation?.contact_name?.[0] || "M"}
-          </div>
-          <div>
-            <div className="text-sm font-bold text-white flex items-center gap-2">
-              {conversation?.contact_name || conversation?.contact_phone}
-              <span className={`px-1.5 py-0.5 rounded text-[8px] uppercase tracking-tighter ${
-                conversation?.status === 'open' ? 'bg-[#22c55e]/10 text-[#22c55e]' : 'bg-zinc-500/10 text-zinc-500'
-              }`}>
-                {conversation?.status}
-              </span>
+      <div className="h-16 border-b border-[#1a1a1a] px-6 flex items-center justify-between bg-[#0d0d0d]/40">
+        <div className="flex items-center gap-4">
+          <div className="relative group cursor-pointer" onClick={() => setShowStatusList(!showStatusList)}>
+            <div className={`px-2 py-1 rounded border border-white/5 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all hover:bg-white/5 ${
+               conversation?.status === 'resolved' ? 'text-zinc-500' : 'text-[teal]'
+            }`}>
+              <div className={`w-1.5 h-1.5 rounded-full ${
+                conversation?.status === 'open' ? 'bg-[teal]' : 
+                conversation?.status === 'resolved' ? 'bg-zinc-600' : 'bg-amber-500'
+              }`} />
+              {conversation?.status?.replace("_", " ")}
+              <MoreVertical className="w-3 h-3 opacity-30" />
             </div>
-            <div className="text-[10px] text-[#666] flex items-center gap-2 uppercase tracking-widest font-black">
-              <span className="text-[#22c55e]">{conversation?.accounts?.business_name}</span>
-              <span>•</span>
-              <span>{conversation?.contact_phone}</span>
-            </div>
+
+            {showStatusList && (
+              <div className="absolute top-full left-0 mt-2 w-48 bg-[#111] border border-[#1f1f1f] rounded-lg shadow-2xl z-50 overflow-hidden py-1">
+                {(["open", "waiting_customer", "waiting_internal", "resolved", "escalated"] as const).map(s => (
+                  <button
+                    key={s}
+                    onClick={() => {
+                      handleUpdateMeta({ status: s })
+                      setShowStatusList(false)
+                    }}
+                    className={`w-full px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors ${conversation?.status === s ? 'text-[teal]' : 'text-[#666]'}`}
+                  >
+                    {s.replace("_", " ")}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right">
-            <div className="text-[9px] text-[#444] uppercase font-bold tracking-tighter">Assigned Agent</div>
-            <div className="text-[10px] text-white/50 italic flex items-center gap-1">
-              <ShieldCheck className="w-2.5 h-2.5" />
-              Super Admin
-            </div>
+
+        <div className="flex items-center gap-6">
+          <div className="relative">
+            <button 
+              onClick={() => setShowAgentList(!showAgentList)}
+              className="flex items-center gap-3 group px-3 py-1.5 rounded-md hover:bg-white/5 transition-all border border-transparent hover:border-white/5"
+            >
+              <div className="text-right">
+                <div className="text-[8px] text-[#444] uppercase font-black tracking-tighter">Assigned Agent</div>
+                <div className="text-[10px] text-white/50 italic flex items-center gap-1.5">
+                  <ShieldCheck className="w-2.5 h-2.5 text-[teal]/50" />
+                  {conversation?.assigned_agent?.full_name || "Unassigned"}
+                </div>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-[#161616] border border-[#1f1f1f] flex items-center justify-center overflow-hidden">
+                {conversation?.assigned_agent?.avatar_url ? (
+                  <img src={conversation.assigned_agent.avatar_url} className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-4 h-4 text-[#444]" />
+                )}
+              </div>
+            </button>
+
+            {showAgentList && (
+              <div className="absolute top-full right-0 mt-2 w-56 bg-[#111] border border-[#1f1f1f] rounded-lg shadow-2xl z-50 overflow-hidden py-1">
+                 <button
+                    onClick={() => {
+                      handleUpdateMeta({ assigned_agent_id: null })
+                      setShowAgentList(false)
+                    }}
+                    className="w-full px-4 py-3 text-left border-b border-[#1a1a1a] text-[10px] font-black uppercase text-red-500/50 hover:bg-red-500/5"
+                  >
+                    Unassign Worker
+                  </button>
+                  <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                    {adminUsers.map(u => (
+                      <button
+                        key={u.id}
+                        onClick={() => {
+                          handleUpdateMeta({ assigned_agent_id: u.id })
+                          setShowAgentList(false)
+                        }}
+                        className="w-full px-4 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors"
+                      >
+                         <div className="w-6 h-6 rounded-full bg-[#1a1a1a] border border-[#1f1f1f] flex items-center justify-center text-[10px] text-white font-bold">
+                            {u.avatar_url ? <img src={u.avatar_url} className="w-full h-full rounded-full" /> : u.full_name[0]}
+                         </div>
+                         <div className="text-left">
+                           <div className="text-[10px] text-white/80 font-bold">{u.full_name}</div>
+                           <div className="text-[8px] text-[#444] uppercase font-black tracking-widest">{u.role}</div>
+                         </div>
+                      </button>
+                    ))}
+                  </div>
+              </div>
+            )}
           </div>
-          <button className="px-3 py-1.5 rounded-md bg-[#161616] border border-[#1f1f1f] text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all">
-            Resolve
-          </button>
         </div>
       </div>
 
@@ -231,12 +330,12 @@ export default function ConversationView({ conversationId }: { conversationId: s
           return (
             <div key={msg.id} className={`flex flex-col ${isInbound ? "items-start" : "items-end"}`}>
               {msg.message_type === "template" && (
-                <div className="text-[9px] font-black uppercase tracking-widest text-[#22c55e] mb-1 px-1">Meta Template</div>
+                <div className="text-[9px] font-black uppercase tracking-widest text-[#0d9488] mb-1 px-1">Meta Template</div>
               )}
               <div className={`max-w-[70%] p-3 px-4 rounded-2xl relative group ${
                 isInbound 
                   ? "bg-[#161616] border border-[#1f1f1f] rounded-tl-none text-[#ddd]" 
-                  : "bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-tr-none text-white text-shadow-sm shadow-2xl shadow-[#22c55e]/5"
+                  : "bg-[#0d9488]/15 border border-[#0d9488]/30 rounded-tr-none text-white shadow-lg shadow-black/20"
               }`}>
                 <p className="text-sm leading-relaxed whitespace-pre-wrap">
                   {msg.message_type === "template" 
@@ -269,7 +368,25 @@ export default function ConversationView({ conversationId }: { conversationId: s
       </div>
 
       {/* Composer */}
-      <div className="border-t border-[#1a1a1a] p-4 bg-[#0d0d0d] space-y-4 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.5)]">
+      <div className="border-t border-[#1a1a1a] p-4 bg-[#0d0d0d] space-y-4 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+        {isSessionExpired() && activeTab === 'message' && !isInternalNote && (
+           <div className="p-3 rounded border border-amber-500/20 bg-amber-500/5 mb-2">
+              <div className="flex items-center gap-3">
+                 <AlertCircle className="w-4 h-4 text-amber-500" />
+                 <div className="flex-1">
+                    <p className="text-[10px] text-amber-500 font-black uppercase tracking-widest">24-Hour Session Expired</p>
+                    <p className="text-[9px] text-amber-500/60 font-bold uppercase tracking-tighter">You must use an approved template to re-engage with this merchant.</p>
+                 </div>
+                 <button 
+                  onClick={() => setActiveTab('template')}
+                  className="px-3 py-1 rounded bg-amber-500/10 border border-amber-500/20 text-[9px] font-black uppercase text-amber-500 hover:bg-amber-500/20"
+                 >
+                   Templates
+                 </button>
+              </div>
+           </div>
+        )}
+
         <PermissionGate 
           permission="whatsapp_send"
           fallback={
@@ -292,7 +409,7 @@ export default function ConversationView({ conversationId }: { conversationId: s
                 }`}
               >
                 {tab}
-                {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#22c55e]" />}
+                  {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0d9488]" />}
               </button>
             ))}
           </div>
@@ -329,7 +446,7 @@ export default function ConversationView({ conversationId }: { conversationId: s
                   onClick={handleSend}
                   disabled={isSending || !inputMessage}
                   className={`flex items-center gap-2 px-5 py-2 rounded-md font-bold text-[10px] uppercase tracking-widest transition-all ${
-                    isSending ? "bg-[#1a1a1a] text-[#444] opacity-50" : "bg-[#22c55e] text-black hover:bg-[#1eb054]"
+                    isSending ? "bg-[#1a1a1a] text-[#444] opacity-50" : "bg-[#0d9488] text-white hover:bg-[#0f766e]"
                   }`}
                 >
                   {isSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
@@ -348,7 +465,7 @@ export default function ConversationView({ conversationId }: { conversationId: s
                       setSelectedTemplate(e.target.value)
                       setTemplateParams({})
                     }}
-                    className="w-full bg-[#111] border border-[#1f1f1f] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-[#22c55e]"
+                    className="w-full bg-[#111] border border-[#1f1f1f] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-[#0d9488]"
                   >
                     <option value="">Select an approved template...</option>
                     {TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -366,7 +483,7 @@ export default function ConversationView({ conversationId }: { conversationId: s
                          placeholder={`Param: ${p}`}
                          value={templateParams[p] || ""}
                          onChange={(e) => setTemplateParams(prev => ({ ...prev, [p]: e.target.value }))}
-                         className="bg-[#111] border border-[#1f1f1f] rounded p-2 text-[10px] text-white focus:border-[#22c55e] outline-none"
+                         className="bg-[#111] border border-[#1f1f1f] rounded p-2 text-[10px] text-white focus:border-[#0d9488] outline-none"
                        />
                      ))}
                    </div>
@@ -385,7 +502,7 @@ export default function ConversationView({ conversationId }: { conversationId: s
                   <button
                     onClick={handleSend}
                     disabled={isSending}
-                    className="flex items-center gap-2 px-5 py-2 rounded-md bg-[#22c55e] text-black font-bold text-[10px] uppercase tracking-widest hover:bg-[#1eb054] transition-all"
+                    className="flex items-center gap-2 px-5 py-2 rounded-md bg-[#0d9488] text-white font-bold text-[10px] uppercase tracking-widest hover:bg-[#0f766e] transition-all"
                   >
                     Execute
                     {isSending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
