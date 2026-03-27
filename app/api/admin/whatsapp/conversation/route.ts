@@ -116,3 +116,82 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
+
+export async function POST(req: Request) {
+  try {
+    const adminUser = await getServerAdminUser()
+    if (!adminUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { phone, merchantId, contactName } = await req.json()
+    if (!phone) {
+      return NextResponse.json({ error: "Missing phone number" }, { status: 400 })
+    }
+
+    // Clean phone number (Keep +, digits)
+    const cleanPhone = phone.replace(/[^\d+]/g, "")
+
+    // Check if exists
+    const { data: existing } = await supabaseAdmin
+      .schema("vendo_admin" as any)
+      .from("whatsapp_conversations")
+      .select(`
+        *,
+        assigned_agent:assigned_agent_id (
+          id,
+          full_name,
+          avatar_url
+        )
+      `)
+      .eq("contact_phone", cleanPhone)
+      .maybeSingle()
+
+    if (existing) {
+      return NextResponse.json({ conversation: existing, isNew: false })
+    }
+
+    // Create new
+    const { data: created, error: createError } = await supabaseAdmin
+      .schema("vendo_admin" as any)
+      .from("whatsapp_conversations")
+      .insert({
+        contact_phone: cleanPhone,
+        contact_name: contactName || "New Contact",
+        status: "open",
+        merchant_id: merchantId,
+        last_message_at: new Date().toISOString()
+      })
+      .select(`
+        *,
+        assigned_agent:assigned_agent_id (
+          id,
+          full_name,
+          avatar_url
+        )
+      `)
+      .single()
+
+    if (createError) {
+      console.error("[CONVERSATION_POST_ERROR]", createError)
+      return NextResponse.json({ error: createError.message }, { status: 500 })
+    }
+
+    // Log creation
+    await supabaseAdmin
+      .schema("vendo_admin" as any)
+      .from("whatsapp_activity_log")
+      .insert({
+        conversation_id: created.id,
+        author_id: adminUser.id,
+        activity_type: "status_change",
+        new_value: "open",
+        old_value: null
+      })
+
+    return NextResponse.json({ conversation: created, isNew: true })
+  } catch (error: any) {
+    console.error("[CONVERSATION_POST_CRASH]", error)
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+  }
+}

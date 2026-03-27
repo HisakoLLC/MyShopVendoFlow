@@ -44,7 +44,13 @@ async function WhatsappData({ merchantId }: { merchantId?: string }) {
     }
   }))
 
-  return <WhatsappClient initialConversations={mappedConversations} merchantId={merchantId} />
+  return (
+    <WhatsappClient 
+      initialConversations={mappedConversations} 
+      merchantId={merchantId} 
+      merchants={merchants || []}
+    />
+  )
 }
 
 export default async function WhatsappPage({ 

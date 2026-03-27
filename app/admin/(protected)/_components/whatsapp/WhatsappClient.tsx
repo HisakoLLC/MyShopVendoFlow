@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Search, MessageSquare, Clock, CheckCircle2, AlertCircle, User, ChevronRight, ChevronDown, Filter } from "lucide-react"
+import { Search, MessageSquare, Clock, CheckCircle2, AlertCircle, User, ChevronRight, ChevronDown, Filter, Plus, X, Loader2, Send } from "lucide-react"
 import ConversationView from "./ConversationView"
 import { useAdminUser } from "@/lib/admin/AdminUserContext"
+import { adminToast } from "@/lib/admin/toast"
 
 export type WhatsappConversation = {
   id: string
@@ -28,10 +29,16 @@ export type WhatsappConversation = {
 interface WhatsappClientProps {
   initialConversations: WhatsappConversation[]
   merchantId?: string
+  merchants?: { account_id: string, business_name: string }[]
 }
 
-export default function WhatsappClient({ initialConversations, merchantId }: WhatsappClientProps) {
+export default function WhatsappClient({ initialConversations, merchantId, merchants = [] }: WhatsappClientProps) {
+  const [conversations, setConversations] = useState<WhatsappConversation[]>(initialConversations)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [isNewChatOpen, setIsNewChatOpen] = useState(false)
+  const [newChatPhone, setNewChatPhone] = useState("")
+  const [newChatMerchant, setNewChatMerchant] = useState("")
+  const [isCreatingChat, setIsCreatingChat] = useState(false)
   
   // Handle pre-selection from merchant detail page
   useState(() => {
@@ -51,7 +58,7 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
   const adminUser = useAdminUser()
 
   const filteredConversations = useMemo(() => {
-    return initialConversations.filter((conv) => {
+    return conversations.filter((conv) => {
       const matchesSearch = 
         conv.contact_name?.toLowerCase().includes(search.toLowerCase()) ||
         conv.contact_phone.includes(search) ||
@@ -65,11 +72,61 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
       
       return matchesSearch && matchesStatus && matchesAgent
     })
-  }, [initialConversations, search, filterStatus, filterAgent, adminUser.id])
+  }, [conversations, search, filterStatus, filterAgent, adminUser.id])
 
   const selectedConversation = useMemo(() => 
-    initialConversations.find(c => c.id === selectedId),
-  [initialConversations, selectedId])
+    conversations.find(c => c.id === selectedId),
+  [conversations, selectedId])
+
+  const handleUpdateLocalConversation = (id: string, updates: Partial<WhatsappConversation>) => {
+    setConversations(prev => prev.map(c => 
+      c.id === id ? { ...c, ...updates } : c
+    ))
+  }
+
+  const handleCreateChat = async () => {
+    if (!newChatPhone) return
+    setIsCreatingChat(true)
+    const toastId = adminToast.loading("Initializing Protocol...")
+
+    try {
+      const res = await fetch("/api/admin/whatsapp/conversation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          phone: newChatPhone, 
+          merchantId: newChatMerchant 
+        })
+      })
+
+      if (!res.ok) throw new Error("Failed to create conversation")
+      const { conversation: newConv, isNew } = await res.json()
+
+      // Add to list if not there
+      setConversations(prev => {
+        const exists = prev.find(c => c.id === newConv.id)
+        if (exists) return prev
+        const mapped = {
+          ...newConv,
+          accounts: {
+            business_name: merchants.find(m => m.account_id === newConv.merchant_id)?.business_name || "New Merchant"
+          }
+        }
+        return [mapped, ...prev]
+      })
+
+      setSelectedId(newConv.id)
+      setIsNewChatOpen(false)
+      setNewChatPhone("")
+      setNewChatMerchant("")
+      adminToast.success(isNew ? "New secure channel established" : "Connected to existing channel")
+    } catch (err) {
+      adminToast.error("Handshake failed")
+    } finally {
+      adminToast.dismiss(toastId)
+      setIsCreatingChat(false)
+    }
+  }
 
   // Fetch Merchant Context
   useState(() => {
@@ -119,15 +176,24 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
       <div className="w-80 border-r border-[#1a1a1a] flex flex-col bg-[#0d0d0d]">
         {/* Search & Filters */}
         <div className="p-4 space-y-4 border-b border-[#1a1a1a] bg-[#0d0d0d]">
-          <div className="relative group mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#444] group-focus-within:text-[#22c55e] transition-colors" />
-            <input
-              type="text"
-              placeholder="Search conversations..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-[#111] border border-[#1f1f1f] rounded-md pl-9 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#22c55e]/50 transition-colors"
-            />
+          <div className="flex items-center gap-2">
+            <div className="relative group flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#444] group-focus-within:text-[#22c55e] transition-colors" />
+              <input
+                type="text"
+                placeholder="Search..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full bg-[#111] border border-[#1f1f1f] rounded-md pl-9 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#22c55e]/50 transition-colors"
+              />
+            </div>
+            <button 
+              onClick={() => setIsNewChatOpen(true)}
+              className="p-1.5 rounded bg-[#22c55e]/10 text-[#22c55e] hover:bg-[#22c55e]/20 transition-all border border-[#22c55e]/20"
+              title="New Conversation"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
@@ -278,6 +344,7 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
                     conversationId={selectedConversation.id} 
                     currentStatus={selectedConversation.status}
                     assignedAgentId={selectedConversation.assigned_agent_id}
+                    onUpdateConversation={(updates: any) => handleUpdateLocalConversation(selectedConversation.id, updates)}
                   />
                 </div>
               </div>
@@ -347,6 +414,82 @@ export default function WhatsappClient({ initialConversations, merchantId }: Wha
             </div>
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+function NewChatModal({ 
+  isOpen, 
+  onClose, 
+  onCreate, 
+  isCreating,
+  newPhone,
+  setNewPhone,
+  newMerchant,
+  setNewMerchant,
+  merchants 
+}: {
+  isOpen: boolean
+  onClose: () => void
+  onCreate: () => void
+  isCreating: boolean
+  newPhone: string
+  setNewPhone: (v: string) => void
+  newMerchant: string
+  setNewMerchant: (v: string) => void
+  merchants: { account_id: string, business_name: string }[]
+}) {
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+      <div className="w-full max-w-sm bg-[#0d0d0d] border border-[#1f1f1f] rounded-xl shadow-2xl p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#22c55e]">Initiate Output</h3>
+            <p className="text-[10px] text-[#444] font-bold uppercase">Establish new secure channel</p>
+          </div>
+          <button onClick={onClose} className="text-[#444] hover:text-white transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-[9px] text-[#444] uppercase font-black">Recipient Phone (E.164)</label>
+            <input
+              type="text"
+              placeholder="+254..."
+              value={newPhone}
+              onChange={(e) => setNewPhone(e.target.value)}
+              className="w-full bg-[#111] border border-[#1f1f1f] rounded-lg p-3 text-sm text-white focus:outline-none focus:border-[#22c55e] transition-all"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[9px] text-[#444] uppercase font-black">Link to Merchant</label>
+            <select
+              value={newMerchant}
+              onChange={(e) => setNewMerchant(e.target.value)}
+              className="w-full bg-[#111] border border-[#1f1f1f] rounded-lg p-3 text-sm text-white focus:outline-none focus:border-[#22c55e] transition-all"
+            >
+              <option value="">Select Merchant (Optional)</option>
+              {merchants.map(m => (
+                <option key={m.account_id} value={m.account_id}>{m.business_name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <button
+          onClick={onCreate}
+          disabled={isCreating || !newPhone}
+          className="w-full bg-[#22c55e] text-white py-3 rounded-lg font-black text-[10px] uppercase tracking-[0.2em] hover:bg-[#16a34a] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+          Open Channel
+        </button>
       </div>
     </div>
   )

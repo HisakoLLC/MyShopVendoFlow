@@ -16,7 +16,9 @@ import {
   Loader2,
   Lock,
   Plus,
-  ShieldCheck
+  ShieldCheck,
+  CheckCircle2,
+  X
 } from "lucide-react"
 import { adminToast } from "@/lib/admin/toast"
 import PermissionGate from "../PermissionGate"
@@ -68,11 +70,13 @@ const TEMPLATES = [
 export default function ConversationView({ 
   conversationId, 
   currentStatus, 
-  assignedAgentId 
+  assignedAgentId,
+  onUpdateConversation
 }: { 
   conversationId: string, 
   currentStatus?: string, 
-  assignedAgentId?: string | null 
+  assignedAgentId?: string | null,
+  onUpdateConversation?: (updates: any) => void
 }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [conversation, setConversation] = useState<Conversation | null>(null)
@@ -143,6 +147,7 @@ export default function ConversationView({
       if (!res.ok) throw new Error("Update failed")
       const { conversation: updated } = await res.json()
       setConversation(updated)
+      onUpdateConversation?.(updates)
       adminToast.success("Conversation updated")
     } catch (err) {
       adminToast.error("Failed to update status")
@@ -293,6 +298,17 @@ export default function ConversationView({
               </div>
             )}
           </div>
+
+          {conversation?.status !== 'resolved' && (
+            <button
+              onClick={() => handleUpdateMeta({ status: 'resolved' })}
+              className="flex items-center gap-2 px-3 py-1 rounded bg-zinc-800 border border-white/5 text-[9px] font-black uppercase tracking-widest text-[#666] hover:text-white transition-all hover:bg-zinc-700"
+              title="Resolve Chat"
+            >
+              <CheckCircle2 className="w-3 h-3" />
+              Resolve Protocol
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-6">
