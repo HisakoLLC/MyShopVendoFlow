@@ -1,9 +1,8 @@
-"use client"
+'use client'
+import { useEffect } from 'react'
+import Link from 'next/link'
 
-import { useEffect } from "react"
-import { AlertTriangle, RefreshCcw, Home } from "lucide-react"
-
-export default function Error({
+export default function AdminError({
   error,
   reset,
 }: {
@@ -11,45 +10,41 @@ export default function Error({
   reset: () => void
 }) {
   useEffect(() => {
-    console.error("Admin Error Boundary:", error)
+    console.error('Admin error:', error)
   }, [error])
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6">
-      <div className="max-w-md w-full text-center space-y-8 animate-in fade-in zoom-in duration-300">
-        <div className="w-20 h-20 bg-red-400/10 border border-red-400/20 rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-red-400/5">
-           <AlertTriangle className="w-10 h-10 text-red-400" />
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="text-center max-w-sm">
+        {/* VendoFlow wordmark */}
+        <div className="flex items-center justify-center gap-2 mb-8">
+          <span className="text-white font-bold text-lg">VendoFlow</span>
+          <span className="text-[10px] font-semibold tracking-widest uppercase px-1.5 py-0.5 rounded bg-[#22c55e]/10 text-[#22c55e]">Admin</span>
         </div>
         
-        <div className="space-y-2">
-          <h1 className="text-white text-3xl font-bold tracking-tighter">Something went wrong</h1>
-          <p className="text-xs text-[#444] uppercase font-black tracking-widest">Administrative Exception Occurred</p>
+        <div className="w-12 h-12 rounded-sm bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
+          <span className="text-red-400 text-xl font-bold">!</span>
         </div>
-
-        <div className="p-4 bg-white/5 border border-[#1f1f1f] rounded-xl">
-           <p className="text-xs text-[#888] font-mono italic">"{error.message || "An unexpected system error has interrupted your session."}"</p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-3">
+        
+        <p className="text-white text-sm font-semibold mb-2">Something went wrong</p>
+        <p className="text-[#666] text-xs mb-6 leading-relaxed">
+          An unexpected error occurred. This has been logged.
+          {error.digest && <span className="block mt-1 font-mono text-[#444]">ID: {error.digest}</span>}
+        </p>
+        
+        <div className="flex gap-3 justify-center">
           <button
-            onClick={() => reset()}
-            className="flex items-center justify-center gap-2 py-4 bg-white text-black text-[11px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-zinc-200 transition-all shadow-xl"
+            onClick={reset}
+            className="text-xs font-semibold tracking-[0.12em] uppercase px-4 py-2 rounded-sm bg-white text-[#0a0a0a] hover:bg-zinc-100 transition-colors"
           >
-            <RefreshCcw className="w-4 h-4" />
-            Attempt Recovery
+            Try again
           </button>
-          
-          <a
+          <Link
             href="/admin/dashboard"
-            className="flex items-center justify-center gap-2 py-4 border border-[#1f1f1f] text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-white/5 transition-all"
+            className="text-xs font-semibold tracking-[0.12em] uppercase px-4 py-2 rounded-sm border border-[#2a2a2a] text-[#888] hover:text-white hover:border-[#444] transition-colors"
           >
-            <Home className="w-4 h-4" />
-            Back to Dashboard
-          </a>
-        </div>
-
-        <div className="pt-8 opacity-20 text-[10px] text-[#444] uppercase font-bold tracking-widest">
-           VendoFlow Admin Console v1.0
+            Dashboard
+          </Link>
         </div>
       </div>
     </div>

@@ -148,30 +148,47 @@ export default function SettingsClient({ initialSettings, whatsappPhoneId }: Set
              <h2 className="text-white text-lg font-bold tracking-tight">Automated Report Schedule</h2>
           </div>
           
-          <div className="bg-[#111] border border-[#1f1f1f] rounded-2xl p-6 space-y-6">
-             <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                   <div className="text-sm font-bold text-white tracking-tight">Daily Data Mining</div>
-                   <div className="text-[10px] text-[#444] font-mono uppercase tracking-widest">Scheduled: 06:00 UTC Daily (Cron Job)</div>
-                </div>
-                <div className="flex items-center gap-4">
-                   <button 
-                     onClick={() => {
-                       const newVal = !autoGen
-                       setAutoGen(newVal)
-                       saveSetting('auto_report_generation', { enabled: newVal })
-                     }}
-                     disabled={isSaving}
-                     className={`w-12 h-6 rounded-full transition-all relative ${autoGen ? 'bg-[#22c55e]' : 'bg-[#1f1f1f]'}`}
-                   >
-                      <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${autoGen ? 'left-7 shadow-lg' : 'left-1'}`} />
-                   </button>
-                   {isSaving && <Loader2 className="w-4 h-4 text-[#444] animate-spin" />}
-                </div>
+          <div className="bg-[#111] border border-[#1f1f1f] rounded-2xl p-6 space-y-8">
+             <div className="space-y-6">
+                {[
+                  { 
+                    key: 'report_schedule_daily', 
+                    title: 'Daily Reports', 
+                    sub: 'Runs at 6:00 AM UTC every morning', 
+                    current: initialSettings.report_schedule_daily?.enabled ?? initialSettings.auto_report_generation?.enabled ?? true 
+                  },
+                  { 
+                    key: 'report_schedule_weekly', 
+                    title: 'Weekly Reports', 
+                    sub: 'Runs every Monday at 6:00 AM UTC', 
+                    current: initialSettings.report_schedule_weekly?.enabled ?? false 
+                  },
+                  { 
+                    key: 'report_schedule_monthly', 
+                    title: 'Monthly Reports', 
+                    sub: 'Runs on the 1st of each month at 6:00 AM UTC', 
+                    current: initialSettings.report_schedule_monthly?.enabled ?? false 
+                  }
+                ].map((sched) => (
+                  <div key={sched.key} className="flex items-center justify-between pb-6 border-b border-[#1f1f1f] last:border-0 last:pb-0">
+                    <div className="space-y-1">
+                      <div className="text-sm font-bold text-white tracking-tight">{sched.title}</div>
+                      <div className="text-[10px] text-[#444] font-mono uppercase tracking-widest">{sched.sub}</div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <button 
+                        onClick={() => saveSetting(sched.key, { enabled: !sched.current })}
+                        disabled={isSaving}
+                        className={`w-12 h-6 rounded-full transition-all relative ${sched.current ? 'bg-[#22c55e]' : 'bg-[#1f1f1f]'}`}
+                      >
+                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${sched.current ? 'left-7 shadow-lg' : 'left-1'}`} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
              </div>
              <p className="text-xs text-[#555] max-w-lg leading-relaxed pt-4 border-t border-[#1f1f1f]/50">
-               When enabled, the system will automatically extract sales and inventory data for every active merchant at the scheduled time. 
-               Generated reports will appear as <span className="text-zinc-400 font-bold">DRAFTS</span> in the reports ledger for administrative review.
+               Reports are generated automatically at the scheduled intervals and appear as <span className="text-zinc-400 font-bold">DRAFTS</span> for administrative review. Ensure stakeholders are configured to receive these notifications.
              </p>
           </div>
         </section>

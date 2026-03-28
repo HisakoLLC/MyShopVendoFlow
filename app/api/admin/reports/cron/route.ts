@@ -18,15 +18,39 @@ export async function GET(req: Request) {
     yesterday.setDate(now.getDate() - 1)
     const yesterdayStr = yesterday.toISOString().split("T")[0]
 
-    const reportTypes: ("daily" | "weekly" | "monthly")[] = ["daily"]
-    
-    // Weekly: Only on Mondays
-    if (now.getDay() === 1) reportTypes.push("weekly")
-    
-    // Monthly: Only on the 1st
-    if (now.getDate() === 1) reportTypes.push("monthly")
+    // 2. Fetch Schedule Settings
+    const { data: scheduleSettings } = await supabaseAdmin
+      .schema('admin' as any)
+      .from('settings')
+      .select('key, value')
+      .in('key', ['report_schedule_daily', 'report_schedule_weekly', 'report_schedule_monthly', 'auto_report_generation'])
 
-    // 2. Fetch Active Merchants
+    const getSetting = (key: string) => {
+      const s = scheduleSettings?.find(x => x.key === key)
+      return s?.value?.enabled
+    }
+
+    const reportTypes: ("daily" | "weekly" | "monthly")[] = []
+    
+    // Daily: Check new key or fall back to old key
+    const dailyEnabled = getSetting('report_schedule_daily') ?? getSetting('auto_report_generation') ?? true
+    if (dailyEnabled) reportTypes.push("daily")
+
+    // Weekly: Only on Mondays + Setting Enabled
+    if (now.getDay() === 1 && getSetting('report_schedule_weekly')) {
+      reportTypes.push("weekly")
+    }
+    
+    // Monthly: Only on the 1st + Setting Enabled
+    if (now.getDate() === 1 && getSetting('report_schedule_monthly')) {
+      reportTypes.push("monthly")
+    }
+
+    if (reportTypes.length === 0) {
+      return NextResponse.json({ message: "No automated reports scheduled for today or schedules disabled.", generated: 0, skipped: 0, errors: [] })
+    }
+
+    // 3. Fetch Active Merchants
     const { data: merchants, error: merchantError } = await supabaseAdmin
       .from("accounts")
       .select("id, business_name")
