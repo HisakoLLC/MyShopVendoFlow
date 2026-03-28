@@ -10,7 +10,8 @@ import {
   CreditCard, 
   Users, 
   Settings,
-  LogOut
+  LogOut,
+  X
 } from "lucide-react"
 import { useAdminUser } from "@/lib/admin/AdminUserContext"
 import { getSupabaseBrowserClient } from "@/lib/supabase"
@@ -46,7 +47,7 @@ const navigation: { title: string, items: { name: string, href: string, icon: an
   }
 ]
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
   const { full_name, role } = useAdminUser()
@@ -67,11 +68,16 @@ export default function AdminSidebar() {
   return (
     <aside className="w-56 h-screen flex-shrink-0 bg-[#0d0d0d] border-r border-[#1a1a1a] flex flex-col">
       {/* Top: Brand */}
-      <div className="h-12 flex items-center px-4 gap-2 border-b border-[#1a1a1a]">
-        <span className="text-white font-bold text-sm tracking-tight">VendoFlow</span>
-        <span className="bg-[#22c55e]/10 text-[#22c55e] text-[10px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded">
-          Admin
-        </span>
+      <div className="h-12 flex items-center px-4 gap-2 border-b border-[#1a1a1a] justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-white font-bold text-sm tracking-tight">VendoFlow</span>
+          <span className="bg-[#22c55e]/10 text-[#22c55e] text-[10px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded">
+            Admin
+          </span>
+        </div>
+        <button onClick={onClose} className="md:hidden text-[#444] hover:text-white transition-colors">
+          <X className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Nav sections */}

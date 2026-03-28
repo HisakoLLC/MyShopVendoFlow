@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation"
 import { useAdminUser } from "@/lib/admin/AdminUserContext"
+import { Menu } from "lucide-react"
 
 const pageTitleMap: Record<string, string> = {
   "/admin/dashboard": "Dashboard",
@@ -20,7 +21,7 @@ const roleColors: Record<string, { bg: string; text: string; dot: string }> = {
   reporting: { bg: "bg-purple-500/10", text: "text-purple-500", dot: "bg-purple-500" },
 }
 
-export default function AdminTopbar() {
+export default function AdminTopbar({ onMenuClick }: { onMenuClick: () => void }) {
   const pathname = usePathname()
   const { full_name, role } = useAdminUser()
 
@@ -37,9 +38,17 @@ export default function AdminTopbar() {
   return (
     <header className="h-12 bg-[#0d0d0d] border-b border-[#1a1a1a] px-6 flex items-center justify-between shrink-0">
       {/* Left: Dynamic Title */}
-      <h1 className="text-white text-sm font-semibold tracking-tight">
-        {getPageTitle(pathname)}
-      </h1>
+      <div className="flex items-center">
+        <button 
+          onClick={onMenuClick}
+          className="md:hidden mr-3 text-[#666] hover:text-white transition-colors"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <h1 className="text-white text-sm font-semibold tracking-tight">
+          {getPageTitle(pathname)}
+        </h1>
+      </div>
 
       {/* Right: User Profile */}
       <div className="flex items-center gap-3">

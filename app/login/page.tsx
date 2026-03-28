@@ -212,8 +212,8 @@ function LoginContent() {
       {/* Left form panel - scrollable */}
       <div className="flex-1 lg:w-1/2 flex items-center justify-center px-8 py-12 overflow-y-auto h-full scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
         <div className="w-full max-w-sm">
-          <div className="mb-8">
-            <h1 className="font-editorial text-2xl font-bold text-zinc-50 mb-8 text-center">
+          <div className="mb-12 text-center">
+            <h1 className="font-editorial text-2xl font-bold text-zinc-50 mb-8 inline-block w-full">
               VendoFlow
             </h1>
             <h2 className="font-editorial text-3xl font-bold text-zinc-50 mb-2">
