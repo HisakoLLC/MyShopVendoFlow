@@ -54,23 +54,12 @@ export default function WhatsappClient({ initialConversations, merchantId, merch
   const [filterStatus, setFilterStatus] = useState<WhatsappConversation["status"] | "all">("all")
   const [filterAgent, setFilterAgent] = useState<"all" | "me" | "unassigned">("all")
   const [isContextOpen, setIsContextOpen] = useState(true)
-  const [activeTab, setActiveTab] = useState<'conversations' | 'templates'>('conversations')
   const [merchantContext, setMerchantContext] = useState<any>(null)
   const [loadingContext, setLoadingContext] = useState(false)
   const [isEditingName, setIsEditingName] = useState(false)
   const [tempName, setTempName] = useState("")
   const [newTag, setNewTag] = useState("")
   const [isSavingContext, setIsSavingContext] = useState(false)
-
-  const APPROVED_TEMPLATES = [
-    { name: 'onboarding_message', params: ['name'], hasDocument: false, category: 'Marketing' },
-    { name: 'subscription_receipt', params: ['name'], hasDocument: true, category: 'Utility' },
-    { name: 'overdue_invoice_reminder', params: ['name', 'invoice_id', 'amount', 'due_date'], hasDocument: true, category: 'Utility' },
-    { name: 'weekly_sales_report', params: ['name', 'start_date', 'end_date'], hasDocument: true, category: 'Utility' },
-    { name: 'monthly_sales_report', params: ['name', 'month'], hasDocument: true, category: 'Utility' },
-    { name: 'daily_sales_report', params: ['name', 'date'], hasDocument: true, category: 'Utility' },
-    { name: 'hello_world', params: [], hasDocument: false, category: 'Marketing' },
-  ]
 
   const adminUser = useAdminUser()
 
@@ -343,162 +332,76 @@ export default function WhatsappClient({ initialConversations, merchantId, merch
       </div>
 
       {/* Right Panels: Chat + Context */}
-      <div className="flex-1 flex overflow-hidden min-h-0 relative">
-        {/* Tab Switcher Overlay */}
-        <div className="absolute top-4 left-6 z-10 flex border border-white/5 bg-[#0d0d0d]/80 backdrop-blur-md rounded-lg p-1 shadow-2xl">
-          <button 
-            onClick={() => setActiveTab('conversations')}
-            className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.15em] rounded-md transition-all ${
-              activeTab === 'conversations' ? 'bg-[#22c55e] text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]' : 'text-[#666] hover:text-white'
-            }`}
-          >
-            Conversations
-          </button>
-          <button 
-            onClick={() => setActiveTab('templates')}
-            className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.15em] rounded-md transition-all ${
-              activeTab === 'templates' ? 'bg-[#22c55e] text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]' : 'text-[#666] hover:text-white'
-            }`}
-          >
-            Templates
-          </button>
-        </div>
-
-        {activeTab === 'conversations' ? (
-          <div className="flex-1 flex flex-col bg-[#0a0a0a] min-h-0 border-r border-[#1a1a1a]">
-            {selectedConversation ? (
-              <div className="flex-1 flex flex-col min-h-0">
-                {/* Chat Header */}
-                <div className="h-16 border-b border-[#1a1a1a] flex items-center px-6 justify-between bg-[#0d0d0d]/30 backdrop-blur-md">
-                  <div className="flex gap-4 items-center">
-                    <div className="relative">
-                      <div className="w-10 h-10 rounded-full bg-[#161616] border border-[#1f1f1f] flex items-center justify-center ring-1 ring-white/5">
-                        <User className="w-5 h-5 text-[#444]" />
-                      </div>
-                      <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-[#0a0a0a] ${
-                        selectedConversation.status === 'open' ? 'bg-[#22c55e]' : 
-                        selectedConversation.status === 'resolved' ? 'bg-zinc-600' : 'bg-amber-500'
-                      }`} />
+      <div className="flex-1 flex overflow-hidden min-h-0">
+        <div className="flex-1 flex flex-col bg-[#0a0a0a] min-h-0 border-r border-[#1a1a1a]">
+          {selectedConversation ? (
+            <div className="flex-1 flex flex-col min-h-0">
+              {/* Chat Header */}
+              <div className="h-16 border-b border-[#1a1a1a] flex items-center px-6 justify-between bg-[#0d0d0d]/30 backdrop-blur-md">
+                <div className="flex gap-4 items-center">
+                  <div className="relative">
+                    <div className="w-10 h-10 rounded-full bg-[#161616] border border-[#1f1f1f] flex items-center justify-center ring-1 ring-white/5">
+                      <User className="w-5 h-5 text-[#444]" />
                     </div>
-                    <div>
-                      <div className="text-sm text-white font-black tracking-tight">{selectedConversation.contact_name || "Merchant"}</div>
-                      <div className="text-[10px] text-[#666] flex items-center gap-2 uppercase font-black tracking-widest mt-0.5">
-                        <span className="text-[#22c55e]/80">{selectedConversation.accounts?.business_name}</span>
-                        <span className="text-[#333]">|</span>
-                        <span>{selectedConversation.contact_phone}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-[#666]">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
-                      {selectedConversation.status.replace("_", " ")}
-                    </div>
-                    <button 
-                      onClick={() => setIsContextOpen(!isContextOpen)}
-                      className={`p-2 rounded-full transition-all ${isContextOpen ? 'bg-[#22c55e]/10 text-[#22c55e]' : 'text-[#444] hover:text-white'}`}
-                    >
-                      <User className="w-4 h-4" />
-                    </button>
-                    <div className="w-px h-6 bg-[#1a1a1a]" />
-                    <button className="p-2 text-[#444] hover:text-white transition-colors">
-                      <Clock className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Messages Area */}
-                <div className="flex-1 relative min-h-0 bg-[#0a0a0a]">
-                  <div className="absolute inset-0 pt-16 md:pt-0">
-                    <ConversationView 
-                      conversationId={selectedConversation.id} 
-                      currentStatus={selectedConversation.status}
-                      assignedAgentId={selectedConversation.assigned_agent_id}
-                      onUpdateConversation={(updates: any) => handleUpdateLocalConversation(selectedConversation.id, updates)}
-                    />
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="flex-1 flex flex-col items-center justify-center p-12 space-y-6 min-h-0 bg-[radial-gradient(circle_at_center,_#0d0d0d_0%,_#0a0a0a_100%)]">
-                <div className="w-24 h-24 rounded-full bg-[#111] border border-[#1f1f1f] flex items-center justify-center shadow-2xl relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-[#22c55e]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <MessageSquare className="w-10 h-10 text-[#222]" />
-                </div>
-                <div className="text-center space-y-2">
-                  <h3 className="text-white text-xs font-black uppercase tracking-[0.3em]">Support Command Center</h3>
-                  <p className="text-[#444] text-[10px] max-w-[280px] leading-relaxed uppercase font-bold tracking-wider">
-                    Select a secure communication channel to begin responding to high-priority merchant requests.
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex-1 flex flex-col bg-[#0a0a0a] min-h-0 p-8 pt-20 border-r border-[#1a1a1a] overflow-y-auto">
-            <div className="max-w-4xl mx-auto w-full space-y-8">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-white text-2xl font-black tracking-tighter uppercase mb-1">Approved Message Templates</h2>
-                  <p className="text-[#444] text-[10px] font-bold uppercase tracking-widest">Pre-authorized meta communication internal protocols</p>
-                </div>
-                <div className="px-4 py-2 rounded-lg bg-[#22c55e]/5 border border-[#22c55e]/10 text-[#22c55e] text-[9px] font-black uppercase tracking-[0.2em] animate-pulse">
-                  System Live
-                </div>
-              </div>
-
-              <div className="bg-[#0d0d0d] border border-[#1a1a1a] rounded-2xl overflow-hidden shadow-2xl">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="bg-white/5 border-b border-[#1a1a1a] text-[9px] text-[#444] uppercase font-black tracking-[0.2em]">
-                      <th className="px-6 py-4">Template Identifier</th>
-                      <th className="px-6 py-4">Category</th>
-                      <th className="px-6 py-4">Parameters</th>
-                      <th className="px-6 py-4">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#1a1a1a]">
-                    {APPROVED_TEMPLATES.map(tmp => (
-                      <tr key={tmp.name} className="hover:bg-white/[0.02] transition-colors">
-                        <td className="px-6 py-4 font-mono text-[11px] text-[#22c55e]">{tmp.name}</td>
-                        <td className="px-6 py-4">
-                          <span className="text-[10px] text-[#666] uppercase font-bold">{tmp.category}</span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-wrap gap-1.5">
-                            {tmp.params.length > 0 ? tmp.params.map(p => (
-                              <span key={p} className="px-1.5 py-0.5 rounded border border-[#222] bg-[#111] text-[8px] text-[#444] font-mono tracking-tighter">
-                                {'{{'}{p}{'}}'}
-                              </span>
-                            )) : <span className="text-[8px] text-[#333] italic">None</span>}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#22c55e]/10 border border-[#22c55e]/20 text-[#22c55e] text-[8px] font-black uppercase">
-                            <CheckCircle2 className="w-3 h-3" /> Approved
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-[#0d0d0d] border border-[#1a1a1a] border-dashed">
-                <div className="flex items-start gap-4">
-                  <div className="p-2 rounded-lg bg-white/5 text-[#444]">
-                    <AlertCircle className="w-5 h-5" />
+                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-[#0a0a0a] ${
+                      selectedConversation.status === 'open' ? 'bg-[#22c55e]' : 
+                      selectedConversation.status === 'resolved' ? 'bg-zinc-600' : 'bg-amber-500'
+                    }`} />
                   </div>
                   <div>
-                    <p className="text-[#666] text-xs leading-relaxed max-w-2xl font-medium">
-                      Template changes require Meta approval. Contact your developer to add new templates. All templates must follow Meta's strict business notification policies to prevent account suspension.
-                    </p>
+                    <div className="text-sm text-white font-black tracking-tight">{selectedConversation.contact_name || "Merchant"}</div>
+                    <div className="text-[10px] text-[#666] flex items-center gap-2 uppercase font-black tracking-widest mt-0.5">
+                      <span className="text-[#22c55e]/80">{selectedConversation.accounts?.business_name}</span>
+                      <span className="text-[#333]">|</span>
+                      <span>{selectedConversation.contact_phone}</span>
+                    </div>
                   </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-[#666]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
+                    {selectedConversation.status.replace("_", " ")}
+                  </div>
+                  <button 
+                    onClick={() => setIsContextOpen(!isContextOpen)}
+                    className={`p-2 rounded-full transition-all ${isContextOpen ? 'bg-[#22c55e]/10 text-[#22c55e]' : 'text-[#444] hover:text-white'}`}
+                  >
+                    <User className="w-4 h-4" />
+                  </button>
+                  <div className="w-px h-6 bg-[#1a1a1a]" />
+                  <button className="p-2 text-[#444] hover:text-white transition-colors">
+                    <Clock className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Messages Area */}
+              <div className="flex-1 relative min-h-0 bg-[#0a0a0a]">
+                <div className="absolute inset-0">
+                  <ConversationView 
+                    conversationId={selectedConversation.id} 
+                    currentStatus={selectedConversation.status}
+                    assignedAgentId={selectedConversation.assigned_agent_id}
+                    onUpdateConversation={(updates: any) => handleUpdateLocalConversation(selectedConversation.id, updates)}
+                  />
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center p-12 space-y-6 min-h-0 bg-[radial-gradient(circle_at_center,_#0d0d0d_0%,_#0a0a0a_100%)]">
+              <div className="w-24 h-24 rounded-full bg-[#111] border border-[#1f1f1f] flex items-center justify-center shadow-2xl relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#22c55e]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <MessageSquare className="w-10 h-10 text-[#222]" />
+              </div>
+              <div className="text-center space-y-2">
+                <h3 className="text-white text-xs font-black uppercase tracking-[0.3em]">Support Command Center</h3>
+                <p className="text-[#444] text-[10px] max-w-[280px] leading-relaxed uppercase font-bold tracking-wider">
+                  Select a secure communication channel to begin responding to high-priority merchant requests.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Right Context Panel */}
         {selectedConversation && (
