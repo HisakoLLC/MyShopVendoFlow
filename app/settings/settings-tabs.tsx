@@ -6,6 +6,7 @@ import { BusinessProfileTab } from "./business-profile-tab"
 import { TaxSettingsTab } from "./tax-settings-tab"
 import { ReceiptCustomizationTab } from "./receipt-customization-tab"
 import { AccountBillingTab } from "./account-billing-tab"
+import { CategoriesTab } from "./categories-tab"
 import { StoreLimitIndicator } from "@/components/settings/StoreLimitIndicator"
 
 type Account = {
@@ -49,9 +50,10 @@ type SettingsTabsProps = {
   account: Account
   stores: Store[]
   businessSettings: BusinessSettings | null
+  categories: Array<{ category_id: string; name: string }>
 }
 
-export function SettingsTabs({ account, stores, businessSettings }: SettingsTabsProps) {
+export function SettingsTabs({ account, stores, businessSettings, categories }: SettingsTabsProps) {
   const [activeTab, setActiveTab] = React.useState("profile")
 
   return (
@@ -68,6 +70,12 @@ export function SettingsTabs({ account, stores, businessSettings }: SettingsTabs
           className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300"
         >
           Tax Settings
+        </TabsTrigger>
+        <TabsTrigger
+          value="categories"
+          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300"
+        >
+          Categories
         </TabsTrigger>
         <TabsTrigger
           value="stores"
@@ -95,6 +103,10 @@ export function SettingsTabs({ account, stores, businessSettings }: SettingsTabs
 
       <TabsContent value="tax" className="mt-6">
         <TaxSettingsTab stores={stores} planTier={account.plan_tier || "starter"} />
+      </TabsContent>
+
+      <TabsContent value="categories" className="mt-6">
+        <CategoriesTab initialCategories={categories} accountId={account.account_id} />
       </TabsContent>
 
       <TabsContent value="stores" className="mt-6 space-y-4">

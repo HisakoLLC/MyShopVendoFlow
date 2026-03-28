@@ -44,6 +44,7 @@ async function fetchSettingsData(): Promise<{
   account: Account
   stores: Store[]
   businessSettings: BusinessSettings | null
+  categories: Array<{ category_id: string; name: string }>
 }> {
   const supabase = await createServerSupabaseClient()
 
@@ -106,14 +107,20 @@ async function fetchSettingsData(): Promise<{
     .eq("account_id", accountId)
     .maybeSingle()
 
-  // Pass public URL to client - StorageImage component will handle signing client-side
-  // This ensures fresh signed URLs on each page load and avoids expiration issues
+  // Fetch categories
+  const { data: categories, error: categoriesError } = await supabase
+    .from("categories")
+    .select("category_id, name")
+    .eq("account_id", accountId)
+    .order("name", { ascending: true })
+
   const businessSettingsResolved: BusinessSettings | null = settingsError ? null : businessSettings ?? null
 
   return {
     account: account as Account,
     stores: (stores || []) as Store[],
     businessSettings: businessSettingsResolved,
+    categories: (categories || []) as Array<{ category_id: string; name: string }>,
   }
 }
 
@@ -142,6 +149,7 @@ async function SettingsPageContent() {
     account: Account
     stores: Store[]
     businessSettings: BusinessSettings | null
+    categories: Array<{ category_id: string; name: string }>
   }
   try {
     data = await fetchSettingsData()
@@ -167,6 +175,7 @@ async function SettingsPageContent() {
         account={data.account}
         stores={data.stores}
         businessSettings={data.businessSettings}
+        categories={data.categories}
       />
     </div>
   )
