@@ -1,3 +1,4 @@
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import { getServerAdminUser } from "@/lib/admin/auth"
@@ -32,7 +33,7 @@ export async function GET(req: Request) {
 
       // Filter for those with WhatsApp conversations
       const { data: convs, error: convError } = await supabaseAdmin
-        .schema("admin" as any)
+        .schema(ADMIN_SCHEMA as any)
         .from("whatsapp_conversations")
         .select("merchant_id")
         .not("merchant_id", "is", null)
@@ -56,7 +57,7 @@ export async function GET(req: Request) {
 
     // ─── List Broadcasts ──────────────────────────────────────────────────────────
     const { data: broadcasts, error } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("broadcasts")
       .select("*")
       .order("created_at", { ascending: false })
@@ -93,7 +94,7 @@ export async function POST(req: Request) {
 
     // 2. Map to WhatsApp conversations (latest active)
     const { data: convs } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("whatsapp_conversations")
       .select("id, merchant_id, contact_phone")
       .in("merchant_id", accounts.map(a => a.account_id))
@@ -109,7 +110,7 @@ export async function POST(req: Request) {
 
     // 3. Create Broadcast
     const { data: broadcast, error: bError } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("broadcasts")
       .insert({
         name,
@@ -139,7 +140,7 @@ export async function POST(req: Request) {
       }))
 
       const { error: rError } = await supabaseAdmin
-        .schema("admin" as any)
+        .schema(ADMIN_SCHEMA as any)
         .from("broadcast_recipients")
         .insert(recipientInserts)
 
@@ -163,3 +164,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
+

@@ -1,3 +1,4 @@
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import { getServerAdminUser } from "@/lib/admin/auth"
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
       fileName = `${report.report_type}_${assetId.slice(0,8)}.pdf`
     } else if (assetType === "invoice") {
       const { data: invoice } = await supabaseAdmin
-        .schema("admin" as any)
+        .schema(ADMIN_SCHEMA as any)
         .from("invoices")
         .select("*")
         .eq("id", assetId)
@@ -48,7 +49,7 @@ export async function POST(req: Request) {
 
     // 2. Fetch conversation to get contact phone
     const { data: conv } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("whatsapp_conversations")
       .select("contact_phone")
       .eq("id", conversationId)
@@ -61,7 +62,7 @@ export async function POST(req: Request) {
     // which our background worker picks up to send to the provider.
     
     const { data: message, error: msgErr } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("whatsapp_messages")
       .insert({
         conversation_id: conversationId,
@@ -80,7 +81,7 @@ export async function POST(req: Request) {
 
     // 4. Update conversation last message
     await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("whatsapp_conversations")
       .update({
         last_message_at: new Date().toISOString(),
@@ -94,3 +95,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
+

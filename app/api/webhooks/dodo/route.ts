@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { dodoClient } from "@/lib/payments/dodo-client"
 import { getSupabaseUrl } from "@/lib/supabase/env"
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 
 const supabaseUrl = getSupabaseUrl()
 const serviceRoleKey =
@@ -138,7 +139,7 @@ async function handleSubscriptionActivated(supabase: any, data: any) {
       periodStart.setMonth(periodStart.getMonth() - 1)
 
       await supabase
-        .schema("admin")
+        .schema(ADMIN_SCHEMA)
         .from("payments")
         .upsert(
           {
@@ -215,7 +216,7 @@ async function handlePaymentSucceeded(supabase: any, data: any) {
     periodStart.setMonth(periodStart.getMonth() - 1)
 
     await supabase
-      .schema("admin")
+      .schema(ADMIN_SCHEMA)
       .from("payments")
       .upsert(
         {

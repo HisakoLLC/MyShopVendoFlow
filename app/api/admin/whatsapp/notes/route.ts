@@ -1,3 +1,4 @@
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import { getServerAdminUser } from "@/lib/admin/auth"
@@ -17,7 +18,7 @@ export async function GET(req: Request) {
     }
 
     const { data, error } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("internal_notes")
       .select(`
         *,
@@ -57,7 +58,7 @@ export async function POST(req: Request) {
     }
 
     const { data, error } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("internal_notes")
       .insert({
         conversation_id: conversationId,
@@ -81,7 +82,7 @@ export async function POST(req: Request) {
 
     // Log the activity
     await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("whatsapp_activity_log")
       .insert({
         conversation_id: conversationId,
@@ -96,3 +97,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
+

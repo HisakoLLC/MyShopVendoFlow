@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 
 export async function PATCH(
   req: Request,
@@ -16,7 +17,7 @@ export async function PATCH(
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
     const { data: currentUser } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("admin_users")
       .select("id, role")
       .eq("email", session.user.email)
@@ -32,7 +33,7 @@ export async function PATCH(
     }
 
     const { error } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("admin_users")
       .update({ is_active, updated_at: new Date().toISOString() })
       .eq("id", id)

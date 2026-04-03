@@ -1,3 +1,4 @@
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 
@@ -7,7 +8,7 @@ export async function GET() {
   try {
     // 1. Overdue Invoice count
     const { count: overdueInvoicesCount, error: invoiceError } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("invoices")
       .select("*", { count: "exact", head: true })
       .eq("status", "overdue")
@@ -16,7 +17,7 @@ export async function GET() {
 
     // 2. At-Risk Merchant count
     const { count: atRiskMerchantsCount, error: flagError } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("account_flags")
       .select("*", { count: "exact", head: true })
       .eq("flag_type", "at_risk")
@@ -32,3 +33,4 @@ export async function GET() {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
+

@@ -1,3 +1,4 @@
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import { NextResponse } from "next/server"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
@@ -14,7 +15,7 @@ export async function POST(req: Request) {
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
     const { data: adminUser } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("admin_users")
       .select("id, is_active, role")
       .eq("email", session.user.email)
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
 
     // 3. Save Report
     const { data: report, error } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("reports")
       .insert({
         merchant_id: merchantId,
@@ -60,3 +61,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
+

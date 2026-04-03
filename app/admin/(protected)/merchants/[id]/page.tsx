@@ -12,6 +12,7 @@ import {
   Pencil
 } from "lucide-react"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import MerchantTabs from "./_components/MerchantTabs"
 import { Suspense } from "react"
 import MerchantDetailLoading from "./loading"
@@ -50,8 +51,8 @@ async function MerchantDetailData({ id, initialTab }: { id: string; initialTab: 
       product_variants(count)
     `).eq("account_id", id),
     supabaseAdmin.from("purchase_orders").select("*, suppliers(name)").eq("account_id", id).order("order_date", { ascending: false }),
-    supabaseAdmin.schema("vendo_admin" as any).from("whatsapp_conversations").select("*").eq("merchant_id", id).order("last_message_at", { ascending: false }),
-    supabaseAdmin.schema("vendo_admin" as any).from("reports").select("*").eq("merchant_id", id).order("created_at", { ascending: false })
+    supabaseAdmin.schema(ADMIN_SCHEMA as any).from("whatsapp_conversations").select("*").eq("merchant_id", id).order("last_message_at", { ascending: false }),
+    supabaseAdmin.schema(ADMIN_SCHEMA as any).from("reports").select("*").eq("merchant_id", id).order("created_at", { ascending: false })
   ])
 
   if (accountError || !account) {

@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import SettingsClient from "./_components/SettingsClient"
 
 export const dynamic = "force-dynamic"
@@ -7,7 +8,7 @@ export const revalidate = 0
 
 async function SettingsData() {
   const { data: rawSettings } = await supabaseAdmin
-    .schema("vendo_admin" as any)
+    .schema(ADMIN_SCHEMA as any)
     .from("settings")
     .select("*")
 

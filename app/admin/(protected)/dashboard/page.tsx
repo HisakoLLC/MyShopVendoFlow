@@ -13,6 +13,7 @@ import {
   UserX
 } from "lucide-react"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import DashboardLoading from "./loading"
 
 export const dynamic = "force-dynamic"
@@ -33,7 +34,7 @@ async function DashboardStats() {
     supabaseAdmin.from("accounts").select("*", { count: "exact", head: true }),
     supabaseAdmin.from("stores").select("*", { count: "exact", head: true }).eq("active", true),
     supabaseAdmin.from("sales").select("grand_total").gte("sale_date", todayStr),
-    supabaseAdmin.schema("vendo_admin" as any).from("whatsapp_conversations").select("*", { count: "exact", head: true }).eq("status", "open")
+    supabaseAdmin.schema(ADMIN_SCHEMA as any).from("whatsapp_conversations").select("*", { count: "exact", head: true }).eq("status", "open")
   ])
 
   const revenueToday = salesTodayData?.reduce((acc, sale) => acc + Number(sale.grand_total), 0) || 0
@@ -70,9 +71,9 @@ async function DashboardStats() {
     supabaseAdmin.from("product_variants").select("*", { count: "exact", head: true }),
     supabaseAdmin.from("inventory_levels").select("*", { count: "exact", head: true }).lt("quantity_on_hand", 5),
     supabaseAdmin.from("purchase_orders").select("*", { count: "exact", head: true }),
-    supabaseAdmin.schema("admin" as any).from("invoices").select("*", { count: "exact", head: true }).eq("status", "overdue"),
+    supabaseAdmin.schema(ADMIN_SCHEMA as any).from("invoices").select("*", { count: "exact", head: true }).eq("status", "overdue"),
     supabaseAdmin.from("accounts").select("*", { count: "exact", head: true }).eq("subscription_status", "suspended"),
-    supabaseAdmin.schema("admin" as any).from("account_flags").select("*", { count: "exact", head: true }).eq("flag_type", "at_risk")
+    supabaseAdmin.schema(ADMIN_SCHEMA as any).from("account_flags").select("*", { count: "exact", head: true }).eq("flag_type", "at_risk")
   ])
 
   const stats = [

@@ -1,3 +1,4 @@
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 
@@ -6,7 +7,7 @@ export const dynamic = "force-dynamic"
 export async function GET() {
   try {
     const { data: overdueInvoices, error } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("invoices")
       .select(`
         *,
@@ -25,3 +26,4 @@ export async function GET() {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
+

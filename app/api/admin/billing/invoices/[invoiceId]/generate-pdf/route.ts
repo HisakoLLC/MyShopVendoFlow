@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerAdminUser } from "@/lib/admin/auth"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import { generateInvoicePdf, type InvoiceData } from "@/lib/admin/generateInvoicePdf"
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 
 export const dynamic = "force-dynamic"
 
@@ -31,7 +32,7 @@ export async function POST(
     // ── 2. Fetch invoice + merchant ──────────────────────────────────────────
     // Invoice lives in admin schema; merchant data in public.accounts.
     const { data: invoice, error: invErr } = await (supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("invoices") as any)
       .select(
         `id, invoice_number, amount_usd, amount_kes, status, due_date,
@@ -120,7 +121,7 @@ export async function POST(
 
     // ── 6. Update admin.invoices ─────────────────────────────────────────────
     await (supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("invoices") as any)
       .update({
         pdf_url:          pdfUrl,

@@ -1,3 +1,4 @@
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import { getServerAdminUser } from "@/lib/admin/auth"
@@ -18,7 +19,7 @@ export async function GET(req: Request) {
 
     // Join with assigned_agent (both in admin schema)
     const { data, error } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("whatsapp_conversations")
       .select(`
         *,
@@ -60,7 +61,7 @@ export async function PATCH(req: Request) {
 
     // Fetch old values for logging
     const { data: oldData } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("whatsapp_conversations")
       .select("status, assigned_agent_id")
       .eq("id", conversationId)
@@ -75,7 +76,7 @@ export async function PATCH(req: Request) {
     if (merchant_id !== undefined) updateData.merchant_id = merchant_id
 
     const { data, error } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("whatsapp_conversations")
       .update(updateData)
       .eq("id", conversationId)
@@ -89,7 +90,7 @@ export async function PATCH(req: Request) {
     // Log the change
     if (status && status !== oldData?.status) {
       await supabaseAdmin
-        .schema("admin" as any)
+        .schema(ADMIN_SCHEMA as any)
         .from("whatsapp_activity_log")
         .insert({
           conversation_id: conversationId,
@@ -102,7 +103,7 @@ export async function PATCH(req: Request) {
 
     if (assigned_agent_id !== undefined && assigned_agent_id !== oldData?.assigned_agent_id) {
       await supabaseAdmin
-        .schema("admin" as any)
+        .schema(ADMIN_SCHEMA as any)
         .from("whatsapp_activity_log")
         .insert({
           conversation_id: conversationId,
@@ -137,7 +138,7 @@ export async function POST(req: Request) {
 
     // Check if exists
     const { data: existing } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("whatsapp_conversations")
       .select(`
         *,
@@ -156,7 +157,7 @@ export async function POST(req: Request) {
 
     // Create new
     const { data: created, error: createError } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("whatsapp_conversations")
       .insert({
         contact_phone: cleanPhone,
@@ -182,7 +183,7 @@ export async function POST(req: Request) {
 
     // Log creation
     await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("whatsapp_activity_log")
       .insert({
         conversation_id: created.id,
@@ -198,3 +199,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
+

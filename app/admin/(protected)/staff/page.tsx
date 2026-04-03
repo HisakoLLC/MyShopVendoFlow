@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import StaffClient from "./_components/StaffClient"
 
 export const dynamic = "force-dynamic"
@@ -7,7 +8,7 @@ export const revalidate = 0
 
 async function StaffData() {
   const { data: staff, error } = await supabaseAdmin
-    .schema("vendo_admin" as any)
+    .schema(ADMIN_SCHEMA as any)
     .from("admin_users")
     .select("*")
     .order("created_at", { ascending: false })

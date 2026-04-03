@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import WhatsappClient, { WhatsappConversation } from "../_components/whatsapp/WhatsappClient"
 import WhatsappLoading from "./loading"
 
@@ -9,7 +10,7 @@ export const revalidate = 0
 async function WhatsappData({ merchantId }: { merchantId?: string }) {
   // 1. Fetch conversations with agent info
   const { data: conversations, error } = await supabaseAdmin
-    .schema("vendo_admin" as any)
+    .schema(ADMIN_SCHEMA as any)
     .from("whatsapp_conversations")
     .select(`
       *,

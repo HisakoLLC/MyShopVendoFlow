@@ -1,3 +1,4 @@
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import { NextResponse } from "next/server"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
@@ -12,7 +13,7 @@ export async function GET() {
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
     const { data, error } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("settings")
       .select("*")
 
@@ -40,7 +41,7 @@ export async function PATCH(req: Request) {
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
     const { data: adminUser } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("admin_users")
       .select("id, role")
       .eq("email", session.user.email)
@@ -60,7 +61,7 @@ export async function PATCH(req: Request) {
     }
 
     const { data, error } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("settings")
       .upsert({ 
         key, 
@@ -78,3 +79,4 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
+

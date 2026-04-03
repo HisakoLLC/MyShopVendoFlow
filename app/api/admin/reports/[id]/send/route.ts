@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import { distributeReportToConversations } from "@/lib/admin/reports"
 import { PERMISSIONS, hasPermission } from "@/lib/admin/permissions"
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 
 export async function POST(
   req: Request,
@@ -18,7 +19,7 @@ export async function POST(
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
     const { data: adminUser } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("admin_users")
       .select("id, is_active, role")
       .eq("email", session.user.email)

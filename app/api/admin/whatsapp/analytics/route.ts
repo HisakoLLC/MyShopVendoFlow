@@ -1,3 +1,4 @@
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import { getServerAdminUser } from "@/lib/admin/auth"
@@ -22,7 +23,7 @@ export async function GET(req: Request) {
 
     // 2. Aggregate Messages (Sent vs Received)
     const { data: messages, error: msgError } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("whatsapp_messages")
       .select("direction, created_at, message_type, content")
       .gte("created_at", startDateStr)
@@ -57,7 +58,7 @@ export async function GET(req: Request) {
 
     // 5. Conversation Status
     const { data: convs } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("whatsapp_conversations")
       .select("status")
     
@@ -69,7 +70,7 @@ export async function GET(req: Request) {
 
     // 6. Recent Broadcasts
     const { data: recentBroadcasts } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("broadcasts")
       .select("*")
       .not("sent_at", "is", null)
@@ -94,3 +95,4 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
+

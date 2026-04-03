@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import ReportsClient from "./_components/ReportsClient"
 import ReportsLoading from "./loading"
 
@@ -9,7 +10,7 @@ export const revalidate = 0
 async function ReportsData() {
   // 1. Fetch Reports and Approvers (internal joins are fine)
   const { data: reports, error: reportsError } = await supabaseAdmin
-    .schema("vendo_admin" as any)
+    .schema(ADMIN_SCHEMA as any)
     .from("reports")
     .select(`
       *,

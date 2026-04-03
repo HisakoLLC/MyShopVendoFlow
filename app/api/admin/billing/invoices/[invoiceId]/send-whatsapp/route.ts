@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerAdminUser } from "@/lib/admin/auth"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import { generateInvoicePdf, type InvoiceData } from "@/lib/admin/generateInvoicePdf"
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 
 export const dynamic = "force-dynamic"
 
@@ -45,7 +46,7 @@ export async function POST(
 
     // ── 2. Fetch invoice ─────────────────────────────────────────────────────
     const { data: invoice, error: invErr } = await (supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("invoices") as any)
       .select(
         `id, invoice_number, amount_usd, amount_kes, status, due_date,
@@ -111,7 +112,7 @@ export async function POST(
 
       if (signed?.signedUrl) {
         await (supabaseAdmin
-          .schema("admin" as any)
+          .schema(ADMIN_SCHEMA as any)
           .from("invoices") as any)
           .update({
             pdf_url:          signed.signedUrl,
@@ -209,7 +210,7 @@ export async function POST(
     // ── 7. Send via Meta Cloud API (document header + template body) ─────────
     // Fetch conversation phone number
     const { data: conversation, error: convErr } = await (supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("whatsapp_conversations") as any)
       .select("contact_phone")
       .eq("id", conversationId)
@@ -273,7 +274,7 @@ export async function POST(
 
     // ── 8. Update invoice row ─────────────────────────────────────────────────
     await (supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("invoices") as any)
       .update({
         whatsapp_sent_at:          new Date().toISOString(),

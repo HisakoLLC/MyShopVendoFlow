@@ -1,3 +1,4 @@
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import { NextResponse } from "next/server"
 import { getServerAdminUser } from "@/lib/admin/auth"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
 
     // 3. Fetch Conversation for Phone Number
     const { data: conversation, error: convError } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("whatsapp_conversations")
       .select("contact_phone")
       .eq("id", conversationId)
@@ -48,7 +49,7 @@ export async function POST(req: Request) {
     // 4. Handle Internal Note
     if (isInternalNote) {
       const { error: noteError } = await supabaseAdmin
-        .schema("admin" as any)
+        .schema(ADMIN_SCHEMA as any)
         .from("internal_notes")
         .insert({
           conversation_id: conversationId,
@@ -59,7 +60,7 @@ export async function POST(req: Request) {
       if (noteError) throw noteError
       
       // Also save as system message for real-time history
-      await supabaseAdmin.schema("admin" as any).from("whatsapp_messages").insert({
+      await supabaseAdmin.schema(ADMIN_SCHEMA as any).from("whatsapp_messages").insert({
         conversation_id: conversationId,
         direction: "outbound",
         message_type: mediaUrl ? (mimeType?.includes("image") ? "image" : "document") : "system",
@@ -74,7 +75,7 @@ export async function POST(req: Request) {
       // Update conversation snippet
       const snippet = content || (mediaUrl ? "📎 Attachment" : "Note")
       await supabaseAdmin
-        .schema("admin" as any)
+        .schema(ADMIN_SCHEMA as any)
         .from("whatsapp_conversations")
         .update({ 
           last_message_at: new Date().toISOString(),
@@ -99,7 +100,7 @@ export async function POST(req: Request) {
     if (!ok) {
       console.error("Meta API error:", result)
       // Save failed message
-      await supabaseAdmin.schema("admin" as any).from("whatsapp_messages").insert({
+      await supabaseAdmin.schema(ADMIN_SCHEMA as any).from("whatsapp_messages").insert({
         conversation_id: conversationId,
         direction: "outbound",
         message_type: type,
@@ -115,7 +116,7 @@ export async function POST(req: Request) {
     }
 
     // 7. Save successful message
-    await supabaseAdmin.schema("admin" as any).from("whatsapp_messages").insert({
+    await supabaseAdmin.schema(ADMIN_SCHEMA as any).from("whatsapp_messages").insert({
       conversation_id: conversationId,
       meta_message_id: result.messages?.[0]?.id,
       direction: "outbound",
@@ -136,7 +137,7 @@ export async function POST(req: Request) {
     if (!snippet && content) snippet = content
     
     await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("whatsapp_conversations")
       .update({ 
         last_message_at: new Date().toISOString(),
@@ -151,3 +152,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
+

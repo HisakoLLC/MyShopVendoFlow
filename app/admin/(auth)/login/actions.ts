@@ -1,6 +1,7 @@
 "use server"
 
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import bcrypt from "bcryptjs"
 import { cookies } from "next/headers"
 
@@ -16,7 +17,7 @@ interface VerifyAdminResult {
 export async function verifyAdminAccess(userId: string): Promise<VerifyAdminResult> {
   try {
     const { data: adminRecord, error } = await supabaseAdmin
-      .schema("vendo_admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("admin_users")
       .select("id, is_active")
       .eq("id", userId)

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import { getServerAdminUser } from "@/lib/admin/auth"
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 
 export const dynamic = "force-dynamic"
 
@@ -18,7 +19,7 @@ export async function POST(
 
     // 1. Fetch pending recipients
     const { data: recipients, error } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("broadcast_recipients")
       .select(`
         *,
@@ -34,7 +35,7 @@ export async function POST(
 
     // 2. Fetch broadcast template info
     const { data: broadcast } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("broadcasts")
       .select("*")
       .eq("id", broadcastId)
@@ -62,7 +63,7 @@ export async function POST(
         await new Promise(resolve => setTimeout(resolve, 200))
 
         const { error: updateError } = await supabaseAdmin
-          .schema("admin" as any)
+          .schema(ADMIN_SCHEMA as any)
           .from("broadcast_recipients")
           .update({ 
             status: "sent", 
@@ -77,7 +78,7 @@ export async function POST(
       } catch (err: any) {
         console.error(`Failed to send to ${phone}`, err)
         await supabaseAdmin
-          .schema("admin" as any)
+          .schema(ADMIN_SCHEMA as any)
           .from("broadcast_recipients")
           .update({ status: "failed", error_message: err.message })
           .eq("id", r.id)
@@ -87,7 +88,7 @@ export async function POST(
 
     // 4. Update final broadcast status
     await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("broadcasts")
       .update({
         status: failedCount === recipients.length ? "failed" : "completed",

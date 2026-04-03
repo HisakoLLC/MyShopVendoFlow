@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
-import { requireAdmin, adminDb } from "@/lib/admin/billing-helpers"
+import { requireAdmin, adminDb, ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 
 export const dynamic = "force-dynamic"
 

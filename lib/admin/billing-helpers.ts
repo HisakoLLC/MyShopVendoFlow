@@ -12,7 +12,7 @@ import { getServerAdminUser, type AdminUser } from "@/lib/admin/auth"
 // ---------------------------------------------------------------------------
 // Schema alias — the live database schema name
 // ---------------------------------------------------------------------------
-export const ADMIN_SCHEMA = "admin" as const
+export const ADMIN_SCHEMA = "vendo_admin" as const
 
 // Typed shorthand to avoid the repeated cast everywhere
 export const adminDb = () => supabaseAdmin.schema(ADMIN_SCHEMA as any)

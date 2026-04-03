@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import { PERMISSIONS, hasPermission } from "@/lib/admin/permissions"
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 
 export async function PATCH(
   req: Request,
@@ -17,7 +18,7 @@ export async function PATCH(
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
     const { data: adminUser } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("admin_users")
       .select("id, role, is_active")
       .eq("email", session.user.email)
@@ -37,7 +38,7 @@ export async function PATCH(
 
     // 2. Reject Report
     const { error } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("reports")
       .update({
         status: "rejected",

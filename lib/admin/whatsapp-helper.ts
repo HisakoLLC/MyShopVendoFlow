@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "./supabase-admin"
+import { ADMIN_SCHEMA } from "./billing-helpers"
 
 const WHATSAPP_ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN
 const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID
@@ -89,7 +90,7 @@ export async function sendWhatsAppMessage({
 export async function ensureConversation(phone: string, merchantId: string | null) {
   // 1. Check if exists
   const { data: existing } = await supabaseAdmin
-    .schema("admin" as any)
+    .schema(ADMIN_SCHEMA as any)
     .from("whatsapp_conversations")
     .select("id")
     .eq("contact_phone", phone)
@@ -99,7 +100,7 @@ export async function ensureConversation(phone: string, merchantId: string | nul
 
   // 2. Create if not
   const { data: created, error } = await supabaseAdmin
-    .schema("admin" as any)
+    .schema(ADMIN_SCHEMA as any)
     .from("whatsapp_conversations")
     .insert({
       contact_phone: phone,

@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "./supabase-admin"
+import { ADMIN_SCHEMA } from "./billing-helpers"
 
 export interface ReportData {
   summary: {
@@ -123,7 +124,7 @@ export async function distributeReportToConversations(
 ) {
   // Fetch report for metadata
   const { data: report } = await supabaseAdmin
-    .schema("admin" as any)
+    .schema(ADMIN_SCHEMA as any)
     .from("reports")
     .select("*")
     .eq("id", reportId)
@@ -135,7 +136,7 @@ export async function distributeReportToConversations(
   for (const conversationId of recipientConversationIds) {
     try {
       const { data: convo } = await supabaseAdmin
-        .schema("admin" as any)
+        .schema(ADMIN_SCHEMA as any)
         .from("whatsapp_conversations")
         .select("contact_phone, contact_name")
         .eq("id", conversationId)
@@ -172,7 +173,7 @@ export async function distributeReportToConversations(
       if (!sendRes.ok) throw new Error("Failed to send WhatsApp via API")
 
       await supabaseAdmin
-        .schema("admin" as any)
+        .schema(ADMIN_SCHEMA as any)
         .from("report_recipients")
         .insert({
           report_id: reportId,
@@ -190,7 +191,7 @@ export async function distributeReportToConversations(
   const successCount = results.filter(r => r.status === "success").length
   if (successCount > 0) {
     await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("reports")
       .update({ status: "sent", sent_at: new Date().toISOString() })
       .eq("id", reportId)

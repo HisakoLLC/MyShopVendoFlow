@@ -1,3 +1,4 @@
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import { startOfMonth } from "date-fns"
@@ -21,7 +22,7 @@ export async function GET() {
     // 2. Manual (M-Pesa/Wire) Revenue - Sum from admin.payments (This Month)
     const monthStart = startOfMonth(new Date()).toISOString()
     const { data: manualData, error: manualError } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("payments")
       .select("amount_kes")
       .in("payment_method", ["mpesa", "wire"])
@@ -34,7 +35,7 @@ export async function GET() {
 
     // 3. Invoice Stats (Outstanding/Overdue)
     const { data: invoiceData, error: invoiceError } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("invoices")
       .select("amount_kes, status")
       .in("status", ["unpaid", "overdue"])
@@ -76,3 +77,4 @@ export async function GET() {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
+

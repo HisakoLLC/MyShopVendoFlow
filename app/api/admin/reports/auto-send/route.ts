@@ -1,3 +1,4 @@
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import { distributeReportToConversations } from "@/lib/admin/reports"
@@ -16,7 +17,7 @@ export async function GET(req: Request) {
 
     // 2. Fetch Approved but Unsent Reports
     const { data: approvedReports, error } = await supabaseAdmin
-      .schema("admin" as any)
+      .schema(ADMIN_SCHEMA as any)
       .from("reports")
       .select("id, merchant_id")
       .eq("status", "approved")
@@ -32,7 +33,7 @@ export async function GET(req: Request) {
       try {
         // Find primary WhatsApp conversation for this merchant
         const { data: conversations } = await supabaseAdmin
-          .schema("admin" as any)
+          .schema(ADMIN_SCHEMA as any)
           .from("whatsapp_conversations")
           .select("id")
           .eq("merchant_id", report.merchant_id)
@@ -61,3 +62,4 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
+

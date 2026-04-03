@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || process.env.WHATSAPP_ACCESS_TOKEN || "vendoflow_secure_v1"
 
@@ -53,7 +54,7 @@ export async function POST(req: Request) {
       if (statuses && statuses.length > 0) {
         for (const status of statuses) {
           await supabaseAdmin
-            .schema("vendo_admin" as any)
+            .schema(ADMIN_SCHEMA as any)
             .from("whatsapp_messages")
             .update({ status: status.status })
             .eq("meta_message_id", status.id)
@@ -71,7 +72,7 @@ export async function POST(req: Request) {
 
       // 3. Find or Create Conversation
       let { data: conversation, error: convError } = await supabaseAdmin
-        .schema("vendo_admin" as any)
+        .schema(ADMIN_SCHEMA as any)
         .from("whatsapp_conversations")
         .select("id")
         .eq("contact_phone", formattedPhone)
@@ -80,7 +81,7 @@ export async function POST(req: Request) {
       if (convError || !conversation) {
         // Create new conversation if not found
         const { data: newConv, error: createError } = await supabaseAdmin
-          .schema("vendo_admin" as any)
+          .schema(ADMIN_SCHEMA as any)
           .from("whatsapp_conversations")
           .insert({
             contact_phone: formattedPhone,
@@ -138,7 +139,7 @@ export async function POST(req: Request) {
 
       // 5. Save Message
       const { error: msgError } = await supabaseAdmin
-        .schema("vendo_admin" as any)
+        .schema(ADMIN_SCHEMA as any)
         .from("whatsapp_messages")
         .insert({
           conversation_id: conversation.id,
@@ -160,7 +161,7 @@ export async function POST(req: Request) {
       // 6. Update Conversation
       const snippet = mediaUrl ? `📎 ${fileName || 'Attachment'}` : content
       await supabaseAdmin
-        .schema("vendo_admin" as any)
+        .schema(ADMIN_SCHEMA as any)
         .from("whatsapp_conversations")
         .update({ 
           last_message_at: new Date().toISOString(),

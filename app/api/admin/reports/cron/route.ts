@@ -1,3 +1,4 @@
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import { aggregateReportData } from "@/lib/admin/reports"
@@ -85,7 +86,7 @@ export async function GET(req: Request) {
 
           // Check for existing
           const { data: existing } = await supabaseAdmin
-            .schema("admin" as any)
+            .schema(ADMIN_SCHEMA as any)
             .from("reports")
             .select("id")
             .eq("merchant_id", merchant.id)
@@ -103,7 +104,7 @@ export async function GET(req: Request) {
 
           // Insert
           await supabaseAdmin
-            .schema("admin" as any)
+            .schema(ADMIN_SCHEMA as any)
             .from("reports")
             .insert({
               merchant_id: merchant.id,
@@ -129,3 +130,4 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
+
