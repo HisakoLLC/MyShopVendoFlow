@@ -41,7 +41,7 @@ export async function GET(req: Request) {
       storeCounts
     ] = await Promise.all([
       // Signal 1: Last Sale Date
-      supabaseAdmin.rpc("get_accounts_last_sale"), // We'll need to define this or use a query if RPC not exists
+      (supabaseAdmin.rpc as any)("get_accounts_last_sale"),
       
       // Onboarding Step 1: Product Styles
       supabaseAdmin.from("product_styles").select("account_id"),
@@ -71,11 +71,16 @@ export async function GET(req: Request) {
       supabaseAdmin.from("stores").select("account_id")
     ])
 
-    // Pre-process data into lookup maps for O(1) access
+    // Pre-process data into lookup maps
     const lastSaleMap = new Map()
-    // If RPC fails, fallback to a slower manual aggregate or just use a placeholder
-    // (In a real app, you'd want an indexed view or a proper aggregation query)
-    // For this implementation, we'll assume the queries return arrays of { account_id }
+    if (lastSales.data) {
+      lastSales.data.forEach((row: any) => {
+        if (row.last_sale_date) {
+          const days = Math.round((Date.now() - new Date(row.last_sale_date).getTime()) / 86400000)
+          lastSaleMap.set(row.account_id, days)
+        }
+      })
+    }
 
     const processMap = (data: any[], key = "account_id") => {
       const m = new Map()
@@ -101,13 +106,12 @@ export async function GET(req: Request) {
       const aid = acc.account_id
       
       // Signal 1: Activity Status
-      // (Placeholder for last sale logic - in production, use a dedicated join or denormalized column)
-      const hasSales = salesMap.get(aid) || 0
-      const daysSinceLastSale = hasSales > 0 ? 0 : 999 
+      const daysSinceLastSale = lastSaleMap.get(aid) ?? null
+      const hasSales = salesMap.has(aid)
       
       let activityStatus = "new"
-      if (hasSales > 0) {
-        if (daysSinceLastSale < 7) activityStatus = "active"
+      if (hasSales) {
+        if (daysSinceLastSale === null || daysSinceLastSale < 7) activityStatus = "active"
         else if (daysSinceLastSale <= 30) activityStatus = "inactive"
         else activityStatus = "critical"
       }
@@ -146,7 +150,7 @@ export async function GET(req: Request) {
       return {
         accountId: aid,
         activityStatus,
-        daysSinceLastSale: hasSales > 0 ? daysSinceLastSale : null,
+        daysSinceLastSale: hasSales ? daysSinceLastSale : null,
         onboardingScore,
         incompleteSteps,
         churnRisk,
