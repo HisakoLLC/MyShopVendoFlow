@@ -114,7 +114,7 @@ export async function POST(req: Request) {
       .single()
 
     if (staffErr || !staff) {
-      await supabaseAdmin.from("accounts").delete().eq("account_id", accountId).catch(() => {})
+      await supabaseAdmin.from("accounts").delete().eq("account_id", accountId)
       await supabaseAdmin.auth.admin.deleteUser(authUserId).catch(() => {})
       console.error("[create-account] staff insert failed:", staffErr)
       return NextResponse.json({ error: "Failed to create staff record" }, { status: 500 })
