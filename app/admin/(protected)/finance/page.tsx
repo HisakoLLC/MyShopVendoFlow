@@ -1,155 +1,59 @@
 import { Suspense } from "react"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import FinanceClient from "./_components/FinanceClient"
-import { CreditCard, Rocket, TrendingUp, Users } from "lucide-react"
+import { startOfMonth } from "date-fns"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
 async function FinanceData() {
-  // 1. Fetch Transactions
-  const { data: transactions, error } = await supabaseAdmin
-    .schema("vendo_admin" as any)
-    .from("finance_transactions")
-    .select("*")
-    .order("transaction_date", { ascending: false })
-
-  // 2. Fetch Merchants for the modal AND mapping
-  const { data: merchants } = await supabaseAdmin
-    .from("accounts")
-    .select("id:account_id, name:business_name")
-    .order("business_name")
-
-  // 3. Fetch Platform Volume (Sum of all completed sales)
+  // Fetch Platform GMV Aggregates server-side
   const { data: sales, error: salesError } = await supabaseAdmin
     .from("sales")
     .select("grand_total, sale_date")
     .eq("status", "completed")
 
-  if (error || salesError) {
-    console.error(error || salesError)
-    return <div className="p-8 text-red-500 font-bold uppercase tracking-widest text-[10px]">Error loading financial data</div>
+  if (salesError) {
+    console.error(salesError)
+    return <div className="p-8 text-red-500 font-black uppercase tracking-[0.3em] text-[10px]">Financial Data Handshake Failure</div>
   }
 
-  // 3. In-memory join
-  const txList = (transactions as any[] || []).map(tx => ({
-    ...tx,
-    accounts: {
-      business_name: (merchants || []).find(m => m.id === tx.merchant_id)?.name || "Unknown Merchant"
-    }
-  }))
+  const platformGMV = (sales || []).reduce((acc, s) => acc + Number(s.grand_total), 0)
   
-  // 4. Process Aggregates (SaaS Revenue)
-  const saasRevenue = txList.reduce((acc, tx) => acc + (tx.type !== 'expense' ? parseFloat(tx.amount) : -parseFloat(tx.amount)), 0)
-  
-  // 5. Process Platform GMV (Gross Merchant Volume)
-  const platformGMV = (sales as any[] || []).reduce((acc, s) => acc + parseFloat(s.grand_total), 0)
-
-  const now = new Date()
-  const thisMonth = now.getMonth()
-  const thisYear = now.getFullYear()
-  
-  const currentMonthTx = txList.filter(tx => {
-    const d = new Date(tx.transaction_date)
-    return d.getMonth() === thisMonth && d.getFullYear() === thisYear
-  })
-  
-  const currentMonthSales = (sales as any[] || []).filter(s => {
-    const d = new Date(s.sale_date)
-    return d.getMonth() === thisMonth && d.getFullYear() === thisYear
-  })
-
-  const thisMonthRevenue = currentMonthTx.reduce((acc, tx) => acc + (tx.type !== 'expense' ? parseFloat(tx.amount) : -parseFloat(tx.amount)), 0)
-  const thisMonthGMV = currentMonthSales.reduce((acc, s) => acc + parseFloat(s.grand_total), 0)
-
-  // 6. Trend Data (last 6 months - Combining Platform GMV and SaaS Revenue)
-  const months = []
-  for (let i = 5; i >= 0; i--) {
-     const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-     const mStr = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`
-     
-     const monthSaaS = txList
-       .filter(tx => tx.transaction_date.startsWith(mStr))
-       .reduce((acc, tx) => acc + (tx.type !== 'expense' ? parseFloat(tx.amount) : -parseFloat(tx.amount)), 0)
-       
-     const monthGMV = (sales as any[] || [])
-       .filter(s => s.sale_date.startsWith(mStr))
-       .reduce((acc, s) => acc + parseFloat(s.grand_total), 0)
-
-     months.push({ 
-       month: mStr, 
-       amount: Math.max(0, monthSaaS), // Primary chart still shows SaaS
-       gmv: Math.max(0, monthGMV) 
-     })
-  }
+  const monthStart = startOfMonth(new Date())
+  const thisMonthGMV = (sales || [])
+    .filter(s => new Date(s.sale_date) >= monthStart)
+    .reduce((acc, s) => acc + Number(s.grand_total), 0)
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div className="space-y-12 max-w-7xl mx-auto">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
         <div>
-          <div className="text-[#444] text-[10px] font-black uppercase tracking-[0.2em] mb-1">Corporate Oversight</div>
-          <h1 className="text-white text-3xl font-bold tracking-tighter">Finance Dashboard</h1>
+          <div className="text-[#444] text-[10px] font-black uppercase tracking-[0.4em] mb-2 px-0.5">Corporate Oversight</div>
+          <h1 className="text-white text-5xl font-black tracking-tighter leading-none">FINANCE</h1>
         </div>
       </div>
 
       <FinanceClient 
-        initialTransactions={txList} 
-        merchants={merchants || []} 
-        trendData={months}
-        aggregates={{
-          totalRevenue: saasRevenue,
-          thisMonthRevenue: thisMonthRevenue,
-          platformGMV: platformGMV,
-          thisMonthGMV: thisMonthGMV
-        }}
+        initialPlatformGMV={platformGMV} 
+        initialMonthGMV={thisMonthGMV}
       />
-
-      <div className="p-8 rounded-2xl border border-[#1f1f1f] border-dashed bg-white/[0.01] opacity-50 space-y-4">
-         <div className="flex items-center gap-3">
-            <CreditCard className="w-5 h-5 text-[#444]" />
-            <h3 className="text-white text-sm font-bold tracking-tight uppercase tracking-widest">SaaS Billing Engine Coming Soon</h3>
-         </div>
-         <p className="text-xs text-[#555] max-w-xl">
-            We are building a native subscription management layer. Future updates will include automated invoice generation, 
-            MRR tracking via Stripe/DodoPayments, and churn rate analytics. Manual entries will eventually be replaced by 
-            real-time payment hooks.
-         </p>
-         <div className="flex gap-4">
-            {["Invoice Generation", "MRR Tracking", "Churn Analytics", "Overdue Reminders"].map((feat, i) => (
-              <div key={i} className="px-3 py-1.5 rounded border border-[#1f1f1f] text-[9px] font-black text-[#333] uppercase">
-                {feat}
-              </div>
-            ))}
-         </div>
-      </div>
     </div>
-  )
-}
-
-function DollarSign(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <line x1="12" x2="12" y1="2" y2="22" />
-      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-    </svg>
   )
 }
 
 export default function FinancePage() {
   return (
-    <div className="px-8 py-8">
-      <Suspense fallback={<div className="text-white p-8">Loading Revenue Data...</div>}>
+    <div className="px-8 py-12">
+      <Suspense fallback={
+        <div className="max-w-7xl mx-auto space-y-12 animate-pulse">
+           <div className="h-16 w-64 bg-[#1a1a1a] rounded-sm" />
+           <div className="grid grid-cols-4 gap-6">
+              {[1,2,3,4].map(i => <div key={i} className="h-32 bg-[#1a1a1a] rounded-sm" />)}
+           </div>
+           <div className="h-96 bg-[#1a1a1a] rounded-sm" />
+        </div>
+      }>
          <FinanceData />
       </Suspense>
     </div>

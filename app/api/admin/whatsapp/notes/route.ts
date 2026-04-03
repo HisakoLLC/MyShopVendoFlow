@@ -17,7 +17,7 @@ export async function GET(req: Request) {
     }
 
     const { data, error } = await supabaseAdmin
-      .schema("vendo_admin" as any)
+      .schema("admin" as any)
       .from("internal_notes")
       .select(`
         *,
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     }
 
     const { data, error } = await supabaseAdmin
-      .schema("vendo_admin" as any)
+      .schema("admin" as any)
       .from("internal_notes")
       .insert({
         conversation_id: conversationId,
@@ -81,7 +81,7 @@ export async function POST(req: Request) {
 
     // Log the activity
     await supabaseAdmin
-      .schema("vendo_admin" as any)
+      .schema("admin" as any)
       .from("whatsapp_activity_log")
       .insert({
         conversation_id: conversationId,

@@ -127,6 +127,39 @@ async function handleSubscriptionActivated(supabase: any, data: any) {
     status: "success",
     event_data: data,
   })
+
+  // Mirror initial payment to admin ledger (only when payment data is present)
+  if (data.payment?.id) {
+    try {
+      const periodEnd = data.current_period_end
+        ? new Date(data.current_period_end)
+        : new Date(Date.now() + 30 * 86400000)
+      const periodStart = new Date(periodEnd)
+      periodStart.setMonth(periodStart.getMonth() - 1)
+
+      await supabase
+        .schema("admin")
+        .from("payments")
+        .upsert(
+          {
+            account_id: accountId,
+            amount_usd: (data.payment.amount ?? 0) / 100,
+            payment_method: "dodo_card",
+            dodo_payment_id: data.payment.id,
+            status: "confirmed",
+            source: "dodo_webhook",
+            payment_date: new Date().toISOString(),
+            period_start: periodStart.toISOString().split("T")[0],
+            period_end: periodEnd.toISOString().split("T")[0],
+          },
+          { onConflict: "dodo_payment_id", ignoreDuplicates: true }
+        )
+    } catch (mirrorError) {
+      // Non-fatal: log but don't fail the webhook
+      // eslint-disable-next-line no-console
+      console.error("[webhooks][dodo] Admin payment mirror failed (activated):", mirrorError)
+    }
+  }
 }
 
 async function handlePaymentSucceeded(supabase: any, data: any) {
@@ -172,6 +205,37 @@ async function handlePaymentSucceeded(supabase: any, data: any) {
     status: "success",
     event_data: data,
   })
+
+  // Mirror Dodo payment to admin ledger
+  try {
+    const periodEnd = data.current_period_end
+      ? new Date(data.current_period_end)
+      : new Date(Date.now() + 30 * 86400000)
+    const periodStart = new Date(periodEnd)
+    periodStart.setMonth(periodStart.getMonth() - 1)
+
+    await supabase
+      .schema("admin")
+      .from("payments")
+      .upsert(
+        {
+          account_id: account.account_id,
+          amount_usd: (data.amount ?? 0) / 100,
+          payment_method: "dodo_card",
+          dodo_payment_id: data.id ?? null,
+          status: "confirmed",
+          source: "dodo_webhook",
+          payment_date: paidAt,
+          period_start: periodStart.toISOString().split("T")[0],
+          period_end: periodEnd.toISOString().split("T")[0],
+        },
+        { onConflict: "dodo_payment_id", ignoreDuplicates: true }
+      )
+  } catch (mirrorError) {
+    // Non-fatal: log but don't fail the webhook
+    // eslint-disable-next-line no-console
+    console.error("[webhooks][dodo] Admin payment mirror failed (succeeded):", mirrorError)
+  }
 }
 
 async function handlePaymentFailed(supabase: any, data: any) {

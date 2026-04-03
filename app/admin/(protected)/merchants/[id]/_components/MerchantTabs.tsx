@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { 
   TrendingUp, 
@@ -12,9 +13,13 @@ import {
   ExternalLink,
   Plus,
   AlertCircle,
-  Lock
+  Lock,
+  CreditCard,
+  Activity
 } from "lucide-react"
 import PermissionGate from "../../../_components/PermissionGate"
+import BillingTab from "../../../_components/merchants/BillingTab"
+import ActivityTab from "../../../_components/merchants/ActivityTab"
 
 interface MerchantTabsProps {
   sales: {
@@ -36,9 +41,10 @@ interface MerchantTabsProps {
     styles: any[]
   }
   purchaseOrders: any[]
-  whatsapp: any[]
-  reports: any[]
-  merchantId: string
+  whatsapp:        any[]
+  reports:         any[]
+  merchantId:      string
+  initialTab?:     string
 }
 
 export default function MerchantTabs({ 
@@ -47,16 +53,28 @@ export default function MerchantTabs({
   purchaseOrders, 
   whatsapp, 
   reports,
-  merchantId
+  merchantId,
+  initialTab = "billing",
 }: MerchantTabsProps) {
-  const [activeTab, setActiveTab] = useState<"sales" | "inventory" | "pos" | "whatsapp" | "reports">("sales")
+  const router = useRouter()
+  type TabId = "billing" | "sales" | "inventory" | "pos" | "whatsapp" | "reports" | "activity"
+  const VALID_TABS: TabId[] = ["billing", "sales", "inventory", "pos", "whatsapp", "reports", "activity"]
+  const safeInitial: TabId = VALID_TABS.includes(initialTab as TabId) ? (initialTab as TabId) : "billing"
+  const [activeTab, setActiveTab] = useState<TabId>(safeInitial)
+
+  function switchTab(id: TabId) {
+    setActiveTab(id)
+    router.push(`?tab=${id}`, { scroll: false })
+  }
 
   const tabs = [
-    { id: "sales", label: "Sales Overview", icon: TrendingUp },
-    { id: "inventory", label: "Inventory", icon: Package },
-    { id: "pos", label: "Purchase Orders", icon: ShoppingCart },
-    { id: "whatsapp", label: "WhatsApp", icon: MessageSquare },
-    { id: "reports", label: "Reports", icon: FileBarChart },
+    { id: "billing",   label: "Billing",         icon: CreditCard },
+    { id: "sales",     label: "Sales Overview",  icon: TrendingUp },
+    { id: "inventory", label: "Inventory",        icon: Package },
+    { id: "pos",       label: "Purchase Orders",  icon: ShoppingCart },
+    { id: "whatsapp",  label: "WhatsApp",         icon: MessageSquare },
+    { id: "reports",   label: "Reports",          icon: FileBarChart },
+    { id: "activity",  label: "Activity",         icon: Activity },
   ] as const
 
   return (
@@ -66,7 +84,7 @@ export default function MerchantTabs({
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => switchTab(tab.id)}
             className={`flex items-center gap-2 pb-4 text-xs font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${
               activeTab === tab.id ? "text-white" : "text-[#444] hover:text-[#666]"
             }`}
@@ -82,6 +100,10 @@ export default function MerchantTabs({
 
       {/* Tab Content */}
       <div className="min-h-[400px]">
+        {activeTab === "billing" && (
+          <BillingTab accountId={merchantId} />
+        )}
+
         {activeTab === "sales" && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
             {/* Sales Metrics */}
@@ -393,6 +415,9 @@ export default function MerchantTabs({
               </div>
             </div>
           </div>
+        )}
+        {activeTab === "activity" && (
+          <ActivityTab accountId={merchantId} />
         )}
       </div>
     </div>

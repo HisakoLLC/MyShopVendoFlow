@@ -8,7 +8,9 @@ import {
   Layers, 
   AlertTriangle, 
   FileText,
-  Clock
+  Clock,
+  ShieldAlert,
+  UserX
 } from "lucide-react"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import DashboardLoading from "./loading"
@@ -37,7 +39,6 @@ async function DashboardStats() {
   const revenueToday = salesTodayData?.reduce((acc, sale) => acc + Number(sale.grand_total), 0) || 0
 
   // 2. Fetch Section 2 (Left): Recent Transactions
-  // Join: sales -> stores -> accounts
   const { data: recentSales } = await supabaseAdmin
     .from("sales")
     .select(`
@@ -55,19 +56,23 @@ async function DashboardStats() {
     .order("sale_date", { ascending: false })
     .limit(10)
 
-  // 3. Fetch Section 2 (Right): Quick Stats
+  // 3. Fetch System Overview Counts (Aggregated)
   const [
     { count: totalProducts },
     { count: totalVariants },
     { count: lowStockCount },
     { count: totalPOs },
-    { count: pendingReportsCount }
+    { count: overdueInvoicesCount },
+    { count: suspendedAccountsCount },
+    { count: atRiskCount }
   ] = await Promise.all([
     supabaseAdmin.from("product_styles").select("*", { count: "exact", head: true }),
     supabaseAdmin.from("product_variants").select("*", { count: "exact", head: true }),
     supabaseAdmin.from("inventory_levels").select("*", { count: "exact", head: true }).lt("quantity_on_hand", 5),
     supabaseAdmin.from("purchase_orders").select("*", { count: "exact", head: true }),
-    supabaseAdmin.schema("vendo_admin" as any).from("reports").select("*", { count: "exact", head: true }).eq("status", "draft")
+    supabaseAdmin.schema("admin" as any).from("invoices").select("*", { count: "exact", head: true }).eq("status", "overdue"),
+    supabaseAdmin.from("accounts").select("*", { count: "exact", head: true }).eq("subscription_status", "suspended"),
+    supabaseAdmin.schema("admin" as any).from("account_flags").select("*", { count: "exact", head: true }).eq("flag_type", "at_risk")
   ])
 
   const stats = [
@@ -92,32 +97,36 @@ async function DashboardStats() {
     { label: "Total Variants", value: totalVariants || 0, icon: Layers },
     { label: "Low Stock Variants", value: lowStockCount || 0, icon: AlertTriangle, alert: (lowStockCount || 0) > 0 },
     { label: "Total Purchase Orders", value: totalPOs || 0, icon: FileText },
-    { label: "Pending Reports", value: pendingReportsCount || 0, icon: Clock },
+    { label: "Overdue Invoices", value: overdueInvoicesCount || 0, icon: ShieldAlert, alert: (overdueInvoicesCount || 0) > 0, alertColor: "text-amber-500" },
+    { label: "Suspended Accounts", value: suspendedAccountsCount || 0, icon: UserX, alert: (suspendedAccountsCount || 0) > 0, alertColor: "text-red-500" },
+    { label: "At Risk Merchants", value: atRiskCount || 0, icon: AlertTriangle, alert: (atRiskCount || 0) > 0, alertColor: "text-red-500" },
   ]
 
   return (
-    <div className="px-8 py-8 md:px-12 max-w-7xl mx-auto">
+    <div className="px-8 py-12 md:px-12 max-w-7xl mx-auto space-y-12">
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-white text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-[#666] text-sm flex items-center gap-2 mt-1">
+      <div>
+        <div className="text-[#444] text-[10px] font-black uppercase tracking-[0.4em] mb-2 px-0.5">Corporate Intelligence</div>
+        <h1 className="text-white text-5xl font-black tracking-tighter leading-none">OVERVIEW</h1>
+        <p className="text-[#333] text-[10px] font-bold uppercase tracking-[0.2em] mt-4 flex items-center gap-2">
+          <Clock className="w-3 h-3" />
           {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
       </div>
 
       {/* Row 1: Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => {
           const Icon = stat.icon
           return (
-            <div key={stat.label} className="bg-[#111] border border-[#1f1f1f] rounded-lg p-5">
-              <div className="flex justify-between items-start mb-3">
-                <span className="text-[#444] text-[10px] tracking-widest uppercase font-bold">
+            <div key={stat.label} className="bg-[#0d0d0d] border border-[#1a1a1a] rounded-sm p-8 group hover:border-[#22c55e]/30 transition-all">
+              <div className="flex justify-between items-start mb-6">
+                <span className="text-[#333] text-[9px] tracking-[0.2em] uppercase font-black">
                   {stat.label}
                 </span>
-                <Icon className="w-3.5 h-3.5 text-[#444]" />
+                <Icon className="w-3.5 h-3.5 text-[#222] group-hover:text-[#22c55e] transition-colors" />
               </div>
-              <div className={`text-2xl font-bold tracking-tight ${stat.trend || "text-white"}`}>
+              <div className={`text-3xl font-black tracking-tighter ${stat.trend || "text-white"}`}>
                 {stat.value}
               </div>
             </div>
@@ -126,60 +135,53 @@ async function DashboardStats() {
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         {/* Left Column: Recent Transactions */}
-        <div className="lg:col-span-2">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-white text-sm font-semibold tracking-tight">Recent Transactions</h2>
-            <button className="text-[#444] hover:text-white text-[10px] uppercase tracking-widest font-bold transition-colors">
-              View All
+        <div className="lg:col-span-2 space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-white text-[10px] font-black uppercase tracking-[0.3em]">Recent Transactions — Live Feed</h2>
+            <button className="text-[#333] hover:text-white text-[9px] uppercase tracking-widest font-black transition-colors">
+              FULL LOG →
             </button>
           </div>
 
-          <div className="bg-[#111] border border-[#1f1f1f] rounded-lg overflow-hidden">
+          <div className="bg-[#0d0d0d] border border-[#1a1a1a] rounded-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-[#1f1f1f] bg-[#161616]">
-                    <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-[#444]">Receipt No</th>
-                    <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-[#444]">Store</th>
-                    <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-[#444]">Amount</th>
-                    <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-[#444]">Method</th>
-                    <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-[#444]">Date</th>
+                  <tr className="border-b border-[#1a1a1a] bg-[#111]">
+                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-[#333]">Receipt ID</th>
+                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-[#333]">Merchant Store</th>
+                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-[#333] text-right">Amount</th>
+                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-[#333] text-right">Protocol</th>
+                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-[#333] text-right">Time</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1f1f1f]">
+                <tbody className="divide-y divide-[#1a1a1a]">
                   {recentSales?.map((sale) => (
-                    <tr key={sale.receipt_number} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="px-6 py-4 text-xs font-mono text-white/50">{sale.receipt_number}</td>
+                    <tr key={sale.receipt_number} className="hover:bg-white/[0.02] transition-colors group">
+                      <td className="px-6 py-4 text-[10px] font-black text-[#444] font-mono tracking-tighter group-hover:text-[#666]">{sale.receipt_number}</td>
                       <td className="px-6 py-4">
-                        <div className="text-xs text-white font-medium">{(sale.stores as any)?.name}</div>
-                        <div className="text-[10px] text-[#444]">{(sale.stores as any)?.accounts?.business_name}</div>
+                        <div className="text-[10px] text-white font-black uppercase">{(sale.stores as any)?.name}</div>
+                        <div className="text-[8px] text-[#22c55e] font-black uppercase tracking-tighter">{(sale.stores as any)?.accounts?.business_name}</div>
                       </td>
-                      <td className="px-6 py-4 text-xs font-mono text-white">
-                        KES {Number(sale.grand_total).toLocaleString()}
+                      <td className="px-6 py-4 text-[10px] font-black text-white text-right">
+                        {Number(sale.grand_total).toLocaleString()}
                       </td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                          sale.payment_method === 'cash' ? 'bg-zinc-500/10 text-zinc-500' :
-                          sale.payment_method === 'card' ? 'bg-blue-500/10 text-blue-500' :
-                          'bg-green-500/10 text-green-500'
+                      <td className="px-6 py-4 text-right">
+                        <span className={`px-2 py-0.5 rounded-sm text-[8px] font-black uppercase tracking-widest border ${
+                          sale.payment_method === 'cash' ? 'bg-zinc-500/5 text-zinc-500 border-zinc-500/10' :
+                          sale.payment_method === 'card' ? 'bg-blue-500/5 text-blue-500 border-blue-500/10' :
+                          'bg-[#22c55e]/5 text-[#22c55e] border-[#22c55e]/10'
                         }`}>
                           {sale.payment_method}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-xs text-[#444]">
-                        {new Date(sale.sale_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                      <td className="px-6 py-4 text-[10px] text-[#333] font-black text-right">
+                        {new Date(sale.sale_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
                       </td>
                     </tr>
                   ))}
-                  {(!recentSales || recentSales.length === 0) && (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-[#444] text-xs underline decoration-dotted">
-                        No transactions recorded today
-                      </td>
-                    </tr>
-                  )}
                 </tbody>
               </table>
             </div>
@@ -187,25 +189,23 @@ async function DashboardStats() {
         </div>
 
         {/* Right Column: System Overview */}
-        <div>
-          <h2 className="text-white text-sm font-semibold tracking-tight mb-4">System Overview</h2>
-          <div className="bg-[#111] border border-[#1f1f1f] rounded-lg p-3">
-            <div className="divide-y divide-[#1f1f1f]">
-              {quickStatsItems.map((item) => {
-                const Icon = item.icon
-                return (
-                  <div key={item.label} className="flex items-center justify-between py-3 px-3 hover:bg-white/[0.02] rounded-sm transition-colors">
-                    <div className="flex items-center gap-3">
-                      <Icon className={`w-3.5 h-3.5 ${item.alert ? "text-amber-400" : "text-[#444]"}`} />
-                      <span className="text-[#666] text-xs underline decoration-white/5">{item.label}</span>
-                    </div>
-                    <span className={`text-xs font-bold ${item.alert ? "text-amber-400" : "text-white"}`}>
-                      {item.value}
-                    </span>
+        <div className="space-y-6">
+          <h2 className="text-white text-[10px] font-black uppercase tracking-[0.3em]">System Health — Metrics</h2>
+          <div className="bg-[#0d0d0d] border border-[#1a1a1a] rounded-sm p-4 space-y-1">
+            {quickStatsItems.map((item) => {
+              const Icon = item.icon
+              return (
+                <div key={item.label} className="flex items-center justify-between py-3 px-4 hover:bg-white/[0.02] rounded-sm transition-colors group">
+                  <div className="flex items-center gap-3">
+                    <Icon className={`w-3.5 h-3.5 ${item.alert ? (item.alertColor || "text-amber-500") : "text-[#222] group-hover:text-[#444]"}`} />
+                    <span className="text-[#444] text-[9px] font-black uppercase tracking-widest group-hover:text-[#666] transition-colors">{item.label}</span>
                   </div>
-                )
-              })}
-            </div>
+                  <span className={`text-[10px] font-black ${item.alert ? (item.alertColor || "text-amber-500") : "text-white"}`}>
+                    {item.value}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>

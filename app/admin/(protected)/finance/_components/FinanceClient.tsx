@@ -1,83 +1,103 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { DollarSign, Rocket, TrendingUp, CreditCard, Lock } from "lucide-react"
-import FinanceTrendChart from "./FinanceTrendChart"
-import FinanceTable from "./FinanceTable"
-import RecordPaymentModal from "./RecordPaymentModal"
-import PermissionGate from "../../_components/PermissionGate"
+import { useState, useEffect } from "react"
+import { TrendingUp, DollarSign, Wallet, ShieldCheck, Zap } from "lucide-react"
+import { FinanceStatsCards } from "./FinanceStatsCards"
+import { OverdueInvoicesList } from "./OverdueInvoicesList"
+import { ManualPaymentsTable } from "./ManualPaymentsTable"
+import { PlanBreakdownGrid } from "./PlanBreakdownGrid"
+import { adminToast } from "@/lib/admin/toast"
 
 interface FinanceClientProps {
-  initialTransactions: any[]
-  merchants: any[]
-  trendData: any[]
-  aggregates: {
-    totalRevenue: number
-    thisMonthRevenue: number
-    platformGMV: number
-    thisMonthGMV: number
-  }
+  initialPlatformGMV: number
+  initialMonthGMV: number
 }
 
-export default function FinanceClient({ initialTransactions, merchants, trendData, aggregates }: FinanceClientProps) {
-  const router = useRouter()
-  const [showModal, setShowModal] = useState(false)
+export default function FinanceClient({ initialPlatformGMV, initialMonthGMV }: FinanceClientProps) {
+  const [stats, setStats] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
-  const { totalRevenue, thisMonthRevenue, platformGMV, thisMonthGMV } = aggregates
-
-  const handleSuccess = () => {
-    router.refresh()
-  }
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch("/api/admin/finance/stats")
+        const data = await res.json()
+        setStats(data)
+      } catch (err) {
+        adminToast.error("Finance synchronization failure")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchStats()
+  }, [])
 
   return (
-    <PermissionGate 
-      permission="finance_view"
-      fallback={
-        <div className="flex flex-col items-center justify-center py-20 border border-[#1f1f1f] border-dashed rounded-3xl bg-white/[0.01]">
-          <Lock className="w-12 h-12 text-[#111] mb-4" />
-          <h2 className="text-white text-lg font-bold tracking-tighter uppercase mb-2">Restricted Access</h2>
-          <p className="text-[#444] text-[10px] font-black uppercase tracking-[0.2em] max-w-xs text-center border-t border-[#1f1f1f] pt-4 mt-2">
-            This module contains highly sensitive fiscal data and is reserved for authorized financial personnel.
-          </p>
-        </div>
-      }
-    >
-      <div className="space-y-8 animate-in fade-in duration-500">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {[
-            { label: "SaaS Revenue (Total)", value: `KES ${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-[#22c55e]" },
-            { label: "SaaS This Month", value: `KES ${thisMonthRevenue.toLocaleString()}`, icon: TrendingUp, color: "text-blue-400" },
-            { label: "Platform Volume (GMV)", value: `KES ${platformGMV.toLocaleString()}`, icon: CreditCard, color: "text-purple-400" },
-            { label: "GMV This Month", value: `KES ${thisMonthGMV.toLocaleString()}`, icon: Rocket, color: "text-amber-400" },
-          ].map((card, i) => (
-            <div key={i} className="p-6 rounded-2xl bg-[#111] border border-[#1f1f1f] space-y-2">
-              <div className="flex justify-between items-start">
-                 <card.icon className={`w-4 h-4 ${card.color}`} />
-              </div>
-              <div className="text-2xl font-black text-white tracking-tighter">{card.value}</div>
-              <div className="text-[10px] text-[#444] uppercase font-bold tracking-widest">{card.label}</div>
-            </div>
-          ))}
+    <div className="space-y-12">
+      {/* SECTION A: SaaS Revenue */}
+      <section className="space-y-8">
+        <div className="flex items-center gap-3">
+           <ShieldCheck className="w-5 h-5 text-[#22c55e]" />
+           <h2 className="text-white text-lg font-black uppercase tracking-[0.3em]">SaaS Revenue — Internal Yield</h2>
         </div>
 
-        <FinanceTrendChart data={trendData} />
-        
+        <FinanceStatsCards stats={stats} loading={loading} />
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+           <div className="lg:col-span-1 space-y-4">
+              <h3 className="text-[10px] font-black text-[#444] uppercase tracking-[0.2em]">Subscription Infrastructure</h3>
+              <PlanBreakdownGrid breakdown={stats?.breakdown || {}} loading={loading} />
+           </div>
+           <div className="lg:col-span-2 space-y-4">
+              <h3 className="text-[10px] font-black text-[#444] uppercase tracking-[0.2em]">Recovery Queue</h3>
+              <OverdueInvoicesList />
+           </div>
+        </div>
+
         <div className="space-y-4">
-          <h3 className="text-[10px] text-[#444] uppercase font-black tracking-[0.2em] px-1 border-l-2 border-[#22c55e]">Recent Transactions</h3>
-          <FinanceTable 
-            initialTransactions={initialTransactions} 
-            onAddTransaction={() => setShowModal(true)} 
-          />
+           <h3 className="text-[10px] font-black text-[#444] uppercase tracking-[0.2em]">Transaction Ledger</h3>
+           <ManualPaymentsTable />
+        </div>
+      </section>
+
+      {/* SECTION B: Platform GMV */}
+      <section className="space-y-8 pt-12 border-t border-[#1a1a1a]">
+        <div className="flex items-center gap-3">
+           <Zap className="w-5 h-5 text-amber-500" />
+           <h2 className="text-white text-lg font-black uppercase tracking-[0.3em]">Platform GMV — Merchant Flow</h2>
         </div>
 
-        {showModal && (
-          <RecordPaymentModal 
-            onClose={() => setShowModal(false)}
-            onSuccess={handleSuccess}
-          />
-        )}
-      </div>
-    </PermissionGate>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <div className="p-8 bg-[#0d0d0d] border border-[#1a1a1a] rounded-sm group hover:border-amber-500/30 transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] font-black text-[#444] uppercase tracking-[0.2em]">Total Processed Volume</span>
+                <Wallet className="w-4 h-4 text-amber-500 opacity-40 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <div className="space-y-1">
+                <div className="text-2xl font-black text-white tracking-tighter">KES {initialPlatformGMV.toLocaleString()}</div>
+                <div className="text-[10px] font-bold text-[#444] uppercase tracking-widest leading-relaxed italic">Life-to-date transaction integrity</div>
+              </div>
+           </div>
+
+           <div className="p-8 bg-[#0d0d0d] border border-[#1a1a1a] rounded-sm group hover:border-amber-500/30 transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] font-black text-[#444] uppercase tracking-[0.2em]">Current Period Throughput</span>
+                <TrendingUp className="w-4 h-4 text-amber-500 opacity-40 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <div className="space-y-1">
+                <div className="text-2xl font-black text-white tracking-tighter">KES {initialMonthGMV.toLocaleString()}</div>
+                <div className="text-[10px] font-bold text-[#444] uppercase tracking-widest leading-relaxed italic">Real-time velocity monitoring</div>
+              </div>
+           </div>
+        </div>
+
+        <div className="p-8 rounded-sm border border-[#1f1f1f] border-dashed bg-white/[0.01] opacity-60">
+           <p className="text-[10px] text-[#444] font-bold uppercase tracking-widest leading-relaxed max-w-2xl italic">
+              platform gmv is calculated based on completed sales processed through vendoflow pos protocols. 
+              this volume represents merchant business Health rather than Corporate Revenue.
+           </p>
+        </div>
+      </section>
+    </div>
   )
 }

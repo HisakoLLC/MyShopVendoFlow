@@ -16,9 +16,9 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Missing conversationId" }, { status: 400 })
     }
 
-    // Join with assigned_agent (both in vendo_admin schema)
+    // Join with assigned_agent (both in admin schema)
     const { data, error } = await supabaseAdmin
-      .schema("vendo_admin" as any)
+      .schema("admin" as any)
       .from("whatsapp_conversations")
       .select(`
         *,
@@ -56,11 +56,11 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Missing conversationId" }, { status: 400 })
     }
 
-    const { status, assigned_agent_id, contact_name, tags, notes } = await req.json()
+    const { status, assigned_agent_id, contact_name, tags, notes, merchant_id } = await req.json()
 
     // Fetch old values for logging
     const { data: oldData } = await supabaseAdmin
-      .schema("vendo_admin" as any)
+      .schema("admin" as any)
       .from("whatsapp_conversations")
       .select("status, assigned_agent_id")
       .eq("id", conversationId)
@@ -72,9 +72,10 @@ export async function PATCH(req: Request) {
     if (contact_name !== undefined) updateData.contact_name = contact_name
     if (tags !== undefined) updateData.tags = tags
     if (notes !== undefined) updateData.notes = notes
+    if (merchant_id !== undefined) updateData.merchant_id = merchant_id
 
     const { data, error } = await supabaseAdmin
-      .schema("vendo_admin" as any)
+      .schema("admin" as any)
       .from("whatsapp_conversations")
       .update(updateData)
       .eq("id", conversationId)
@@ -88,7 +89,7 @@ export async function PATCH(req: Request) {
     // Log the change
     if (status && status !== oldData?.status) {
       await supabaseAdmin
-        .schema("vendo_admin" as any)
+        .schema("admin" as any)
         .from("whatsapp_activity_log")
         .insert({
           conversation_id: conversationId,
@@ -101,7 +102,7 @@ export async function PATCH(req: Request) {
 
     if (assigned_agent_id !== undefined && assigned_agent_id !== oldData?.assigned_agent_id) {
       await supabaseAdmin
-        .schema("vendo_admin" as any)
+        .schema("admin" as any)
         .from("whatsapp_activity_log")
         .insert({
           conversation_id: conversationId,
@@ -136,7 +137,7 @@ export async function POST(req: Request) {
 
     // Check if exists
     const { data: existing } = await supabaseAdmin
-      .schema("vendo_admin" as any)
+      .schema("admin" as any)
       .from("whatsapp_conversations")
       .select(`
         *,
@@ -155,7 +156,7 @@ export async function POST(req: Request) {
 
     // Create new
     const { data: created, error: createError } = await supabaseAdmin
-      .schema("vendo_admin" as any)
+      .schema("admin" as any)
       .from("whatsapp_conversations")
       .insert({
         contact_phone: cleanPhone,
@@ -181,7 +182,7 @@ export async function POST(req: Request) {
 
     // Log creation
     await supabaseAdmin
-      .schema("vendo_admin" as any)
+      .schema("admin" as any)
       .from("whatsapp_activity_log")
       .insert({
         conversation_id: created.id,

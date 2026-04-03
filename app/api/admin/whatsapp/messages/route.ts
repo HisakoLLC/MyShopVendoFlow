@@ -19,7 +19,7 @@ export async function GET(req: Request) {
 
     // 1. Fetch Whatsapp Messages
     const { data: messages, error: msgError } = await supabaseAdmin
-      .schema("vendo_admin" as any)
+      .schema("admin" as any)
       .from("whatsapp_messages")
       .select("*")
       .eq("conversation_id", conversationId)
@@ -29,7 +29,7 @@ export async function GET(req: Request) {
 
     // 2. Fetch Internal Notes
     const { data: notes, error: noteError } = await supabaseAdmin
-      .schema("vendo_admin" as any)
+      .schema("admin" as any)
       .from("internal_notes")
       .select(`
         *,

@@ -15,7 +15,7 @@ export async function GET(req: Request) {
 
     // 2. Fetch Conversations
     let query = supabaseAdmin
-      .schema("vendo_admin" as any)
+      .schema("admin" as any)
       .from("whatsapp_conversations")
       .select("*")
       .order("last_message_at", { ascending: false })

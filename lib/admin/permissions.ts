@@ -24,6 +24,9 @@ export const PERMISSIONS = {
   
   // Settings: only super_admin
   settings_manage: ['super_admin'],
+  
+  // Custom Merchant Actions
+  merchants_create: ['super_admin'],
 } as const
 
 export type Permission = keyof typeof PERMISSIONS

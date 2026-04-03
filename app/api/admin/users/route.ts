@@ -10,7 +10,7 @@ export async function GET(req: Request) {
     }
 
     const { data, error } = await supabaseAdmin
-      .schema("vendo_admin" as any)
+      .schema("admin" as any)
       .from("admin_users")
       .select("id, full_name, role, avatar_url")
       .eq("is_active", true)
