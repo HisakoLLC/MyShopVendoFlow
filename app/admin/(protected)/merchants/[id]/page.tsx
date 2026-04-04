@@ -123,10 +123,6 @@ async function MerchantDetailData({ id, initialTab }: { id: string; initialTab: 
               ownerEmail={account.owner_email}
               subscriptionStatus={account.subscription_status}
               userRole={adminUser.role}
-              onRefresh={async () => {
-                // Next.js server components can't be easily refreshed from children without page reload or router.refresh()
-                // The AccountActions component will trigger Window.location.reload() or router.refresh() if client side
-              }}
             />
 
             <HealthSignalsPanel accountId={id} />

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import { getServerAdminUser } from "@/lib/admin/auth"
+import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 
 export const dynamic = "force-dynamic"
 
@@ -17,7 +18,8 @@ export async function GET(
     const { id: merchantId } = params
 
     const { data, error } = await supabaseAdmin
-      .from("generated_reports")
+      .schema(ADMIN_SCHEMA as any)
+      .from("reports")
       .select("id, report_type, created_at, status")
       .eq("account_id", merchantId)
       .eq("status", "completed")

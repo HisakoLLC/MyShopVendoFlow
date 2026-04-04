@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { 
   Key, 
   ShieldAlert, 
@@ -22,7 +23,6 @@ interface AccountActionsProps {
   ownerEmail: string
   subscriptionStatus: string
   userRole: string
-  onRefresh: () => void
 }
 
 export default function AccountActions({
@@ -32,8 +32,8 @@ export default function AccountActions({
   ownerEmail,
   subscriptionStatus,
   userRole,
-  onRefresh
 }: AccountActionsProps) {
+  const router = useRouter()
   const [isResetting, setIsResetting] = useState(false)
   const [showSuspendModal, setShowSuspendModal] = useState(false)
   const [showNoteInput, setShowNoteInput] = useState(false)
@@ -84,7 +84,7 @@ export default function AccountActions({
       adminToast.success("Trace successfully archived")
       setNoteContent("")
       setShowNoteInput(false)
-      onRefresh()
+            router.refresh()
     } catch (err: any) {
       adminToast.error("Buffer error: Failed to persist note")
     } finally {
@@ -214,7 +214,7 @@ export default function AccountActions({
           onClose={() => setShowSuspendModal(false)}
           onSuccess={() => {
             setShowSuspendModal(false)
-            onRefresh()
+                  router.refresh()
           }}
         />
       )}

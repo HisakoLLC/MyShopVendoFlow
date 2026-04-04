@@ -23,7 +23,8 @@ export async function POST(req: Request) {
 
     if (assetType === "report") {
       const { data: report } = await supabaseAdmin
-        .from("generated_reports")
+        .schema(ADMIN_SCHEMA as any)
+        .from("reports")
         .select("*")
         .eq("id", assetId)
         .single()
