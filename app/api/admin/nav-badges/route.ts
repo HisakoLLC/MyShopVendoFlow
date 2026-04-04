@@ -1,28 +1,31 @@
-import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
+import { adminDb } from "@/lib/admin/billing-helpers"
 import { NextResponse } from "next/server"
-import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 
 export const dynamic = "force-dynamic"
 
 export async function GET() {
   try {
     // 1. Overdue Invoice count
-    const { count: overdueInvoicesCount, error: invoiceError } = await supabaseAdmin
-      .schema(ADMIN_SCHEMA as any)
+    const { count: overdueInvoicesCount, error: invoiceError } = await adminDb()
       .from("invoices")
       .select("*", { count: "exact", head: true })
       .eq("status", "overdue")
 
-    if (invoiceError) throw invoiceError
+    if (invoiceError) {
+      console.error("[NAV_BADGES_GET] Invoices Error:", invoiceError)
+      throw invoiceError
+    }
 
     // 2. At-Risk Merchant count
-    const { count: atRiskMerchantsCount, error: flagError } = await supabaseAdmin
-      .schema(ADMIN_SCHEMA as any)
+    const { count: atRiskMerchantsCount, error: flagError } = await adminDb()
       .from("account_flags")
       .select("*", { count: "exact", head: true })
       .eq("flag_type", "at_risk")
 
-    if (flagError) throw flagError
+    if (flagError) {
+      console.error("[NAV_BADGES_GET] Flags Error:", flagError)
+      throw flagError
+    }
 
     return NextResponse.json({
       overdueInvoicesCount: overdueInvoicesCount || 0,

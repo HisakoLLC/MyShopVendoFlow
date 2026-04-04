@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic"
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const adminUser = await getServerAdminUser()
@@ -14,7 +14,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { id: accountId } = params
+    const { id: accountId } = await params
 
     // Get owner email
     const { data: account, error: accErr } = await supabaseAdmin

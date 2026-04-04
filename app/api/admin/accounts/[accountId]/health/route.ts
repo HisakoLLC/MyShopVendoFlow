@@ -6,10 +6,10 @@ export const dynamic = "force-dynamic"
 
 export async function GET(
   req: Request,
-  { params }: { params: { accountId: string } }
+  { params }: { params: Promise<{ accountId: string }> }
 ) {
   try {
-    const { accountId } = params
+    const { accountId } = await params
     const { errorResponse } = await requireAdmin()
     if (errorResponse) return errorResponse
 

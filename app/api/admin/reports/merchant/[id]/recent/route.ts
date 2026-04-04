@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic"
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const adminUser = await getServerAdminUser()
@@ -15,13 +15,13 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { id: merchantId } = params
+    const { id: merchantId } = await params
 
     const { data, error } = await supabaseAdmin
       .schema(ADMIN_SCHEMA as any)
       .from("reports")
       .select("id, report_type, created_at, status")
-      .eq("account_id", merchantId)
+      .eq("merchant_id", merchantId)
       .eq("status", "completed")
       .order("created_at", { ascending: false })
       .limit(3)
