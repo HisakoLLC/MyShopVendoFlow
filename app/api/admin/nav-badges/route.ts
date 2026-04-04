@@ -29,8 +29,11 @@ export async function GET() {
       atRiskMerchantsCount: atRiskMerchantsCount || 0
     })
   } catch (error: any) {
-    console.error("[NAV_BADGES_GET]", error)
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+    console.error("[NAV_BADGES_GET] Full Error:", error)
+    return NextResponse.json({ 
+      error: "Internal Server Error",
+      details: error.message || error.details || JSON.stringify(error) 
+    }, { status: 500 })
   }
 }
 

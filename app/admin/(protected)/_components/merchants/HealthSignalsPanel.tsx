@@ -38,6 +38,7 @@ export default function HealthSignalsPanel({ accountId }: HealthSignalsPanelProp
 
   useEffect(() => {
     async function fetchHealth() {
+      if (!accountId || accountId === "undefined") return
       try {
         const res = await fetch(`/api/admin/accounts/${accountId}/health`)
         if (res.ok) {

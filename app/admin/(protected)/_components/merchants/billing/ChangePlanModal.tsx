@@ -16,21 +16,21 @@ const PLANS = [
   {
     id:       "starter",
     name:     "Starter",
-    priceKes: 11_600,
+    priceKes: 10_200,
     desc:     "1 store · 500 styles · 2 staff",
     color:    "zinc",
   },
   {
     id:       "core",
     name:     "Core",
-    priceKes: 18_000,
+    priceKes: 16_500,
     desc:     "3 stores · Unlimited · 10 staff",
     color:    "blue",
   },
   {
     id:       "scale",
     name:     "Scale",
-    priceKes: 29_900,
+    priceKes: 35_000,
     desc:     "10 stores · Unlimited · Unlimited",
     color:    "purple",
   },
@@ -41,7 +41,7 @@ type PlanId = (typeof PLANS)[number]["id"] | "trial"
 const BILLING_CYCLES = [
   { id: "monthly",   label: "Monthly",   months: 1,  discount: 0 },
   { id: "quarterly", label: "Quarterly", months: 3,  discount: 0.05 },
-  { id: "annual",    label: "Annual",    months: 12, discount: 0.20 },
+  { id: "annual",    label: "Annual",    months: 12, discount: 0.17 },
 ] as const
 
 type CycleId = (typeof BILLING_CYCLES)[number]["id"]
