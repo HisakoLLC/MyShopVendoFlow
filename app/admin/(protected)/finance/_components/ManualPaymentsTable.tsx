@@ -3,7 +3,7 @@ import { CreditCard, ArrowUpRight, Loader2, Plus, Receipt } from "lucide-react"
 import { adminToast } from "@/lib/admin/toast"
 import { EmptyState } from "@/app/admin/(protected)/_components/ui/EmptyState"
 import { LoadingSkeleton } from "@/app/admin/(protected)/_components/ui/LoadingSkeleton"
-import { RecordPaymentModal } from "@/app/admin/(protected)/_components/merchants/billing/RecordPaymentModal"
+import RecordPaymentModal from "./RecordPaymentModal"
 
 export function ManualPaymentsTable() {
   const [payments, setPayments] = useState<any[]>([])
@@ -54,7 +54,6 @@ export function ManualPaymentsTable() {
         />
         {isRecordModalOpen && (
            <RecordPaymentModal 
-             accountId=""
              onClose={() => setIsRecordModalOpen(false)}
              onSuccess={() => {
                 setIsRecordModalOpen(false)
@@ -135,7 +134,6 @@ export function ManualPaymentsTable() {
 
       {isRecordModalOpen && (
          <RecordPaymentModal 
-           accountId=""
            onClose={() => setIsRecordModalOpen(false)}
            onSuccess={() => {
               setIsRecordModalOpen(false)
