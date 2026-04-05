@@ -15,10 +15,10 @@ const inputCls =
 
 // Plan prices for pre-filling
 const PLAN_PRICES: Record<string, number> = {
-  starter: 11_600,
-  core:    18_000,
-  scale:   29_900,
-  trial:   0,
+  starter: 10_200,
+  core:    16_500,
+  scale:   35_000,
+  trial:    0,
 }
 
 function addDays(base: string, n: number): string {
