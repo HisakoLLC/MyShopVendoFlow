@@ -1,23 +1,44 @@
 import { NextResponse } from "next/server"
 import { requireFinance, adminDb, logActivity } from "@/lib/admin/billing-helpers"
+import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 
 export async function GET(req: Request) {
   try {
     const { adminUser, errorResponse } = await requireFinance()
     if (errorResponse) return errorResponse
 
-    const { data, error } = await adminDb()
+    const { data: rawData, error } = await adminDb()
       .from("finance_transactions")
-      .select(`
-        *,
-        accounts:merchant_id ( business_name )
-      `)
+      .select("*")
       .order("transaction_date", { ascending: false })
 
     if (error) {
       console.error("[finance_transactions] GET error:", error)
       throw error
     }
+
+    // Fetch account details manually to bypass cross-schema PostgREST limitations
+    const accountIds = Array.from(new Set((rawData || []).map(tx => tx.merchant_id).filter(Boolean)))
+    let accountsMap: Record<string, any> = {}
+    
+    if (accountIds.length > 0) {
+      const { data: accountsData } = await supabaseAdmin
+        .from("accounts")
+        .select("account_id, business_name")
+        .in("account_id", accountIds)
+        
+      if (accountsData) {
+        accountsMap = accountsData.reduce((acc: any, curr: any) => {
+          acc[curr.account_id] = { business_name: curr.business_name }
+          return acc
+        }, {} as Record<string, any>)
+      }
+    }
+
+    const data = (rawData || []).map(tx => ({
+      ...tx,
+      accounts: tx.merchant_id ? accountsMap[tx.merchant_id] : null
+    }))
 
     return NextResponse.json(data)
   } catch (error: any) {
