@@ -1,18 +1,12 @@
-import { ADMIN_SCHEMA } from "@/lib/admin/billing-helpers"
 import { NextResponse } from "next/server"
-import { createServerSupabaseClient } from "@/lib/supabase/server"
-import { supabaseAdmin } from "@/lib/admin/supabase-admin"
+import { requireFinance, adminDb, logActivity } from "@/lib/admin/billing-helpers"
 
 export async function GET(req: Request) {
   try {
-    const supabase = await createServerSupabaseClient()
-    
-    // Auth check
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    const { adminUser, errorResponse } = await requireFinance()
+    if (errorResponse) return errorResponse
 
-    const { data, error } = await supabaseAdmin
-      .schema(ADMIN_SCHEMA as any)
+    const { data, error } = await adminDb()
       .from("finance_transactions")
       .select(`
         *,
@@ -20,7 +14,10 @@ export async function GET(req: Request) {
       `)
       .order("transaction_date", { ascending: false })
 
-    if (error) throw error
+    if (error) {
+      console.error("[finance_transactions] GET error:", error)
+      throw error
+    }
 
     return NextResponse.json(data)
   } catch (error: any) {
@@ -30,24 +27,15 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const { adminUser, errorResponse } = await requireFinance()
+    if (errorResponse) return errorResponse
+
     const body = await req.json()
-    const supabase = await createServerSupabaseClient()
     
-    // Auth & Admin Check
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // Log the payload to debug any missing fields
+    console.log("[finance_transactions] POST body:", body)
 
-    const { data: adminUser } = await supabaseAdmin
-      .schema(ADMIN_SCHEMA as any)
-      .from("admin_users")
-      .select("id")
-      .eq("email", session.user.email)
-      .single()
-
-    if (!adminUser) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
-    const { data, error } = await supabaseAdmin
-      .schema(ADMIN_SCHEMA as any)
+    const { data, error } = await adminDb()
       .from("finance_transactions")
       .insert({
         amount: body.amount,
@@ -60,10 +48,20 @@ export async function POST(req: Request) {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      console.error("[finance_transactions] Insert failed:", error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // Optionally log activity if applicable
+    await logActivity(adminUser, "payment_recorded", "finance_transaction", data.id, {
+      amount: data.amount,
+      type: data.type
+    })
 
     return NextResponse.json(data)
   } catch (error: any) {
+    console.error("[finance_transactions] Error:", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
