@@ -72,11 +72,34 @@ export async function PATCH(req: Request) {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      console.error("[Settings] UPSERT error:", error)
+      
+      // Fallback in case Supabase bug occurs with default UUID generation during upsert
+      if (error.code === '23502') { // Not null violation
+         console.warn("[Settings] Falling back to traditional query matching")
+         
+         // Try checking if it exists first
+         const { data: existing } = await supabaseAdmin.schema(ADMIN_SCHEMA as any).from("settings").select("id").eq("key", key).maybeSingle()
+         
+         if (existing) {
+             const { error: updErr, data: updData } = await supabaseAdmin.schema(ADMIN_SCHEMA as any).from("settings").update({ value, updated_by: adminUser.id, updated_at: new Date().toISOString() }).eq("id", existing.id).select().single()
+             if (updErr) throw updErr
+             return NextResponse.json(updData)
+         } else {
+             const { error: insErr, data: insData } = await supabaseAdmin.schema(ADMIN_SCHEMA as any).from("settings").insert({ key, value, updated_by: adminUser.id, updated_at: new Date().toISOString() }).select().single()
+             if (insErr) throw insErr
+             return NextResponse.json(insData)
+         }
+      }
+      
+      throw error
+    }
 
     return NextResponse.json(data)
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error("[API][Settings] Final Catch Error:", error)
+    return NextResponse.json({ error: error?.message || "Internal Error" }, { status: 500 })
   }
 }
 

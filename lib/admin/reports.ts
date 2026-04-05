@@ -26,10 +26,12 @@ export interface ReportData {
 export async function aggregateReportData(
   merchantId: string, 
   startDate: string, 
-  endDate: string
-): Promise<ReportData> {
+  endDate: string,
+  reportType: string = "custom"
+): Promise<ReportData & { pdf_url?: string }> {
     // 1. Fetch Sales Data
     const { data: sales, error: salesError } = await supabaseAdmin
+      .schema("public")
       .from("sales")
       .select(`
         sale_id,
@@ -83,15 +85,17 @@ export async function aggregateReportData(
 
     // 3. Fetch Inventory Data (simplified snapshot)
     const { count: totalVariants } = await supabaseAdmin
+      .schema("public")
       .from("product_variants")
       .select("*", { count: "exact", head: true })
 
     const { count: lowStock } = await supabaseAdmin
+      .schema("public")
       .from("product_variants")
       .select("*", { count: "exact", head: true })
       .lt("quantity_on_hand", 5)
 
-    return {
+    const finalData = {
       summary: {
         total_revenue: totalRevenue,
         transaction_count: salesList.length,
@@ -109,6 +113,38 @@ export async function aggregateReportData(
         low_stock: lowStock || 0,
         dead_stock: 0 // Placeholder
       }
+    }
+
+    // 4. Generate PDF Document
+    let pdfUrl: string | undefined
+    try {
+      const { data: accountData } = await supabaseAdmin
+        .schema("public")
+        .from("accounts")
+        .select("business_name")
+        .eq("account_id", merchantId)
+        .single()
+        
+      const businessName = accountData?.business_name || "Merchant"
+      
+      // Dynamic import to avoid circular dependency issues at the module level
+      const { generateAndUploadReportPDF } = await import("./pdf-generator")
+      pdfUrl = await generateAndUploadReportPDF(
+        merchantId, 
+        businessName, 
+        reportType, 
+        startDate, 
+        endDate, 
+        finalData
+      )
+    } catch (pdfError) {
+      console.error("PDF Generation failed during data mining:", pdfError)
+      // Continue without PDF if it fails, allowing the report data to be saved natively
+    }
+
+    return {
+      ...finalData,
+      pdf_url: pdfUrl
     }
 }
 
@@ -166,7 +202,9 @@ export async function distributeReportToConversations(
           conversationId,
           type: "template",
           templateName,
-          templateParams: params
+          templateParams: params,
+          mediaUrl: report.report_data?.pdf_url,
+          fileName: `Report_${report.report_type}_${new Date().getTime()}.pdf`
         })
       })
 

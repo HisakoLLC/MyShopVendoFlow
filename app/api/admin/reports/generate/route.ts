@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     }
 
     // 2. Aggregate Data using shared service
-    const reportData = await aggregateReportData(merchantId, periodStart, periodEnd)
+    const reportData = await aggregateReportData(merchantId, periodStart, periodEnd, reportType)
 
     // 3. Save Report
     const { data: report, error } = await supabaseAdmin
@@ -61,4 +61,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
+
 

@@ -101,6 +101,23 @@ export default function ReportReviewSheet({ report, onClose, onAction }: ReportR
       </div>
 
       <div className="p-8 space-y-10">
+        {data.pdf_url && (
+          <div className="flex items-center justify-between p-4 bg-white/5 border border-[#1f1f1f] rounded-xl hover:bg-white/10 transition-colors">
+             <div className="flex items-center gap-3">
+               <div className="w-10 h-10 rounded-full bg-red-400/10 flex items-center justify-center">
+                 <BarChart3 className="w-5 h-5 text-red-400" />
+               </div>
+               <div>
+                 <h3 className="text-white text-sm font-bold tracking-tight">Generated Report Document</h3>
+                 <p className="text-[10px] text-[#888]">A styled PDF dashboard has been generated for this period.</p>
+               </div>
+             </div>
+             <a href={data.pdf_url} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2">
+               View PDF <ArrowRight className="w-3.5 h-3.5" />
+             </a>
+          </div>
+        )}
+
         <div className="grid grid-cols-4 gap-4">
           {[
             { label: "Revenue", value: `KES ${summary.total_revenue?.toLocaleString()}`, icon: TrendingUp, color: "text-[#22c55e]" },
