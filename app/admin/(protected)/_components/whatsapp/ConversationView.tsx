@@ -513,6 +513,13 @@ export default function ConversationView({
             </div>
           }
         >
+          <input 
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            onChange={handleFileSelect}
+          />
+
           {/* Composer Tabs */}
           <div className="flex gap-4 border-b border-[#1f1f1f] mb-2 px-1">
             {["message", "template"].map((tab) => (
@@ -558,12 +565,6 @@ export default function ConversationView({
                 </label>
                 
                 <div className="flex items-center gap-2">
-                  <input 
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    onChange={handleFileSelect}
-                  />
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isSending || isUploading}
