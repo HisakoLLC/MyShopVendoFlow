@@ -243,12 +243,25 @@ export async function middleware(request: NextRequest) {
       .eq("account_id", accountMember.account_id)
       .single()
 
-    if (!accountError && account && account.subscription_status === "cancelled") {
-      if (pathname !== "/settings") {
-        const redirectUrl = new URL("/settings", request.url)
-        redirectUrl.searchParams.set("tab", "billing")
-        redirectUrl.searchParams.set("expired", "true")
-        return NextResponse.redirect(redirectUrl)
+    if (!accountError && account) {
+      const status = account.subscription_status
+      
+      // A. Hard Block: Suspended
+      if (status === "suspended") {
+        if (pathname !== "/suspended") {
+          return NextResponse.redirect(new URL("/suspended", request.url))
+        }
+        return response
+      }
+
+      // B. Notice/Grace: Cancelled
+      if (status === "cancelled") {
+        if (pathname !== "/settings" && pathname !== "/suspended") {
+          const redirectUrl = new URL("/settings", request.url)
+          redirectUrl.searchParams.set("tab", "billing")
+          redirectUrl.searchParams.set("expired", "true")
+          return NextResponse.redirect(redirectUrl)
+        }
       }
     }
 

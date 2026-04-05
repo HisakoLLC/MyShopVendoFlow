@@ -139,6 +139,28 @@ function LoginContent() {
           setIsLoading(false)
           return
         }
+
+        // --- NEW: Account Suspension Check ---
+        const { data: member } = await supabase
+          .from("account_members")
+          .select("account_id")
+          .eq("user_id", data.user.id)
+          .single()
+
+        if (member) {
+          const { data: acc } = await supabase
+            .from("accounts")
+            .select("subscription_status")
+            .eq("account_id", member.account_id)
+            .single()
+
+          if (acc?.subscription_status === "suspended") {
+            await supabase.auth.signOut()
+            router.push("/suspended")
+            setIsLoading(false)
+            return
+          }
+        }
       }
 
       toast.success("Welcome back!")
