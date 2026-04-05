@@ -214,7 +214,7 @@ function Sidebar({
   )
 }
 
-const noSidebarPaths = ["/", "/login", "/signup", "/onboarding"]
+const noSidebarPaths = ["/", "/login", "/signup", "/onboarding", "/suspended"]
 
 const STORE_ID_KEY = "vendoflow_last_store_id"
 const STORE_NAME_KEY = "vendoflow_last_store_name"
