@@ -44,18 +44,36 @@ export async function sendWhatsAppMessage({
       ? templateParams 
       : Object.values(templateParams || {})
 
+    const components: any[] = [
+      {
+        type: "body",
+        parameters: paramsArray.map(val => ({
+          type: "text",
+          text: String(val)
+        }))
+      }
+    ]
+
+    // If attaching a document/image to the template, it must be sent as a header
+    if (mediaUrl) {
+      components.push({
+        type: "header",
+        parameters: [
+          {
+            type: "document",
+            document: {
+              link: mediaUrl,
+              filename: fileName || "Attachment.pdf"
+            }
+          }
+        ]
+      })
+    }
+
     payload.template = {
       name: templateName,
-      language: { code: "en_US" },
-      components: [
-        {
-          type: "body",
-          parameters: paramsArray.map(val => ({
-            type: "text",
-            text: String(val)
-          }))
-        }
-      ]
+      language: { code: "en" },
+      components
     }
   } else if (type === "image") {
     payload.type = "image"

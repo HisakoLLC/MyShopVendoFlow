@@ -93,6 +93,7 @@ export default function ConversationView({
   
   const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [templateParams, setTemplateParams] = useState<Record<string, string>>({})
+  const [preparedMedia, setPreparedMedia] = useState<{url: string, name: string, type: string, size: number} | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -201,6 +202,7 @@ export default function ConversationView({
       setIsInternalNote(false)
       setTemplateParams({})
       setSelectedTemplate("")
+      setPreparedMedia(null)
       scrollToBottom()
     } catch (error) {
       console.error(error)
@@ -233,13 +235,20 @@ export default function ConversationView({
       }
 
       const data = await res.json()
-      // Now send the message with this media
-      await handleSend({
+      
+      const mediaData = {
         url: data.media_url,
         name: data.file_name,
         type: data.mime_type,
         size: data.file_size
-      })
+      }
+
+      if (activeTab === "template") {
+         setPreparedMedia(mediaData)
+      } else {
+         // Now send the message with this media
+         await handleSend(mediaData)
+      }
     } catch (err: any) {
       adminToast.error(err.message)
     } finally {
@@ -595,24 +604,44 @@ export default function ConversationView({
                   </select>
                 </div>
 
-                {selectedTemplate && (
-                 <div className="space-y-3">
-                   <label className="text-[9px] text-[#444] uppercase font-black">Parameter Injection</label>
-                   <div className="grid grid-cols-2 gap-2">
-                     {TEMPLATES.find(t => t.id === selectedTemplate)?.params.map(p => (
-                       <input
-                         key={p}
-                         type="text"
-                         placeholder={`Param: ${p}`}
-                         value={templateParams[p] || ""}
-                         onChange={(e) => setTemplateParams(prev => ({ ...prev, [p]: e.target.value }))}
-                         className="bg-[#111] border border-[#1f1f1f] rounded p-2 text-[10px] text-white focus:border-[#22c55e] outline-none"
-                       />
-                     ))}
-                   </div>
-                 </div>
-                )}
-              </div>
+                 {selectedTemplate && (
+                  <div className="space-y-3">
+                    <label className="text-[9px] text-[#444] uppercase font-black">Parameter Injection</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {TEMPLATES.find(t => t.id === selectedTemplate)?.params.map(p => (
+                        <input
+                          key={p}
+                          type="text"
+                          placeholder={`Param: ${p}`}
+                          value={templateParams[p] || ""}
+                          onChange={(e) => setTemplateParams(prev => ({ ...prev, [p]: e.target.value }))}
+                          className="bg-[#111] border border-[#1f1f1f] rounded p-2 text-[10px] text-white focus:border-[#22c55e] outline-none"
+                        />
+                      ))}
+                    </div>
+
+                    <div className="pt-2 border-t border-[#1f1f1f]">
+                       <div className="flex items-center gap-3">
+                         <button
+                           onClick={() => fileInputRef.current?.click()}
+                           disabled={isUploading}
+                           className="flex items-center gap-2 px-3 py-1.5 rounded bg-white/5 hover:bg-white/10 text-xs font-bold text-[#666] hover:text-white transition-all border border-white/5"
+                         >
+                           {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Paperclip className="w-3.5 h-3.5" />}
+                           Attach Document
+                         </button>
+                         {preparedMedia && (
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-[#22c55e] bg-[#22c55e]/10 px-2 py-1 rounded border border-[#22c55e]/20">
+                               <FileText className="w-3 h-3" />
+                               <span className="truncate max-w-[150px]">{preparedMedia.name}</span>
+                               <button onClick={() => setPreparedMedia(null)} className="ml-1 hover:text-white"><X className="w-3 h-3" /></button>
+                            </div>
+                         )}
+                       </div>
+                    </div>
+                  </div>
+                 )}
+               </div>
 
               {selectedTemplate && (
                 <div className="bg-[#161616] border border-[#1f1f1f] rounded-lg p-3 flex justify-between items-center group">
@@ -623,7 +652,7 @@ export default function ConversationView({
                      </div>
                   </div>
                   <button
-                    onClick={() => handleSend()}
+                    onClick={() => handleSend(preparedMedia || undefined)}
                     disabled={isSending}
                     className="flex items-center gap-2 px-5 py-2 rounded-md bg-[#22c55e] text-white font-bold text-[10px] uppercase tracking-widest hover:bg-[#16a34a] transition-all"
                   >
