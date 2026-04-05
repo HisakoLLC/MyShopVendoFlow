@@ -48,7 +48,7 @@ export async function getSuspensionData(): Promise<SuspensionData | null> {
       .eq("account_id", member.account_id)
       .eq("status", "unpaid")
 
-    const amountDue = unpaidInvoices?.reduce((sum, inv) => sum + Number(inv.amount_kes), 0) || 0
+    const amountDue = (unpaidInvoices as any[])?.reduce((sum: number, inv: any) => sum + Number(inv.amount_kes || 0), 0) || 0
 
     return {
       accountName: account.business_name || "Boutique Account",
