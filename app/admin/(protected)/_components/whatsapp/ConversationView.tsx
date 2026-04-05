@@ -179,7 +179,7 @@ export default function ConversationView({
       const body: any = {
         conversationId,
         isInternalNote,
-        type: mediaData ? (mediaData.type.includes("image") ? "image" : "document") : (activeTab === "message" ? "text" : "template"),
+        type: activeTab === "template" ? "template" : (mediaData ? (mediaData.type.includes("image") ? "image" : "document") : "text"),
         content: inputMessage,
         templateName: selectedTemplate,
         templateParams: templateParams,
