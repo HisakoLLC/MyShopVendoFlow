@@ -40,7 +40,7 @@ interface Report {
   created_at: string
   sent_at: string | null
   merchant_id: string
-  report_data?: any
+  data?: any
   accounts?: {
     business_name: string
   }

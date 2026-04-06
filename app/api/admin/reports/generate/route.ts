@@ -38,7 +38,7 @@ export async function POST(req: Request) {
         period_start: periodStart,
         period_end: periodEnd,
         status: "draft",
-        report_data: reportData,
+        data: reportData,
         created_by: adminUser.id
       })
       .select()
@@ -50,7 +50,10 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error("Manual Report Generation Error:", error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ 
+      error: error.message || String(error), 
+      detail: error.stack 
+    }, { status: 500 })
   }
 }
 

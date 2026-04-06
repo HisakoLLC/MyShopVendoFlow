@@ -31,7 +31,7 @@ export default function ReportReviewSheet({ report, onClose, onAction }: ReportR
   const [rejectionNote, setRejectionNote] = useState("")
   const [showRejectionInput, setShowRejectionInput] = useState(false)
 
-  const data = report.report_data || {}
+  const data = report.data || {}
   const summary = data.summary || {}
   const breakdowns = data.breakdowns || {}
   const inventory = data.inventory || {}

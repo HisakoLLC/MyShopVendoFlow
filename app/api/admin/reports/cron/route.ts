@@ -112,7 +112,7 @@ export async function GET(req: Request) {
               period_start: start,
               period_end: end,
               status: "draft",
-              report_data: reportData,
+              data: reportData,
               created_by: "00000000-0000-0000-0000-000000000000" // System / Cron ID
             })
           

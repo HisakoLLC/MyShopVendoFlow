@@ -86,7 +86,7 @@ export default function SendReportModal({ report, onClose, onSuccess }: SendRepo
   const getTemplatePreview = () => {
     const dateStr = new Date(report.period_start).toLocaleDateString("en-GB")
     if (report.report_type === "daily") {
-      return `Hi [Name], here is your Daily Sales Report for ${dateStr}. Revenue: KES ${report.report_data.summary.total_revenue.toLocaleString()}.`
+      return `Hi [Name], here is your Daily Sales Report for ${dateStr}. Revenue: KES ${report.data.summary.total_revenue.toLocaleString()}.`
     }
     if (report.report_type === "weekly") {
       return `Hi [Name], your Weekly Performance Report (${dateStr} - ${new Date(report.period_end).toLocaleDateString("en-GB")}) is ready.`

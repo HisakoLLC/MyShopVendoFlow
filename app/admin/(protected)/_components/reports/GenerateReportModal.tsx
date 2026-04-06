@@ -99,14 +99,17 @@ export default function GenerateReportModal({ onClose, onSuccess }: GenerateRepo
         body: JSON.stringify({ merchantId, reportType, periodStart, periodEnd })
       })
 
-      if (!res.ok) throw new Error("Failed to generate report")
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(errData.error || errData.detail || "Failed to generate report")
+      }
 
       adminToast.success("Performance report generated")
       onSuccess()
       onClose()
-    } catch (error) {
+    } catch (error: any) {
       console.error(error)
-      adminToast.error("Data mining failed")
+      adminToast.error(`Data mining failed: ${error.message}`)
     } finally {
       adminToast.dismiss(toastId)
       setIsGenerating(false)
