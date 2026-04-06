@@ -47,9 +47,12 @@ export async function aggregateReportData(
               name
             )
           )
+        ),
+        stores!inner (
+          account_id
         )
       `)
-      .eq("account_id", merchantId)
+      .eq("stores.account_id", merchantId)
       .gte("sale_date", startDate)
       .lte("sale_date", endDate)
 
