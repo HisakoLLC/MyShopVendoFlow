@@ -3,14 +3,13 @@ import { NextResponse } from "next/server"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { supabaseAdmin } from "@/lib/admin/supabase-admin"
 import { PERMISSIONS, hasPermission } from "@/lib/admin/permissions"
+import { getServerAdminUser } from "@/lib/admin/auth"
 
 export async function GET() {
   try {
-    const supabase = await createServerSupabaseClient()
-    
     // Auth check
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    const adminUser = await getServerAdminUser()
+    if (!adminUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
     const { data, error } = await supabaseAdmin
       .schema(ADMIN_SCHEMA as any)
@@ -37,16 +36,7 @@ export async function PATCH(req: Request) {
     const supabase = await createServerSupabaseClient()
     
     // Auth & Permission Check
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-
-    const { data: adminUser } = await supabaseAdmin
-      .schema(ADMIN_SCHEMA as any)
-      .from("admin_users")
-      .select("id, role")
-      .eq("email", session.user.email)
-      .single()
-
+    const adminUser = await getServerAdminUser()
     if (!adminUser) {
       return NextResponse.json({ error: "Forbidden: Admin context not found" }, { status: 403 })
     }
