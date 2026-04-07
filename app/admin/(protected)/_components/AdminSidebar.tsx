@@ -61,8 +61,7 @@ export default function AdminSidebar({ onClose }: { onClose?: () => void }) {
   })).filter(section => section.items.length > 0)
 
   async function handleSignOut() {
-    if (!supabase) return
-    await supabase.auth.signOut()
+    await import("@/app/admin/(auth)/login/actions").then(m => m.signOutAdmin())
     router.push("/admin/login")
     router.refresh()
   }

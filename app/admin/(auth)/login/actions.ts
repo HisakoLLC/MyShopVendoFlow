@@ -115,3 +115,12 @@ export async function signInAdmin(email: string, pass: string): Promise<VerifyAd
     return { success: false, error: "An unexpected error occurred" }
   }
 }
+
+/**
+ * Custom sign-out for administrators.
+ * Destroys the custom session cookie.
+ */
+export async function signOutAdmin(): Promise<void> {
+  const cookieStore = await cookies()
+  cookieStore.delete("vendoflow_admin_session")
+}
