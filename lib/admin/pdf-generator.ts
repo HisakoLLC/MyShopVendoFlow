@@ -39,187 +39,215 @@ export async function generateAndUploadReportPDF(
     }
   }
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("en-GB", {
-      day: "numeric", month: "short", year: "numeric",
-    })
+  const formatReportPeriod = (type: string, start: Date, end: Date): string => {
+    const locale = 'en-KE'
+    if (type === 'daily') return start.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    if (type === 'weekly') return `Week of ${start.toLocaleDateString(locale, { day: 'numeric', month: 'short' })} – ${end.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })}`
+    if (type === 'monthly') return start.toLocaleDateString(locale, { month: 'long', year: 'numeric' })
+    return `${start.toLocaleDateString(locale)} – ${end.toLocaleDateString(locale)}`
   }
 
-  const currency = "KES" // Assuming KES for VendoFlow
+  const currency = "KES"
 
   // 1. BRAND HEADER
-  doc.setFontSize(22)
+  doc.setFontSize(24)
   doc.setFont("helvetica", "bold")
-  doc.setTextColor(30, 30, 30)
+  doc.setTextColor(0, 0, 0)
   doc.text("VENDOFLOW", margin, y)
   
-  doc.setFontSize(10)
-  doc.setFont("helvetica", "normal")
-  doc.setTextColor(120, 120, 120)
-  doc.text("ADMINISTRATION INTELLIGENCE", margin, y + 5)
-  gap(15)
-  rule(0.5)
-  gap(5)
-
-  // 2. REPORT METADATA (2 columns)
-  const col1x = margin
-  const col2x = pageWidth / 2 + 5
-  
-  doc.setFontSize(8)
-  doc.setFont("helvetica", "bold")
-  doc.setTextColor(100, 100, 100)
-  doc.text("REPORT FOR", col1x, y)
-  doc.text("REPORT PERIOD", col2x, y)
-  gap(5)
-  
-  doc.setFontSize(12)
-  doc.setFont("helvetica", "bold")
-  doc.setTextColor(0, 0, 0)
-  doc.text(businessName, col1x, y)
-  
-  const periodText = reportType === 'daily' 
-    ? formatDate(periodStart) 
-    : `${formatDate(periodStart)} — ${formatDate(periodEnd)}`
+  doc.setFontSize(14)
+  doc.text(businessName.toUpperCase(), margin, y + 8)
   
   doc.setFontSize(10)
-  doc.text(`${reportType.toUpperCase()} SALES METRICS`, col2x, y)
-  gap(5)
-  doc.setFont("helvetica", "normal")
-  doc.setTextColor(80, 80, 80)
-  doc.text(periodText, col2x, y)
-  
-  gap(12)
-  rule()
-  gap(5)
-
-  // 3. FINANCIAL SUMMARY BANNER
-  checkPage(30)
-  doc.setFillColor(248, 250, 252) // slate-50
-  doc.rect(margin, y, contentWidth, 25, "F")
-  
-  const metricWidth = contentWidth / 3
-  
-  // Box 1
-  doc.setFontSize(8)
   doc.setFont("helvetica", "bold")
   doc.setTextColor(100, 100, 100)
-  doc.text("TOTAL REVENUE", margin + 5, y + 8)
-  doc.setFontSize(14)
-  doc.setTextColor(15, 23, 42) // slate-900
-  doc.text(`${currency} ${data.summary.total_revenue.toLocaleString(undefined, {minimumFractionDigits: 2})}`, margin + 5, y + 16)
+  const reportTitle = `${reportType.charAt(0).toUpperCase() + reportType.slice(1)} Performance Report`
+  doc.text(reportTitle.toUpperCase(), margin, y + 16)
 
-  // Box 2
-  doc.setFontSize(8)
-  doc.setTextColor(100, 100, 100)
-  doc.text("TRANSACTIONS", margin + metricWidth + 5, y + 8)
-  doc.setFontSize(14)
-  doc.setTextColor(15, 23, 42)
-  doc.text(data.summary.transaction_count.toString(), margin + metricWidth + 5, y + 16)
+  doc.setFont("helvetica", "normal")
+  doc.setTextColor(150, 150, 150)
+  doc.text(formatReportPeriod(reportType, new Date(periodStart), new Date(periodEnd)), margin, y + 21)
+  
+  gap(30)
+  rule(0.8)
+  gap(10)
 
-  // Box 3
-  doc.setFontSize(8)
-  doc.setTextColor(100, 100, 100)
-  doc.text("AVERAGE BASKET", margin + (metricWidth * 2) + 5, y + 8)
-  doc.setFontSize(14)
-  doc.setTextColor(15, 23, 42)
-  doc.text(`${currency} ${data.summary.avg_basket.toLocaleString(undefined, {minimumFractionDigits: 2})}`, margin + (metricWidth * 2) + 5, y + 16)
+  // Remove old report meta section
+  gap(-5)
 
-  gap(35)
+  // 3. KPI CARDS (2x2 Grid)
+  const cardWidth = (contentWidth - 10) / 2
+  const cardHeight = 35
+  const padding = 6
+
+  const renderCard = (ix: number, iy: number, label: string, value: string, change?: number, prevLabel?: string) => {
+    const cx = margin + ix * (cardWidth + 10)
+    const cy = y + iy * (cardHeight + 10)
+    
+    // Shadow/Border Box
+    doc.setDrawColor(230, 230, 230)
+    doc.setLineWidth(0.3)
+    doc.roundedRect(cx, cy, cardWidth, cardHeight, 3, 3, "S")
+    
+    // Label
+    doc.setFontSize(7)
+    doc.setFont("helvetica", "bold")
+    doc.setTextColor(140, 140, 140)
+    doc.text(label.toUpperCase(), cx + padding, cy + padding + 2)
+    
+    // Value
+    doc.setFontSize(14)
+    doc.setFont("helvetica", "bold")
+    doc.setTextColor(0, 0, 0)
+    doc.text(value, cx + padding, cy + padding + 12)
+    
+    // Comparison
+    if (change !== undefined && prevLabel) {
+      const isPositive = change >= 0
+      doc.setFontSize(7)
+      doc.setTextColor(isPositive ? 34 : 220, isPositive ? 197 : 38, isPositive ? 94 : 38) // Green vs Red
+      const sign = isPositive ? "+" : ""
+      const changeText = `vs ${prevLabel}: ${sign}${change.toFixed(1)}%`
+      doc.text(changeText, cx + padding, cy + cardHeight - padding)
+    } else if (prevLabel) {
+      doc.setFontSize(7)
+      doc.setTextColor(150, 150, 150)
+      doc.text(`vs ${prevLabel}: No prior data`, cx + padding, cy + cardHeight - padding)
+    }
+  }
+
+  const prevPeriodLabel = reportType === 'daily' ? 'Yesterday' : reportType === 'weekly' ? 'Prev Week' : 'Prev Month'
+
+  renderCard(0, 0, "Total Revenue", `${currency} ${data.summary.total_revenue.toLocaleString()}`, data.summary.revenue_change_pct, prevPeriodLabel)
+  renderCard(1, 0, "Transactions", data.summary.transaction_count.toString(), data.summary.transaction_change_pct, prevPeriodLabel)
+  renderCard(0, 1, "Units Sold", data.summary.units_sold.toString())
+  renderCard(1, 1, "Avg Basket", `${currency} ${data.summary.avg_basket.toFixed(2)}`)
+
+  gap(cardHeight * 2 + 20)
 
   // 4. TOP PRODUCTS
-  checkPage(40)
-  doc.setFontSize(12)
+  checkPage(50)
+  doc.setFontSize(11)
   doc.setFont("helvetica", "bold")
   doc.setTextColor(0, 0, 0)
-  doc.text("HIGH-PERFORMING ASSETS", margin, y)
-  gap(8)
+  doc.text("TOP PRODUCT PERFORMANCE", margin, y)
+  gap(6)
   
   // Table Header
+  doc.setFillColor(245, 245, 245)
+  doc.rect(margin, y, contentWidth, 8, "F")
   doc.setFontSize(8)
-  doc.setTextColor(120, 120, 120)
-  doc.text("PRODUCT NAME", margin, y)
-  doc.text("UNITS SOLD", margin + 110, y)
-  doc.text("REVENUE", margin + 140, y)
-  gap(4)
-  rule()
+  doc.setTextColor(80, 80, 80)
+  doc.text("PRODUCT NAME", margin + 2, y + 5)
+  doc.text("UNITS SOLD", margin + 110, y + 5)
+  doc.text("REVENUE", margin + 140, y + 5)
+  gap(8)
 
   // Table Body
-  doc.setFontSize(10)
+  doc.setFontSize(9)
   doc.setFont("helvetica", "normal")
   doc.setTextColor(40, 40, 40)
   
   if (data.breakdowns.top_products.length === 0) {
-    doc.text("No product sales data available for this period.", margin, y)
+    doc.text("No product sales data available for this period.", margin + 2, y)
     gap(8)
   } else {
-    data.breakdowns.top_products.forEach(p => {
+    data.breakdowns.top_products.forEach((p, index) => {
       checkPage(10)
-      doc.text(p.name, margin, y, { maxWidth: 100 })
-      doc.text(p.units.toString(), margin + 110, y)
-      doc.text(`${currency} ${p.revenue.toLocaleString()}`, margin + 140, y)
+      if (index % 2 === 0) {
+        doc.setFillColor(252, 252, 252)
+        doc.rect(margin, y - 1, contentWidth, 8, "F")
+      }
+      doc.setDrawColor(240, 240, 240)
+      doc.line(margin, y + 7, margin + contentWidth, y + 7)
+      
+      doc.text(p.name, margin + 2, y + 5, { maxWidth: 100 })
+      doc.text(p.units.toString(), margin + 110, y + 5)
+      doc.text(`${currency} ${p.revenue.toLocaleString()}`, margin + 140, y + 5)
       gap(8)
     })
   }
-  gap(4)
-  rule()
+  gap(5)
 
   // 5. STORE & PAYMENT BREAKDOWNS
-  checkPage(40)
-  const baseY = y
+  checkPage(50)
   
-  // Left: Stores
-  doc.setFontSize(10)
+  // Store Breakdown Table
+  doc.setFontSize(11)
   doc.setFont("helvetica", "bold")
-  doc.setTextColor(0, 0, 0)
-  doc.text("STORE BREAKDOWN", margin, y)
+  doc.text("STORE DISTRIBUTION", margin, y)
   gap(6)
-  doc.setFont("helvetica", "normal")
-  doc.setFontSize(9)
   
-  if (data.breakdowns.stores.length === 0) {
-      doc.text("No store data", margin, y)
-      gap(6)
-  } else {
-      data.breakdowns.stores.forEach(s => {
-        doc.text(s.name, margin, y)
-        doc.text(`${currency} ${s.revenue.toLocaleString()}`, margin + 60, y)
-        gap(6)
-      })
+  doc.setFillColor(245, 245, 245)
+  doc.rect(margin, y, (contentWidth / 2) - 5, 8, "F")
+  doc.setFontSize(8)
+  doc.text("STORE NAME", margin + 2, y + 5)
+  doc.text("REVENUE", margin + 50, y + 5)
+  
+  // Payment Method Table
+  doc.rect(margin + (contentWidth / 2) + 5, y, (contentWidth / 2) - 5, 8, "F")
+  doc.text("PAYMENT METHOD", margin + (contentWidth / 2) + 7, y + 5)
+  doc.text("REVENUE", margin + contentWidth - 25, y + 5)
+  gap(8)
+
+  const leftX = margin
+  const rightX = margin + (contentWidth / 2) + 5
+  
+  const maxRows = Math.max(data.breakdowns.stores.length, 3) // Align heights
+  for (let i = 0; i < maxRows; i++) {
+    checkPage(10)
+    const store = data.breakdowns.stores[i]
+    
+    // Left: Store
+    if (store) {
+      doc.setFontSize(9)
+      doc.setFont("helvetica", "normal")
+      doc.text(store.name, leftX + 2, y + 5)
+      doc.text(store.revenue.toLocaleString(), leftX + 50, y + 5)
+    }
+
+    // Right: Payments (Fix 3: M-Pesa, Card, Cash order)
+    const order = ['mpesa', 'card', 'cash']
+    const method = order[i]
+    if (method) {
+      const amount = data.breakdowns.payment_methods[method] || 0
+      doc.setFontSize(9)
+      doc.setFont("helvetica", "normal")
+      doc.text(method.toUpperCase(), rightX + 2, y + 5)
+      doc.text(amount.toLocaleString(), margin + contentWidth - 25, y + 5)
+    }
+    
+    doc.setDrawColor(240, 240, 240)
+    doc.line(leftX, y + 8, leftX + (contentWidth / 2) - 5, y + 8)
+    doc.line(rightX, y + 8, margin + contentWidth, y + 8)
+    gap(8)
   }
 
-  const leftY = y
-  y = baseY
-  
-  // Right: Payments
-  doc.setFontSize(10)
-  doc.setFont("helvetica", "bold")
-  doc.setTextColor(0, 0, 0)
-  doc.text("PAYMENT METHODS", margin + 90, y)
-  gap(6)
-  doc.setFont("helvetica", "normal")
-  doc.setFontSize(9)
-  
-  const payments = Object.entries(data.breakdowns.payment_methods)
-  if (payments.length === 0) {
-      doc.text("No payment data", margin + 90, y)
-      gap(6)
-  } else {
-      payments.forEach(([method, amount]) => {
-        doc.text(method.toUpperCase(), margin + 90, y)
-        doc.text(`${currency} ${(amount as number).toLocaleString()}`, margin + 140, y)
-        gap(6)
-      })
-  }
-  
-  y = Math.max(leftY, y) + 10
-  rule()
+  gap(10)
 
   // 6. FOOTER
   const footerY = pageHeight - 15
+
+  // Fix 9: Add VendoFlow icon (media artifact)
+  try {
+    const iconPath = "C:\\Users\\Hp\\.gemini\\antigravity\\brain\\c6369966-bd6d-40c6-a15a-822e943d4f84\\media__1775466425600.png"
+    // Apply 75% transparency
+    doc.setGState(new (doc as any).GState({ opacity: 0.25 }))
+    doc.addImage(iconPath, "PNG", margin, footerY - 5, 10, 10)
+    doc.setGState(new (doc as any).GState({ opacity: 1.0 })) // Reset
+  } catch (err) {
+    console.warn("Could not add footer icon:", err)
+  }
+
   doc.setFontSize(8)
   doc.setTextColor(150, 150, 150)
-  doc.text("Generated securely by VendoFlow Intelligence", margin, footerY)
-  doc.text(new Date().toUTCString(), pageWidth - margin, footerY, { align: "right" })
+  const eatTime = new Date().toLocaleString("en-KE", {
+    timeZone: "Africa/Nairobi",
+    day: "numeric", month: "long", year: "numeric",
+    hour: "numeric", minute: "2-digit", hour12: true
+  })
+  doc.text(`Generated by VendoFlow · ${eatTime} EAT`, margin + 12, footerY + 1)
+  doc.text("PERFORMANCE INSIGHTS", pageWidth - margin, footerY + 1, { align: "right" })
 
   // 7. EXPORT & UPLOAD
   const filename = `reports/${merchantId}/${reportType}-${Date.now()}.pdf`
