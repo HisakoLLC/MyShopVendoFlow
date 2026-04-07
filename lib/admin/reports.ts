@@ -84,7 +84,7 @@ export async function aggregateReportData(
             )
           ),
           stores!inner (
-            id,
+            store_id,
             name,
             account_id
           )
