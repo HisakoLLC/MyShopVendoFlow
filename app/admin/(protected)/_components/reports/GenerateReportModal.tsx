@@ -78,17 +78,17 @@ export default function GenerateReportModal({ onClose, onSuccess }: GenerateRepo
       let periodEnd = date
 
       if (reportType === "weekly") {
-        const d = new Date(date + "T00:00:00Z")
-        const day = d.getUTCDay()
-        const diff = d.getUTCDate() - day + (day === 0 ? -6 : 1)
-        const start = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), diff))
-        const end = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), diff + 6))
+        const d = new Date(date)
+        const day = d.getDay()
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1) // adjust when day is sunday
+        const start = new Date(d.setDate(diff))
+        const end = new Date(d.setDate(diff + 6))
         periodStart = start.toISOString().split('T')[0]
         periodEnd = end.toISOString().split('T')[0]
       } else if (reportType === "monthly") {
-        const [year, month] = date.split('-').map(Number)
-        const start = new Date(Date.UTC(year, month - 1, 1))
-        const end = new Date(Date.UTC(year, month, 0))
+        const d = new Date(date)
+        const start = new Date(d.getFullYear(), d.getMonth(), 1)
+        const end = new Date(d.getFullYear(), d.getMonth() + 1, 0)
         periodStart = start.toISOString().split('T')[0]
         periodEnd = end.toISOString().split('T')[0]
       }
