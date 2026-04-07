@@ -49,7 +49,8 @@ export async function aggregateReportData(
           )
         ),
         stores!inner (
-          account_id
+          account_id,
+          name
         )
       `)
       .eq("stores.account_id", merchantId)
@@ -71,7 +72,8 @@ export async function aggregateReportData(
       paymentMethods[sale.payment_method] = (paymentMethods[sale.payment_method] || 0) + (sale.grand_total || 0)
       
       if (!storeRevenue[sale.store_id]) {
-        storeRevenue[sale.store_id] = { id: sale.store_id, name: `Store ${sale.store_id.slice(0, 4)}`, revenue: 0, count: 0 }
+        const storeName = sale.stores?.name || `Store ${sale.store_id.slice(0, 4)}`
+        storeRevenue[sale.store_id] = { id: sale.store_id, name: storeName, revenue: 0, count: 0 }
       }
       storeRevenue[sale.store_id].revenue += (sale.grand_total || 0)
       storeRevenue[sale.store_id].count += 1
