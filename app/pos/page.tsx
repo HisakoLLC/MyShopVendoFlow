@@ -5,10 +5,10 @@ import { POSClient } from "./POSClient"
 
 function LoadingState() {
   return (
-    <div className="flex h-screen items-center justify-center">
+    <div className="flex h-screen items-center justify-center bg-background">
       <div className="text-center">
-        <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-zinc-300 border-t-zinc-900 dark:border-zinc-700 dark:border-t-zinc-100"></div>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">Loading POS...</p>
+        <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-muted border-t-foreground"></div>
+        <p className="text-sm text-muted-foreground">Loading POS...</p>
       </div>
     </div>
   )
@@ -87,13 +87,13 @@ async function POSPageContent() {
 
   if (!stores || stores.length === 0) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#f8f8f8] px-4">
-        <div className="w-full max-w-md rounded-xl border border-amber-200 bg-amber-50 p-8 shadow-lg dark:border-amber-900/40 dark:bg-amber-950/30">
-          <h2 className="text-xl font-semibold text-amber-900 dark:text-amber-100">Store not set up yet</h2>
-          <p className="mt-2 text-sm text-amber-800 dark:text-amber-200">
+      <div className="flex h-screen items-center justify-center bg-background px-4">
+        <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-lg">
+          <h2 className="text-xl font-semibold text-foreground">Store not set up yet</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
             Your account doesn&apos;t have a store configured yet. Ask your manager or account owner to complete store setup in <strong>Settings</strong>, then you can use the POS.
           </p>
-          <p className="mt-4 text-xs text-amber-700 dark:text-amber-300">
+          <p className="mt-4 text-xs text-muted-foreground">
             If you&apos;re the owner, go to Settings to add your store.
           </p>
         </div>

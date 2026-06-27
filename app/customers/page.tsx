@@ -54,17 +54,17 @@ async function fetchCustomers(): Promise<Customer[]> {
 
 function LoadingState() {
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-6">
-      <div className="mb-4 h-8 w-64 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-      <div className="h-96 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+    <div className="min-h-screen bg-background text-foreground px-8 py-8">
+      <div className="mb-4 h-8 w-64 animate-pulse rounded bg-muted" />
+      <div className="h-96 w-full animate-pulse rounded-xl bg-muted" />
     </div>
   )
 }
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-10">
-      <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-100">
+    <div className="min-h-screen bg-background text-foreground px-8 py-10">
+      <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-5 text-red-500">
         <div className="text-base font-semibold">Couldn't load customers</div>
         <div className="mt-1 text-sm opacity-90">{message}</div>
       </div>
@@ -82,7 +82,7 @@ async function CustomersPageContent() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-6">
+    <div className="min-h-screen bg-background text-foreground px-8 py-8">
       <CustomersList initialCustomers={customers} />
     </div>
   )

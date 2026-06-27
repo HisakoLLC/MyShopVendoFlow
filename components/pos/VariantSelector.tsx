@@ -211,18 +211,18 @@ export function VariantSelector({
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="bg-white rounded-xl border border-zinc-200 shadow-2xl w-[calc(100vw-320px-2rem)] max-w-3xl flex flex-col p-0 max-h-[92vh] overflow-hidden [&>button]:hidden">
-        <div className="px-6 py-5 border-b border-zinc-100 flex items-center justify-between flex-shrink-0">
+      <DialogContent className="bg-card text-card-foreground rounded-xl border border-border shadow-2xl w-[calc(100vw-320px-2rem)] max-w-3xl flex flex-col p-0 max-h-[92vh] overflow-hidden [&>button]:hidden">
+        <div className="px-6 py-5 border-b border-border flex items-center justify-between flex-shrink-0">
           <div>
-            <DialogTitle className="font-editorial text-xl font-bold text-zinc-900">{styleName}</DialogTitle>
-            <p className="text-sm text-zinc-500 mt-0.5">Select size and color</p>
+            <DialogTitle className="font-sans text-xl font-bold tracking-tight text-foreground">{styleName}</DialogTitle>
+            <p className="text-sm text-muted-foreground mt-0.5">Select size and color</p>
           </div>
           <button 
             type="button"
             onClick={onClose} 
-            className="w-8 h-8 rounded-sm border border-zinc-200 bg-white hover:bg-zinc-100 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-sm border border-border bg-background hover:bg-accent flex items-center justify-center transition-colors"
           >
-            <X className="w-4 h-4 text-zinc-500" />
+            <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
 
@@ -258,7 +258,7 @@ export function VariantSelector({
                 {colors.map((color) => (
                   <div
                     key={color}
-                    className="text-[0.6rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center pb-2"
+                    className="text-[0.6rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground text-center pb-2"
                   >
                     {color}
                   </div>
@@ -268,7 +268,7 @@ export function VariantSelector({
                 {matrix.map((row, rowIndex) => (
                   <React.Fragment key={sizes[rowIndex]}>
                     {/* Row Header */}
-                    <div className="text-sm font-semibold text-zinc-600 flex items-center justify-center w-10 flex-shrink-0">
+                    <div className="text-sm font-semibold text-foreground flex items-center justify-center w-10 flex-shrink-0">
                       {sizes[rowIndex]}
                     </div>
 
@@ -283,9 +283,9 @@ export function VariantSelector({
                         return (
                           <div
                             key={`${cell.size}-${cell.color}`}
-                            className="bg-zinc-50 border border-zinc-100 rounded-lg p-3 min-h-[68px] flex flex-col justify-center opacity-50 w-full box-border"
+                            className="bg-muted/30 border border-border rounded-lg p-3 min-h-[68px] flex flex-col justify-center opacity-50 w-full box-border"
                           >
-                            <span className="text-sm text-zinc-300 text-center">—</span>
+                            <span className="text-sm text-muted-foreground text-center">—</span>
                           </div>
                         )
                       }
@@ -295,17 +295,17 @@ export function VariantSelector({
                       let priceTextClass = ""
 
                       if (!isAvailable) {
-                        cellClass = "bg-zinc-50 border border-zinc-100 rounded-lg p-3 min-h-[68px] cursor-not-allowed flex flex-col justify-center text-left w-full box-border"
-                        stockTextClass = "text-xs text-zinc-400"
-                        priceTextClass = "text-sm text-zinc-300 mt-0.5"
+                        cellClass = "bg-muted/30 border border-border rounded-lg p-3 min-h-[68px] cursor-not-allowed flex flex-col justify-center text-left w-full box-border"
+                        stockTextClass = "text-xs text-muted-foreground"
+                        priceTextClass = "font-mono tabular-nums text-sm text-muted-foreground mt-0.5"
                       } else if (isSelected) {
-                        cellClass = "bg-zinc-900 border border-zinc-900 rounded-lg p-3 min-h-[68px] cursor-pointer flex flex-col justify-center text-left w-full box-border"
-                        stockTextClass = "text-xs font-medium text-zinc-400"
-                        priceTextClass = "text-sm font-semibold text-white mt-0.5"
+                        cellClass = "bg-[#E8400C] border border-[#E8400C] rounded-lg p-3 min-h-[68px] cursor-pointer flex flex-col justify-center text-left w-full box-border shadow-md"
+                        stockTextClass = "text-xs font-medium text-white/90"
+                        priceTextClass = "font-mono tabular-nums text-sm font-bold text-white mt-0.5"
                       } else {
-                        cellClass = "bg-white border border-zinc-200 rounded-lg p-3 min-h-[68px] cursor-pointer hover:border-zinc-800 hover:bg-zinc-50 transition-colors duration-150 flex flex-col justify-center text-left w-full box-border"
-                        stockTextClass = "text-xs font-medium text-emerald-600"
-                        priceTextClass = "text-sm font-semibold text-zinc-900 mt-0.5"
+                        cellClass = "bg-card border border-border rounded-lg p-3 min-h-[68px] cursor-pointer hover:border-[#E8400C] hover:bg-accent transition-colors duration-150 flex flex-col justify-center text-left w-full box-border"
+                        stockTextClass = "text-xs font-medium text-emerald-600 dark:text-emerald-400"
+                        priceTextClass = "font-mono tabular-nums text-sm font-bold text-foreground mt-0.5"
                       }
 
                       return (

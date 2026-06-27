@@ -60,21 +60,21 @@ export default async function TransferInventoryPage() {
     })) ?? []
 
   return (
-    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+    <div className="min-h-screen bg-background text-foreground px-8 py-8">
       <Link 
         href="/inventory" 
-        className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6 group"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to inventory
       </Link>
 
-      <div className="flex items-start justify-between border-b border-zinc-800 pb-6 mb-6">
+      <div className="flex items-start justify-between border-b border-border pb-6 mb-6">
         <div>
-          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">
             MOVE STOCK BETWEEN STORES WHEN ONE LOCATION IS LOW AND ANOTHER HAS EXCESS
           </p>
-          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+          <h1 className="font-sans text-3xl font-bold leading-tight tracking-tight text-foreground">
             Inventory Transfer
           </h1>
         </div>
@@ -86,14 +86,14 @@ export default async function TransferInventoryPage() {
 
       <div className="mt-12 space-y-6">
         <div>
-          <h2 className="font-editorial text-2xl font-bold text-zinc-50 mb-1">
+          <h2 className="font-sans text-2xl font-bold tracking-tight text-foreground mb-1">
             Recent Transfers
           </h2>
-          <p className="text-[0.65rem] font-semibold tracking-[0.1em] uppercase text-zinc-500">
+          <p className="text-[0.65rem] font-semibold tracking-[0.1em] uppercase text-muted-foreground">
             LAST 50 TRANSFERS FOR THIS ACCOUNT
           </p>
         </div>
-        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden">
+        <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
           <TransferHistoryClient />
         </div>
       </div>

@@ -100,8 +100,8 @@ async function fetchPO(poId: string) {
 function LoadingState() {
   return (
     <div className="px-8 py-8">
-      <div className="h-8 w-48 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-      <div className="mt-6 h-64 animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+      <div className="h-8 w-48 animate-pulse rounded bg-muted" />
+      <div className="mt-6 h-64 animate-pulse rounded-xl bg-muted" />
     </div>
   )
 }
@@ -146,7 +146,7 @@ export default async function PODetailPage({
         <div>
           <a
             href="/purchasing"
-            className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6 group"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
             Purchasing
@@ -154,26 +154,26 @@ export default async function PODetailPage({
           <div className="mb-2 mt-2">
             <span className={
               po.status === "received"
-                ? "bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
+                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-md text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
                 : po.status === "partially_received"
-                  ? "bg-amber-400/10 text-amber-400 border border-amber-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
+                  ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-md text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
                   : po.status === "sent"
-                    ? "bg-blue-400/10 text-blue-400 border border-blue-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
+                    ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-md text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
                     : po.status === "cancelled"
-                      ? "bg-red-400/10 text-red-400 border border-red-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
-                      : "bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
+                      ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 rounded-md text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
+                      : "bg-muted text-muted-foreground border border-border rounded-md text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
             }>
               {statusLabel}
             </span>
           </div>
-          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+          <h1 className="font-sans text-3xl font-bold tracking-tight leading-tight text-foreground">
             PO #{po.po_number}
           </h1>
         </div>
         <div className="flex flex-wrap gap-2">
           <PODownloadButton poId={po_id} poNumber={po.po_number} />
           {po.status !== "received" && (
-            <Button asChild className="gap-2">
+            <Button asChild className="gap-2 rounded-md bg-[#E8400C] hover:bg-[#c73508] text-white">
               <Link href={`/purchasing/${po_id}/receive`}>
                 <Package className="h-4 w-4" />
                 Receive inventory
@@ -183,69 +183,69 @@ export default async function PODetailPage({
         </div>
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-background-card-light p-6 dark:border-border-dark dark:bg-background-card-dark">
+      <div className="rounded-lg border border-border bg-card text-card-foreground p-6 shadow-sm">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <div className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+            <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Supplier
             </div>
-            <div className="mt-0.5 font-medium text-zinc-900 dark:text-zinc-100">
+            <div className="mt-0.5 font-medium text-foreground">
               {po.suppliers?.name ?? "—"}
             </div>
           </div>
           <div>
-            <div className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+            <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Order date
             </div>
-            <div className="mt-0.5 text-zinc-900 dark:text-zinc-100">
+            <div className="mt-0.5 text-foreground">
               {po.order_date ? new Date(po.order_date).toLocaleDateString() : "—"}
             </div>
           </div>
           <div>
-            <div className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+            <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Expected delivery
             </div>
-            <div className="mt-0.5 text-zinc-900 dark:text-zinc-100">
+            <div className="mt-0.5 text-foreground">
               {po.expected_delivery_date
                 ? new Date(po.expected_delivery_date).toLocaleDateString()
                 : "—"}
             </div>
           </div>
           <div>
-            <div className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+            <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Total
             </div>
-            <div className="mt-0.5 font-semibold text-zinc-900 dark:text-zinc-100">
+            <div className="mt-0.5 font-semibold text-foreground font-mono tabular-nums">
               {formatCurrency(po.total_cost ?? 0, currency, { maximumFractionDigits: 2 })}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-6 rounded-xl border border-zinc-200 bg-background-card-light dark:border-border-dark dark:bg-background-card-dark">
-        <div className="border-b border-zinc-200 px-6 py-4 dark:border-zinc-800">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Line items</h2>
+      <div className="mt-6 rounded-lg border border-border bg-card text-card-foreground shadow-sm">
+        <div className="border-b border-border px-6 py-4">
+          <h2 className="text-lg font-semibold text-foreground">Line items</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-zinc-50 dark:bg-zinc-900/50">
-                <th className="h-12 px-6 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
+              <tr className="bg-muted/40">
+                <th className="h-12 px-6 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground border-b border-border">
                   Product
                 </th>
-                <th className="h-12 px-6 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
+                <th className="h-12 px-6 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground border-b border-border">
                   Variant / SKU
                 </th>
-                <th className="h-12 px-6 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
+                <th className="h-12 px-6 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground border-b border-border">
                   Qty ordered
                 </th>
-                <th className="h-12 px-6 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
+                <th className="h-12 px-6 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground border-b border-border">
                   Qty received
                 </th>
-                <th className="h-12 px-6 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
+                <th className="h-12 px-6 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground border-b border-border">
                   Unit cost
                 </th>
-                <th className="h-12 px-6 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 border-b border-zinc-200 dark:border-zinc-800">
+                <th className="h-12 px-6 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground border-b border-border">
                   Line total
                 </th>
               </tr>
@@ -262,27 +262,27 @@ export default async function PODetailPage({
                 return (
                   <tr
                     key={item.line_item_id}
-                    className="border-b border-zinc-100 dark:border-zinc-800/50"
+                    className="border-b border-border hover:bg-accent/50 transition-colors"
                   >
-                    <td className="px-6 py-3 font-medium text-zinc-900 dark:text-zinc-100">
+                    <td className="px-6 py-3 font-medium text-foreground">
                       {styleName}
                     </td>
-                    <td className="px-6 py-3 text-zinc-600 dark:text-zinc-400">
+                    <td className="px-6 py-3 text-muted-foreground">
                       {variant}
-                      <span className="ml-1 font-mono text-zinc-500 dark:text-zinc-500">
+                      <span className="ml-1 font-mono text-muted-foreground">
                         {sku}
                       </span>
                     </td>
-                    <td className="px-6 py-3 text-right text-zinc-900 dark:text-zinc-100">
+                    <td className="px-6 py-3 text-right text-foreground font-mono tabular-nums">
                       {item.quantity_ordered}
                     </td>
-                    <td className="px-6 py-3 text-right text-zinc-900 dark:text-zinc-100">
+                    <td className="px-6 py-3 text-right text-foreground font-mono tabular-nums">
                       {received}
                     </td>
-                    <td className="px-6 py-3 text-right text-zinc-600 dark:text-zinc-400">
+                    <td className="px-6 py-3 text-right text-muted-foreground font-mono tabular-nums">
                       {formatCurrency(item.unit_cost, currency, { maximumFractionDigits: 2 })}
                     </td>
-                    <td className="px-6 py-3 text-right font-medium text-zinc-900 dark:text-zinc-100">
+                    <td className="px-6 py-3 text-right font-medium text-foreground font-mono tabular-nums">
                       {formatCurrency(item.line_total, currency, { maximumFractionDigits: 2 })}
                     </td>
                   </tr>

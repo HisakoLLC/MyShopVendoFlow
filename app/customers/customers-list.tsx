@@ -162,19 +162,19 @@ export function CustomersList({ initialCustomers }: CustomersListProps) {
     <>
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
-          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">
             Manage your customer database ({filteredAndSorted.length} customers)
           </p>
-          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+          <h1 className="font-sans text-3xl font-bold tracking-tight leading-tight text-foreground">
             Customers
           </h1>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExportCSV} className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white gap-2">
+          <Button variant="outline" onClick={handleExportCSV} className="rounded-md border-border text-foreground hover:bg-accent gap-2">
             <Download className="h-4 w-4" />
             Export CSV
           </Button>
-          <Button onClick={() => setShowAddModal(true)} className="rounded-sm bg-white text-zinc-950 hover:bg-zinc-100 gap-2">
+          <Button onClick={() => setShowAddModal(true)} className="rounded-md bg-[#E8400C] text-white hover:bg-[#c73508] gap-2 border-none">
             <Plus className="h-4 w-4" />
             Add Customer
           </Button>
@@ -184,29 +184,29 @@ export function CustomersList({ initialCustomers }: CustomersListProps) {
       {/* Search & Filters */}
       <div className="mb-6 grid gap-4 md:grid-cols-3">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search customers..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-zinc-900 border-zinc-800 text-zinc-100 h-10 rounded-sm"
+            className="pl-9 bg-background border-border text-foreground h-10 rounded-md placeholder:text-muted-foreground focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C]"
           />
         </div>
         <Select value={filter} onValueChange={(value) => setFilter(value as FilterType)}>
-          <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-10 rounded-sm">
+          <SelectTrigger className="bg-background border-border text-foreground h-10 rounded-md focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C]">
             <SelectValue placeholder="Filter" />
           </SelectTrigger>
-          <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
+          <SelectContent className="bg-popover text-popover-foreground border-border">
             <SelectItem value="all">All Customers</SelectItem>
             <SelectItem value="vip">VIP Only</SelectItem>
             <SelectItem value="first-time">First-Time Customers</SelectItem>
           </SelectContent>
         </Select>
         <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortType)}>
-          <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100 h-10 rounded-sm">
+          <SelectTrigger className="bg-background border-border text-foreground h-10 rounded-md focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C]">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
-          <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
+          <SelectContent className="bg-popover text-popover-foreground border-border">
             <SelectItem value="spend">Total Spend (High to Low)</SelectItem>
             <SelectItem value="last_purchase">Last Purchase (Recent First)</SelectItem>
             <SelectItem value="name">Name (A-Z)</SelectItem>
@@ -216,44 +216,44 @@ export function CustomersList({ initialCustomers }: CustomersListProps) {
 
       {/* Customers Table */}
       {filteredAndSorted.length === 0 ? (
-        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-12 text-center">
-          <p className="text-sm text-zinc-400">
+        <div className="rounded-lg border border-border bg-card p-12 text-center shadow-sm">
+          <p className="text-sm text-muted-foreground">
             {searchQuery || filter !== "all"
               ? "No customers match your filters."
               : "No customers yet. Add your first customer to get started."}
           </p>
         </div>
       ) : (
-        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden">
+        <div className="rounded-lg border border-border bg-card overflow-hidden shadow-sm">
           <Table>
-            <TableHeader className="bg-zinc-900">
-              <TableRow className="border-b-2 border-zinc-700 hover:bg-transparent">
-                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Name</TableHead>
-                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Contact</TableHead>
-                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center">VIP</TableHead>
-                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Total Spend</TableHead>
-                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center">Txns</TableHead>
-                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Last Purchase</TableHead>
-                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Actions</TableHead>
+            <TableHeader className="bg-muted/40">
+              <TableRow className="border-b border-border hover:bg-transparent">
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Name</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Contact</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground text-center">VIP</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground text-right">Total Spend</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground text-center">Txns</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Last Purchase</TableHead>
+                <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredAndSorted.map((customer) => (
                 <TableRow
                   key={customer.customer_id}
-                  className="cursor-pointer border-b border-zinc-700/40 hover:bg-zinc-800/40 transition-colors duration-100 last:border-0"
+                  className="cursor-pointer border-b border-border hover:bg-accent/50 transition-colors duration-100 last:border-0"
                   onClick={() => setViewingCustomer(customer)}
                 >
                   <TableCell className="px-6 py-4">
-                    <div className="text-sm font-semibold text-zinc-100">
+                    <div className="text-sm font-semibold text-foreground">
                       {`${customer.first_name || ""} ${customer.last_name || ""}`.trim() || "—"}
                     </div>
                   </TableCell>
                   <TableCell className="px-6 py-4">
-                    <span className="text-sm text-zinc-300 block">
+                    <span className="text-sm text-muted-foreground block">
                       {customer.email || "—"}
                     </span>
-                    <span className="font-mono text-xs text-zinc-500 block mt-0.5">
+                    <span className="font-mono text-xs text-muted-foreground block mt-0.5">
                       {customer.phone || "—"}
                     </span>
                   </TableCell>
@@ -264,22 +264,22 @@ export function CustomersList({ initialCustomers }: CustomersListProps) {
                       </div>
                     ) : (
                       <div className="inline-flex items-center justify-center">
-                        <Crown className="h-4 w-4 text-zinc-700 opacity-30" />
+                        <Crown className="h-4 w-4 text-muted-foreground opacity-30" />
                       </div>
                     )}
                   </TableCell>
                   <TableCell className="px-6 py-4 text-right">
-                    <div className="text-sm font-semibold text-zinc-100 tabular-nums">
+                    <div className="font-mono text-sm font-semibold text-foreground tabular-nums">
                       {formatPrice(customer.total_spend)}
                     </div>
                   </TableCell>
                   <TableCell className="px-6 py-4 text-center">
-                    <div className="text-sm text-zinc-300 tabular-nums">
+                    <div className="font-mono text-sm text-muted-foreground tabular-nums">
                       {customer.transaction_count || 0}
                     </div>
                   </TableCell>
                   <TableCell className="px-6 py-4">
-                    <div className="text-sm text-zinc-500">
+                    <div className="text-sm text-muted-foreground">
                       {formatDateAgo(customer.last_purchase_date)}
                     </div>
                   </TableCell>
@@ -288,14 +288,14 @@ export function CustomersList({ initialCustomers }: CustomersListProps) {
                       <button
                         type="button"
                         onClick={() => setViewingCustomer(customer)}
-                        className="w-8 h-8 rounded-sm hover:bg-zinc-800 flex items-center justify-center transition-colors text-zinc-500 hover:text-zinc-100"
+                        className="w-8 h-8 rounded-md hover:bg-accent flex items-center justify-center transition-colors text-muted-foreground hover:text-foreground"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
                         type="button"
                         onClick={() => setEditingCustomer(customer)}
-                        className="w-8 h-8 rounded-sm hover:bg-zinc-800 flex items-center justify-center transition-colors text-zinc-500 hover:text-zinc-100"
+                        className="w-8 h-8 rounded-md hover:bg-accent flex items-center justify-center transition-colors text-muted-foreground hover:text-foreground"
                       >
                         <Edit className="w-4 h-4" />
                       </button>

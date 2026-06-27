@@ -413,8 +413,8 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
             {/* Main Form */}
             <div className="lg:col-span-2 space-y-6">
               {/* PO Details */}
-              <div className="rounded-lg border border-zinc-200 bg-zinc-900 p-6 dark:border-zinc-800 dark:bg-zinc-900">
-                <h2 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
+              <div className="rounded-lg border border-border bg-card text-card-foreground p-6 shadow-sm">
+                <h2 className="mb-4 font-sans text-xl font-bold text-foreground">
                   PO Details
                 </h2>
                 <div className="grid gap-4 md:grid-cols-2">
@@ -506,20 +506,20 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
 
             {/* PO Summary Sidebar */}
             <div className="lg:col-span-1">
-              <div className="sticky top-6 rounded-lg border border-zinc-700/50 bg-zinc-900 p-5">
-                <h2 className="mb-4 font-editorial text-lg font-bold text-zinc-50">
+              <div className="sticky top-6 rounded-lg border border-border bg-card text-card-foreground p-5 shadow-sm">
+                <h2 className="mb-4 font-sans text-lg font-bold text-foreground">
                   PO Summary
                 </h2>
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">Line Items</span>
-                    <span className="font-semibold text-zinc-100">
+                    <span className="text-muted-foreground">Line Items</span>
+                    <span className="font-semibold text-foreground font-mono">
                       {fields.length}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm mt-2">
-                    <span className="text-zinc-500">Total Cost</span>
-                    <span className="font-editorial text-2xl font-bold text-zinc-50 tabular-nums">
+                    <span className="text-muted-foreground">Total Cost</span>
+                    <span className="font-mono text-2xl font-bold text-foreground tabular-nums">
                       {formatCurrency(totalCost, currency, { maximumFractionDigits: 2 })}
                     </span>
                   </div>
@@ -528,7 +528,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                       type="button"
                       onClick={handleSaveAsDraft}
                       disabled={isSubmitting || !watchedSupplierId}
-                      className="w-full bg-transparent border border-zinc-700 text-zinc-300 hover:border-zinc-500 rounded-sm h-9 text-xs font-semibold uppercase tracking-[0.12em] transition-colors disabled:opacity-50 flex items-center justify-center"
+                      className="w-full bg-transparent border border-border text-foreground hover:bg-accent rounded-md h-9 text-xs font-semibold uppercase tracking-[0.12em] transition-colors disabled:opacity-50 flex items-center justify-center"
                     >
                       Save as Draft
                     </button>
@@ -536,7 +536,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                       type="button"
                       onClick={handlePrintPO}
                       disabled={isSubmitting || !watchedSupplierId}
-                      className="w-full bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 mt-2 text-xs font-semibold uppercase tracking-[0.12em] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                      className="w-full bg-[#E8400C] text-white hover:bg-[#c73508] rounded-md h-9 mt-2 text-xs font-semibold uppercase tracking-[0.12em] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                       <Printer className="h-4 w-4" />
                       Print PO / Submit
@@ -548,9 +548,9 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
           </div>
 
           {/* SECTION 2 (full width, below section 1) */}
-          <div className="w-full bg-zinc-900 border border-zinc-700/50 rounded-lg overflow-hidden mt-6 p-6">
+          <div className="w-full bg-card border border-border text-card-foreground rounded-lg overflow-hidden mt-6 p-6 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-editorial text-xl font-bold text-zinc-50">
+              <h2 className="font-sans text-xl font-bold text-foreground">
                 Line Items
               </h2>
               <button
@@ -564,23 +564,23 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                     unit_cost: 0,
                   })
                 }
-                className="bg-transparent border border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 rounded-sm h-8 px-3 text-xs font-semibold uppercase tracking-[0.1em] transition-colors"
+                className="bg-transparent border border-border text-foreground hover:bg-accent rounded-md h-8 px-3 text-xs font-semibold uppercase tracking-[0.1em] transition-colors"
               >
                 Add Line Item
               </button>
             </div>
 
-            <div className="w-full bg-zinc-900 border border-zinc-700 border-x-0 border-b-0 overflow-x-auto">
+            <div className="w-full bg-card border border-border border-x-0 border-b-0 overflow-x-auto">
               <Table className="table-fixed w-full min-w-[800px]">
-                <TableHeader className="bg-zinc-900 border-b border-zinc-700">
+                <TableHeader className="bg-muted/40 border-b border-border">
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="w-8 px-3 py-3"></TableHead>
-                    <TableHead className="w-[22%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 truncate">Product</TableHead>
-                    <TableHead className="w-[22%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 truncate">Variant</TableHead>
-                    <TableHead className="w-[14%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 truncate">SKU</TableHead>
-                    <TableHead className="w-[8%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center truncate">Qty</TableHead>
-                    <TableHead className="w-[12%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right truncate">Unit Cost</TableHead>
-                    <TableHead className="w-[12%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right truncate">Line Total</TableHead>
+                    <TableHead className="w-[22%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground truncate">Product</TableHead>
+                    <TableHead className="w-[22%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground truncate">Variant</TableHead>
+                    <TableHead className="w-[14%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground truncate">SKU</TableHead>
+                    <TableHead className="w-[8%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground text-center truncate">Qty</TableHead>
+                    <TableHead className="w-[12%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground text-right truncate">Unit Cost</TableHead>
+                    <TableHead className="w-[12%] px-3 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground text-right truncate">Line Total</TableHead>
                     <TableHead className="w-[4%] px-3 py-3"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -595,11 +595,11 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                         const lineTotal = (lineItem.quantity || 0) * (lineItem.unit_cost || 0)
 
                         return (
-                          <TableRow key={field.id}>
+                          <TableRow key={field.id} className="border-b border-border hover:bg-accent/50 transition-colors">
                             <TableCell className="w-8 px-2 py-2"></TableCell>
                             <TableCell className="px-3 py-2 align-top">
                               {lineItem.style_id ? (
-                                <div className="text-sm font-medium text-zinc-100 px-1 pt-1.5 truncate">
+                                <div className="text-sm font-medium text-foreground px-1 pt-1.5 truncate">
                                   {productSearchQuery[fieldKey] || "Product Selected"}
                                 </div>
                               ) : (
@@ -612,7 +612,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                 >
                                   <PopoverAnchor asChild>
                                     <div className="relative">
-                                      <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                                      <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                         <Input
                                           placeholder="Search product..."
                                           value={productSearchQuery[fieldKey] || ""}
@@ -622,12 +622,12 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                               [fieldKey]: e.target.value,
                                             }))
                                           }}
-                                          className="w-full bg-zinc-800 border border-zinc-700 rounded-md h-8 pl-8 pr-3 text-sm placeholder:text-zinc-600 focus:border-zinc-500 focus:ring-1 focus:ring-white/10 text-zinc-100"
+                                          className="w-full bg-background border border-border rounded-md h-8 pl-8 pr-3 text-sm placeholder:text-muted-foreground focus:border-[#E8400C] focus:ring-1 focus:ring-[#E8400C] text-foreground"
                                         />
                                     </div>
                                   </PopoverAnchor>
                                   <PopoverContent
-                                    className="min-w-[var(--radix-popover-trigger-width)] max-w-[320px] p-0 border border-zinc-700 bg-zinc-900 rounded-lg shadow-xl"
+                                    className="min-w-[var(--radix-popover-trigger-width)] max-w-[320px] p-0 border border-border bg-popover text-popover-foreground rounded-lg shadow-xl"
                                     side="bottom"
                                     align="start"
                                     sideOffset={4}
@@ -648,10 +648,10 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                               [fieldKey]: [],
                                             }))
                                           }}
-                                          className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-zinc-800"
+                                          className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-accent"
                                         >
                                           {style.image_url && (
-                                            <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-sm border border-zinc-700">
+                                            <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-md border border-border">
                                               <Image
                                                 src={style.image_url}
                                                 alt={style.name}
@@ -660,7 +660,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                               />
                                             </div>
                                           )}
-                                          <span className="text-sm text-zinc-300 hover:text-zinc-100 truncate">{style.name}</span>
+                                          <span className="text-sm text-foreground hover:text-foreground truncate">{style.name}</span>
                                         </button>
                                       ))}
                                     </div>
@@ -674,12 +674,12 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                   value={lineItem.variant_id || ""}
                                   onValueChange={(value) => handleVariantSelect(fieldKey, index, value)}
                                 >
-                                  <SelectTrigger className="w-full bg-zinc-800 border border-zinc-700 rounded-md h-8 px-2 text-sm text-zinc-300 truncate focus:ring-1 focus:ring-white/10">
+                                  <SelectTrigger className="w-full bg-background border border-border rounded-md h-8 px-2 text-sm text-foreground truncate focus:ring-1 focus:ring-[#E8400C]">
                                     <SelectValue placeholder="Select variant" />
                                   </SelectTrigger>
                                   <SelectContent
                                     position="popper"
-                                    className="z-50 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl max-h-[200px] overflow-y-auto min-w-[200px]"
+                                    className="z-50 bg-popover text-popover-foreground border border-border rounded-lg shadow-xl max-h-[200px] overflow-y-auto min-w-[200px]"
                                   >
                                     {(variantOptions[fieldKey] || []).map((variant) => {
                                       const isSelected = lineItem.variant_id === variant.variant_id
@@ -687,7 +687,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                         <SelectItem
                                           key={variant.variant_id}
                                           value={variant.variant_id}
-                                          className={`px-3 py-2 cursor-pointer text-sm ${isSelected ? "text-zinc-100 font-medium bg-zinc-800" : "text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100"}`}
+                                          className={`px-3 py-2 cursor-pointer text-sm ${isSelected ? "text-foreground font-medium bg-accent" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
                                         >
                                           <span className="truncate block">
                                             {variant.size} / {variant.color} ({variant.sku})
@@ -698,18 +698,18 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                   </SelectContent>
                                 </Select>
                               ) : (
-                                <div className="w-full bg-zinc-800 border border-zinc-700/50 rounded-md h-8 px-2 text-sm text-zinc-500 cursor-not-allowed flex items-center truncate">
+                                <div className="w-full bg-muted border border-border rounded-md h-8 px-2 text-sm text-muted-foreground cursor-not-allowed flex items-center truncate">
                                   Select product first
                                 </div>
                               )}
                             </TableCell>
                             <TableCell className="px-3 py-2 align-top pt-3">
                               {selectedVariant ? (
-                                <span className="font-mono text-xs text-zinc-400 block truncate">
+                                <span className="font-mono text-xs text-muted-foreground block truncate">
                                   {selectedVariant.sku}
                                 </span>
                               ) : (
-                                <span className="text-sm text-zinc-600">—</span>
+                                <span className="text-sm text-muted-foreground">—</span>
                               )}
                             </TableCell>
                             <TableCell className="px-3 py-2 align-top">
@@ -722,7 +722,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                       <Input
                                         type="number"
                                         min="1"
-                                        className="w-full text-center tabular-nums bg-zinc-800 border border-zinc-700 rounded-md h-8 text-sm text-zinc-100 focus:ring-1 focus:ring-white/10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        className="w-full text-center tabular-nums font-mono bg-background border border-border rounded-md h-8 text-sm text-foreground focus:ring-1 focus:ring-[#E8400C] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         {...field}
                                       />
                                     </FormControl>
@@ -741,7 +741,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                         type="number"
                                         min="0"
                                         step="0.01"
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-md h-8 px-2 text-sm text-zinc-100 tabular-nums focus:ring-1 focus:ring-white/10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-right"
+                                        className="w-full bg-background border border-border rounded-md h-8 px-2 text-sm text-foreground tabular-nums font-mono focus:ring-1 focus:ring-[#E8400C] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-right"
                                         {...field}
                                       />
                                     </FormControl>
@@ -750,7 +750,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                               />
                             </TableCell>
                             <TableCell className="px-3 py-2 text-right align-top pt-3">
-                              <span className="text-sm font-semibold text-zinc-100 tabular-nums block truncate">
+                              <span className="text-sm font-semibold text-foreground font-mono tabular-nums block truncate">
                                 {formatCurrency(lineTotal, currency, { maximumFractionDigits: 2 })}
                               </span>
                             </TableCell>
@@ -759,7 +759,7 @@ export function CreatePOForm({ suppliers, prefillItems, prefillVariants }: Creat
                                 type="button"
                                 onClick={() => remove(index)}
                                 disabled={fields.length === 1}
-                                className="w-7 h-7 rounded-sm hover:bg-zinc-800 flex items-center justify-center transition-colors text-zinc-600 hover:text-red-400 disabled:opacity-50"
+                                className="w-7 h-7 rounded-md hover:bg-accent flex items-center justify-center transition-colors text-muted-foreground hover:text-red-500 disabled:opacity-50"
                               >
                                 <X className="h-3.5 w-3.5" />
                               </button>

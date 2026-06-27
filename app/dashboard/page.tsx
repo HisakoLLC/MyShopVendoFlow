@@ -330,29 +330,29 @@ async function DashboardContent({
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="border border-zinc-700/50">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-4">
+                <CardTitle className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-4">
                   Revenue Today
                 </CardTitle>
-                <ShoppingCart className="w-4 h-4 text-zinc-600" />
+                <ShoppingCart className="w-4 h-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">
+                <div className="font-mono text-3xl font-bold tabular-nums tracking-tight text-foreground">
                   {formatPrice(todayRevenue)}
                 </div>
                 <div className="flex items-center gap-1 mt-1">
                   {revenueChange >= 0 ? (
                     <>
-                      <TrendingUp className="h-3 w-3 text-emerald-400" />
-                      <span className="text-emerald-400 text-xs">
+                      <TrendingUp className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-emerald-600 dark:text-emerald-400 text-xs font-medium">
                         {revenueChange.toFixed(1)}% vs yesterday
                       </span>
                     </>
                   ) : (
                     <>
-                      <TrendingDown className="h-3 w-3 text-red-400" />
-                      <span className="text-red-400 text-xs">
+                      <TrendingDown className="h-3 w-3 text-destructive" />
+                      <span className="text-destructive text-xs font-medium">
                         {Math.abs(revenueChange).toFixed(1)}% vs yesterday
                       </span>
                     </>
@@ -361,80 +361,80 @@ async function DashboardContent({
               </CardContent>
             </Card>
 
-            <Card className="border border-zinc-700/50">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-4">
+                <CardTitle className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-4">
                   Revenue Yesterday
                 </CardTitle>
-                <Receipt className="w-4 h-4 text-zinc-600" />
+                <Receipt className="w-4 h-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">
+                <div className="font-mono text-3xl font-bold tabular-nums tracking-tight text-foreground">
                   {formatPrice(yesterdayRevenue)}
                 </div>
-                <p className="mt-1 text-xs text-zinc-500">Previous day total</p>
+                <p className="mt-1 text-xs text-muted-foreground">Previous day total</p>
               </CardContent>
             </Card>
 
-            <Card className="border border-zinc-700/50">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-4">
+                <CardTitle className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-4">
                   Revenue Last 7 Days
                 </CardTitle>
-                <TrendingUp className="w-4 h-4 text-zinc-600" />
+                <TrendingUp className="w-4 h-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">
+                <div className="font-mono text-3xl font-bold tabular-nums tracking-tight text-foreground">
                   {formatPrice(data7.aggregated.total_revenue)}
                 </div>
-                <p className="mt-1 text-xs text-zinc-500">Across selected stores</p>
+                <p className="mt-1 text-xs text-muted-foreground">Across selected stores</p>
               </CardContent>
             </Card>
 
-            <Card className="border border-zinc-700/50">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-4">
+                <CardTitle className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-4">
                   Revenue Last 30 Days
                 </CardTitle>
-                <TrendingUp className="w-4 h-4 text-zinc-600" />
+                <TrendingUp className="w-4 h-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">
+                <div className="font-mono text-3xl font-bold tabular-nums tracking-tight text-foreground">
                   {formatPrice(data30.aggregated.total_revenue)}
                 </div>
-                <p className="mt-1 text-xs text-zinc-500">Across selected stores</p>
+                <p className="mt-1 text-xs text-muted-foreground">Across selected stores</p>
               </CardContent>
             </Card>
 
-            <Card className="border border-zinc-700/50">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-4">
+                <CardTitle className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-4">
                   Transactions 30 Days
                 </CardTitle>
-                <Receipt className="w-4 h-4 text-zinc-600" />
+                <Receipt className="w-4 h-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">
+                <div className="font-mono text-3xl font-bold tabular-nums tracking-tight text-foreground">
                   {data30.aggregated.total_transactions}
                 </div>
-                <p className="mt-1 text-xs text-zinc-500">
+                <p className="mt-1 text-xs text-muted-foreground font-mono">
                   Avg basket: {formatPrice(data30.aggregated.avg_basket)}
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border border-zinc-700/50">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-4">
+                <CardTitle className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-4">
                   Stores
                 </CardTitle>
-                <Store className="w-4 h-4 text-zinc-600" />
+                <Store className="w-4 h-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold tabular-nums text-zinc-50">
+                <div className="font-mono text-3xl font-bold tabular-nums tracking-tight text-foreground">
                   {selectedStore ? 1 : storeList.length}
                 </div>
-                <p className="mt-1 text-xs text-zinc-500">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {selectedStore ? "Current store view" : "Total stores in account"}
                 </p>
               </CardContent>
@@ -444,7 +444,7 @@ async function DashboardContent({
           {!selectedStore && (
             <Card>
               <CardHeader>
-                <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Store Comparison</CardTitle>
+                <CardTitle className="font-sans text-lg font-semibold tracking-tight text-foreground">Store Comparison</CardTitle>
                 <CardDescription>Compare performance across stores (last 30 days)</CardDescription>
               </CardHeader>
               <CardContent>
@@ -455,7 +455,7 @@ async function DashboardContent({
 
           <Card>
             <CardHeader>
-              <CardTitle className="font-editorial text-xl font-bold text-zinc-50">Sales Trend</CardTitle>
+              <CardTitle className="font-sans text-lg font-semibold tracking-tight text-foreground">Sales Trend</CardTitle>
               <CardDescription>
                 Daily revenue {selectedStore ? "for this store" : "per store"} (last 30 days)
               </CardDescription>

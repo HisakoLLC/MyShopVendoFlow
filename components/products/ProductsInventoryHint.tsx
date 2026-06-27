@@ -16,13 +16,13 @@ export function ProductsInventoryHint() {
   if (dismissed) return null
 
   return (
-    <div className="mt-3 flex items-start gap-3 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs text-blue-900 dark:border-blue-900/40 dark:bg-blue-950/40 dark:text-blue-100">
+    <div className="mt-3 flex items-start gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2.5 text-xs text-foreground">
       <div className="text-base leading-none">💡</div>
       <div className="flex-1">
-        <div className="font-medium">
+        <div className="font-medium text-foreground">
           Tip: Products are shared across all stores, but inventory is tracked separately per store.
         </div>
-        <div className="mt-0.5">
+        <div className="mt-0.5 text-muted-foreground">
           Set how many units you have at each location so your stock levels stay accurate in POS and
           reports.
         </div>
@@ -35,7 +35,7 @@ export function ProductsInventoryHint() {
           }
           setDismissed(true)
         }}
-        className="ml-2 text-xs font-medium text-blue-900/70 hover:text-blue-900 dark:text-blue-200 dark:hover:text-blue-50"
+        className="ml-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
       >
         Dismiss
       </button>

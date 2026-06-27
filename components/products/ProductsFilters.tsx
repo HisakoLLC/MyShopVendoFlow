@@ -81,16 +81,16 @@ export function ProductsFilters({ categories, seasons, onFilterChange }: Product
 
   // DS v3.0 input/select classes
   const inputClass =
-    "h-9 w-full bg-zinc-900 border border-zinc-800 rounded-md pl-9 pr-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 transition-colors"
+    "h-9 w-full bg-background border border-border rounded-md pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C] transition-colors"
   const selectClass =
-    "h-9 w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 transition-colors appearance-none cursor-pointer"
+    "h-9 w-full bg-background border border-border rounded-md px-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C] transition-colors appearance-none cursor-pointer"
 
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-center">
       {/* Search */}
       <div className="w-full md:basis-2/4">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             value={search ?? ""}
             onChange={(e) => form.setValue("search", e.target.value, { shouldValidate: true })}
@@ -116,7 +116,7 @@ export function ProductsFilters({ categories, seasons, onFilterChange }: Product
             ))}
           </select>
           <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-            <svg className="h-4 w-4 text-zinc-500" viewBox="0 0 20 20" fill="currentColor">
+            <svg className="h-4 w-4 text-muted-foreground" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
             </svg>
           </div>
@@ -139,7 +139,7 @@ export function ProductsFilters({ categories, seasons, onFilterChange }: Product
             ))}
           </select>
           <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-            <svg className="h-4 w-4 text-zinc-500" viewBox="0 0 20 20" fill="currentColor">
+            <svg className="h-4 w-4 text-muted-foreground" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
             </svg>
           </div>
@@ -151,7 +151,7 @@ export function ProductsFilters({ categories, seasons, onFilterChange }: Product
         <button
           type="button"
           onClick={handleClear}
-          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-sm border border-zinc-700 px-3 text-xs font-semibold uppercase text-zinc-400 transition-colors hover:border-zinc-500 hover:text-zinc-100"
+          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-sm border border-border px-3 text-xs font-semibold uppercase text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
         >
           <X className="h-3.5 w-3.5" />
           Clear

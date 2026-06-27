@@ -90,28 +90,28 @@ function statusLabel(status: string | null): string {
 }
 
 function statusBadgeClass(status: string | null): string {
-  const base = "rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
+  const base = "rounded-md text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5"
   switch (status) {
     case "draft":
-      return `${base} bg-zinc-800 text-zinc-400 border border-zinc-700`
+      return `${base} bg-muted text-muted-foreground border border-border`
     case "sent":
-      return `${base} bg-blue-400/10 text-blue-400 border border-blue-400/20`
+      return `${base} bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20`
     case "partially_received":
-      return `${base} bg-amber-400/10 text-amber-400 border border-amber-400/20`
+      return `${base} bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20`
     case "received":
-      return `${base} bg-emerald-400/10 text-emerald-400 border border-emerald-400/20`
+      return `${base} bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20`
     case "cancelled":
-      return `${base} bg-red-400/10 text-red-400 border border-red-400/20`
+      return `${base} bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20`
     default:
-      return `${base} bg-zinc-800 text-zinc-400 border border-zinc-700`
+      return `${base} bg-muted text-muted-foreground border border-border`
   }
 }
 
 function LoadingState() {
   return (
     <div className="px-8 py-8">
-      <div className="h-8 w-48 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-      <div className="mt-6 h-64 animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+      <div className="h-8 w-48 animate-pulse rounded bg-muted" />
+      <div className="mt-6 h-64 animate-pulse rounded-xl bg-muted" />
     </div>
   )
 }
@@ -142,23 +142,23 @@ async function PurchasingContent() {
   return (
     <div className="px-8 py-8">
       <div className="mb-8">
-        <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+        <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">
           Manage purchase orders, restock suggestions, and receive inventory.
         </p>
-        <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+        <h1 className="font-sans text-3xl font-bold tracking-tight leading-tight text-foreground">
           Purchasing
         </h1>
       </div>
 
       {/* Quick actions */}
       <div className="mb-8 flex flex-wrap gap-3">
-        <Button asChild className="gap-2 rounded-sm">
+        <Button asChild className="gap-2 rounded-md bg-[#E8400C] hover:bg-[#c73508] text-white">
           <Link href="/purchasing/restock">
             <Truck className="h-4 w-4" />
             Restock suggestions
           </Link>
         </Button>
-        <Button asChild variant="outline" className="gap-2 rounded-sm">
+        <Button asChild variant="outline" className="gap-2 rounded-md border-border text-foreground hover:bg-accent">
           <Link href="/purchasing/new">
             <Plus className="h-4 w-4" />
             Create PO
@@ -169,7 +169,7 @@ async function PurchasingContent() {
       <div className="mb-8">
         <Link 
           href="/purchasing/suppliers" 
-          className="text-xs text-zinc-500 hover:text-zinc-300 underline-offset-4 hover:underline inline-flex items-center gap-1"
+          className="text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline inline-flex items-center gap-1"
         >
           Manage Suppliers →
         </Link>
@@ -177,66 +177,66 @@ async function PurchasingContent() {
 
       {/* Summary */}
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-zinc-700/50 bg-zinc-900 p-4">
-          <div className="font-editorial text-3xl font-bold text-zinc-50">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+          <div className="font-mono text-3xl font-bold tabular-nums text-foreground">
             {drafts.length}
           </div>
-          <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mt-2">Drafts</div>
+          <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mt-2">Drafts</div>
         </div>
-        <div className="rounded-xl border border-zinc-700/50 bg-zinc-900 p-4">
-          <div className="font-editorial text-3xl font-bold text-zinc-50">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+          <div className="font-mono text-3xl font-bold tabular-nums text-foreground">
             {notReceived.length}
           </div>
-          <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mt-2">Not yet received</div>
+          <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mt-2">Not yet received</div>
         </div>
-        <div className="rounded-xl border border-zinc-700/50 bg-zinc-900 p-4">
-          <div className="font-editorial text-3xl font-bold text-zinc-50">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+          <div className="font-mono text-3xl font-bold tabular-nums text-foreground">
             {received.length}
           </div>
-          <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mt-2">Received</div>
+          <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mt-2">Received</div>
         </div>
       </div>
 
       {/* PO list */}
       <div>
         <div className="mb-4">
-          <h2 className="font-editorial text-xl font-bold text-zinc-50">
+          <h2 className="font-sans text-xl font-bold text-foreground">
             Purchase orders
           </h2>
-          <p className="mt-0.5 text-sm text-zinc-400">
+          <p className="mt-0.5 text-sm text-muted-foreground">
             View, print, or receive inventory for any PO.
           </p>
         </div>
         {list.length === 0 ? (
-          <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 px-6 py-12 text-center">
-            <FileText className="mx-auto h-12 w-12 text-zinc-400 dark:text-zinc-500" />
-            <p className="mt-3 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+          <div className="rounded-lg border border-border bg-card px-6 py-12 text-center shadow-sm">
+            <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
+            <p className="mt-3 text-sm font-medium text-foreground">
               No purchase orders yet
             </p>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="mt-1 text-sm text-muted-foreground">
               Create one from restock suggestions or start a new PO.
             </p>
             <div className="mt-4 flex justify-center gap-2">
-              <Button asChild size="sm">
+              <Button asChild size="sm" className="rounded-md bg-[#E8400C] hover:bg-[#c73508] text-white">
                 <Link href="/purchasing/restock">Restock suggestions</Link>
               </Button>
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline" size="sm" className="rounded-md border-border text-foreground hover:bg-accent">
                 <Link href="/purchasing/new">Create PO</Link>
               </Button>
             </div>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-lg border border-zinc-700/50 bg-zinc-900">
+          <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader className="border-b-2 border-zinc-700 bg-zinc-900">
+                <TableHeader className="border-b border-border bg-muted/40">
                   <TableRow className="hover:bg-transparent">
-                    <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">PO #</TableHead>
-                    <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Supplier</TableHead>
-                    <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Order date</TableHead>
-                    <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Status</TableHead>
-                    <TableHead className="px-4 py-3 text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Total</TableHead>
-                    <TableHead className="px-4 py-3 text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Actions</TableHead>
+                    <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">PO #</TableHead>
+                    <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Supplier</TableHead>
+                    <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Order date</TableHead>
+                    <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Status</TableHead>
+                    <TableHead className="px-4 py-3 text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Total</TableHead>
+                    <TableHead className="px-4 py-3 text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
               <TableBody>
@@ -244,19 +244,19 @@ async function PurchasingContent() {
                   const canReceive =
                     po.status === "sent" || po.status === "partially_received"
                   return (
-                    <TableRow key={po.po_id} className="border-b border-zinc-700/40 hover:bg-zinc-800/40 transition-colors duration-100 last:border-0">
-                      <TableCell className="px-4 py-3.5 font-mono text-xs text-zinc-400">
+                    <TableRow key={po.po_id} className="border-b border-border hover:bg-accent/50 transition-colors duration-100 last:border-0">
+                      <TableCell className="px-4 py-3.5 font-mono text-xs text-muted-foreground">
                         <Link
                           href={`/purchasing/${po.po_id}`}
-                          className="hover:underline"
+                          className="hover:underline text-foreground font-medium"
                         >
                           {po.po_number}
                         </Link>
                       </TableCell>
-                      <TableCell className="px-4 py-3.5 text-sm font-semibold text-zinc-100">
+                      <TableCell className="px-4 py-3.5 text-sm font-semibold text-foreground">
                         {po.suppliers?.name ?? "—"}
                       </TableCell>
-                      <TableCell className="px-4 py-3.5 text-sm text-zinc-400">
+                      <TableCell className="px-4 py-3.5 text-sm text-muted-foreground">
                         {po.order_date
                           ? new Date(po.order_date).toLocaleDateString()
                           : "—"}
@@ -266,18 +266,18 @@ async function PurchasingContent() {
                           {statusLabel(po.status)}
                         </span>
                       </TableCell>
-                      <TableCell className="px-4 py-3.5 text-right text-sm font-semibold text-zinc-100 tabular-nums">
+                      <TableCell className="px-4 py-3.5 text-right text-sm font-semibold text-foreground tabular-nums font-mono">
                         {formatCurrency(po.total_cost ?? 0, currency, { maximumFractionDigits: 2 })}
                       </TableCell>
                       <TableCell className="px-4 py-3.5 text-right">
                         <div className="flex justify-end gap-2 px-1">
                           <Link href={`/purchasing/${po.po_id}`}>
-                            <button type="button" className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-7 px-3 text-xs font-semibold uppercase transition-colors bg-transparent items-center justify-center flex">
+                            <button type="button" className="border border-border text-foreground hover:bg-accent rounded-md h-7 px-3 text-xs font-semibold uppercase transition-colors bg-background items-center justify-center flex">
                               View
                             </button>
                           </Link>
                           {canReceive && (
-                            <Button asChild variant="outline" size="sm" className="gap-1">
+                            <Button asChild variant="outline" size="sm" className="gap-1 rounded-md border-border text-foreground hover:bg-accent">
                               <Link href={`/purchasing/${po.po_id}/receive`}>
                                 <Package className="h-3.5 w-3.5" />
                                 Receive

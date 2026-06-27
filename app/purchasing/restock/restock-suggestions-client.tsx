@@ -119,8 +119,8 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
 
   if (suggestions.length === 0) {
     return (
-      <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-8 text-center dark:border-zinc-800 dark:bg-zinc-950">
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+      <div className="rounded-xl border border-border bg-card p-8 text-center shadow-sm">
+        <p className="text-sm text-muted-foreground">
           No restock suggestions at this time. All variants have sufficient inventory.
         </p>
       </div>
@@ -130,7 +130,7 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
   return (
     <div className="space-y-4">
       {/* Actions Bar */}
-      <div className="flex items-center justify-between rounded-lg border border-zinc-200 bg-background-card-light p-4 dark:border-border-dark dark:bg-background-card-dark">
+      <div className="flex items-center justify-between rounded-lg border border-border bg-card text-card-foreground p-4 shadow-sm">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <Checkbox
@@ -140,13 +140,13 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
             />
             <label
               htmlFor="select-all"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground"
             >
               Select All ({totalSelected} selected)
             </label>
           </div>
           {totalSelected > 0 && (
-            <div className="text-sm text-zinc-600 dark:text-zinc-400">
+            <div className="text-sm text-muted-foreground font-mono">
               Total: {formatCurrency(totalValue)}
             </div>
           )}
@@ -154,7 +154,7 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
         <Button
           onClick={handleCreatePO}
           disabled={totalSelected === 0}
-          className="gap-2"
+          className="gap-2 bg-[#E8400C] text-white hover:bg-[#c73508]"
         >
           <ShoppingCart className="h-4 w-4" />
           Create PO from Selected ({totalSelected})
@@ -162,22 +162,22 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
       </div>
 
       {/* Table */}
-      <div>
+      <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
         <Table>
-          <TableHeader>
-            <TableRow>
+          <TableHeader className="bg-muted/40 border-b border-border">
+            <TableRow className="hover:bg-transparent">
               <TableHead className="w-12">
                 <span className="sr-only">Select</span>
               </TableHead>
-              <TableHead>Style</TableHead>
-              <TableHead>Variant</TableHead>
-              <TableHead>SKU</TableHead>
-              <TableHead className="text-right">Current Stock</TableHead>
-              <TableHead className="text-right">Avg Daily Sales</TableHead>
-              <TableHead className="text-right">Days Remaining</TableHead>
-              <TableHead className="text-right">Suggested Qty</TableHead>
-              <TableHead className="text-right">Unit Cost</TableHead>
-              <TableHead className="text-right">Line Total</TableHead>
+              <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Style</TableHead>
+              <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Variant</TableHead>
+              <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">SKU</TableHead>
+              <TableHead className="text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Current Stock</TableHead>
+              <TableHead className="text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Avg Daily Sales</TableHead>
+              <TableHead className="text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Days Remaining</TableHead>
+              <TableHead className="text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Suggested Qty</TableHead>
+              <TableHead className="text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Unit Cost</TableHead>
+              <TableHead className="text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Line Total</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -188,6 +188,7 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
               return (
                 <TableRow
                   key={suggestion.variant_id}
+                  className="border-b border-border hover:bg-accent/50 transition-colors"
                 >
                   <TableCell>
                     <Checkbox
@@ -199,7 +200,7 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <div className={suggestion.style_image_url ? "relative h-10 w-10 shrink-0 overflow-hidden rounded-md" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
+                      <div className={suggestion.style_image_url ? "relative h-10 w-10 shrink-0 overflow-hidden rounded-md border border-border" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border bg-muted"}>
                         {suggestion.style_image_url ? (
                           <Image
                             src={suggestion.style_image_url}
@@ -208,44 +209,44 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
                             className="object-cover"
                           />
                         ) : (
-                          <Package className="h-4 w-4 text-zinc-600" />
+                          <Package className="h-4 w-4 text-muted-foreground" />
                         )}
                       </div>
                       <div className="min-w-0">
-                        <div className="truncate font-medium text-zinc-100">
+                        <div className="truncate font-medium text-foreground">
                           {suggestion.style_name}
                         </div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm text-zinc-300">
+                    <div className="text-sm text-muted-foreground">
                       {suggestion.size} / {suggestion.color}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="font-mono text-sm text-zinc-400 tracking-wide">
+                    <div className="font-mono text-xs text-muted-foreground tracking-wide">
                       {suggestion.sku}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="font-medium text-zinc-100 tabular-nums">
+                    <div className="font-medium text-foreground font-mono tabular-nums">
                       {suggestion.current_stock}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="text-sm text-zinc-400 tabular-nums">
+                    <div className="text-sm text-muted-foreground font-mono tabular-nums">
                       {suggestion.avg_daily_sales_30d.toFixed(2)}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <div
-                      className={`font-semibold tabular-nums ${
+                      className={`font-semibold font-mono tabular-nums ${
                         suggestion.days_remaining < 3
-                          ? "text-red-400"
+                          ? "text-red-500"
                           : suggestion.days_remaining < 7
-                            ? "text-yellow-400"
-                            : "text-zinc-100"
+                            ? "text-amber-500"
+                            : "text-foreground"
                       }`}
                     >
                       {suggestion.days_remaining.toFixed(1)}
@@ -257,16 +258,16 @@ export function RestockSuggestionsClient({ suggestions, currency = "KES" }: Rest
                       min="1"
                       value={qty}
                       onChange={(e) => handleQuantityChange(suggestion.variant_id, e.target.value)}
-                      className="w-20 text-right"
+                      className="w-20 text-right bg-background border border-border rounded-md h-8 font-mono text-sm text-foreground focus:ring-1 focus:ring-[#E8400C]"
                     />
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="text-sm text-zinc-400 tabular-nums">
+                    <div className="text-sm text-muted-foreground font-mono tabular-nums">
                       {formatCurrency(suggestion.unit_cost)}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="font-semibold text-zinc-100 tabular-nums">
+                    <div className="font-semibold text-foreground font-mono tabular-nums">
                       {formatCurrency(lineTotal)}
                     </div>
                   </TableCell>

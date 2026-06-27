@@ -102,8 +102,8 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
     <>
       <div className="flex h-full flex-col">
         {/* Cart Header */}
-        <div className="border-b border-zinc-200 px-5 py-4">
-          <h2 className="text-xs font-semibold tracking-[0.15em] uppercase text-zinc-500">
+        <div className="border-b border-border px-5 py-4">
+          <h2 className="text-xs font-semibold tracking-[0.15em] uppercase text-muted-foreground">
             Cart ({cart.length} {cart.length === 1 ? "item" : "items"})
           </h2>
         </div>
@@ -113,7 +113,7 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
           {cart.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
               <svg
-                className="mb-4 h-16 w-16 text-zinc-400 dark:text-zinc-600"
+                className="mb-4 h-16 w-16 text-muted-foreground"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -125,10 +125,10 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
                   d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                 />
               </svg>
-              <p className="mb-1 text-lg font-medium text-zinc-700 dark:text-zinc-300">
+              <p className="mb-1 text-lg font-medium text-foreground">
                 Cart is empty
               </p>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              <p className="text-sm text-muted-foreground">
                 Start adding products to create a sale
               </p>
             </div>
@@ -136,12 +136,12 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
             <div className="space-y-3">
               {cart.map((item) => (
                 <div
-                  className="group relative bg-white border border-zinc-200 rounded-lg p-4 mb-2"
+                  className="group relative bg-card border border-border rounded-lg p-4 mb-2"
                 >
                   {/* Remove Button */}
                   <button
                     onClick={() => removeFromCart(item.cartItemId)}
-                    className="absolute right-3 top-3 rounded p-1 text-zinc-400 opacity-0 transition-opacity hover:text-red-600 group-hover:opacity-100"
+                    className="absolute right-3 top-3 rounded p-1 text-muted-foreground opacity-0 transition-opacity hover:text-red-600 group-hover:opacity-100"
                     aria-label="Remove item"
                   >
                     <svg
@@ -161,13 +161,13 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
 
                   {/* Item Details */}
                   <div className="pr-8">
-                    <h3 className="text-sm font-semibold text-zinc-900">
+                    <h3 className="text-sm font-semibold text-foreground">
                       {item.styleName}
                     </h3>
-                    <p className="mt-1 text-xs text-zinc-500">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {item.size} / {item.color}
                     </p>
-                    <p className="mt-0.5 font-mono text-xs text-zinc-400">
+                    <p className="mt-0.5 font-mono text-xs text-muted-foreground">
                       SKU: {item.sku}
                     </p>
                     <div className="mt-2 flex flex-col gap-1.5">
@@ -175,18 +175,18 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
                         <div className="flex items-center gap-2 mt-2">
                           <button
                             type="button"
-                            className="w-7 h-7 rounded-sm border border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400 hover:bg-zinc-50 transition-colors flex items-center justify-center text-sm shrink-0 font-medium"
+                            className="w-7 h-7 rounded-sm border border-border bg-background text-foreground hover:border-foreground/40 hover:bg-accent transition-colors flex items-center justify-center text-sm shrink-0 font-medium"
                             onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
                             aria-label="Decrease quantity"
                           >
                             <Minus className="h-3 w-3" />
                           </button>
-                          <span className="text-sm font-semibold text-zinc-900 w-8 text-center tabular-nums">
+                          <span className="font-mono text-sm font-semibold text-foreground w-8 text-center tabular-nums">
                             {item.quantity}
                           </span>
                           <button
                             type="button"
-                            className="w-7 h-7 rounded-sm border border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400 hover:bg-zinc-50 transition-colors flex items-center justify-center text-sm shrink-0 font-medium"
+                            className="w-7 h-7 rounded-sm border border-border bg-background text-foreground hover:border-foreground/40 hover:bg-accent transition-colors flex items-center justify-center text-sm shrink-0 font-medium"
                             onClick={() => {
                               const available = defaultStoreId
                                 ? (stockByVariant[item.variantId] ?? 0)
@@ -202,12 +202,12 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
                             <Plus className="h-3 w-3" />
                           </button>
                         </div>
-                        <span className="text-sm font-bold text-zinc-900 tabular-nums shrink-0 mt-2">
+                        <span className="font-mono text-sm font-bold text-foreground tabular-nums shrink-0 mt-2">
                           {formatPrice(item.price * item.quantity)}
                         </span>
                       </div>
                       {defaultStoreId && stockByVariant[item.variantId] != null && (
-                        <p className="text-xs text-zinc-500 mt-1.5">
+                        <p className="text-xs text-muted-foreground mt-1.5">
                           Max in stock: {stockByVariant[item.variantId]}
                         </p>
                       )}
@@ -221,33 +221,33 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
 
         {/* Footer - Sticky Bottom */}
         {cart.length > 0 && (
-          <div className="border-t-2 border-zinc-200 bg-zinc-900 px-5 py-4">
+          <div className="border-t-2 border-border bg-card px-5 py-4">
             <div className="space-y-2">
               {/* Subtotal */}
               <div className="flex justify-between text-sm items-center">
-                <span className="text-xs text-zinc-400">
+                <span className="text-xs text-muted-foreground">
                   {taxInclusive ? "Subtotal (ex tax)" : "Subtotal"}
                 </span>
-                <span className="text-sm text-zinc-300 tabular-nums">
+                <span className="font-mono text-sm text-foreground tabular-nums">
                   {formatPrice(subtotal)}
                 </span>
               </div>
 
               {/* Tax */}
               <div className="flex justify-between text-sm items-center">
-                <span className="text-xs text-zinc-400">Tax ({taxRatePercent}%)</span>
-                <span className="text-sm text-zinc-300 tabular-nums">
+                <span className="text-xs text-muted-foreground">Tax ({taxRatePercent}%)</span>
+                <span className="font-mono text-sm text-foreground tabular-nums">
                   {formatPrice(taxAmount)}
                 </span>
               </div>
 
               {/* Total */}
-              <div className="border-t border-zinc-700 my-2 pt-2">
+              <div className="border-t border-border my-2 pt-2">
                 <div className="flex justify-between items-end">
-                  <span className="text-sm font-semibold text-zinc-100">
+                  <span className="text-sm font-semibold text-foreground">
                     Total
                   </span>
-                  <span className="font-editorial text-2xl font-bold text-white tabular-nums">
+                  <span className="font-mono text-2xl font-bold text-foreground tabular-nums tracking-tight">
                     {formatPrice(total)}
                   </span>
                 </div>
@@ -255,7 +255,7 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
 
               {/* Checkout Button */}
               <button
-                className="mt-3 w-full bg-white text-zinc-900 hover:bg-zinc-100 border border-zinc-700 rounded-sm h-11 text-xs font-semibold tracking-[0.15em] uppercase transition-colors"
+                className="mt-3 w-full bg-[#E8400C] text-white hover:bg-[#c73508] rounded-sm h-11 text-xs font-semibold tracking-[0.15em] uppercase transition-colors border-none"
                 onClick={() => setShowCheckout(true)}
                 disabled={cart.length === 0}
               >
@@ -265,7 +265,7 @@ export function Cart({ defaultStoreId, accountId, storeName }: CartProps) {
               {/* Clear Cart Button */}
               <button
                 type="button"
-                className="w-full bg-transparent border border-zinc-700 text-zinc-500 hover:border-zinc-500 hover:text-zinc-400 rounded-sm h-9 text-xs font-semibold tracking-[0.12em] uppercase transition-colors mt-2"
+                className="w-full bg-transparent border border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground rounded-sm h-9 text-xs font-semibold tracking-[0.12em] uppercase transition-colors mt-2"
                 onClick={() => setShowClearConfirm(true)}
                 disabled={cart.length === 0}
               >

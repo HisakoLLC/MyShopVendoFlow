@@ -206,17 +206,17 @@ async function fetchStaffData(): Promise<{
 
 function LoadingState() {
   return (
-    <div className="min-h-screen bg-zinc-950 px-8 py-8">
-      <div className="mb-6 h-4 w-32 animate-pulse rounded bg-zinc-800" />
-      <div className="mb-6 h-8 w-64 animate-pulse rounded bg-zinc-800" />
-      <div className="h-96 w-full animate-pulse rounded-lg bg-zinc-800" />
+    <div className="min-h-screen bg-background px-8 py-8">
+      <div className="mb-6 h-4 w-32 animate-pulse rounded bg-muted" />
+      <div className="mb-6 h-8 w-64 animate-pulse rounded bg-muted" />
+      <div className="h-96 w-full animate-pulse rounded-lg bg-muted" />
     </div>
   )
 }
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+    <div className="min-h-screen bg-background px-8 py-8">
       <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-5 text-red-200">
         <div className="text-base font-semibold">We couldn't load Staff</div>
         <div className="mt-1 text-sm opacity-90">{message}</div>
@@ -235,7 +235,7 @@ async function StaffPageContent() {
       return <ErrorState message="Account not found. Please complete onboarding first." />
     }
     return (
-      <div className="min-h-screen bg-zinc-950 px-8 py-8">
+      <div className="min-h-screen bg-background px-8 py-8">
         <StaffList
           initialStaff={Array.isArray(data.staff) ? data.staff : []}
           planTier={data.account?.plan_tier || "starter"}

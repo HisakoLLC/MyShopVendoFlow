@@ -92,11 +92,11 @@ function formatEndsAt(iso: string | null | undefined): string {
 
 // DS v3 Alert Dialog content style
 const alertContentClass =
-  "fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-sm border border-zinc-800 bg-zinc-900 p-6 shadow-2xl outline-none"
+  "fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-sm border border-border bg-card text-card-foreground p-6 shadow-2xl outline-none"
 const alertCancelBtnClass =
-  "inline-flex h-9 items-center justify-center rounded-sm border border-zinc-700 bg-transparent px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+  "inline-flex h-9 items-center justify-center rounded-sm border border-border bg-transparent px-5 text-xs font-semibold tracking-[0.12em] uppercase text-muted-foreground hover:border-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 const alertConfirmBtnClass =
-  "inline-flex h-9 items-center justify-center rounded-sm bg-white px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-950 hover:bg-zinc-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+  "inline-flex h-9 items-center justify-center rounded-sm bg-[#E8400C] px-5 text-xs font-semibold tracking-[0.12em] uppercase text-white hover:bg-[#c73508] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 const alertDeleteBtnClass =
   "inline-flex h-9 items-center justify-center rounded-sm bg-red-500 px-5 text-xs font-semibold tracking-[0.12em] uppercase text-white hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 
@@ -161,22 +161,22 @@ export function ProductsTableClient(props: {
 
   // DS v3 dialog input class
   const dialogInputClass =
-    "bg-zinc-800 border border-zinc-700 rounded-md text-sm text-zinc-100 h-9 px-3 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 w-full"
+    "bg-background border border-border rounded-md text-sm text-foreground h-9 px-3 placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C] w-full"
 
   return (
     <div className="w-full">
       {/* Single-style discount dialog */}
       <Dialog open={!!discountStyle} onOpenChange={(open) => !open && setDiscountStyle(null)}>
-        <DialogContent className="sm:max-w-sm bg-zinc-900 border-zinc-800 text-zinc-100 rounded-sm p-0 gap-0">
-          <DialogHeader className="px-6 py-5 border-b border-zinc-800">
-            <DialogTitle className="font-editorial text-lg font-bold text-zinc-50">Set Discount</DialogTitle>
-            <DialogDescription className="text-sm text-zinc-400 mt-1">
+        <DialogContent className="sm:max-w-sm bg-card border-border text-card-foreground rounded-sm p-0 gap-0">
+          <DialogHeader className="px-6 py-5 border-b border-border">
+            <DialogTitle className="font-sans text-lg font-bold text-foreground">Set Discount</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground mt-1">
               {discountStyle ? `Apply a discount to "${discountStyle.name}". This affects all variants at POS and in listings.` : ""}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 px-6 py-5">
             <div className="grid gap-2">
-              <Label htmlFor="discount-percent" className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Discount % (0–100)</Label>
+              <Label htmlFor="discount-percent" className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Discount % (0–100)</Label>
               <input
                 id="discount-percent"
                 type="number"
@@ -190,7 +190,7 @@ export function ProductsTableClient(props: {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="discount-ends-at" className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Ends on (optional)</Label>
+              <Label htmlFor="discount-ends-at" className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Ends on (optional)</Label>
               <input
                 id="discount-ends-at"
                 type="date"
@@ -198,7 +198,7 @@ export function ProductsTableClient(props: {
                 onChange={(e) => setDiscountEndsAtInput(e.target.value)}
                 className={dialogInputClass}
               />
-              <p className="text-xs text-zinc-500">Leave empty for no end date.</p>
+              <p className="text-xs text-muted-foreground">Leave empty for no end date.</p>
             </div>
             {error && <p className="text-xs text-red-400">{error}</p>}
           </div>
@@ -272,16 +272,16 @@ export function ProductsTableClient(props: {
 
       {/* Bulk discount dialog */}
       <Dialog open={bulkDiscountOpen} onOpenChange={setBulkDiscountOpen}>
-        <DialogContent className="sm:max-w-sm bg-zinc-900 border-zinc-800 text-zinc-100 rounded-sm p-0 gap-0">
-          <DialogHeader className="px-6 py-5 border-b border-zinc-800">
-            <DialogTitle className="font-editorial text-lg font-bold text-zinc-50">Bulk Discount</DialogTitle>
-            <DialogDescription className="text-sm text-zinc-400 mt-1">
+        <DialogContent className="sm:max-w-sm bg-card border-border text-card-foreground rounded-sm p-0 gap-0">
+          <DialogHeader className="px-6 py-5 border-b border-border">
+            <DialogTitle className="font-sans text-lg font-bold text-foreground">Bulk Discount</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground mt-1">
               Apply the same discount to {selectedCount} selected style{selectedCount !== 1 ? "s" : ""}. Affects all variants at POS and in listings.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 px-6 py-5">
             <div className="grid gap-2">
-              <Label htmlFor="bulk-discount-percent" className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Discount % (0–100)</Label>
+              <Label htmlFor="bulk-discount-percent" className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Discount % (0–100)</Label>
               <input
                 id="bulk-discount-percent"
                 type="number"
@@ -295,7 +295,7 @@ export function ProductsTableClient(props: {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="bulk-discount-ends-at" className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Ends on (optional)</Label>
+              <Label htmlFor="bulk-discount-ends-at" className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Ends on (optional)</Label>
               <input
                 id="bulk-discount-ends-at"
                 type="date"
@@ -303,7 +303,7 @@ export function ProductsTableClient(props: {
                 onChange={(e) => setBulkDiscountEndsAt(e.target.value)}
                 className={dialogInputClass}
               />
-              <p className="text-xs text-zinc-500">Leave empty for no end date.</p>
+              <p className="text-xs text-muted-foreground">Leave empty for no end date.</p>
             </div>
             {error && <p className="text-xs text-red-400">{error}</p>}
           </div>
@@ -343,8 +343,8 @@ export function ProductsTableClient(props: {
 
       {/* Bulk selection bar */}
       {selectedCount > 0 && viewMode === "active" && (
-        <div className="mb-4 flex items-center justify-between gap-3 rounded-sm border border-zinc-800 bg-zinc-900/60 px-4 py-3">
-          <span className="text-sm font-medium text-zinc-300">
+        <div className="mb-4 flex items-center justify-between gap-3 rounded-sm border border-border bg-card px-4 py-3">
+          <span className="text-sm font-medium text-foreground">
             {selectedCount} style{selectedCount !== 1 ? "s" : ""} selected
           </span>
           <div className="flex items-center gap-2">
@@ -380,8 +380,8 @@ export function ProductsTableClient(props: {
           {error ? (
             <div className="text-sm text-red-400">{error}</div>
           ) : (
-            <div className="flex items-center gap-3 text-sm text-zinc-500">
-              <span className="text-xs text-zinc-500">
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground font-mono tabular-nums">
                 {viewMode === "active"
                   ? `${filtered.length} ${filtered.length === 1 ? "style" : "styles"}`
                   : `${filtered.length} archived`}
@@ -390,7 +390,7 @@ export function ProductsTableClient(props: {
                 <button
                   type="button"
                   onClick={() => setViewMode(viewMode === "archived" ? "active" : "archived")}
-                  className="text-[0.65rem] font-semibold tracking-[0.12em] uppercase text-zinc-500 hover:text-zinc-100 transition-colors"
+                  className="text-[0.65rem] font-semibold tracking-[0.12em] uppercase text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {viewMode === "archived" ? "← Active" : `Archived (${archivedStyles.length})`}
                 </button>
@@ -401,14 +401,14 @@ export function ProductsTableClient(props: {
       </div>
 
       {!hasProducts ? (
-        <div className="rounded-sm border border-dashed border-zinc-800 bg-zinc-900/30 p-10 text-center">
+        <div className="rounded-sm border border-dashed border-border bg-card/50 p-10 text-center">
           <div className="mx-auto max-w-md space-y-3">
-            <p className="text-lg font-semibold text-zinc-100">No products yet.</p>
-            <p className="text-sm text-zinc-500">Add your first style to get started.</p>
+            <p className="text-lg font-semibold text-foreground">No products yet.</p>
+            <p className="text-sm text-muted-foreground">Add your first style to get started.</p>
             <div className="pt-2">
               <Link
                 href="/products/new"
-                className="inline-flex items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+                className="inline-flex items-center justify-center bg-[#E8400C] text-white hover:bg-[#c73508] rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
               >
                 Add New Style
               </Link>
@@ -418,10 +418,10 @@ export function ProductsTableClient(props: {
       ) : (
         <>
           {/* Desktop: Table View */}
-          <div className="hidden overflow-hidden rounded-lg border border-zinc-700/50 bg-zinc-900 md:block">
+          <div className="hidden overflow-hidden rounded-lg border border-border bg-card md:block">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="border-b-2 border-zinc-700">
+                <thead className="border-b-2 border-border bg-muted/40">
                   <tr>
                     {viewMode === "active" && (
                       <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">
@@ -442,10 +442,10 @@ export function ProductsTableClient(props: {
                     <th className="px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="text-sm">
+                <tbody className="text-sm divide-y divide-border/40">
                   {filtered.length === 0 ? (
                     <tr>
-                      <td className="px-4 py-10 text-center text-zinc-500" colSpan={viewMode === "active" ? 9 : 8}>
+                      <td className="px-4 py-10 text-center text-muted-foreground" colSpan={viewMode === "active" ? 9 : 8}>
                         {viewMode === "archived"
                           ? "No archived styles match your filters."
                           : "No styles match your filters."}
@@ -465,7 +465,7 @@ export function ProductsTableClient(props: {
                       return (
                         <tr
                           key={s.style_id}
-                          className="group border-b border-zinc-700/40 transition-colors duration-100 hover:bg-zinc-800/40 last:border-0"
+                          className="group transition-colors duration-100 hover:bg-accent/40"
                         >
                           {viewMode === "active" && (
                             <td className="px-4 py-3.5">
@@ -477,7 +477,7 @@ export function ProductsTableClient(props: {
                             </td>
                           )}
                           <td className="px-4 py-3.5">
-                            <div className="h-10 w-10 overflow-hidden rounded-md bg-zinc-800 flex items-center justify-center">
+                            <div className="h-10 w-10 overflow-hidden rounded-md bg-muted flex items-center justify-center">
                               {s.image_url && s.image_url !== "/placeholder-product.png" ? (
                                 <Image
                                   src={s.image_url}
@@ -487,34 +487,34 @@ export function ProductsTableClient(props: {
                                   className="h-full w-full object-cover rounded-md"
                                 />
                               ) : (
-                                <Package className="h-4 w-4 text-zinc-600" />
+                                <Package className="h-4 w-4 text-muted-foreground" />
                               )}
                             </div>
                           </td>
                           <td className="px-4 py-3.5">
-                            <Link href={`/products/${s.style_id}`} className="text-sm font-semibold text-zinc-100 hover:text-white transition-colors">
+                            <Link href={`/products/${s.style_id}`} className="text-sm font-semibold text-foreground hover:text-[#E8400C] transition-colors">
                               {s.name}
                             </Link>
                           </td>
-                          <td className="px-4 py-3.5 text-sm text-zinc-400">{categoryName}</td>
-                          <td className="px-4 py-3.5 text-sm text-zinc-400">
-                            {seasonName ?? <span className="text-zinc-600">—</span>}
+                          <td className="px-4 py-3.5 text-sm text-muted-foreground">{categoryName}</td>
+                          <td className="px-4 py-3.5 text-sm text-muted-foreground">
+                            {seasonName ?? <span className="text-muted-foreground/50">—</span>}
                           </td>
-                          <td className="px-4 py-3.5 text-right font-semibold text-zinc-100 tabular-nums font-mono">
+                          <td className="px-4 py-3.5 text-right font-semibold text-foreground tabular-nums font-mono">
                             {active ? (
                               <span className="flex flex-col items-end gap-0.5">
-                                <span className="text-[0.65rem] text-zinc-500 line-through">{formatKes(base)}</span>
+                                <span className="text-[0.65rem] text-muted-foreground line-through">{formatKes(base)}</span>
                                 <span>{formatKes(displayPrice)}</span>
-                                <span className="text-[0.65rem] font-normal text-emerald-400">{discountPct}% off</span>
+                                <span className="text-[0.65rem] font-normal text-emerald-500">{discountPct}% off</span>
                                 {s.discount_ends_at && (
-                                  <span className="text-[0.65rem] font-normal text-zinc-500">Until {formatEndsAt(s.discount_ends_at)}</span>
+                                  <span className="text-[0.65rem] font-normal text-muted-foreground">Until {formatEndsAt(s.discount_ends_at)}</span>
                                 )}
                               </span>
                             ) : (
                               formatKes(base)
                             )}
                           </td>
-                          <td className="hidden px-4 py-3.5 text-right font-semibold text-zinc-100 tabular-nums font-mono lg:table-cell">
+                          <td className="hidden px-4 py-3.5 text-right font-semibold text-foreground tabular-nums font-mono lg:table-cell">
                             {formatKes(cost)}
                           </td>
                           <td className="hidden px-4 py-3.5 text-right lg:table-cell">
@@ -528,7 +528,7 @@ export function ProductsTableClient(props: {
                                 <>
                                   <Link
                                     href={`/products/${s.style_id}/edit`}
-                                    className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
+                                    className="text-muted-foreground hover:text-foreground hover:bg-accent rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
                                     title="Edit"
                                   >
                                     <Pencil className="h-4 w-4" />
@@ -536,7 +536,7 @@ export function ProductsTableClient(props: {
 
                                   <button
                                     type="button"
-                                    className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-7 w-7 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="text-muted-foreground hover:text-foreground hover:bg-accent rounded-sm h-7 w-7 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                                     title="Discount"
                                     disabled={isPending}
                                     onClick={() => {
@@ -555,7 +555,7 @@ export function ProductsTableClient(props: {
                                     <AlertDialog.Trigger asChild>
                                       <button
                                         type="button"
-                                        className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-7 w-7 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="text-muted-foreground hover:text-foreground hover:bg-accent rounded-sm h-7 w-7 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                                         title="Archive"
                                         disabled={isPending}
                                       >
@@ -566,10 +566,10 @@ export function ProductsTableClient(props: {
                                     <AlertDialog.Portal>
                                       <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/60" />
                                       <AlertDialog.Content className={alertContentClass}>
-                                        <AlertDialog.Title className="font-editorial text-lg font-bold text-zinc-50 mb-2">
+                                        <AlertDialog.Title className="font-sans text-lg font-bold text-foreground mb-2">
                                           Archive this style?
                                         </AlertDialog.Title>
-                                        <AlertDialog.Description className="text-sm text-zinc-400 mb-6">
+                                        <AlertDialog.Description className="text-sm text-muted-foreground mb-6">
                                           This will hide the style from your active list. You can restore it anytime from Archived.
                                         </AlertDialog.Description>
 
@@ -608,7 +608,7 @@ export function ProductsTableClient(props: {
                               ) : (
                                 <button
                                   type="button"
-                                  className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-7 w-7 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                  className="text-muted-foreground hover:text-foreground hover:bg-accent rounded-sm h-7 w-7 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                                   title="Restore to active"
                                   disabled={isPending}
                                   onClick={() => {
@@ -638,7 +638,7 @@ export function ProductsTableClient(props: {
                                 <AlertDialog.Trigger asChild>
                                   <button
                                     type="button"
-                                    className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-sm h-7 w-7 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-sm h-7 w-7 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                                     title="Delete permanently"
                                     disabled={isPending}
                                   >
@@ -649,10 +649,10 @@ export function ProductsTableClient(props: {
                                 <AlertDialog.Portal>
                                   <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/60" />
                                   <AlertDialog.Content className={alertContentClass}>
-                                    <AlertDialog.Title className="font-editorial text-lg font-bold text-zinc-50 mb-2">
+                                    <AlertDialog.Title className="font-sans text-lg font-bold text-foreground mb-2">
                                       Delete &quot;{s.name}&quot; permanently?
                                     </AlertDialog.Title>
-                                    <AlertDialog.Description className="text-sm text-zinc-400 mb-6">
+                                    <AlertDialog.Description className="text-sm text-muted-foreground mb-6">
                                       This will remove the style and all its variants and inventory levels. This cannot be undone. Products with sales history cannot be deleted—use Archive instead.
                                     </AlertDialog.Description>
 
@@ -704,8 +704,8 @@ export function ProductsTableClient(props: {
           <div className="md:hidden">
             <div className="space-y-3">
               {filtered.length === 0 ? (
-                <div className="rounded-sm border border-dashed border-zinc-800 bg-zinc-900/30 p-10 text-center">
-                  <p className="text-sm text-zinc-500">
+                <div className="rounded-sm border border-dashed border-border bg-card/50 p-10 text-center">
+                  <p className="text-sm text-muted-foreground">
                     {viewMode === "archived"
                       ? "No archived styles match your filters."
                       : "No styles match your filters."}
@@ -726,10 +726,10 @@ export function ProductsTableClient(props: {
                     <Link
                       key={s.style_id}
                       href={`/products/${s.style_id}`}
-                      className="block rounded-sm border border-zinc-800 bg-zinc-900 p-4 transition-colors hover:border-zinc-700 hover:bg-zinc-800/60"
+                      className="block rounded-sm border border-border bg-card p-4 transition-colors hover:border-foreground/20 hover:bg-accent/40"
                     >
                       <div className="flex gap-4">
-                        <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-zinc-800 flex items-center justify-center">
+                        <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-muted flex items-center justify-center">
                           {s.image_url && s.image_url !== "/placeholder-product.png" ? (
                             <Image
                               src={s.image_url}
@@ -739,19 +739,19 @@ export function ProductsTableClient(props: {
                               className="h-16 w-16 object-cover"
                             />
                           ) : (
-                            <Package className="h-5 w-5 text-zinc-600" />
+                            <Package className="h-5 w-5 text-muted-foreground" />
                           )}
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <h3 className="truncate text-sm font-semibold text-zinc-100">{s.name}</h3>
-                          <div className="mt-1 space-y-0.5 text-xs text-zinc-500">
+                          <h3 className="truncate text-sm font-semibold text-foreground">{s.name}</h3>
+                          <div className="mt-1 space-y-0.5 text-xs text-muted-foreground">
                             <div>{categoryName} · {seasonName}</div>
                             <div className="flex items-center justify-between pt-1">
-                              <span className="font-semibold text-zinc-100 font-mono tabular-nums">
+                              <span className="font-semibold text-foreground font-mono tabular-nums">
                                 {active ? (
                                   <>
-                                    <span className="text-zinc-500 line-through mr-1">{formatKes(base)}</span>
+                                    <span className="text-muted-foreground line-through mr-1">{formatKes(base)}</span>
                                     {formatKes(displayPrice)}
                                   </>
                                 ) : (
@@ -776,9 +776,9 @@ export function ProductsTableClient(props: {
                       </div>
                     </Link>
                   ) : (
-                    <div key={s.style_id} className="block rounded-sm border border-zinc-800 bg-zinc-900 p-4">
+                    <div key={s.style_id} className="block rounded-sm border border-border bg-card p-4">
                       <div className="flex gap-4">
-                        <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-zinc-800 flex items-center justify-center">
+                        <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-muted flex items-center justify-center">
                           {s.image_url && s.image_url !== "/placeholder-product.png" ? (
                             <Image
                               src={s.image_url}
@@ -788,15 +788,15 @@ export function ProductsTableClient(props: {
                               className="h-16 w-16 object-cover"
                             />
                           ) : (
-                            <Package className="h-5 w-5 text-zinc-600" />
+                            <Package className="h-5 w-5 text-muted-foreground" />
                           )}
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <h3 className="truncate text-sm font-semibold text-zinc-100">{s.name}</h3>
-                          <div className="mt-1 text-xs text-zinc-500">{categoryName} · {seasonName}</div>
+                          <h3 className="truncate text-sm font-semibold text-foreground">{s.name}</h3>
+                          <div className="mt-1 text-xs text-muted-foreground">{categoryName} · {seasonName}</div>
                           <div className="mt-1 flex items-center gap-2">
-                            <span className="font-semibold text-zinc-100 font-mono tabular-nums text-xs">{formatKes(base)}</span>
+                            <span className="font-semibold text-foreground font-mono tabular-nums text-xs">{formatKes(base)}</span>
                             <span className={marginBadgeClass(margin)}>{margin.toFixed(1)}%</span>
                           </div>
                         </div>
@@ -804,7 +804,7 @@ export function ProductsTableClient(props: {
                         <div className="flex flex-col items-end gap-2">
                           <button
                             type="button"
-                            className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
+                            className="text-muted-foreground hover:text-foreground hover:bg-accent rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
                             title="Restore to active"
                             disabled={isPending}
                             onClick={() => {
@@ -833,7 +833,7 @@ export function ProductsTableClient(props: {
                               <button
                                 type="button"
                                 onClick={(e) => e.stopPropagation()}
-                                className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
+                                className="text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
                                 title="Delete permanently"
                                 disabled={isPending}
                               >
@@ -844,10 +844,10 @@ export function ProductsTableClient(props: {
                             <AlertDialog.Portal>
                               <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/60" />
                               <AlertDialog.Content className={alertContentClass}>
-                                <AlertDialog.Title className="font-editorial text-lg font-bold text-zinc-50 mb-2">
+                                <AlertDialog.Title className="font-sans text-lg font-bold text-foreground mb-2">
                                   Delete &quot;{s.name}&quot; permanently?
                                 </AlertDialog.Title>
-                                <AlertDialog.Description className="text-sm text-zinc-400 mb-6">
+                                <AlertDialog.Description className="text-sm text-muted-foreground mb-6">
                                   This will remove the style and all its variants and inventory levels. This cannot be undone.
                                 </AlertDialog.Description>
 

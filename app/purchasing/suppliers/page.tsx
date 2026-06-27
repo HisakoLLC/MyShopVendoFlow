@@ -67,11 +67,11 @@ async function SuppliersContent() {
   const suppliers = await fetchSuppliers()
 
   return (
-    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+    <div className="min-h-screen bg-background text-foreground px-8 py-8">
       {/* BACK LINK */}
       <Link 
         href="/purchasing" 
-        className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6 group"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group"
       >
         <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
         Purchasing
@@ -86,8 +86,8 @@ export default function SuppliersPage() {
   return (
     <Suspense fallback={
       <div className="px-8 py-8">
-        <div className="h-8 w-48 animate-pulse rounded bg-zinc-800" />
-        <div className="mt-8 h-64 animate-pulse rounded-xl bg-zinc-800" />
+        <div className="h-8 w-48 animate-pulse rounded bg-muted" />
+        <div className="mt-8 h-64 animate-pulse rounded-xl bg-muted" />
       </div>
     }>
       <SuppliersContent />

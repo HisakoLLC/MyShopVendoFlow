@@ -10,10 +10,10 @@ export const dynamic = "force-dynamic"
 
 function LoadingState() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-950">
+    <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="text-center">
-        <div className="mb-4 h-8 w-8 animate-spin rounded-full border-2 border-zinc-800 border-t-zinc-100 mx-auto"></div>
-        <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Loading Intelligence Data...</p>
+        <div className="mb-4 h-8 w-8 animate-spin rounded-full border-2 border-border border-t-[#E8400C] mx-auto"></div>
+        <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground">Loading Intelligence Data...</p>
       </div>
     </div>
   )
@@ -99,21 +99,21 @@ async function IntelligenceContent() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+    <div className="min-h-screen bg-background px-8 py-8">
       <Link 
         href="/inventory" 
-        className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6 group"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to inventory
       </Link>
 
-      <div className="flex items-start justify-between border-b border-zinc-800 pb-6 mb-6">
+      <div className="flex items-start justify-between border-b border-border pb-6 mb-6">
         <div>
-          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">
             AI-POWERED INSIGHTS, STOCK HEALTH, AND SALES VELOCITY
           </p>
-          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+          <h1 className="font-sans text-3xl font-bold leading-tight text-foreground">
             Inventory Intelligence
           </h1>
         </div>

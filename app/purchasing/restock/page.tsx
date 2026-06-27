@@ -240,9 +240,9 @@ async function fetchRestockSuggestions(): Promise<RestockSuggestion[]> {
 function LoadingState() {
   return (
     <div className="w-full px-8 py-6">
-      <div className="mb-4 h-8 w-64 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-      <div className="mb-4 h-20 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
-      <div className="h-96 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+      <div className="mb-4 h-8 w-64 animate-pulse rounded bg-muted" />
+      <div className="mb-4 h-20 w-full animate-pulse rounded-xl bg-muted" />
+      <div className="h-96 w-full animate-pulse rounded-xl bg-muted" />
     </div>
   )
 }
@@ -289,19 +289,19 @@ async function RestockSuggestionsContent() {
   return (
     <div className="w-full px-8 py-6">
       <div className="mb-6">
-        <a href="/purchasing" className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6 group">
+        <a href="/purchasing" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group">
           <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
           Purchasing
         </a>
-        <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+        <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">
           Variants that need restocking based on sales velocity
         </p>
-        <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+        <h1 className="font-sans text-3xl font-bold tracking-tight leading-tight text-foreground">
           Restock Suggestions
         </h1>
       </div>
 
-      <div className="mb-6 bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-sm text-zinc-300">
+      <div className="mb-6 bg-muted border border-border rounded-lg px-4 py-3 text-sm text-muted-foreground">
         Review generated restock suggestions based on recent low stock. Select the items you'd 
         like to order, and you'll be able to refine the PO in the next step.
       </div>

@@ -112,7 +112,7 @@ export function Receipt({
 
       {/* Receipt Header */}
       <div className={`border-b border-zinc-100 pb-4 text-center ${logoUrl ? "" : "mb-4"}`}>
-        <h1 className="font-editorial text-xl font-bold text-zinc-900">
+        <h1 className="font-sans text-xl font-bold tracking-tight text-zinc-900">
           {storeName?.trim() || businessName?.trim() || "Receipt"}
         </h1>
         {(businessName?.trim() || businessAddress?.trim() || businessPhone?.trim()) && (

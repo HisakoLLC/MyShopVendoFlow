@@ -106,12 +106,12 @@ export function VariantCellEditor({
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleCancel()}>
-      <DialogContent className="sm:max-w-[450px] bg-zinc-950 border-zinc-800 text-zinc-100 rounded-none shadow-2xl p-0 gap-0 overflow-hidden max-h-[90vh] flex flex-col">
-        <DialogHeader className="px-8 py-8 border-b border-zinc-900 bg-zinc-900/50 shrink-0">
-          <DialogTitle className="font-editorial text-2xl font-bold text-zinc-50 leading-tight">
+      <DialogContent className="sm:max-w-[450px] bg-card border-border text-card-foreground rounded-lg shadow-2xl p-0 gap-0 overflow-hidden max-h-[90vh] flex flex-col">
+        <DialogHeader className="px-8 py-8 border-b border-border bg-muted/50 shrink-0">
+          <DialogTitle className="font-sans text-2xl font-bold text-foreground leading-tight">
             Edit Variant
           </DialogTitle>
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 mt-2">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground mt-2">
             STYLING FOR: {size} / {color}
           </p>
         </DialogHeader>
@@ -123,7 +123,7 @@ export function VariantCellEditor({
               name="sku"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">SKU Identifier</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-muted-foreground">SKU Identifier</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -132,14 +132,14 @@ export function VariantCellEditor({
                         inputRef.current = e
                       }}
                       placeholder="e.g., OLS-M-NAV"
-                      className="bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 rounded-none h-11 font-mono text-sm tracking-wider"
+                      className="bg-background border-border text-foreground focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C] rounded-md h-11 font-mono text-sm tracking-wider"
                       onChange={(e) => {
                         const value = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, "")
                         field.onChange(value)
                       }}
                     />
                   </FormControl>
-                  <FormMessage className="text-[10px] uppercase font-bold tracking-widest text-red-400 mt-2" />
+                  <FormMessage className="text-[10px] uppercase font-bold tracking-widest text-destructive mt-2" />
                 </FormItem>
               )}
             />
@@ -150,12 +150,12 @@ export function VariantCellEditor({
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">Retail Price</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-muted-foreground">Retail Price</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         inputMode="decimal"
-                        className="bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 rounded-none h-11 font-mono text-sm"
+                        className="bg-background border-border text-foreground focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C] rounded-md h-11 font-mono text-sm"
                         {...field}
                         onChange={(e) => {
                           const value = e.target.value
@@ -163,7 +163,7 @@ export function VariantCellEditor({
                         }}
                       />
                     </FormControl>
-                    <FormMessage className="text-[10px] uppercase font-bold tracking-widest text-red-400 mt-2" />
+                    <FormMessage className="text-[10px] uppercase font-bold tracking-widest text-destructive mt-2" />
                   </FormItem>
                 )}
               />
@@ -173,12 +173,12 @@ export function VariantCellEditor({
                 name="cost"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">Unit Cost</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-muted-foreground">Unit Cost</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         inputMode="decimal"
-                        className="bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 rounded-none h-11 font-mono text-sm"
+                        className="bg-background border-border text-foreground focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C] rounded-md h-11 font-mono text-sm"
                         {...field}
                         onChange={(e) => {
                           const value = e.target.value
@@ -186,17 +186,17 @@ export function VariantCellEditor({
                         }}
                       />
                     </FormControl>
-                    <FormMessage className="text-[10px] uppercase font-bold tracking-widest text-red-400 mt-2" />
+                    <FormMessage className="text-[10px] uppercase font-bold tracking-widest text-destructive mt-2" />
                   </FormItem>
                 )}
               />
             </div>
 
             {form.watch("price") > 0 && form.watch("cost") > 0 && (
-              <div className="pt-4 border-t border-zinc-900">
-                <div className="flex justify-between items-center bg-zinc-900/30 p-4 border border-zinc-800">
-                  <span className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500">Est. Profit Margin</span>
-                  <span className={`font-mono text-lg font-bold ${form.watch("price") > form.watch("cost") ? "text-green-400" : "text-red-400"}`}>
+              <div className="pt-4 border-t border-border">
+                <div className="flex justify-between items-center bg-muted/30 p-4 border border-border rounded-md">
+                  <span className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-muted-foreground">Est. Profit Margin</span>
+                  <span className={`font-mono text-lg font-bold ${form.watch("price") > form.watch("cost") ? "text-emerald-500" : "text-destructive"}`}>
                     {form.watch("price") > form.watch("cost")
                       ? `${(((form.watch("price") - form.watch("cost")) / form.watch("price")) * 100).toFixed(1)}%`
                       : "INVALID"}
@@ -205,18 +205,18 @@ export function VariantCellEditor({
               </div>
             )}
 
-            <DialogFooter className="pt-8 gap-4 sm:gap-0 mt-4 -mx-8 px-8 py-6 bg-zinc-900/20 border-t border-zinc-900">
+            <DialogFooter className="pt-8 gap-4 sm:gap-0 mt-4 -mx-8 px-8 py-6 bg-muted/20 border-t border-border">
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={handleCancel} 
-                className="rounded-none border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-all text-[10px] font-bold uppercase tracking-widest h-12 px-8"
+                className="rounded-md border-border text-muted-foreground hover:bg-accent hover:text-foreground transition-all text-[10px] font-bold uppercase tracking-widest h-12 px-8"
               >
                 Cancel
               </Button>
               <Button 
                 type="submit" 
-                className="rounded-none bg-white text-zinc-950 hover:bg-zinc-100 transition-all text-[10px] font-bold uppercase tracking-widest h-12 px-8 flex-1 sm:flex-none"
+                className="rounded-md bg-[#E8400C] text-white hover:bg-[#c73508] transition-all text-[10px] font-bold uppercase tracking-widest h-12 px-8 flex-1 sm:flex-none"
               >
                 Save Changes
               </Button>

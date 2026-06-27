@@ -60,7 +60,7 @@ export function PODownloadButton({ poId, poNumber }: PODownloadButtonProps) {
   return (
     <Button 
       variant="outline" 
-      className="gap-2" 
+      className="gap-2 rounded-md border-border text-foreground hover:bg-accent" 
       onClick={handleDownload} 
       disabled={isDownloading}
     >

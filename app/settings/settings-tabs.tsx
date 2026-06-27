@@ -58,40 +58,40 @@ export function SettingsTabs({ account, stores, businessSettings, categories }: 
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <TabsList className="flex h-auto w-full justify-start rounded-none border-b border-zinc-800 bg-transparent p-0 mb-6">
+      <TabsList className="flex h-auto w-full justify-start rounded-none border-b border-border bg-transparent p-0 mb-6">
         <TabsTrigger
           value="profile"
-          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300"
+          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-muted-foreground transition-all data-[state=active]:border-[#E8400C] data-[state=active]:bg-transparent data-[state=active]:text-foreground hover:text-foreground"
         >
           Business Profile
         </TabsTrigger>
         <TabsTrigger
           value="tax"
-          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300"
+          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-muted-foreground transition-all data-[state=active]:border-[#E8400C] data-[state=active]:bg-transparent data-[state=active]:text-foreground hover:text-foreground"
         >
           Tax Settings
         </TabsTrigger>
         <TabsTrigger
           value="categories"
-          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300"
+          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-muted-foreground transition-all data-[state=active]:border-[#E8400C] data-[state=active]:bg-transparent data-[state=active]:text-foreground hover:text-foreground"
         >
           Categories
         </TabsTrigger>
         <TabsTrigger
           value="stores"
-          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300"
+          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-muted-foreground transition-all data-[state=active]:border-[#E8400C] data-[state=active]:bg-transparent data-[state=active]:text-foreground hover:text-foreground"
         >
           Stores
         </TabsTrigger>
         <TabsTrigger
           value="receipt"
-          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300"
+          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-muted-foreground transition-all data-[state=active]:border-[#E8400C] data-[state=active]:bg-transparent data-[state=active]:text-foreground hover:text-foreground"
         >
           Receipt
         </TabsTrigger>
         <TabsTrigger
           value="billing"
-          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-500 transition-all data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-zinc-100 dark:data-[state=active]:text-zinc-100 hover:text-zinc-300"
+          className="rounded-none border-b-2 border-transparent px-5 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-muted-foreground transition-all data-[state=active]:border-[#E8400C] data-[state=active]:bg-transparent data-[state=active]:text-foreground hover:text-foreground"
         >
           Account & Billing
         </TabsTrigger>

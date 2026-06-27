@@ -97,7 +97,7 @@ export default async function PrintPOPage({
   } catch {
     return (
       <div className="mx-auto max-w-3xl px-6 py-12 text-center">
-        <p className="text-zinc-600 dark:text-zinc-400">Purchase order not found or access denied.</p>
+        <p className="text-muted-foreground">Purchase order not found or access denied.</p>
       </div>
     )
   }

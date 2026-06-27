@@ -259,57 +259,57 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
   return (
     <>
     <Dialog open={true} onOpenChange={(open) => { if (!open) onClose() }}>
-      <DialogContent className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col p-0 [&>button]:hidden overflow-hidden">
-        <div className="px-6 py-5 border-b border-zinc-800 flex items-center justify-between flex-shrink-0">
-          <div className="font-editorial text-lg font-bold text-zinc-50">
+      <DialogContent className="bg-card text-card-foreground border border-border rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col p-0 [&>button]:hidden overflow-hidden">
+        <div className="px-6 py-5 border-b border-border flex items-center justify-between flex-shrink-0">
+          <div className="font-sans text-lg font-bold tracking-tight text-foreground">
             Sale Details - <span className="font-mono">{sale.receipt_number ?? "—"}</span>
           </div>
-          <button type="button" onClick={onClose} className="w-8 h-8 rounded-sm hover:bg-zinc-800 flex items-center justify-center transition-colors">
-            <X className="w-4 h-4 text-zinc-400" />
+          <button type="button" onClick={onClose} className="w-8 h-8 rounded-sm hover:bg-accent flex items-center justify-center transition-colors">
+            <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-12 flex-1">
-            <div className="text-zinc-500">Loading sale details...</div>
+            <div className="text-muted-foreground">Loading sale details...</div>
           </div>
         ) : (
           <>
             <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col">
               {/* Sale Info */}
-            <div className="grid grid-cols-2 gap-4 px-6 py-4 border-b border-zinc-800 flex-shrink-0">
+            <div className="grid grid-cols-2 gap-4 px-6 py-4 border-b border-border flex-shrink-0">
               <div className="space-y-1">
-                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Date/Time</div>
-                <div className="text-sm font-semibold text-zinc-100">{formatDateTime(sale.sale_date)}</div>
+                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Date/Time</div>
+                <div className="text-sm font-semibold text-foreground">{formatDateTime(sale.sale_date)}</div>
               </div>
               <div className="space-y-1">
-                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Store</div>
-                <div className="text-sm font-semibold text-zinc-100">{sale.stores?.name || "N/A"}</div>
+                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Store</div>
+                <div className="text-sm font-semibold text-foreground">{sale.stores?.name || "N/A"}</div>
               </div>
               <div className="space-y-1">
-                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Cashier</div>
-                <div className="text-sm font-semibold text-zinc-100">
+                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Cashier</div>
+                <div className="text-sm font-semibold text-foreground">
                   {sale.staff
                     ? `${sale.staff.first_name || ""} ${sale.staff.last_name || ""}`.trim() || "N/A"
                     : "N/A"}
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Payment Method</div>
-                <div className="text-sm font-semibold text-zinc-100 capitalize">{sale.payment_method || "N/A"}</div>
+                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Payment Method</div>
+                <div className="text-sm font-semibold text-foreground capitalize">{sale.payment_method || "N/A"}</div>
               </div>
               {sale.payment_method?.toLowerCase() === "mpesa" && sale.notes?.trim() && (
                 <div className="space-y-1 col-span-2 md:col-span-2">
-                  <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">M-Pesa details</div>
-                  <div className="font-mono text-sm font-semibold text-zinc-100">
+                  <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">M-Pesa details</div>
+                  <div className="font-mono text-sm font-semibold text-foreground">
                     {sale.notes.trim()}
                   </div>
                 </div>
               )}
               {sale.customers && (
                 <div className="space-y-1 col-span-2 md:col-span-2">
-                  <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Customer</div>
-                  <div className="text-sm font-semibold text-zinc-100">
+                  <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Customer</div>
+                  <div className="text-sm font-semibold text-foreground">
                     {sale.customers.first_name || ""} {sale.customers.last_name || ""}
                     {sale.customers.phone && ` - ${sale.customers.phone}`}
                   </div>
@@ -319,47 +319,47 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
 
             {/* Line Items */}
             <div className="flex-1 flex flex-col">
-              <h3 className="font-editorial text-base font-bold text-zinc-50 px-6 pt-4 pb-2">Line Items</h3>
+              <h3 className="font-sans text-base font-bold tracking-tight text-foreground px-6 pt-4 pb-2">Line Items</h3>
               <div className="overflow-x-hidden w-full">
                 <Table className="table-fixed w-full">
                   <TableHeader>
-                    <TableRow className="border-b border-zinc-800 hover:bg-transparent">
-                      <TableHead className="w-[28%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-3 py-2">Product</TableHead>
-                      <TableHead className="w-[18%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-3 py-2">Variant</TableHead>
-                      <TableHead className="w-[18%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-3 py-2">SKU</TableHead>
-                      <TableHead className="w-[8%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-3 py-2 text-center">Qty</TableHead>
-                      <TableHead className="w-[14%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-3 py-2 text-right">Unit Price</TableHead>
-                      <TableHead className="w-[14%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-3 py-2 text-right">Line Total</TableHead>
+                    <TableRow className="border-b border-border hover:bg-transparent">
+                      <TableHead className="w-[28%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-3 py-2">Product</TableHead>
+                      <TableHead className="w-[18%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-3 py-2">Variant</TableHead>
+                      <TableHead className="w-[18%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-3 py-2">SKU</TableHead>
+                      <TableHead className="w-[8%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-3 py-2 text-center">Qty</TableHead>
+                      <TableHead className="w-[14%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-3 py-2 text-right">Unit Price</TableHead>
+                      <TableHead className="w-[14%] text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-3 py-2 text-right">Line Total</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {lineItems.length === 0 ? (
                       <TableRow className="border-b-0 hover:bg-transparent">
-                        <TableCell colSpan={6} className="text-center text-zinc-500 px-3 py-6">
+                        <TableCell colSpan={6} className="text-center text-muted-foreground px-3 py-6">
                           No line items found
                         </TableCell>
                       </TableRow>
                     ) : (
                       lineItems.map((item) => (
-                        <TableRow key={item.line_item_id} className="border-b border-zinc-800 hover:bg-zinc-800/30">
-                          <TableCell className="text-sm font-semibold text-zinc-100 px-3 py-2 truncate">
+                        <TableRow key={item.line_item_id} className="border-b border-border hover:bg-accent/50">
+                          <TableCell className="text-sm font-semibold text-foreground px-3 py-2 truncate">
                             {item.product_variants?.product_styles?.name || "Unknown Product"}
                           </TableCell>
-                          <TableCell className="text-sm text-zinc-400 px-3 py-2 truncate">
+                          <TableCell className="text-sm text-muted-foreground px-3 py-2 truncate">
                             {item.product_variants
                               ? `${item.product_variants.size} / ${item.product_variants.color}`
                               : "—"}
                           </TableCell>
-                          <TableCell className="font-mono text-xs text-zinc-400 px-3 py-2 truncate">
+                          <TableCell className="font-mono text-xs text-muted-foreground px-3 py-2 truncate">
                             {item.product_variants?.sku || "—"}
                           </TableCell>
-                          <TableCell className="text-sm text-zinc-300 tabular-nums text-center px-3 py-2">
+                          <TableCell className="text-sm text-foreground font-mono tabular-nums text-center px-3 py-2">
                             {item.quantity || 0}
                           </TableCell>
-                          <TableCell className="text-sm text-zinc-400 tabular-nums text-right px-3 py-2">
+                          <TableCell className="text-sm text-muted-foreground font-mono tabular-nums text-right px-3 py-2">
                             {formatPrice(item.unit_price)}
                           </TableCell>
-                          <TableCell className="text-sm font-semibold text-zinc-100 tabular-nums text-right px-3 py-2">
+                          <TableCell className="text-sm font-semibold text-foreground font-mono tabular-nums text-right px-3 py-2">
                             {formatPrice(item.line_total)}
                           </TableCell>
                         </TableRow>
@@ -372,39 +372,39 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
 
             {/* Totals */}
             {saleDetails && (
-              <div className="border-t border-zinc-800 px-6 py-4 mt-auto shrink-0 space-y-2">
+              <div className="border-t border-border px-6 py-4 mt-auto shrink-0 space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm text-zinc-400">Subtotal</span>
-                  <span className="text-sm text-zinc-300 tabular-nums">{formatPrice(saleDetails.subtotal)}</span>
+                  <span className="text-sm text-muted-foreground">Subtotal</span>
+                  <span className="text-sm text-foreground font-mono tabular-nums">{formatPrice(saleDetails.subtotal)}</span>
                 </div>
                 {saleDetails.tax_total && saleDetails.tax_total > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-sm text-zinc-400">Tax</span>
-                    <span className="text-sm text-zinc-300 tabular-nums">{formatPrice(saleDetails.tax_total)}</span>
+                    <span className="text-sm text-muted-foreground">Tax</span>
+                    <span className="text-sm text-foreground font-mono tabular-nums">{formatPrice(saleDetails.tax_total)}</span>
                   </div>
                 )}
-                <div className="border-t border-zinc-700 my-2" />
+                <div className="border-t border-border my-2" />
                 <div className="flex justify-between align-middle items-center">
-                  <span className="text-sm font-semibold text-zinc-100">Total</span>
-                  <span className="font-editorial text-xl font-bold text-zinc-50 tabular-nums">{formatPrice(saleDetails.grand_total ?? 0)}</span>
+                  <span className="text-sm font-semibold text-foreground">Total</span>
+                  <span className="font-mono text-xl font-bold tracking-tight text-foreground tabular-nums">{formatPrice(saleDetails.grand_total ?? 0)}</span>
                 </div>
               </div>
             )}
           </div>
 
             {/* Actions */}
-            <div className="px-6 py-4 border-t border-zinc-800 flex flex-wrap sm:flex-nowrap items-center gap-3 flex-shrink-0">
-              <button type="button" onClick={handlePrintReceipt} className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 rounded-sm h-9 px-4 text-xs font-semibold tracking-[0.1em] uppercase flex-1 transition-colors flex items-center justify-center">
+            <div className="px-6 py-4 border-t border-border flex flex-wrap sm:flex-nowrap items-center gap-3 flex-shrink-0">
+              <button type="button" onClick={handlePrintReceipt} className="border border-border text-foreground hover:bg-accent rounded-sm h-9 px-4 text-xs font-semibold tracking-[0.1em] uppercase flex-1 transition-colors flex items-center justify-center">
                 <Printer className="mr-2 h-4 w-4" />
                 Reprint Receipt
               </button>
               {canRefund && (
-                <button type="button" onClick={handleOpenRefund} className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-sm h-9 px-4 text-xs font-semibold tracking-[0.1em] uppercase flex-1 transition-colors flex items-center justify-center">
+                <button type="button" onClick={handleOpenRefund} className="bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-sm h-9 px-4 text-xs font-semibold tracking-[0.1em] uppercase flex-1 transition-colors flex items-center justify-center">
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Process Refund
                 </button>
               )}
-              <button type="button" onClick={onClose} className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-4 text-xs font-semibold tracking-[0.1em] uppercase flex-1 transition-colors">
+              <button type="button" onClick={onClose} className="bg-[#E8400C] text-white hover:bg-[#c73508] rounded-sm h-9 px-4 text-xs font-semibold tracking-[0.1em] uppercase flex-1 transition-colors">
                 Close
               </button>
             </div>
@@ -414,23 +414,23 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
     </Dialog>
 
     <Dialog open={showRefundDialog} onOpenChange={setShowRefundDialog}>
-      <DialogContent className="!z-[60] bg-white border border-zinc-200 rounded-xl shadow-2xl w-full max-w-md p-0 overflow-hidden [&>button]:hidden">
+      <DialogContent className="!z-[60] bg-card text-card-foreground border border-border rounded-xl shadow-2xl w-full max-w-md p-0 overflow-hidden [&>button]:hidden">
         <div className="px-6 pt-6 pb-0 relative">
-          <div className="font-editorial text-xl font-bold text-zinc-900">Process Refund</div>
-          <button type="button" onClick={() => setShowRefundDialog(false)} className="absolute top-6 right-6 w-8 h-8 rounded-sm border border-zinc-200 bg-white hover:bg-zinc-100 flex items-center justify-center transition-colors">
-            <X className="w-4 h-4 text-zinc-500" />
+          <div className="font-sans text-xl font-bold tracking-tight text-foreground">Process Refund</div>
+          <button type="button" onClick={() => setShowRefundDialog(false)} className="absolute top-6 right-6 w-8 h-8 rounded-sm border border-border bg-background hover:bg-accent flex items-center justify-center transition-colors">
+            <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
         <div className="px-6 py-4">
-          <p className="text-sm text-zinc-600 leading-relaxed mb-4">
+          <p className="text-sm text-muted-foreground leading-relaxed mb-4">
             Refund full amount of{" "}
-            <span className="font-semibold text-zinc-900">
+            <span className="font-semibold font-mono text-foreground">
               {saleDetails ? formatPrice(saleDetails.grand_total ?? 0) : ""}
             </span>{" "}
             for receipt {sale.receipt_number ?? "—"}? Inventory will be restored for all items.
           </p>
           <div>
-            <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mt-4 mb-2">Refund method</div>
+            <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground mt-4 mb-2">Refund method</div>
             <RadioGroup
               value={refundMethod}
               onValueChange={(v) => setRefundMethod(v as RefundMethod)}
@@ -448,8 +448,8 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
                     className={cn(
                       "border rounded-lg px-4 py-2.5 text-sm font-medium cursor-pointer transition-colors flex items-center justify-center",
                       isSelected 
-                        ? "border-zinc-900 bg-zinc-900 text-white" 
-                        : "border-zinc-200 text-zinc-700 hover:border-zinc-400"
+                        ? "border-[#E8400C] bg-[#E8400C] text-white" 
+                        : "border-border text-foreground hover:border-[#E8400C]/50"
                     )}
                   >
                     <RadioGroupItem value={method.id} id={`refund-${method.id}`} className="sr-only" />
@@ -463,7 +463,7 @@ export function SaleDetailModal({ sale, onClose }: SaleDetailModalProps) {
         <div className="px-6 pb-6 pt-4 flex gap-3">
           <button
             type="button"
-            className="flex-1 border border-zinc-200 text-zinc-700 hover:border-zinc-400 rounded-sm h-10 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+            className="flex-1 border border-border text-foreground hover:bg-accent rounded-sm h-10 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
             onClick={() => setShowRefundDialog(false)}
             disabled={isRefunding}
           >

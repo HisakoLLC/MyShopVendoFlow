@@ -165,10 +165,10 @@ async function fetchStyleInventory(styleId: string): Promise<FetchResult> {
 
 function LoadingState() {
   return (
-    <div className="min-h-screen bg-zinc-950 px-8 py-8">
-      <div className="mb-6 h-4 w-32 animate-pulse rounded bg-zinc-800" />
-      <div className="mb-6 h-8 w-64 animate-pulse rounded bg-zinc-800" />
-      <div className="h-96 w-full animate-pulse rounded-lg bg-zinc-800" />
+    <div className="min-h-screen bg-background px-8 py-8">
+      <div className="mb-6 h-4 w-32 animate-pulse rounded bg-muted" />
+      <div className="mb-6 h-8 w-64 animate-pulse rounded bg-muted" />
+      <div className="h-96 w-full animate-pulse rounded-lg bg-muted" />
     </div>
   )
 }
@@ -177,21 +177,21 @@ async function StyleInventoryPageContent({ styleId }: { styleId: string }) {
   const data = await fetchStyleInventory(styleId)
 
   return (
-    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+    <div className="min-h-screen bg-background px-8 py-8">
       {/* Back link */}
       <Link
         href="/products"
-        className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6 group"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to products
       </Link>
 
       {/* Page header */}
-      <div className="flex flex-wrap items-start justify-between gap-4 pb-6 mb-6 border-b border-zinc-800">
+      <div className="flex flex-wrap items-start justify-between gap-4 pb-6 mb-6 border-b border-border">
         <div className="flex items-start gap-4">
           {/* Product image */}
-          <div className="relative h-16 w-16 overflow-hidden rounded-md bg-zinc-800 flex-shrink-0 flex items-center justify-center">
+          <div className="relative h-16 w-16 overflow-hidden rounded-md bg-muted flex-shrink-0 flex items-center justify-center">
             {data.style.image_url && data.style.image_url !== "/placeholder-product.png" ? (
               <Image
                 src={data.style.image_url}
@@ -200,14 +200,14 @@ async function StyleInventoryPageContent({ styleId }: { styleId: string }) {
                 className="object-cover"
               />
             ) : (
-              <Package className="h-6 w-6 text-zinc-700" />
+              <Package className="h-6 w-6 text-muted-foreground" />
             )}
           </div>
           <div>
-            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-1">
               INVENTORY BY STORE FOR EACH VARIANT
             </p>
-            <h1 className="font-editorial text-3xl font-bold text-zinc-50">
+            <h1 className="font-sans text-3xl font-bold text-foreground">
               {data.style.name}
             </h1>
           </div>
@@ -215,13 +215,13 @@ async function StyleInventoryPageContent({ styleId }: { styleId: string }) {
         <div className="flex flex-wrap gap-2">
           <Link
             href={`/products/${data.style.style_id}/edit`}
-            className="inline-flex h-9 items-center justify-center rounded-sm bg-white px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-950 hover:bg-zinc-100 transition-colors"
+            className="inline-flex h-9 items-center justify-center rounded-sm bg-[#E8400C] px-5 text-xs font-semibold tracking-[0.12em] uppercase text-white hover:bg-[#c73508] transition-colors"
           >
             Edit Style
           </Link>
           <Link
             href="/inventory"
-            className="inline-flex h-9 items-center justify-center rounded-sm border border-zinc-700 px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 transition-colors bg-transparent"
+            className="inline-flex h-9 items-center justify-center rounded-sm border border-border px-5 text-xs font-semibold tracking-[0.12em] uppercase text-foreground hover:bg-accent transition-colors bg-transparent"
           >
             View All Inventory
           </Link>

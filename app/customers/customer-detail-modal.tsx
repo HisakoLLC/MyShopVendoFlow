@@ -175,20 +175,20 @@ export function CustomerDetailModal({
     <>
       <Toaster richColors position="top-right" />
       <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col p-0 [&>button]:hidden overflow-hidden">
-          <div className="px-6 py-5 border-b border-zinc-800 flex items-start justify-between flex-shrink-0">
+        <DialogContent className="bg-background border border-border text-foreground rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col p-0 [&>button]:hidden overflow-hidden">
+          <div className="px-6 py-5 border-b border-border flex items-start justify-between flex-shrink-0">
             <div>
-              <div className="font-editorial text-xl font-bold text-zinc-50 flex items-center gap-2">
+              <div className="font-sans text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
                 {`${customer.first_name || ""} ${customer.last_name || ""}`.trim() || "Customer"}
                 {customer.is_vip && (
                   <Crown className="w-4 h-4 text-amber-400" />
                 )}
               </div>
-              <div className="text-sm text-zinc-400 mt-1">
+              <div className="text-sm text-muted-foreground mt-1">
                 Customer details and purchase history
               </div>
             </div>
-            <button type="button" onClick={onClose} className="w-8 h-8 rounded-sm hover:bg-zinc-800 flex items-center justify-center transition-colors text-zinc-400">
+            <button type="button" onClick={onClose} className="w-8 h-8 rounded-md hover:bg-accent flex items-center justify-center transition-colors text-muted-foreground hover:text-foreground">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -197,60 +197,60 @@ export function CustomerDetailModal({
             {/* Customer Info */}
             <div className="grid grid-cols-2 gap-4 mb-5">
               <div>
-                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1">Email</div>
-                <div className="text-sm text-zinc-100">
+                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-1">Email</div>
+                <div className="text-sm text-foreground">
                   {customer.email || "—"}
                 </div>
               </div>
               <div>
-                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1">Phone</div>
-                <div className="font-mono text-sm text-zinc-100">
+                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-1">Phone</div>
+                <div className="font-mono text-sm text-foreground">
                   {customer.phone || "—"}
                 </div>
               </div>
               <div>
-                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1">First Purchase</div>
-                <div className="text-sm text-zinc-100">
+                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-1">First Purchase</div>
+                <div className="text-sm text-foreground">
                   {formatDate(customer.first_purchase_date)}
                 </div>
               </div>
               <div>
-                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1">Last Purchase</div>
-                <div className="text-sm text-zinc-100">
+                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-1">Last Purchase</div>
+                <div className="text-sm text-foreground">
                    {formatDate(customer.last_purchase_date)}
                 </div>
               </div>
             </div>
 
             {/* Stats */}
-            <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-4 grid grid-cols-3 gap-4 mb-5">
+            <div className="bg-card border border-border rounded-lg p-4 grid grid-cols-3 gap-4 mb-5 shadow-sm">
               <div>
-                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1">Total Spend</div>
-                <div className="font-editorial text-2xl font-bold text-zinc-50 tabular-nums">
+                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-1">Total Spend</div>
+                <div className="font-mono text-2xl font-bold text-foreground tabular-nums">
                   {formatPrice(customer.total_spend)}
                 </div>
               </div>
               <div>
-                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1">Transactions</div>
-                <div className="font-editorial text-2xl font-bold text-zinc-50 tabular-nums">
+                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-1">Transactions</div>
+                <div className="font-mono text-2xl font-bold text-foreground tabular-nums">
                   {customer.transaction_count || 0}
                 </div>
               </div>
               <div>
-                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1">Avg Basket</div>
-                <div className="font-editorial text-2xl font-bold text-zinc-50 tabular-nums">
+                <div className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-1">Avg Basket</div>
+                <div className="font-mono text-2xl font-bold text-foreground tabular-nums">
                   {formatPrice(avgBasketSize)}
                 </div>
               </div>
             </div>
 
             {/* VIP Toggle */}
-            <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-4 mb-5 flex items-center justify-between">
+            <div className="bg-card border border-border rounded-lg p-4 mb-5 flex items-center justify-between shadow-sm">
               <div>
-                <Label htmlFor="vip-toggle" className="text-sm font-semibold text-zinc-100 cursor-pointer block">
+                <Label htmlFor="vip-toggle" className="text-sm font-semibold text-foreground cursor-pointer block">
                   Tag as VIP
                 </Label>
-                <p className="text-xs text-zinc-500 mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   VIP customers receive special treatment and discounts
                 </p>
               </div>
@@ -259,49 +259,49 @@ export function CustomerDetailModal({
                 checked={isVip}
                 onCheckedChange={handleVIPToggle}
                 disabled={isUpdatingVIP}
-                className="data-[state=unchecked]:!bg-zinc-600 data-[state=checked]:!bg-white data-[state=checked]:[&>span]:!bg-zinc-900 data-[state=unchecked]:[&>span]:!bg-zinc-200 border-transparent shadow-inner"
+                className="data-[state=unchecked]:!bg-muted data-[state=checked]:!bg-[#E8400C] border-transparent shadow-inner"
               />
             </div>
 
             {/* Purchase History */}
             <div className="mb-5">
-              <h3 className="font-editorial text-lg font-bold text-zinc-50 mb-3">
+              <h3 className="font-sans text-lg font-bold tracking-tight text-foreground mb-3">
                 Purchase History
               </h3>
               {isLoadingHistory ? (
-                <div className="text-center py-8 text-sm text-zinc-500">
+                <div className="text-center py-8 text-sm text-muted-foreground">
                   Loading...
                 </div>
               ) : purchaseHistory.length === 0 ? (
-                <div className="rounded-lg border border-zinc-700 bg-zinc-800 p-8 text-center">
-                  <p className="text-sm text-zinc-500">No purchase history</p>
+                <div className="rounded-lg border border-border bg-card p-8 text-center shadow-sm">
+                  <p className="text-sm text-muted-foreground">No purchase history</p>
                 </div>
               ) : (
-                <div className="bg-zinc-800 border border-zinc-700 rounded-lg overflow-hidden">
+                <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
                   <Table className="w-full">
-                    <TableHeader className="bg-zinc-800">
-                      <TableRow className="border-b border-zinc-700 hover:bg-transparent">
-                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Date</TableHead>
-                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Receipt #</TableHead>
-                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Store</TableHead>
-                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Total</TableHead>
-                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Action</TableHead>
+                    <TableHeader className="bg-muted/40">
+                      <TableRow className="border-b border-border hover:bg-transparent">
+                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Date</TableHead>
+                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Receipt #</TableHead>
+                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Store</TableHead>
+                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground text-right">Total</TableHead>
+                        <TableHead className="px-4 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground text-right">Action</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {purchaseHistory.map((sale) => (
-                        <TableRow key={sale.sale_id} className="border-b border-zinc-700 last:border-0 hover:bg-zinc-800/30">
-                          <TableCell className="px-4 py-3 text-sm text-zinc-300 whitespace-nowrap">{formatDate(sale.sale_date)}</TableCell>
+                        <TableRow key={sale.sale_id} className="border-b border-border last:border-0 hover:bg-accent/50">
+                          <TableCell className="px-4 py-3 text-sm text-foreground whitespace-nowrap">{formatDate(sale.sale_date)}</TableCell>
                           <TableCell className="px-4 py-3">
-                            <span className="font-mono text-xs text-zinc-400">{sale.receipt_number}</span>
+                            <span className="font-mono text-xs text-muted-foreground">{sale.receipt_number}</span>
                           </TableCell>
-                          <TableCell className="px-4 py-3 text-sm text-zinc-400">{sale.stores?.name || "—"}</TableCell>
+                          <TableCell className="px-4 py-3 text-sm text-muted-foreground">{sale.stores?.name || "—"}</TableCell>
                           <TableCell className="px-4 py-3 text-right">
-                            <span className="text-sm font-semibold text-zinc-100 tabular-nums">{formatPrice(sale.grand_total)}</span>
+                            <span className="font-mono text-sm font-semibold text-foreground tabular-nums">{formatPrice(sale.grand_total)}</span>
                           </TableCell>
                           <TableCell className="px-4 py-3 text-right">
                             <Link href={`/sales?receipt=${sale.receipt_number}`}>
-                              <button type="button" className="border border-zinc-600 text-zinc-300 hover:border-zinc-400 rounded-sm h-7 px-3 text-xs font-semibold uppercase transition-colors">
+                              <button type="button" className="border border-border text-foreground hover:bg-accent rounded-md h-7 px-3 text-xs font-semibold uppercase transition-colors">
                                 View
                               </button>
                             </Link>
@@ -315,17 +315,16 @@ export function CustomerDetailModal({
             </div>
 
             {/* Notes */}
-            {/* Notes */}
             <div>
               <div className="mb-2 flex items-center justify-between">
-                <Label htmlFor="notes" className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 block">
+                <Label htmlFor="notes" className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground block">
                   Notes
                 </Label>
                 <button
                   type="button"
                   onClick={handleSaveNotes}
                   disabled={isSavingNotes || notes === (customer.notes || "")}
-                  className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 rounded-sm h-8 px-4 text-xs font-semibold uppercase disabled:opacity-50 transition-colors bg-transparent"
+                  className="rounded-md bg-[#E8400C] text-white hover:bg-[#c73508] border-none px-3 h-7 text-xs font-semibold uppercase disabled:opacity-50 transition-colors"
                 >
                   {isSavingNotes ? "Saving..." : "Save Notes"}
                 </button>
@@ -335,7 +334,7 @@ export function CustomerDetailModal({
                 placeholder="Add notes about this customer..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="bg-zinc-800 border border-zinc-700 rounded-md text-sm text-zinc-300 p-3 w-full resize-none placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-500 min-h-[80px]"
+                className="bg-background border border-border rounded-md text-sm text-foreground p-3 w-full resize-none placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C] min-h-[80px]"
               />
             </div>
           </div>

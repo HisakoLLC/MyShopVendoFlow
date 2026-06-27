@@ -232,48 +232,48 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
         </div>
 
         {/* Account Info */}
-        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
-          <h3 className="font-editorial text-xl font-bold text-zinc-50 mb-1">
+        <div className="rounded-lg border border-border bg-card p-6">
+          <h3 className="font-sans text-xl font-bold tracking-tight text-foreground mb-1">
             Account Information
           </h3>
-          <p className="text-sm text-zinc-500 mb-6">
+          <p className="text-sm text-muted-foreground mb-6">
             Your account details and current subscription plan.
           </p>
 
           <div className="grid gap-6 md:grid-cols-2">
             <div>
-              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-1">
                 Account ID
               </p>
-              <p className="font-mono text-sm text-zinc-100">{account.account_id}</p>
+              <p className="font-mono text-sm text-foreground">{account.account_id}</p>
             </div>
             <div>
-              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-1">
                 Owner Email
               </p>
-              <p className="text-sm font-semibold text-zinc-100">{account.owner_email}</p>
+              <p className="text-sm font-semibold text-foreground">{account.owner_email}</p>
             </div>
             <div>
-              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-1">
                 Active Plan
               </p>
-              <p className="text-sm font-semibold text-zinc-100">{planName.toUpperCase()}</p>
+              <p className="text-sm font-semibold text-foreground">{planName.toUpperCase()}</p>
             </div>
             <div>
-              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-1">
                 Store Limit
               </p>
-              <p className="text-sm font-semibold text-zinc-100">{planStoreCopy[account.plan_tier || "starter"]}</p>
+              <p className="text-sm font-semibold text-foreground">{planStoreCopy[account.plan_tier || "starter"]}</p>
             </div>
             <div>
-              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-1">
                 Status
               </p>
               <div className="mt-1">
                 <span className={`rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5 border ${
                   account.subscription_status === 'active' || account.subscription_status === 'trial'
                     ? 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20'
-                    : 'bg-zinc-800 text-zinc-500 border-zinc-700'
+                    : 'bg-muted text-muted-foreground border-border'
                 }`}>
                   {account.subscription_status === 'trial' ? 'ACTIVE' : (account.subscription_status?.toUpperCase() || 'UNKNOWN')}
                 </span>
@@ -283,29 +283,29 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
         </div>
 
         {/* Billing Section */}
-        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
-          <h3 className="font-editorial text-xl font-bold text-zinc-50 mb-1">
+        <div className="rounded-lg border border-border bg-card p-6">
+          <h3 className="font-sans text-xl font-bold tracking-tight text-foreground mb-1">
             Billing & Payment
           </h3>
-          <p className="text-sm text-zinc-500 mb-6">
+          <p className="text-sm text-muted-foreground mb-6">
             Manage your subscription cycle and payment methods.
           </p>
 
-          <div className="space-y-0 divide-y divide-zinc-700/40 border-t border-zinc-700/40 mb-6">
+          <div className="space-y-0 divide-y divide-border border-t border-border mb-6">
             <div className="py-4">
-              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-1">
                 Payment Method
               </p>
-              <div className="flex items-center gap-2 text-sm font-semibold text-zinc-100">
-                <CreditCard className="h-4 w-4 text-zinc-400" />
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <CreditCard className="h-4 w-4 text-muted-foreground" />
                 <span>Managed by Dodo Payments securely.</span>
               </div>
             </div>
             <div className="py-4">
-              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-1">
                 Next Billing Date
               </p>
-              <p className="text-sm font-semibold text-zinc-100">
+              <p className="font-mono text-sm font-semibold text-foreground">
                 {account.next_payment_date
                   ? new Date(account.next_payment_date).toLocaleDateString("en-KE", {
                       year: "numeric",
@@ -320,19 +320,19 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
           <Button 
             onClick={handleManageSubscription} 
             disabled={isProcessing}
-            className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent w-full md:w-auto"
+            className="border border-border text-foreground hover:bg-accent rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent w-full md:w-auto"
           >
             Manage Billing in Dodo Portal
           </Button>
         </div>
 
         {/* Plans Section */}
-        <div id="plans-section" className="space-y-6 pt-8 border-t border-zinc-700/40">
+        <div id="plans-section" className="space-y-6 pt-8 border-t border-border">
           <div>
-            <h3 className="font-editorial text-xl font-bold text-zinc-50 mb-1">
+            <h3 className="font-sans text-xl font-bold tracking-tight text-foreground mb-1">
               {account.plan_tier ? "Change Subscription Plan" : "Choose Your Plan"}
             </h3>
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-muted-foreground">
               Select the tier that best fits your business needs.
             </p>
           </div>
@@ -348,25 +348,25 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
                   key={key}
                   className={`relative flex flex-col justify-between rounded-lg border p-6 transition-all ${
                     isCurrent 
-                      ? "border-zinc-100 bg-zinc-900 shadow-[0_0_20px_rgba(255,255,255,0.05)]" 
-                      : "border-zinc-700/50 bg-zinc-900/50 opacity-80 hover:opacity-100 hover:border-zinc-600"
+                      ? "border-[#E8400C] bg-card shadow-[0_0_20px_rgba(232,64,12,0.08)]" 
+                      : "border-border bg-card/50 opacity-80 hover:opacity-100 hover:border-foreground/30"
                   }`}
                 >
                   {isCurrent && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-zinc-100 text-zinc-950 text-[0.6rem] font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#E8400C] text-white text-[0.6rem] font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full">
                       Current
                     </div>
                   )}
                   <div>
-                    <h4 className="font-editorial text-xl font-bold text-zinc-50">{plan.name}</h4>
+                    <h4 className="font-sans text-xl font-bold tracking-tight text-foreground">{plan.name}</h4>
                     <div className="mt-4 flex items-baseline gap-1">
-                      <span className="text-2xl font-bold text-zinc-50">KES {plan.price.toLocaleString()}</span>
-                      <span className="text-xs text-zinc-500 uppercase tracking-widest">/mo</span>
+                      <span className="font-mono text-2xl font-bold text-foreground">KES {plan.price.toLocaleString()}</span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-widest">/mo</span>
                     </div>
                     <ul className="mt-8 space-y-3">
                       {plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-start gap-3 text-xs text-zinc-400">
-                          <span className="text-zinc-100">/</span>
+                        <li key={i} className="flex items-start gap-3 text-xs text-muted-foreground">
+                          <span className="text-foreground">/</span>
                           {feature}
                         </li>
                       ))}
@@ -375,12 +375,12 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
                   <Button
                     onClick={() => handleChangePlan(key)}
                     disabled={isProcessing || isCurrent}
-                    className={`mt-10 w-full rounded-sm h-9 text-[0.65rem] font-semibold tracking-[0.12em] uppercase transition-all ${
+                    className={`mt-10 w-full rounded-md h-9 text-[0.65rem] font-semibold tracking-[0.12em] uppercase transition-all border-none ${
                       isCurrent
-                        ? "bg-zinc-800 text-zinc-500 cursor-default"
+                        ? "bg-muted text-muted-foreground cursor-default"
                         : isUpgrade
-                          ? "bg-white text-zinc-950 hover:bg-zinc-100"
-                          : "border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 bg-transparent"
+                          ? "bg-[#E8400C] text-white hover:bg-[#c73508]"
+                          : "border border-border text-foreground hover:bg-accent bg-transparent"
                     }`}
                   >
                     {isCurrent
@@ -406,13 +406,13 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
           <div className="space-y-0 divide-y divide-red-900/30 border-t border-red-900/30">
             <div className="flex items-center justify-between py-5">
               <div>
-                <p className="text-sm font-semibold text-zinc-100">Cancel Subscription</p>
-                <p className="text-xs text-zinc-500 mt-1">Immediately stop your active billing cycle.</p>
+                <p className="text-sm font-semibold text-foreground">Cancel Subscription</p>
+                <p className="text-xs text-muted-foreground mt-1">Immediately stop your active billing cycle.</p>
               </div>
               <Button
                 onClick={() => setShowCancelDialog(true)}
                 disabled={!isPaid || isProcessing}
-                className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase"
+                className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase"
               >
                 Cancel Plan
               </Button>
@@ -420,13 +420,13 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
 
             <div className="flex items-center justify-between py-5">
               <div>
-                <p className="text-sm font-semibold text-zinc-100">Delete Account</p>
-                <p className="text-xs text-zinc-500 mt-1">Permanently remove all your store data and files.</p>
+                <p className="text-sm font-semibold text-foreground">Delete Account</p>
+                <p className="text-xs text-muted-foreground mt-1">Permanently remove all your store data and files.</p>
               </div>
               <Button
                 onClick={() => setShowDeleteDialog(true)}
                 disabled={isProcessing}
-                className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase"
+                className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase"
               >
                 Delete Account
               </Button>
@@ -437,23 +437,23 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
 
       {/* Cancel Subscription Dialog */}
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <AlertDialogContent className="bg-zinc-900 border border-zinc-700/50 max-w-md">
+        <AlertDialogContent className="bg-background border border-border max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-editorial text-xl font-bold text-zinc-50">Cancel Subscription?</AlertDialogTitle>
-            <AlertDialogDescription className="text-sm text-zinc-500 mt-4">
+            <AlertDialogTitle className="font-sans text-xl font-bold tracking-tight text-foreground">Cancel Subscription?</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-muted-foreground mt-4">
               Are you sure you want to cancel your subscription? You'll continue to have access
               until the end of your current billing period, after which you'll lose access to all
               premium features.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-8 gap-3">
-            <AlertDialogCancel className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent">
+            <AlertDialogCancel className="border border-border text-foreground hover:bg-accent rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent">
               KEEP MY PLAN
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleCancelSubscription}
               disabled={isProcessing}
-              className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase"
+              className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase"
             >
               {isProcessing ? "PROCESSING..." : "CONFIRM CANCELLATION"}
             </AlertDialogAction>
@@ -463,44 +463,44 @@ export function AccountBillingTab({ account }: AccountBillingTabProps) {
 
       {/* Delete Account Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="bg-zinc-900 border border-zinc-700/50 max-w-md">
+        <AlertDialogContent className="bg-background border border-border max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-editorial text-xl font-bold text-red-500">
+            <AlertDialogTitle className="font-sans text-xl font-bold tracking-tight text-destructive">
               Permanent Deletion
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-sm text-zinc-500 mt-4">
+            <AlertDialogDescription className="text-sm text-muted-foreground mt-4">
               <div className="space-y-4">
                 <p>
                   Your account will be marked for deletion and you will be signed out immediately.
                   All account data (stores, products, sales, etc.) is retained for 90 days, then
                   permanently removed.
                 </p>
-                <p className="font-semibold text-zinc-300 uppercase tracking-tighter">This action is irreversible.</p>
+                <p className="font-semibold text-foreground uppercase tracking-tighter">This action is irreversible.</p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="my-6 space-y-2">
-            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-1">
               Type DELETE to confirm
             </p>
             <Input
               value={deleteConfirmText}
               onChange={(e) => setDeleteConfirmText(e.target.value)}
               placeholder="DELETE"
-              className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full focus:ring-1 focus:ring-white/20 font-mono"
+              className="font-mono bg-background border border-border rounded-md text-sm text-foreground h-9 px-3 w-full focus:ring-1 focus:ring-[#E8400C]"
             />
           </div>
           <AlertDialogFooter className="gap-3">
             <AlertDialogCancel 
               onClick={() => setDeleteConfirmText("")}
-              className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent"
+              className="border border-border text-foreground hover:bg-accent rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent"
             >
               CANCEL
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteAccount}
               disabled={isProcessing || deleteConfirmText !== "DELETE"}
-              className="bg-red-600 text-white hover:bg-red-700 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase"
+              className="bg-red-600 text-white hover:bg-red-700 rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase border-none"
             >
               {isProcessing ? "DELETING..." : "DELETE EVERYTHING"}
             </AlertDialogAction>

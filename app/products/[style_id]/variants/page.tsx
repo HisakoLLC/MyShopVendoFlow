@@ -14,10 +14,10 @@ type PageProps = {
 
 function LoadingState() {
   return (
-    <div className="min-h-screen bg-zinc-950 px-8 py-8">
-      <div className="mb-6 h-4 w-32 animate-pulse rounded bg-zinc-800" />
-      <div className="mb-6 h-8 w-64 animate-pulse rounded bg-zinc-800" />
-      <div className="h-96 w-full animate-pulse rounded-lg bg-zinc-800" />
+    <div className="min-h-screen bg-background px-8 py-8">
+      <div className="mb-6 h-4 w-32 animate-pulse rounded bg-muted" />
+      <div className="mb-6 h-8 w-64 animate-pulse rounded bg-muted" />
+      <div className="h-96 w-full animate-pulse rounded-lg bg-muted" />
     </div>
   )
 }
@@ -32,7 +32,7 @@ async function VariantsPageContent({ styleId }: { styleId: string }) {
 
   if (userError || !user) {
     return (
-      <div className="min-h-screen bg-zinc-950 px-8 py-8">
+      <div className="min-h-screen bg-background px-8 py-8">
         <div className="rounded-sm border border-red-900/40 bg-red-950/30 p-5 text-red-100">
           You must be signed in to create variants.
         </div>
@@ -57,22 +57,22 @@ async function VariantsPageContent({ styleId }: { styleId: string }) {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 px-8 py-8">
+    <div className="min-h-screen bg-background px-8 py-8">
       {/* Back link */}
       <Link
         href="/products"
-        className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to products
       </Link>
 
       {/* Page header */}
-      <div className="mb-8 pb-6 border-b border-zinc-800">
-        <h1 className="font-editorial text-3xl font-bold text-zinc-50">
+      <div className="mb-8 pb-6 border-b border-border">
+        <h1 className="font-sans text-3xl font-bold text-foreground">
           Generate Variants: {style.name}
         </h1>
-        <p className="text-xs text-zinc-500 mt-2 tracking-[0.05em]">
+        <p className="text-xs text-muted-foreground mt-2 tracking-[0.05em] font-mono">
           BASE PRICE: KES {new Intl.NumberFormat("en-KE").format(style.base_price)}
           {" · "}
           COST: KES {new Intl.NumberFormat("en-KE").format(style.cost)}

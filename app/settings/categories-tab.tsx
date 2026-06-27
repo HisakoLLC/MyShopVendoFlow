@@ -101,17 +101,17 @@ export function CategoriesTab({ initialCategories, accountId }: CategoriesTabPro
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
       {/* Header Section */}
-      <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
-        <h3 className="font-editorial text-xl font-bold text-zinc-50 mb-1">
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h3 className="font-sans text-xl font-bold tracking-tight text-foreground mb-1">
           Product Categories
         </h3>
-        <p className="text-sm text-zinc-500 mb-6">
+        <p className="text-sm text-muted-foreground mb-6">
           Manage the categories used to organize your collection.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Add custom category (e.g. Vintage Silk)"
               value={newCategoryName}
@@ -119,21 +119,21 @@ export function CategoriesTab({ initialCategories, accountId }: CategoriesTabPro
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleAddCategory(newCategoryName)
               }}
-              className="pl-10 bg-zinc-950 border-zinc-800 focus:border-zinc-500 h-10 rounded-sm text-sm"
+              className="pl-10 bg-background border-border focus:border-[#E8400C] h-10 rounded-md text-sm"
             />
           </div>
           <Button
             onClick={() => handleAddCategory(newCategoryName)}
             disabled={isAdding || !newCategoryName.trim()}
-            className="bg-white text-zinc-950 hover:bg-zinc-200 rounded-sm h-10 px-6 text-xs font-semibold tracking-[0.12em] uppercase shrink-0 transition-all"
+            className="bg-[#E8400C] text-white hover:bg-[#c73508] rounded-md h-10 px-6 text-xs font-semibold tracking-[0.12em] uppercase shrink-0 transition-all border-none"
           >
             {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add Category"}
           </Button>
         </div>
 
         {suggestions.length > 0 && (
-          <div className="mt-6 pt-6 border-t border-zinc-800/50">
-            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-3">
+          <div className="mt-6 pt-6 border-t border-border">
+            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-3">
               Suggested Collections
             </p>
             <div className="flex flex-wrap gap-2">
@@ -142,7 +142,7 @@ export function CategoriesTab({ initialCategories, accountId }: CategoriesTabPro
                   key={name}
                   onClick={() => handleAddCategory(name)}
                   disabled={isAdding}
-                  className="group flex items-center gap-2 px-3 py-1.5 rounded-sm bg-zinc-800/50 border border-zinc-800 text-[0.65rem] font-medium text-zinc-400 hover:border-zinc-600 hover:text-zinc-200 transition-all"
+                  className="group flex items-center gap-2 px-3 py-1.5 rounded-md bg-muted/50 border border-border text-[0.65rem] font-medium text-muted-foreground hover:border-foreground/30 hover:text-foreground transition-all"
                 >
                   <Plus className="h-3 w-3 opacity-50 group-hover:opacity-100" />
                   {name}
@@ -154,8 +154,8 @@ export function CategoriesTab({ initialCategories, accountId }: CategoriesTabPro
       </div>
 
       {/* Categories List */}
-      <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
-        <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-4">
+      <div className="rounded-lg border border-border bg-card p-6">
+        <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-4">
           Active Categories ({categories.length})
         </p>
         
@@ -164,18 +164,18 @@ export function CategoriesTab({ initialCategories, accountId }: CategoriesTabPro
             {categories.map((category) => (
               <div
                 key={category.category_id}
-                className="group flex items-center justify-between p-3 rounded-sm bg-zinc-950 border border-zinc-800 hover:border-zinc-700 transition-colors"
+                className="group flex items-center justify-between p-3 rounded-md bg-background border border-border hover:border-foreground/30 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-zinc-900 text-[0.6rem] font-bold text-zinc-500 border border-zinc-800">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted text-[0.6rem] font-bold text-muted-foreground border border-border">
                     /
                   </div>
-                  <span className="text-sm font-medium text-zinc-200">{category.name}</span>
+                  <span className="text-sm font-medium text-foreground">{category.name}</span>
                 </div>
                 <button
                   onClick={() => handleDeleteCategory(category.category_id, category.name)}
                   disabled={deletingId === category.category_id}
-                  className="p-1 rounded-sm text-zinc-600 hover:text-red-400 hover:bg-red-400/10 opacity-0 group-hover:opacity-100 transition-all"
+                  className="p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all"
                 >
                   {deletingId === category.category_id ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -187,10 +187,10 @@ export function CategoriesTab({ initialCategories, accountId }: CategoriesTabPro
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed border-zinc-800 rounded-sm">
-            <Tag className="h-8 w-8 text-zinc-700 mb-3" />
-            <p className="text-sm text-zinc-500">No categories created yet.</p>
-            <p className="text-[0.65rem] text-zinc-600 mt-1 italic">Add categories to organize your product catalog.</p>
+          <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed border-border rounded-md">
+            <Tag className="h-8 w-8 text-muted-foreground mb-3" />
+            <p className="text-sm text-muted-foreground">No categories created yet.</p>
+            <p className="text-[0.65rem] text-muted-foreground/60 mt-1 italic">Add categories to organize your product catalog.</p>
           </div>
         )}
       </div>

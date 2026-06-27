@@ -73,7 +73,7 @@ export function MultiStoreSalesChart({
 
   if (!dailyRevenue || dailyRevenue.length === 0) {
     return (
-      <div className="flex h-[320px] items-center justify-center text-sm text-zinc-500 dark:text-zinc-400">
+      <div className="flex h-[320px] items-center justify-center text-sm text-muted-foreground">
         No sales data available
       </div>
     )
@@ -89,15 +89,15 @@ export function MultiStoreSalesChart({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-sm dark:border-zinc-800 dark:bg-zinc-900/30">
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/40 p-3 text-sm">
         <label className="inline-flex items-center gap-2">
           <Checkbox
             checked={showAllStores}
             onCheckedChange={(v) => setShowAllStores(Boolean(v))}
           />
-          <span className="font-medium text-zinc-800 dark:text-zinc-100">All Stores</span>
+          <span className="font-medium text-foreground">All Stores</span>
         </label>
-        <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-800" />
+        <div className="h-4 w-px bg-border" />
         <div className="flex flex-wrap gap-3">
           {stores.map((s, idx) => {
             const checked = visibleStoreIds.includes(s.store_id)
@@ -126,24 +126,29 @@ export function MultiStoreSalesChart({
 
       <ResponsiveContainer width="100%" height={320}>
         <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" className="stroke-zinc-200 dark:stroke-zinc-800" />
+          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
           <XAxis
             dataKey="date"
-            className="text-xs"
-            tick={{ fill: "rgb(113 113 122)" }}
-            tickLine={{ stroke: "rgb(113 113 122)" }}
+            className="text-xs font-mono"
+            tick={{ fill: "var(--muted-foreground)" }}
+            tickLine={false}
+            axisLine={false}
           />
           <YAxis
-            className="text-xs"
-            tick={{ fill: "rgb(113 113 122)" }}
-            tickLine={{ stroke: "rgb(113 113 122)" }}
+            className="text-xs font-mono"
+            tick={{ fill: "var(--muted-foreground)" }}
+            tickLine={false}
+            axisLine={false}
             tickFormatter={(value) => `KES ${(Number(value) / 1000).toFixed(0)}k`}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#e6e1de",
-              border: "1px solid rgb(228 228 231)",
+              backgroundColor: "var(--popover)",
+              color: "var(--popover-foreground)",
+              border: "1px solid var(--border)",
               borderRadius: "0.5rem",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              fontFamily: "var(--font-mono)",
             }}
             formatter={(value: any, name: any) => {
               const key = name ?? ""
@@ -160,7 +165,7 @@ export function MultiStoreSalesChart({
             <Line
               type="monotone"
               dataKey="all"
-              stroke="#111827"
+              stroke="#E8400C"
               strokeWidth={2.5}
               dot={false}
               activeDot={{ r: 5 }}

@@ -82,8 +82,8 @@ async function fetchCreateStyleOptions(): Promise<FetchResult> {
 function LoadingState() {
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6">
-      <div className="mb-6 h-8 w-48 animate-pulse rounded bg-zinc-800" />
-      <div className="h-96 w-full animate-pulse rounded-xl bg-zinc-800" />
+      <div className="mb-6 h-8 w-48 animate-pulse rounded bg-muted" />
+      <div className="h-96 w-full animate-pulse rounded-xl bg-muted" />
     </div>
   )
 }
@@ -97,7 +97,7 @@ function ErrorState({ message }: { message: string }) {
         <div className="mt-4">
           <Link
             href="/products"
-            className="inline-flex items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+            className="inline-flex items-center justify-center bg-[#E8400C] text-white hover:bg-[#c73508] rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
           >
             Back to products
           </Link>
@@ -133,15 +133,15 @@ async function CreateStylePageContent() {
           <div className="mb-2">
             <Link
               href="/products"
-              className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               ← Back to products
             </Link>
           </div>
-          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">
             Create a style first, then add variants (sizes/colors) next.
           </p>
-          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+          <h1 className="font-sans text-3xl font-bold leading-tight text-foreground">
             Add New Style
           </h1>
         </div>

@@ -75,25 +75,25 @@ export function TaxSettingsTab({ stores, planTier }: TaxSettingsTabProps) {
       <Toaster richColors position="top-right" />
       <div className="space-y-6">
         {/* Tax Rate */}
-        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6 mb-6">
-          <h2 className="font-editorial text-xl font-bold text-zinc-50 mb-1">Tax Rate</h2>
-          <p className="text-sm text-zinc-500 mb-6">
+        <div className="rounded-lg border border-border bg-card p-6 mb-6">
+          <h2 className="font-sans text-xl font-bold tracking-tight text-foreground mb-1">Tax Rate</h2>
+          <p className="text-sm text-muted-foreground mb-6">
             Set the tax rate (VAT) for your store. Kenya standard: 16% VAT.
           </p>
             {stores.length === 0 ? (
-              <p className="text-sm text-zinc-500">
+              <p className="text-sm text-muted-foreground">
                 Complete onboarding to set up your store.
               </p>
             ) : (
-              <div className="divide-y divide-zinc-700/40">
+              <div className="divide-y divide-border">
                 {stores.map((store) => (
                   <div
                     key={store.store_id}
                     className="flex items-center justify-between py-4 first:pt-0 last:pb-0"
                   >
                     <div className="flex-1">
-                      <div className="text-sm font-semibold text-zinc-100">{store.name}</div>
-                      <div className="text-xs text-zinc-500 mt-0.5">
+                      <div className="text-sm font-semibold text-foreground">{store.name}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
                         Current rate: {store.tax_rate ? `${store.tax_rate}%` : "Not set"}
                       </div>
                     </div>
@@ -106,15 +106,15 @@ export function TaxSettingsTab({ stores, planTier }: TaxSettingsTabProps) {
                           max="100"
                           value={taxRates[store.store_id] ?? ""}
                           onChange={(e) => handleTaxRateChange(store.store_id, e.target.value)}
-                          className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 w-20 px-3 text-right tabular-nums focus:outline-none focus:ring-1 focus:ring-white/20"
+                          className="font-mono bg-background border border-border rounded-md text-sm text-foreground h-9 w-20 px-3 text-right tabular-nums focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C]"
                           placeholder="16.00"
                         />
-                        <span className="text-sm text-zinc-500 mx-2">%</span>
+                        <span className="text-sm text-muted-foreground mx-2">%</span>
                       </div>
                       <button
                         onClick={() => handleSaveTaxRate(store.store_id)}
                         disabled={savingStoreId === store.store_id}
-                        className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-7 px-3 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors disabled:opacity-50"
+                        className="border border-border text-foreground hover:bg-accent rounded-md h-7 px-3 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors disabled:opacity-50"
                       >
                         {savingStoreId === store.store_id ? "Saving..." : "Save"}
                       </button>
@@ -126,9 +126,9 @@ export function TaxSettingsTab({ stores, planTier }: TaxSettingsTabProps) {
           </div>
 
         {/* Multi-Rate Tax */}
-        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
-          <h2 className="font-editorial text-xl font-bold text-zinc-50 mb-1">Multi-Rate Tax</h2>
-          <p className="text-sm text-zinc-500 mb-6">
+        <div className="rounded-lg border border-border bg-card p-6">
+          <h2 className="font-sans text-xl font-bold tracking-tight text-foreground mb-1">Multi-Rate Tax</h2>
+          <p className="text-sm text-muted-foreground mb-6">
             Configure multiple tax rates (e.g., City Tax + County Tax).
           </p>
           <div>

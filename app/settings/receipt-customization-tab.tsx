@@ -99,11 +99,11 @@ export function ReceiptCustomizationTab({
       <Toaster richColors position="top-right" />
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
         {/* Customization Form */}
-        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
-          <h2 className="font-editorial text-xl font-bold text-zinc-50 mb-1">
+        <div className="rounded-lg border border-border bg-card p-6">
+          <h2 className="font-sans text-xl font-bold tracking-tight text-foreground mb-1">
             Receipt Customization
           </h2>
-          <p className="text-sm text-zinc-500 mb-6">
+          <p className="text-sm text-muted-foreground mb-6">
             Configure how your printed and digital receipts look for your customers.
           </p>
 
@@ -113,10 +113,10 @@ export function ReceiptCustomizationTab({
                 control={form.control}
                 name="logo_on_receipt"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-md border border-zinc-800 p-4 transition-colors hover:bg-zinc-800/30">
+                  <FormItem className="flex flex-row items-center justify-between rounded-md border border-border p-4 transition-colors hover:bg-accent/30">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-sm font-semibold text-zinc-100">Logo on Receipt</FormLabel>
-                      <FormDescription className="text-xs text-zinc-500">
+                      <FormLabel className="text-sm font-semibold text-foreground">Logo on Receipt</FormLabel>
+                      <FormDescription className="text-xs text-muted-foreground">
                         Display your business logo at the top of receipts
                       </FormDescription>
                     </div>
@@ -124,7 +124,7 @@ export function ReceiptCustomizationTab({
                       <Switch 
                         checked={field.value} 
                         onCheckedChange={field.onChange} 
-                        className="data-[state=checked]:bg-emerald-500"
+                        className="data-[state=checked]:bg-[#E8400C]"
                       />
                     </FormControl>
                   </FormItem>
@@ -136,24 +136,24 @@ export function ReceiptCustomizationTab({
                 name="currency"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">
                       Currency
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value || "KES"}>
                       <FormControl>
-                        <SelectTrigger className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full focus:ring-1 focus:ring-white/20">
+                        <SelectTrigger className="bg-background border border-border rounded-md text-sm text-foreground h-9 px-3 w-full focus:ring-1 focus:ring-[#E8400C]">
                           <SelectValue placeholder="Select currency" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-zinc-900 border border-zinc-800 text-zinc-100">
+                      <SelectContent className="bg-background border border-border text-foreground">
                         {CURRENCY_OPTIONS.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value} className="focus:bg-zinc-800 focus:text-zinc-100">
+                          <SelectItem key={opt.value} value={opt.value} className="focus:bg-accent focus:text-foreground">
                             {opt.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormDescription className="text-xs text-zinc-500 mt-1">Used on receipts and across the app</FormDescription>
+                    <FormDescription className="text-xs text-muted-foreground mt-1">Used on receipts and across the app</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -163,10 +163,10 @@ export function ReceiptCustomizationTab({
                 control={form.control}
                 name="tax_inclusive"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-md border border-zinc-800 p-4 transition-colors hover:bg-zinc-800/30">
+                  <FormItem className="flex flex-row items-center justify-between rounded-md border border-border p-4 transition-colors hover:bg-accent/30">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-sm font-semibold text-zinc-100">Tax inclusive of price</FormLabel>
-                      <FormDescription className="text-xs text-zinc-500">
+                      <FormLabel className="text-sm font-semibold text-foreground">Tax inclusive of price</FormLabel>
+                      <FormDescription className="text-xs text-muted-foreground">
                         When on, displayed prices include tax; when off, tax is added on top
                       </FormDescription>
                     </div>
@@ -174,7 +174,7 @@ export function ReceiptCustomizationTab({
                       <Switch 
                         checked={field.value} 
                         onCheckedChange={field.onChange} 
-                        className="data-[state=checked]:bg-emerald-500"
+                        className="data-[state=checked]:bg-[#E8400C]"
                       />
                     </FormControl>
                   </FormItem>
@@ -186,7 +186,7 @@ export function ReceiptCustomizationTab({
                 name="receipt_header"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">
                       Header Text
                     </FormLabel>
                     <FormControl>
@@ -195,10 +195,10 @@ export function ReceiptCustomizationTab({
                         rows={3}
                         {...field}
                         value={field.value || ""}
-                        className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 px-3 py-2 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 min-h-[80px]"
+                        className="bg-background border border-border rounded-md text-sm text-foreground px-3 py-2 w-full placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C] min-h-[80px]"
                       />
                     </FormControl>
-                    <FormDescription className="text-xs text-zinc-500 mt-1">Text displayed at the top of the receipt</FormDescription>
+                    <FormDescription className="text-xs text-muted-foreground mt-1">Text displayed at the top of the receipt</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -209,7 +209,7 @@ export function ReceiptCustomizationTab({
                 name="receipt_footer"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">
                       Footer Text
                     </FormLabel>
                     <FormControl>
@@ -218,10 +218,10 @@ export function ReceiptCustomizationTab({
                         rows={3}
                         {...field}
                         value={field.value || ""}
-                        className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 px-3 py-2 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 min-h-[80px]"
+                        className="bg-background border border-border rounded-md text-sm text-foreground px-3 py-2 w-full placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C] min-h-[80px]"
                       />
                     </FormControl>
-                    <FormDescription className="text-xs text-zinc-500 mt-1">Text displayed at the bottom of the receipt</FormDescription>
+                    <FormDescription className="text-xs text-muted-foreground mt-1">Text displayed at the bottom of the receipt</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -232,7 +232,7 @@ export function ReceiptCustomizationTab({
                 name="return_policy"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">
                       Return Policy
                     </FormLabel>
                     <FormControl>
@@ -241,10 +241,10 @@ export function ReceiptCustomizationTab({
                         rows={4}
                         {...field}
                         value={field.value || ""}
-                        className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 px-3 py-2 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 min-h-[100px]"
+                        className="bg-background border border-border rounded-md text-sm text-foreground px-3 py-2 w-full placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C] min-h-[100px]"
                       />
                     </FormControl>
-                    <FormDescription className="text-xs text-zinc-500 mt-1">Detailed return policy text</FormDescription>
+                    <FormDescription className="text-xs text-muted-foreground mt-1">Detailed return policy text</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -254,7 +254,7 @@ export function ReceiptCustomizationTab({
                 <Button 
                   type="submit" 
                   disabled={isSubmitting}
-                  className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+                  className="bg-[#E8400C] text-white hover:bg-[#c73508] rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors border-none"
                 >
                   {isSubmitting ? "Saving..." : "Save Changes"}
                 </Button>
@@ -264,8 +264,8 @@ export function ReceiptCustomizationTab({
         </div>
 
         {/* Receipt Preview */}
-        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
-          <h2 className="mb-6 font-editorial text-xl font-bold text-zinc-50">
+        <div className="rounded-lg border border-border bg-card p-6">
+          <h2 className="mb-6 font-sans text-xl font-bold tracking-tight text-foreground">
             Receipt Preview
           </h2>
           <ReceiptPreview

@@ -201,7 +201,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
   return (
     <div className="flex h-full flex-col">
       {/* Search Bar */}
-      <div className="border-b border-zinc-200 p-4 dark:border-zinc-800">
+      <div className="border-b border-border p-4">
         <div className="relative">
           <input
             ref={inputRef}
@@ -209,10 +209,10 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
             placeholder="Search products by name or SKU..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-3 pl-10 text-sm text-zinc-900 placeholder:text-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+            className="w-full rounded-lg border border-border bg-card px-4 py-3 pl-10 text-sm text-foreground placeholder:text-muted-foreground focus:border-[#E8400C] focus:outline-none focus:ring-2 focus:ring-[#E8400C]/30"
           />
           <svg
-            className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400"
+            className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -231,15 +231,15 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
       <div className="flex-1 overflow-y-auto p-4">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="text-zinc-500 dark:text-zinc-400">Searching...</div>
+            <div className="text-muted-foreground">Searching...</div>
           </div>
         ) : !hasSearched ? (
           <div className="flex items-center justify-center py-12">
-            <p className="text-zinc-500 dark:text-zinc-400">Start typing to search products</p>
+            <p className="text-muted-foreground">Start typing to search products</p>
           </div>
         ) : products.length === 0 ? (
           <div className="flex items-center justify-center py-12">
-            <p className="text-zinc-500 dark:text-zinc-400">
+            <p className="text-muted-foreground">
               No products found for &quot;{searchQuery}&quot;
             </p>
           </div>
@@ -249,10 +249,10 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
               <button
                 key={product.style_id}
                 onClick={() => handleProductSelect(product.style_id)}
-                className="group relative overflow-hidden rounded-lg border border-zinc-200 bg-white p-0 text-left transition-all hover:border-zinc-400 cursor-pointer"
+                className="group relative overflow-hidden rounded-lg border border-border bg-card p-0 text-left transition-all hover:border-[#E8400C] cursor-pointer"
               >
                 {/* Product Image */}
-                <div className="relative aspect-square w-full overflow-hidden bg-zinc-100">
+                <div className="relative aspect-square w-full overflow-hidden bg-muted/40">
                   {product.image_url ? (
                     <StorageImage
                       src={product.image_url}
@@ -262,7 +262,7 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
                       sizes="(max-width: 768px) 50vw, 33vw"
                     />
                   ) : (
-                    <div className="flex h-full items-center justify-center text-zinc-400 dark:text-zinc-300">
+                    <div className="flex h-full items-center justify-center text-muted-foreground">
                       <svg
                         className="h-12 w-12"
                         fill="none"
@@ -282,15 +282,15 @@ export function ProductSearch({ defaultStoreId }: ProductSearchProps) {
 
                 {/* Product Info */}
                 <div className="px-3 py-2">
-                  <h3 className="mb-0.5 line-clamp-2 text-xs font-semibold tracking-[0.05em] uppercase text-zinc-800">
+                  <h3 className="mb-0.5 line-clamp-2 text-xs font-semibold tracking-[0.05em] uppercase text-foreground">
                     {product.name}
                   </h3>
-                  <p className="font-editorial text-sm font-bold text-zinc-900 mt-0.5">
+                  <p className="font-mono text-sm font-bold tabular-nums tracking-tight text-foreground mt-0.5">
                     {isDiscountActive(product.discount_percent, product.discount_ends_at)
                       ? formatPrice(Math.round(product.base_price * (1 - (Number(product.discount_percent) || 0) / 100)))
                       : formatPrice(product.base_price)}
                     {isDiscountActive(product.discount_percent, product.discount_ends_at) && (
-                      <span className="ml-1 text-[0.65rem] font-semibold text-emerald-600">
+                      <span className="ml-1 text-[0.65rem] font-semibold text-emerald-600 dark:text-emerald-400 font-sans">
                         {product.discount_percent}% OFF
                       </span>
                     )}

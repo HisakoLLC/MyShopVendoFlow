@@ -69,7 +69,7 @@ export function StoreComparisonTable({
           return (
             <Link
               href={`/dashboard?store=${encodeURIComponent(s.store_id)}`}
-              className="font-medium text-zinc-900 hover:underline dark:text-zinc-100"
+              className="font-medium text-foreground hover:underline"
             >
               {s.store_name || "Unnamed store"}
             </Link>
@@ -88,7 +88,7 @@ export function StoreComparisonTable({
           </Button>
         ),
         cell: ({ getValue }) => (
-          <span className="tabular-nums">{formatCurrency(Number(getValue() || 0))}</span>
+          <span className="font-mono tabular-nums text-foreground">{formatCurrency(Number(getValue() || 0))}</span>
         ),
       },
       {
@@ -103,7 +103,7 @@ export function StoreComparisonTable({
           </Button>
         ),
         cell: ({ getValue }) => (
-          <span className="tabular-nums hidden sm:inline">{Number(getValue() || 0)}</span>
+          <span className="font-mono tabular-nums text-foreground hidden sm:inline">{Number(getValue() || 0)}</span>
         ),
       },
       {
@@ -118,7 +118,7 @@ export function StoreComparisonTable({
           </Button>
         ),
         cell: ({ getValue }) => (
-          <span className="tabular-nums hidden md:inline">
+          <span className="font-mono tabular-nums text-foreground hidden md:inline">
             {formatCurrency(Number(getValue() || 0))}
           </span>
         ),
@@ -135,7 +135,7 @@ export function StoreComparisonTable({
           </Button>
         ),
         cell: ({ getValue }) => (
-          <span className="tabular-nums hidden lg:inline">
+          <span className="font-mono tabular-nums text-foreground hidden lg:inline">
             {formatCurrency(Number(getValue() || 0))}
           </span>
         ),
@@ -157,8 +157,8 @@ export function StoreComparisonTable({
           return (
             <span
               className={cn(
-                "inline-flex items-center gap-1 tabular-nums",
-                up ? "text-emerald-700 dark:text-emerald-300" : "text-red-700 dark:text-red-300"
+                "inline-flex items-center gap-1 font-mono tabular-nums font-medium",
+                up ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
               )}
             >
               {up ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
@@ -182,7 +182,7 @@ export function StoreComparisonTable({
 
   if (!rows || rows.length === 0) {
     return (
-      <div className="flex h-[220px] items-center justify-center text-sm text-zinc-500 dark:text-zinc-400">
+      <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
         No sales data yet.
       </div>
     )

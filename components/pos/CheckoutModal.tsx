@@ -423,11 +423,11 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent 
-        className="max-w-2xl max-h-[90vh] overflow-y-auto !bg-white !border-zinc-200 !rounded-xl !shadow-2xl p-0"
+        className="max-w-2xl max-h-[90vh] overflow-y-auto !bg-card !text-card-foreground !border-border !rounded-xl !shadow-2xl p-0"
         overlayClassName="bg-black/60 backdrop-blur-sm"
       >
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-100">
-          <DialogTitle className="text-lg font-editorial font-bold text-zinc-900">Complete Sale</DialogTitle>
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
+          <DialogTitle className="text-lg font-sans font-bold tracking-tight text-foreground">Complete Sale</DialogTitle>
         </DialogHeader>
 
         {/* Step Indicator */}
@@ -437,14 +437,14 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
                   currentStep >= step
-                    ? "bg-zinc-900 text-white"
-                    : "border-2 border-zinc-200 text-zinc-400"
+                    ? "bg-[#E8400C] text-white"
+                    : "border-2 border-border text-muted-foreground"
                 }`}
               >
                 {step}
               </div>
               {step < 3 && (
-                <div className="h-px flex-1 bg-zinc-200 mx-2" />
+                <div className="h-px flex-1 bg-border mx-2" />
               )}
             </React.Fragment>
           ))}
@@ -638,27 +638,27 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
                   <span className="text-sm text-zinc-300 tabular-nums">{formatPrice(displaySubtotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-sm text-zinc-400">Tax</span>
-                  <span className="text-sm text-zinc-300 tabular-nums">{formatPrice(displayTax)}</span>
+                  <span className="text-sm text-muted-foreground">Tax</span>
+                  <span className="font-mono text-sm text-foreground tabular-nums">{formatPrice(displayTax)}</span>
                 </div>
-                <div className="flex justify-between border-t border-zinc-700 pt-2 mt-2">
-                  <span className="text-sm font-semibold text-zinc-100">Total</span>
-                  <span className="font-editorial text-lg font-bold text-white tabular-nums">
+                <div className="flex justify-between border-t border-border pt-2 mt-2">
+                  <span className="text-sm font-semibold text-foreground">Total</span>
+                  <span className="font-mono text-2xl font-bold text-foreground tabular-nums tracking-tight">
                     {formatPrice(displayTotal)}
                   </span>
                 </div>
               </div>
-              <div className="mt-4 space-y-1 text-sm pt-4 border-t border-zinc-700">
+              <div className="mt-4 space-y-1 text-sm pt-4 border-t border-border">
                 <p>
-                  <span className="text-zinc-400 text-sm">Payment:</span>{" "}
-                  <span className="font-semibold capitalize text-sm text-zinc-100">
+                  <span className="text-muted-foreground text-sm">Payment:</span>{" "}
+                  <span className="font-semibold capitalize text-sm text-foreground">
                     {paymentMethod}
                   </span>
                 </p>
                 {selectedCustomer && (
                   <p>
-                    <span className="text-zinc-400 text-sm">Customer:</span>{" "}
-                    <span className="font-semibold text-sm text-zinc-100">
+                    <span className="text-muted-foreground text-sm">Customer:</span>{" "}
+                    <span className="font-semibold text-sm text-foreground">
                       {customerSearch}
                     </span>
                   </p>
@@ -666,8 +666,8 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
               </div>
             </div>
 
-            <div className="flex justify-between gap-2 pt-4 px-6 py-4 border-t border-zinc-100 -mx-6 -mb-6 mt-4">
-              <Button variant="outline" onClick={handleBack} disabled={isProcessing} className="bg-transparent border border-zinc-200 text-zinc-700 hover:border-zinc-400 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">
+            <div className="flex justify-between gap-2 pt-4 px-6 py-4 border-t border-border -mx-6 -mb-6 mt-4">
+              <Button variant="outline" onClick={handleBack} disabled={isProcessing} className="bg-transparent border border-border text-foreground hover:border-foreground/40 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none">
                 Back
               </Button>
               <Button
@@ -676,7 +676,7 @@ export function CheckoutModal({ storeId, accountId: accountIdProp, storeName: st
                   isProcessing ||
                   (paymentMethod === "mpesa" && !mpesaConfirmationCode.trim())
                 }
-                className="flex-1 bg-zinc-900 text-white hover:bg-zinc-800 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none"
+                className="flex-1 bg-[#E8400C] text-white hover:bg-[#c73508] rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors shadow-none border-none"
               >
                 {isProcessing ? "Processing..." : "Confirm Sale"}
               </Button>

@@ -71,7 +71,7 @@ async function SaleDetailContent({ saleId }: { saleId: string }) {
       <div className="mb-4">
         <Link
           href="/sales"
-          className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+          className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
         >
           ← Back to Sales
         </Link>

@@ -208,8 +208,8 @@ export function ReceiveInventoryForm({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Receiving Form */}
-          <div className="rounded-lg border border-zinc-200 bg-background-card-light p-6 dark:border-border-dark dark:bg-background-card-dark">
-            <h2 className="mb-4 font-editorial text-lg font-bold text-zinc-50">
+          <div className="rounded-lg border border-border bg-card text-card-foreground p-6 shadow-sm">
+            <h2 className="mb-4 font-sans text-lg font-bold text-foreground">
               Receiving Details
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
@@ -218,10 +218,10 @@ export function ReceiveInventoryForm({
                 name="store_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1.5 block">Destination Store *</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-1.5 block">Destination Store *</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600">
+                        <SelectTrigger className="bg-background border border-border rounded-md text-sm text-foreground h-9 px-3 focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C]">
                           <SelectValue placeholder="Where is this inventory going?" />
                         </SelectTrigger>
                       </FormControl>
@@ -243,9 +243,9 @@ export function ReceiveInventoryForm({
                 name="received_date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1.5 block">Received Date *</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-1.5 block">Received Date *</FormLabel>
                     <FormControl>
-                      <Input type="date" className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600" {...field} />
+                      <Input type="date" className="bg-background border border-border rounded-md text-sm text-foreground h-9 px-3 focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C]" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -255,45 +255,45 @@ export function ReceiveInventoryForm({
 
             {/* Barcode Scanning */}
             <div className="mt-4">
-              <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 mb-1.5 block">Scan Barcode (Optional)</FormLabel>
+              <FormLabel className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-1.5 block">Scan Barcode (Optional)</FormLabel>
               <div className="flex gap-2">
                 <Input
                   placeholder="Scan or enter SKU..."
                   value={barcodeInput}
                   onChange={(e) => setBarcodeInput(e.target.value)}
                   onKeyPress={handleBarcodeKeyPress}
-                  className="flex-1 bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                  className="flex-1 bg-background border border-border rounded-md text-sm text-foreground h-9 px-3 placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C]"
                 />
                 <button
                   type="button"
                   onClick={() => handleBarcodeScan(barcodeInput)}
-                  className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-4 text-xs font-semibold uppercase transition-colors flex items-center justify-center shrink-0"
+                  className="bg-[#E8400C] text-white hover:bg-[#c73508] rounded-md h-9 px-4 text-xs font-semibold uppercase transition-colors flex items-center justify-center shrink-0"
                 >
                   Scan
                 </button>
               </div>
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Scan a barcode to automatically increment the quantity for that item
               </p>
             </div>
           </div>
 
           {/* Line Items Table */}
-          <div className="rounded-lg border border-zinc-200 bg-background-card-light p-6 dark:border-border-dark dark:bg-background-card-dark">
-            <h2 className="mb-4 font-editorial text-lg font-bold text-zinc-50">
+          <div className="rounded-lg border border-border bg-card text-card-foreground p-6 shadow-sm">
+            <h2 className="mb-4 font-sans text-lg font-bold text-foreground">
               Line Items
             </h2>
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Variant</TableHead>
-                    <TableHead>SKU</TableHead>
-                    <TableHead className="text-right">Qty Ordered</TableHead>
-                    <TableHead className="text-right">Qty Previously Received</TableHead>
-                    <TableHead className="text-right">Qty Remaining</TableHead>
-                    <TableHead className="text-right">Receive Now</TableHead>
+                <TableHeader className="bg-muted/40 border-b border-border">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Product</TableHead>
+                    <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Variant</TableHead>
+                    <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">SKU</TableHead>
+                    <TableHead className="text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Qty Ordered</TableHead>
+                    <TableHead className="text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Qty Previously Received</TableHead>
+                    <TableHead className="text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Qty Remaining</TableHead>
+                    <TableHead className="text-right text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Receive Now</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -307,10 +307,11 @@ export function ReceiveInventoryForm({
                     return (
                       <TableRow
                         key={lineItem.line_item_id}
+                        className="border-b border-border hover:bg-accent/50 transition-colors"
                       >
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <div className={lineItem.product_variants?.product_styles?.image_url ? "relative h-10 w-10 shrink-0 overflow-hidden rounded-md" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800"}>
+                            <div className={lineItem.product_variants?.product_styles?.image_url ? "relative h-10 w-10 shrink-0 overflow-hidden rounded-md border border-border" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border bg-muted"}>
                               {lineItem.product_variants?.product_styles?.image_url ? (
                                 <Image
                                   src={lineItem.product_variants.product_styles.image_url}
@@ -319,11 +320,11 @@ export function ReceiveInventoryForm({
                                   className="object-cover"
                                 />
                               ) : (
-                                <Package className="h-4 w-4 text-zinc-600" />
+                                <Package className="h-4 w-4 text-muted-foreground" />
                               )}
                             </div>
                             <div className="min-w-0">
-                              <div className="truncate font-medium text-zinc-100">
+                              <div className="truncate font-medium text-foreground">
                                 {lineItem.product_variants?.product_styles?.name || "—"}
                               </div>
                             </div>
@@ -331,40 +332,40 @@ export function ReceiveInventoryForm({
                         </TableCell>
                         <TableCell>
                           {lineItem.product_variants ? (
-                            <div className="text-sm text-zinc-300">
+                            <div className="text-sm text-muted-foreground">
                               {lineItem.product_variants.size} / {lineItem.product_variants.color}
                             </div>
                           ) : (
-                            <span className="text-sm text-zinc-400">—</span>
+                            <span className="text-sm text-muted-foreground">—</span>
                           )}
                         </TableCell>
                         <TableCell>
                           {lineItem.product_variants?.sku ? (
-                            <span className="font-mono text-sm text-zinc-400 tracking-wide">
+                            <span className="font-mono text-xs text-muted-foreground tracking-wide">
                               {lineItem.product_variants.sku}
                             </span>
                           ) : (
-                            <span className="text-sm text-zinc-400">—</span>
+                            <span className="text-sm text-muted-foreground">—</span>
                           )}
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="font-medium text-zinc-100 tabular-nums">
+                          <div className="font-medium text-foreground font-mono tabular-nums">
                             {lineItem.quantity_ordered}
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="text-sm text-zinc-400 tabular-nums">
+                          <div className="text-sm text-muted-foreground font-mono tabular-nums">
                             {qtyReceived}
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
                           <div
-                            className={`font-semibold tabular-nums ${
+                            className={`font-semibold font-mono tabular-nums ${
                               qtyRemaining === 0
-                                ? "text-green-400"
+                                ? "text-emerald-500"
                                 : qtyRemaining < 5
-                                  ? "text-yellow-400"
-                                  : "text-zinc-100"
+                                  ? "text-amber-500"
+                                  : "text-foreground"
                             }`}
                           >
                             {qtyRemaining}
@@ -382,7 +383,7 @@ export function ReceiveInventoryForm({
                                       min="0"
                                       max={qtyRemaining}
                                       disabled={isFullyReceived}
-                                      className="w-24 bg-zinc-900 border border-zinc-800 rounded-md h-8 px-2 text-sm text-zinc-100 text-center focus:ring-1 focus:ring-white/20 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                      className="w-24 bg-background border border-border rounded-md h-8 px-2 text-sm text-foreground font-mono text-center focus:ring-1 focus:ring-[#E8400C] tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                       {...field}
                                       onChange={(e) => {
                                         const value = parseInt(e.target.value, 10) || 0
@@ -412,12 +413,13 @@ export function ReceiveInventoryForm({
             <Button
               type="button"
               variant="outline"
+              className="rounded-md border-border text-foreground hover:bg-accent"
               onClick={() => router.push(`/purchasing/${poId}`)}
               disabled={isSubmitting}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || !watchedStoreId} className="gap-2">
+            <Button type="submit" disabled={isSubmitting || !watchedStoreId} className="gap-2 bg-[#E8400C] text-white hover:bg-[#c73508] rounded-md">
               <Package className="h-4 w-4" />
               {isSubmitting ? "Processing..." : "Confirm Receipt"}
             </Button>

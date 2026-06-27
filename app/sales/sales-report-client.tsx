@@ -315,38 +315,38 @@ export function SalesReportClient({
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 p-4 md:p-8">
+    <div className="min-h-screen bg-background text-foreground p-4 md:p-8">
       <div className="mx-auto max-w-7xl space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">
               Detailed sales analytics and transaction history
             </p>
-            <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">Sales Report</h1>
+            <h1 className="font-sans text-3xl font-bold tracking-tight text-foreground">Sales Report</h1>
           </div>
-          <Button onClick={handleExportCSV} disabled={sales.length === 0}>
+          <Button onClick={handleExportCSV} disabled={sales.length === 0} className="bg-[#E8400C] hover:bg-[#c73508] text-white rounded-sm shadow-none border-none">
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
         </div>
 
         {/* Filters */}
-        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden">
-          <div className="p-6 border-b border-zinc-800">
-            <h2 className="font-editorial text-xl font-bold text-zinc-50">Filters</h2>
-            <p className="text-sm text-zinc-400">Filter sales by date, store, payment method, or staff</p>
+        <div className="rounded-lg border border-border bg-card text-card-foreground shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-border">
+            <h2 className="font-sans text-xl font-bold tracking-tight text-foreground">Filters</h2>
+            <p className="text-sm text-muted-foreground">Filter sales by date, store, payment method, or staff</p>
           </div>
           <div className="p-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
               {/* Date Range Preset */}
               <div className="space-y-2">
-                <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Date Range</Label>
+                <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground">Date Range</Label>
                 <Select value={datePreset} onValueChange={(v) => setDatePreset(v as DateRangePreset)}>
-                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm focus:ring-1 focus:ring-white/20 focus:border-zinc-600">
+                  <SelectTrigger className="bg-background border-border text-foreground h-10 rounded-sm focus:ring-1 focus:ring-[#E8400C]/30 focus:border-[#E8400C]">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
+                  <SelectContent className="bg-popover border-border text-popover-foreground">
                     <SelectItem value="today">Today</SelectItem>
                     <SelectItem value="7days">Last 7 Days</SelectItem>
                     <SelectItem value="30days">Last 30 Days</SelectItem>
@@ -360,21 +360,21 @@ export function SalesReportClient({
               {datePreset === "custom" && (
                 <>
                   <div className="space-y-2">
-                    <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">From</Label>
+                    <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground">From</Label>
                     <Input
                       type="date"
                       value={customDateFrom}
                       onChange={(e) => setCustomDateFrom(e.target.value)}
-                      className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                      className="bg-background border-border text-foreground h-10 rounded-sm focus:ring-1 focus:ring-[#E8400C]/30 focus:border-[#E8400C]"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">To</Label>
+                    <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground">To</Label>
                     <Input
                       type="date"
                       value={customDateTo}
                       onChange={(e) => setCustomDateTo(e.target.value)}
-                      className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                      className="bg-background border-border text-foreground h-10 rounded-sm focus:ring-1 focus:ring-[#E8400C]/30 focus:border-[#E8400C]"
                     />
                   </div>
                 </>
@@ -382,12 +382,12 @@ export function SalesReportClient({
 
               {/* Store Filter */}
               <div className="space-y-2">
-                <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Store</Label>
+                <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground">Store</Label>
                 <Select value={selectedStore} onValueChange={setSelectedStore}>
-                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm focus:ring-1 focus:ring-white/20 focus:border-zinc-600">
+                  <SelectTrigger className="bg-background border-border text-foreground h-10 rounded-sm focus:ring-1 focus:ring-[#E8400C]/30 focus:border-[#E8400C]">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
+                  <SelectContent className="bg-popover border-border text-popover-foreground">
                     <SelectItem value="all">All Stores</SelectItem>
                     {stores.map((store) => (
                       <SelectItem key={store.store_id} value={store.store_id}>
@@ -400,12 +400,12 @@ export function SalesReportClient({
 
               {/* Payment Method Filter */}
               <div className="space-y-2">
-                <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Payment Method</Label>
+                <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground">Payment Method</Label>
                 <Select value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod}>
-                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm focus:ring-1 focus:ring-white/20 focus:border-zinc-600">
+                  <SelectTrigger className="bg-background border-border text-foreground h-10 rounded-sm focus:ring-1 focus:ring-[#E8400C]/30 focus:border-[#E8400C]">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
+                  <SelectContent className="bg-popover border-border text-popover-foreground">
                     <SelectItem value="all">All Methods</SelectItem>
                     <SelectItem value="cash">Cash</SelectItem>
                     <SelectItem value="mpesa">M-Pesa</SelectItem>
@@ -416,12 +416,12 @@ export function SalesReportClient({
 
               {/* Staff Filter */}
               <div className="space-y-2">
-                <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Cashier</Label>
+                <Label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground">Cashier</Label>
                 <Select value={selectedStaff} onValueChange={setSelectedStaff}>
-                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 h-10 rounded-sm focus:ring-1 focus:ring-white/20 focus:border-zinc-600">
+                  <SelectTrigger className="bg-background border-border text-foreground h-10 rounded-sm focus:ring-1 focus:ring-[#E8400C]/30 focus:border-[#E8400C]">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
+                  <SelectContent className="bg-popover border-border text-popover-foreground">
                     <SelectItem value="all">All Staff</SelectItem>
                     {staff.map((s) => (
                       <SelectItem key={s.staff_id} value={s.staff_id}>
@@ -437,57 +437,57 @@ export function SalesReportClient({
 
         {/* Summary Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
-            <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">Total Revenue</div>
-            <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">{formatPrice(summary.totalRevenue)}</div>
+          <div className="rounded-lg border border-border bg-card text-card-foreground p-6 shadow-sm">
+            <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">Total Revenue</div>
+            <div className="font-mono text-3xl font-bold tabular-nums tracking-tight text-foreground">{formatPrice(summary.totalRevenue)}</div>
           </div>
 
-          <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
-            <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">Total Transactions</div>
-            <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">{summary.totalTransactions}</div>
+          <div className="rounded-lg border border-border bg-card text-card-foreground p-6 shadow-sm">
+            <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">Total Transactions</div>
+            <div className="font-mono text-3xl font-bold tabular-nums tracking-tight text-foreground">{summary.totalTransactions}</div>
           </div>
 
-          <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
-            <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">Average Basket</div>
-            <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">{formatPrice(summary.averageBasketSize)}</div>
+          <div className="rounded-lg border border-border bg-card text-card-foreground p-6 shadow-sm">
+            <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">Average Basket</div>
+            <div className="font-mono text-3xl font-bold tabular-nums tracking-tight text-foreground">{formatPrice(summary.averageBasketSize)}</div>
           </div>
 
-          <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
-            <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">Units Sold</div>
-            <div className="font-editorial text-3xl font-bold tabular-nums text-zinc-50">{summary.totalUnits}</div>
+          <div className="rounded-lg border border-border bg-card text-card-foreground p-6 shadow-sm">
+            <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">Units Sold</div>
+            <div className="font-mono text-3xl font-bold tabular-nums tracking-tight text-foreground">{summary.totalUnits}</div>
           </div>
         </div>
 
         {/* Sales Table */}
-        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 overflow-hidden">
-          <div className="p-6 border-b border-zinc-800">
-            <h2 className="font-editorial text-xl font-bold text-zinc-50">Sales Transactions</h2>
-            <p className="text-sm text-zinc-500 mt-1">
+        <div className="rounded-lg border border-border bg-card text-card-foreground shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-border">
+            <h2 className="font-sans text-xl font-bold tracking-tight text-foreground">Sales Transactions</h2>
+            <p className="text-sm text-muted-foreground mt-1">
               {sales.length} {sales.length === 1 ? "transaction" : "transactions"} found
             </p>
           </div>
           <div className="p-0">
             {isLoading ? (
-              <div className="flex items-center justify-center py-12 text-zinc-400">
+              <div className="flex items-center justify-center py-12 text-muted-foreground">
                 Loading sales...
               </div>
             ) : sales.length === 0 ? (
-              <div className="flex items-center justify-center py-12 text-zinc-400">
+              <div className="flex items-center justify-center py-12 text-muted-foreground">
                 No sales found for the selected filters
               </div>
             ) : (
               <>
                 <div className="overflow-x-hidden w-full">
                   <Table className="w-full">
-                    <TableHeader className="bg-zinc-900">
-                      <TableRow className="border-b-2 border-zinc-700 hover:bg-transparent">
-                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Date/Time</TableHead>
-                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Receipt #</TableHead>
-                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Store</TableHead>
-                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Cashier</TableHead>
-                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-center">Items</TableHead>
-                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Payment</TableHead>
-                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 text-right">Total</TableHead>
+                    <TableHeader className="bg-muted/40">
+                      <TableRow className="border-b border-border hover:bg-transparent">
+                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Date/Time</TableHead>
+                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Receipt #</TableHead>
+                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Store</TableHead>
+                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Cashier</TableHead>
+                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground text-center">Items</TableHead>
+                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Payment</TableHead>
+                        <TableHead className="px-6 py-3 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground text-right">Total</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -501,45 +501,45 @@ export function SalesReportClient({
                             className={cn(
                               "cursor-pointer transition-colors last:border-0",
                               isRefunded 
-                                ? "bg-red-400/5 border-b border-red-400/10 hover:bg-red-400/8" 
+                                ? "bg-red-500/5 border-b border-red-500/10 hover:bg-red-500/10" 
                                 : isPartialRefund
-                                  ? "bg-amber-400/5 border-b border-amber-400/10 hover:bg-amber-400/10"
-                                  : "border-b border-zinc-700/40 hover:bg-zinc-800/40"
+                                  ? "bg-amber-500/5 border-b border-amber-500/10 hover:bg-amber-500/10"
+                                  : "border-b border-border hover:bg-accent/50"
                             )}
                             onClick={() => setSelectedSale(sale)}
                           >
-                            <TableCell className={cn("px-6 py-4 text-sm transition-colors", isRefunded ? "text-zinc-500" : isPartialRefund ? "text-zinc-400" : "text-zinc-300")}>
+                            <TableCell className={cn("px-6 py-4 text-sm transition-colors", isRefunded ? "text-muted-foreground" : isPartialRefund ? "text-muted-foreground" : "text-foreground")}>
                               {formatDateTime(sale.sale_date)}
                             </TableCell>
-                            <TableCell className={cn("px-6 py-4 font-mono text-xs tracking-wide transition-colors", isRefunded ? "text-zinc-500" : "text-zinc-400")}>
+                            <TableCell className={cn("px-6 py-4 font-mono text-xs tracking-wide transition-colors", isRefunded ? "text-muted-foreground" : "text-muted-foreground")}>
                               {sale.receipt_number ?? "—"}
                             </TableCell>
-                            <TableCell className={cn("px-6 py-4 text-sm transition-colors", isRefunded ? "text-zinc-500" : "text-zinc-400")}>
+                            <TableCell className={cn("px-6 py-4 text-sm transition-colors", isRefunded ? "text-muted-foreground" : "text-foreground")}>
                               {sale.stores?.name || "N/A"}
                             </TableCell>
-                            <TableCell className={cn("px-6 py-4 text-sm transition-colors", isRefunded ? "text-zinc-500" : "text-zinc-400")}>
+                            <TableCell className={cn("px-6 py-4 text-sm transition-colors", isRefunded ? "text-muted-foreground" : "text-foreground")}>
                               {sale.staff
                                 ? `${sale.staff.first_name || ""} ${sale.staff.last_name || ""}`.trim() ||
                                   "N/A"
                                 : "N/A"}
                             </TableCell>
-                            <TableCell className={cn("px-6 py-4 text-center tabular-nums transition-colors", isRefunded ? "text-zinc-500" : isPartialRefund ? "text-zinc-400" : "text-sm text-zinc-300")}>
+                            <TableCell className={cn("px-6 py-4 text-center font-mono tabular-nums transition-colors", isRefunded ? "text-muted-foreground" : isPartialRefund ? "text-muted-foreground" : "text-sm text-foreground")}>
                               {itemsPerSale[sale.sale_id] || 0}
                             </TableCell>
-                            <TableCell className={cn("px-6 py-4 capitalize text-sm transition-colors", isRefunded ? "text-zinc-500" : "text-zinc-400")}>
+                            <TableCell className={cn("px-6 py-4 capitalize text-sm transition-colors", isRefunded ? "text-muted-foreground" : "text-foreground")}>
                               {sale.payment_method || "N/A"}
                             </TableCell>
                             <TableCell className="px-6 py-4 text-right">
                               {isRefunded ? (
-                                <span className="bg-red-400/10 text-red-400 border border-red-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5">
+                                <span className="bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5">
                                   REFUNDED
                                 </span>
                               ) : isPartialRefund ? (
-                                <span className="bg-amber-400/10 text-amber-400 border border-amber-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5">
+                                <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5">
                                   PARTIAL
                                 </span>
                               ) : (
-                                <span className="font-editorial text-base font-bold tabular-nums text-zinc-50">
+                                <span className="font-mono text-base font-bold tabular-nums text-foreground">
                                   {formatPrice(sale.grand_total ?? 0)}
                                 </span>
                               )}
@@ -553,8 +553,8 @@ export function SalesReportClient({
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="p-6 border-t border-zinc-800 flex items-center justify-between">
-                    <div className="text-sm text-zinc-500">
+                  <div className="p-6 border-t border-border flex items-center justify-between">
+                    <div className="text-sm text-muted-foreground">
                       Page {currentPage} of {totalPages}
                     </div>
                     <div className="flex gap-2">
@@ -563,7 +563,7 @@ export function SalesReportClient({
                         size="sm"
                         onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                         disabled={currentPage === 1}
-                        className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                        className="rounded-sm border-border text-foreground hover:bg-accent hover:text-accent-foreground"
                       >
                         <ChevronLeft className="h-4 w-4 mr-1" />
                         Previous
@@ -573,7 +573,7 @@ export function SalesReportClient({
                         size="sm"
                         onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                         disabled={currentPage === totalPages}
-                        className="rounded-sm border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                        className="rounded-sm border-border text-foreground hover:bg-accent hover:text-accent-foreground"
                       >
                         Next
                         <ChevronRight className="h-4 w-4 ml-1" />

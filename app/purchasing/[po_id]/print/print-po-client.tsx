@@ -70,20 +70,20 @@ export function PrintPOClient({
   return (
     <>
       {/* Toolbar - hidden when printing */}
-      <div className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between border-b border-zinc-200 bg-white px-6 py-3 print:hidden">
-        <h1 className="text-lg font-semibold text-zinc-900">
+      <div className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between border-b border-border bg-card px-6 py-3 print:hidden">
+        <h1 className="font-sans text-lg font-semibold text-foreground">
           PO #{po.po_number} — Print or save as PDF
         </h1>
         <div className="flex gap-2">
           <button
             onClick={() => window.close()}
-            className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+            className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent"
           >
             Close
           </button>
           <button
             onClick={handlePrint}
-            className="rounded-lg bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800"
+            className="rounded-lg bg-[#E8400C] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#c73508]"
           >
             Print
           </button>
@@ -93,33 +93,33 @@ export function PrintPOClient({
       {/* Document - with top padding so toolbar doesn't overlap */}
       <div className="mx-auto max-w-4xl px-6 pb-12 pt-20 print:pt-0">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-zinc-900">Purchase Order</h1>
-          <p className="mt-1 text-lg font-semibold text-zinc-700">
+          <h1 className="font-sans text-2xl font-bold text-foreground">Purchase Order</h1>
+          <p className="mt-1 font-mono text-lg font-semibold text-muted-foreground">
             PO #{po.po_number}
           </p>
         </div>
 
         <div className="mb-8 grid grid-cols-2 gap-8">
           <div>
-            <h2 className="mb-2 text-sm font-semibold uppercase text-zinc-500">
+            <h2 className="mb-2 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">
               Supplier
             </h2>
-            <p className="font-semibold text-zinc-900">
+            <p className="font-semibold text-foreground">
               {po.suppliers?.name ?? "—"}
             </p>
             {po.suppliers?.email && (
-              <p className="text-sm text-zinc-600">{po.suppliers.email}</p>
+              <p className="text-sm text-muted-foreground">{po.suppliers.email}</p>
             )}
             {po.suppliers?.phone && (
-              <p className="text-sm text-zinc-600">{po.suppliers.phone}</p>
+              <p className="text-sm text-muted-foreground">{po.suppliers.phone}</p>
             )}
           </div>
           <div>
-            <h2 className="mb-2 text-sm font-semibold uppercase text-zinc-500">
+            <h2 className="mb-2 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">
               Dates
             </h2>
-            <p className="text-sm text-zinc-700">Order: {orderDate}</p>
-            <p className="text-sm text-zinc-700">
+            <p className="text-sm text-muted-foreground">Order: {orderDate}</p>
+            <p className="text-sm text-muted-foreground">
               Expected: {expectedDate}
             </p>
           </div>
@@ -128,20 +128,20 @@ export function PrintPOClient({
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-sm table-fixed">
             <thead>
-              <tr className="border-b-2 border-zinc-900">
-                <th className="py-2 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500" style={{ width: '30%' }}>
+              <tr className="border-b-2 border-foreground">
+                <th className="py-2 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground" style={{ width: '30%' }}>
                   Product
                 </th>
-                <th className="py-2 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500" style={{ width: '25%' }}>
+                <th className="py-2 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground" style={{ width: '25%' }}>
                   Variant
                 </th>
-                <th className="py-2 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500" style={{ width: '10%' }}>
+                <th className="py-2 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground" style={{ width: '10%' }}>
                   Qty
                 </th>
-                <th className="py-2 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500" style={{ width: '17.5%' }}>
+                <th className="py-2 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground" style={{ width: '17.5%' }}>
                   Unit cost
                 </th>
-                <th className="py-2 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500" style={{ width: '17.5%' }}>
+                <th className="py-2 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground" style={{ width: '17.5%' }}>
                   Total
                 </th>
               </tr>
@@ -155,22 +155,22 @@ export function PrintPOClient({
                   : "—"
 
                 return (
-                  <tr key={item.line_item_id} className="border-b border-zinc-200">
-                    <td className="py-2 text-zinc-900">
+                  <tr key={item.line_item_id} className="border-b border-border">
+                    <td className="py-2 text-foreground">
                       {styleName}
                     </td>
-                    <td className="py-2 text-zinc-700">
+                    <td className="py-2 text-muted-foreground">
                       {variant}
                     </td>
-                    <td className="py-2 text-right text-zinc-900">
+                    <td className="py-2 text-right text-foreground font-mono tabular-nums">
                       {item.quantity_ordered}
                     </td>
-                    <td className="py-2 text-right text-zinc-900">
+                    <td className="py-2 text-right text-foreground font-mono tabular-nums">
                       {formatCurrency(item.unit_cost, currency, {
                         maximumFractionDigits: 2,
                       })}
                     </td>
-                    <td className="py-2 text-right font-medium text-zinc-900">
+                    <td className="py-2 text-right font-medium text-foreground font-mono tabular-nums">
                       {formatCurrency(item.line_total, currency, {
                         maximumFractionDigits: 2,
                       })}
@@ -180,11 +180,11 @@ export function PrintPOClient({
               })}
             </tbody>
             <tfoot>
-              <tr className="border-t-2 border-zinc-900">
-                <td colSpan={4} className="py-3 text-right font-semibold text-zinc-900">
+              <tr className="border-t-2 border-foreground">
+                <td colSpan={4} className="py-3 text-right font-semibold text-foreground">
                   Total:
                 </td>
-                <td className="py-3 text-right text-lg font-bold text-zinc-900">
+                <td className="py-3 text-right font-mono text-lg font-bold text-foreground tabular-nums">
                   {total}
                 </td>
               </tr>
@@ -192,7 +192,7 @@ export function PrintPOClient({
           </table>
         </div>
 
-        <div className="mt-12 text-center text-xs text-zinc-500">
+        <div className="mt-12 text-center text-xs text-muted-foreground">
           Generated from VendoFlow — PO #{po.po_number}
         </div>
       </div>

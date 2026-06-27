@@ -127,8 +127,8 @@ async function fetchSettingsData(): Promise<{
 function LoadingState() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-6">
-      <div className="mb-4 h-8 w-64 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-      <div className="h-96 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+      <div className="mb-4 h-8 w-64 animate-pulse rounded bg-muted" />
+      <div className="h-96 w-full animate-pulse rounded-xl bg-muted" />
     </div>
   )
 }
@@ -136,7 +136,7 @@ function LoadingState() {
 function ErrorState({ message }: { message: string }) {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-10">
-      <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-100">
+      <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-5 text-destructive">
         <div className="text-base font-semibold">Couldn't load settings</div>
         <div className="mt-1 text-sm opacity-90">{message}</div>
       </div>
@@ -160,12 +160,12 @@ async function SettingsPageContent() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-6">
-      <div className="flex items-start justify-between pb-6 mb-6 border-b border-zinc-800">
+      <div className="flex items-start justify-between pb-6 mb-6 border-b border-border">
         <div>
-          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">
             Configure your business profile, tax settings, and receipt customization.
           </p>
-          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+          <h1 className="font-sans text-3xl font-bold tracking-tight text-foreground">
             Business Settings
           </h1>
         </div>

@@ -71,9 +71,9 @@ const planLimits: Record<string, number> = {
 }
 
 const roleColors: Record<string, string> = {
-  owner: "bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-sm",
-  manager: "bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-sm",
-  cashier: "bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-sm",
+  owner: "bg-muted text-muted-foreground border border-border rounded-md",
+  manager: "bg-muted text-muted-foreground border border-border rounded-md",
+  cashier: "bg-muted text-muted-foreground border border-border rounded-md",
 }
 
 const roleIcons: Record<string, React.ReactNode> = {
@@ -193,24 +193,24 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
           },
         }}
       />
-      <div className="flex items-start justify-between pb-6 mb-6 border-b border-zinc-800">
+      <div className="flex items-start justify-between pb-6 mb-6 border-b border-border">
         <div>
-          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">
             Manage staff accounts and permissions ({currentCount}/{maxStaff === 999999 ? "∞" : maxStaff} used)
           </p>
-          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+          <h1 className="font-sans text-3xl font-bold tracking-tight text-foreground">
             Staff Management
           </h1>
         </div>
         {canAddMore ? (
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+            className="bg-[#E8400C] text-white hover:bg-[#c73508] rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors border-none"
           >
             Add Staff Member
           </button>
         ) : (
-          <div className="rounded-sm border border-yellow-500/20 bg-yellow-500/10 px-4 py-2">
+          <div className="rounded-md border border-yellow-500/20 bg-yellow-500/10 px-4 py-2">
             <p className="text-xs font-semibold tracking-wide text-yellow-500 uppercase">
               Staff limit reached
             </p>
@@ -219,34 +219,34 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
       </div>
 
       {/* Role Definitions Card */}
-      <div className="bg-zinc-900 border border-zinc-700/50 rounded-lg p-6 mb-6">
-        <h3 className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-4">
+      <div className="bg-card border border-border rounded-lg p-6 mb-6">
+        <h3 className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-4">
           ROLE DEFINITIONS
         </h3>
         <div className="grid gap-6 md:grid-cols-3">
           <div className="space-y-1">
-            <span className="text-sm font-semibold text-zinc-100 block">Cashier</span>
-            <p className="text-sm text-zinc-500 mt-1">POS only. Can process sales at the register. No back-office access.</p>
+            <span className="text-sm font-semibold text-foreground block">Cashier</span>
+            <p className="text-sm text-muted-foreground mt-1">POS only. Can process sales at the register. No back-office access.</p>
           </div>
           <div className="space-y-1">
-            <span className="text-sm font-semibold text-zinc-100 block">Manager</span>
-            <p className="text-sm text-zinc-500 mt-1">Cashier + inventory management, sales reports, and customer list.</p>
+            <span className="text-sm font-semibold text-foreground block">Manager</span>
+            <p className="text-sm text-muted-foreground mt-1">Cashier + inventory management, sales reports, and customer list.</p>
           </div>
           <div className="space-y-1">
-            <span className="text-sm font-semibold text-zinc-100 block">Owner</span>
-            <p className="text-sm text-zinc-500 mt-1">Full access to all features, settings, and staff management.</p>
+            <span className="text-sm font-semibold text-foreground block">Owner</span>
+            <p className="text-sm text-muted-foreground mt-1">Full access to all features, settings, and staff management.</p>
           </div>
         </div>
       </div>
 
       {/* Staff Table */}
       {staff.length === 0 ? (
-        <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-12 text-center">
-          <Users className="mx-auto mb-4 h-12 w-12 text-zinc-400" />
-          <h3 className="mb-4 font-editorial text-xl font-bold text-zinc-50">
+        <div className="rounded-lg border border-border bg-card p-12 text-center">
+          <Users className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+          <h3 className="mb-4 font-sans text-xl font-bold tracking-tight text-foreground">
             No staff members yet
           </h3>
-          <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="mb-4 text-sm text-muted-foreground">
             Add staff members to manage your store operations.
           </p>
           {canAddMore && (
@@ -257,59 +257,59 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
           )}
         </div>
       ) : (
-        <div className="bg-zinc-900 border border-zinc-700/50 rounded-lg overflow-hidden">
+        <div className="bg-card border border-border rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="border-b-2 border-zinc-700 hover:bg-transparent transition-none">
-                <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-4 py-3">Staff Member</TableHead>
-                <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-4 py-3">Role</TableHead>
-                <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-4 py-3">Assigned Store</TableHead>
-                <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-4 py-3">Status</TableHead>
-                <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-4 py-3">Last Login</TableHead>
-                <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-4 py-3 text-right">Actions</TableHead>
+              <TableRow className="border-b-2 border-border hover:bg-transparent transition-none">
+                <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-4 py-3">Staff Member</TableHead>
+                <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-4 py-3">Role</TableHead>
+                <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-4 py-3">Assigned Store</TableHead>
+                <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-4 py-3">Status</TableHead>
+                <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-4 py-3">Last Login</TableHead>
+                <TableHead className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-4 py-3 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {staff.map((member) => (
                 <TableRow
                   key={member.staff_id}
-                  className="border-b border-zinc-700/40 hover:bg-zinc-800/40 transition-colors duration-100 last:border-0"
+                  className="border-b border-border hover:bg-accent/50 transition-colors duration-100 last:border-0"
                 >
                   <TableCell className="px-4 py-3">
                     <div className="flex flex-col">
-                      <span className="text-sm font-semibold text-zinc-100">
+                      <span className="text-sm font-semibold text-foreground">
                         {`${member.first_name || ""} ${member.last_name || ""}`.trim() || "—"}
                       </span>
-                      <span className="text-sm text-zinc-400 mt-0.5">{member.email}</span>
+                      <span className="text-sm text-muted-foreground mt-0.5">{member.email}</span>
                     </div>
                   </TableCell>
                   <TableCell className="px-4 py-3">
                     {member.role ? (
                       <div className={cn(
-                        "inline-flex items-center text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5 rounded-sm bg-zinc-800 text-zinc-400 border border-zinc-700",
+                        "inline-flex items-center text-[0.65rem] font-semibold tracking-[0.1em] uppercase px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border",
                         roleColors[member.role]
                       )}>
                         {roleIcons[member.role]}
                         {member.role}
                       </div>
                     ) : (
-                      <span className="text-sm text-zinc-500">—</span>
+                      <span className="text-sm text-muted-foreground">—</span>
                     )}
                   </TableCell>
                   <TableCell className="px-4 py-3">
-                    <div className="text-sm text-zinc-400">
+                    <div className="text-sm text-muted-foreground">
                       {member.stores?.name || "—"}
                     </div>
                   </TableCell>
                   <TableCell className="px-4 py-3">
                     <span className={member.active !== false 
-                      ? 'bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] px-2 py-0.5'
-                      : 'bg-zinc-800 text-zinc-500 border border-zinc-700 rounded-sm text-[0.65rem] font-semibold tracking-[0.1em] px-2 py-0.5'
+                      ? 'bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 rounded-md text-[0.65rem] font-semibold tracking-[0.1em] px-2 py-0.5'
+                      : 'bg-muted text-muted-foreground border border-border rounded-md text-[0.65rem] font-semibold tracking-[0.1em] px-2 py-0.5'
                     }>
                       {member.active !== false ? "ACTIVE" : "INACTIVE"}
                     </span>
                   </TableCell>
-                  <TableCell className="px-4 py-3 text-xs text-zinc-500 tabular-nums">
+                  <TableCell className="font-mono px-4 py-3 text-xs text-muted-foreground tabular-nums">
                     {member.last_login_at
                       ? new Date(member.last_login_at).toLocaleString(undefined, {
                           dateStyle: "short",
@@ -321,14 +321,14 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
                     <div className="flex items-center justify-end gap-1">
                       <button
                         onClick={() => setEditingStaff(member)}
-                        className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
+                        className="text-muted-foreground hover:text-foreground hover:bg-accent rounded-md h-7 w-7 flex items-center justify-center transition-colors"
                         title="Edit details"
                       >
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => setPinModalStaff(member)}
-                        className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
+                        className="text-muted-foreground hover:text-foreground hover:bg-accent rounded-md h-7 w-7 flex items-center justify-center transition-colors"
                         title="Manage PIN"
                       >
                         <Key className="h-4 w-4" />
@@ -336,7 +336,7 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
                       {member.active !== false ? (
                         <button
                           onClick={() => setDeactivatingStaff(member)}
-                          className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
+                          className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md h-7 w-7 flex items-center justify-center transition-colors"
                           title="Deactivate staff"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -345,14 +345,14 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
                         <>
                           <button
                             onClick={() => setReactivatingStaff(member)}
-                            className="text-zinc-500 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
+                            className="text-muted-foreground hover:text-emerald-400 hover:bg-emerald-500/10 rounded-md h-7 w-7 flex items-center justify-center transition-colors"
                             title="Reactivate staff"
                           >
                             <UserPlus className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => setDeletingStaff(member)}
-                            className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
+                            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md h-7 w-7 flex items-center justify-center transition-colors"
                             title="Delete permanently"
                           >
                             <Trash className="h-4 w-4" />
@@ -370,11 +370,11 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
 
       {/* Recent Activity Section */}
       <div className="mt-12">
-        <h2 className="font-editorial text-2xl font-bold text-zinc-50 mb-6">
+        <h2 className="font-sans text-2xl font-bold tracking-tight text-foreground mb-6">
           Recent Activity
         </h2>
-        <div className="bg-zinc-900 border border-zinc-700/50 rounded-lg p-12 text-center">
-          <p className="text-sm text-zinc-500">
+        <div className="bg-card border border-border rounded-lg p-12 text-center">
+          <p className="text-sm text-muted-foreground">
             Activity log coming soon. This will show recent staff actions and audit trails.
           </p>
         </div>
@@ -399,17 +399,17 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
 
       {/* PIN Management Dialog */}
       <Dialog open={!!pinModalStaff} onOpenChange={(open) => !open && setPinModalStaff(null)}>
-        <DialogContent className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-6 w-full max-w-md text-zinc-100">
+        <DialogContent className="bg-background border border-border rounded-xl p-6 w-full max-w-md text-foreground">
           <DialogHeader>
-            <DialogTitle className="font-editorial text-xl font-bold text-zinc-50 mb-1">
+            <DialogTitle className="font-sans text-xl font-bold tracking-tight text-foreground mb-1">
               Manage PIN
             </DialogTitle>
-            <DialogDescription className="text-sm text-zinc-500 mb-6">
+            <DialogDescription className="text-sm text-muted-foreground mb-6">
               Manage security credentials for {pinModalStaff ? `${pinModalStaff.first_name} ${pinModalStaff.last_name}` : "this staff member"}.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 text-sm text-zinc-400">
+          <div className="space-y-4 text-sm text-muted-foreground">
             <p>
               {pinModalStaff?.has_pin
                 ? "A 6-digit PIN is currently set for this account."
@@ -423,13 +423,13 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
           <div className="flex gap-3 justify-end mt-6">
             <button
               onClick={() => setPinModalStaff(null)}
-              className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors"
+              className="border border-border text-foreground hover:bg-accent rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors"
             >
               Close
             </button>
             <button
               onClick={openResetConfirm}
-              className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+              className="bg-[#E8400C] text-white hover:bg-[#c73508] rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors border-none"
             >
               Reset PIN
             </button>
@@ -441,18 +441,18 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
         open={!!deactivatingStaff}
         onOpenChange={(open) => !open && setDeactivatingStaff(null)}
       >
-        <AlertDialogContent className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-6 w-full max-w-sm">
+        <AlertDialogContent className="bg-background border border-border rounded-xl p-6 w-full max-w-sm">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-editorial text-xl font-bold text-zinc-50 mb-2">Deactivate Staff?</AlertDialogTitle>
-            <AlertDialogDescription className="text-sm text-zinc-400 mb-6">
+            <AlertDialogTitle className="font-sans text-xl font-bold tracking-tight text-foreground mb-2">Deactivate Staff?</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-muted-foreground mb-6">
               Deactivate {deactivatingStaff ? `${deactivatingStaff.first_name} ${deactivatingStaff.last_name}` : "this staff member"}? They will lose access immediately.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex gap-3 justify-end">
-            <AlertDialogCancel className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors">
+            <AlertDialogCancel className="border border-border text-foreground hover:bg-accent rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors">
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeactivate} className="bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase">
+            <AlertDialogAction onClick={handleDeactivate} className="bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase">
               Deactivate
             </AlertDialogAction>
           </div>
@@ -463,18 +463,18 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
         open={!!reactivatingStaff}
         onOpenChange={(open) => !open && setReactivatingStaff(null)}
       >
-        <AlertDialogContent className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-6 w-full max-w-sm">
+        <AlertDialogContent className="bg-background border border-border rounded-xl p-6 w-full max-w-sm">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-editorial text-xl font-bold text-zinc-50 mb-2">Reactivate Staff?</AlertDialogTitle>
-            <AlertDialogDescription className="text-sm text-zinc-400 mb-6">
+            <AlertDialogTitle className="font-sans text-xl font-bold tracking-tight text-foreground mb-2">Reactivate Staff?</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-muted-foreground mb-6">
               Reactivate {reactivatingStaff ? `${reactivatingStaff.first_name} ${reactivatingStaff.last_name}` : "this staff member"}? They will be able to sign in again.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex gap-3 justify-end">
-            <AlertDialogCancel className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors">
+            <AlertDialogCancel className="border border-border text-foreground hover:bg-accent rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors">
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleReactivate} className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase">
+            <AlertDialogAction onClick={handleReactivate} className="bg-[#E8400C] text-white hover:bg-[#c73508] rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase border-none">
               Reactivate
             </AlertDialogAction>
           </div>
@@ -485,18 +485,18 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
         open={!!deletingStaff}
         onOpenChange={(open) => !open && setDeletingStaff(null)}
       >
-        <AlertDialogContent className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-6 w-full max-w-sm">
+        <AlertDialogContent className="bg-background border border-border rounded-xl p-6 w-full max-w-sm">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-editorial text-xl font-bold text-zinc-50 mb-2">Delete Permanently?</AlertDialogTitle>
-            <AlertDialogDescription className="text-sm text-zinc-400 mb-6">
+            <AlertDialogTitle className="font-sans text-xl font-bold tracking-tight text-foreground mb-2">Delete Permanently?</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-muted-foreground mb-6">
               This will permanently remove {deletingStaff ? `${deletingStaff.first_name} ${deletingStaff.last_name}` : "this staff member"}. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex gap-3 justify-end">
-            <AlertDialogCancel className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors">
+            <AlertDialogCancel className="border border-border text-foreground hover:bg-accent rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors">
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase">
+            <AlertDialogAction onClick={handleDelete} className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase">
               Delete
             </AlertDialogAction>
           </div>
@@ -508,18 +508,18 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
         open={!!resettingPIN}
         onOpenChange={(open) => !open && setResettingPIN(null)}
       >
-        <AlertDialogContent className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-6 w-full max-w-sm">
+        <AlertDialogContent className="bg-background border border-border rounded-xl p-6 w-full max-w-sm">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-editorial text-xl font-bold text-zinc-50 mb-2">Reset PIN?</AlertDialogTitle>
-            <AlertDialogDescription className="text-sm text-zinc-400 mb-6">
+            <AlertDialogTitle className="font-sans text-xl font-bold tracking-tight text-foreground mb-2">Reset PIN?</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-muted-foreground mb-6">
               Generate a new 6-digit PIN for {resettingPIN ? `${resettingPIN.first_name} ${resettingPIN.last_name}` : "this staff member"}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex gap-3 justify-end">
-            <AlertDialogCancel className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors">
+            <AlertDialogCancel className="border border-border text-foreground hover:bg-accent rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors">
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleResetPIN} className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase">
+            <AlertDialogAction onClick={handleResetPIN} className="bg-[#E8400C] text-white hover:bg-[#c73508] rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase border-none">
               Reset PIN
             </AlertDialogAction>
           </div>
@@ -528,17 +528,17 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
 
       {/* PIN Display Dialog */}
       <AlertDialog open={!!generatedPIN} onOpenChange={(open) => !open && setGeneratedPIN(null)}>
-        <AlertDialogContent className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-6 w-full max-w-sm">
+        <AlertDialogContent className="bg-background border border-border rounded-xl p-6 w-full max-w-sm">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-editorial text-xl font-bold text-zinc-50 mb-1">New PIN Generated</AlertDialogTitle>
-            <AlertDialogDescription className="text-sm text-zinc-400 mb-6">
+            <AlertDialogTitle className="font-sans text-xl font-bold tracking-tight text-foreground mb-1">New PIN Generated</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-muted-foreground mb-6">
               Copy this PIN and share it with the staff member. It will not be shown again.
             </AlertDialogDescription>
           </AlertDialogHeader>
           
-          <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-6 text-center mb-6">
-            <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">PIN</div>
-            <div className="font-mono text-4xl font-bold text-zinc-50 tabular-nums tracking-[0.3em]">
+          <div className="bg-muted border border-border rounded-lg p-6 text-center mb-6">
+            <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">PIN</div>
+            <div className="font-mono text-4xl font-bold text-foreground tabular-nums tracking-[0.3em]">
               {generatedPIN}
             </div>
           </div>
@@ -551,11 +551,11 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
                   toast.success("PIN copied to clipboard")
                 }
               }}
-              className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors"
+              className="border border-border text-foreground hover:bg-accent rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors"
             >
               Copy PIN
             </button>
-            <AlertDialogAction onClick={() => setGeneratedPIN(null)} className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase">
+            <AlertDialogAction onClick={() => setGeneratedPIN(null)} className="bg-[#E8400C] text-white hover:bg-[#c73508] rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase border-none">
               Done
             </AlertDialogAction>
           </div>

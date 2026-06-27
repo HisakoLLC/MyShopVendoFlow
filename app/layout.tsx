@@ -4,11 +4,17 @@ import { Toaster } from "sonner"
 import { OfflineBanner } from "@/components/OfflineBanner"
 import { AppShell } from "@/components/AppShell"
 import { ThemeProvider } from "@/components/ThemeProvider"
-import { Playfair_Display } from "next/font/google"
+import { Inter, Geist_Mono } from "next/font/google"
 
-const playfair = Playfair_Display({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  variable: "--font-sans",
+  display: "swap",
+})
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
   display: "swap",
 })
 
@@ -32,7 +38,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="VendoFlow" />
         <link rel="manifest" href="/site.webmanifest" />
       </head>
-      <body className={`${playfair.variable} antialiased`}>
+      <body className={`${inter.variable} ${geistMono.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <OfflineBanner />
           <AppShell>{children}</AppShell>

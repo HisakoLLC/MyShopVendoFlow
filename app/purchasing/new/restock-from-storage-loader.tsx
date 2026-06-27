@@ -167,8 +167,8 @@ export function RestockFromStorageLoader({ suppliers }: RestockFromStorageLoader
   if (loading) {
     return (
       <div className="mx-auto w-full max-w-7xl px-4 py-6">
-        <div className="mb-6 h-8 w-64 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-        <div className="h-96 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+        <div className="mb-6 h-8 w-64 animate-pulse rounded bg-muted" />
+        <div className="h-96 w-full animate-pulse rounded-xl bg-muted" />
       </div>
     )
   }
@@ -192,7 +192,7 @@ export function RestockFromStorageLoader({ suppliers }: RestockFromStorageLoader
         </div>
       )}
       {prefillItems.length > 0 && (
-      <div className="mb-6 bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-sm text-zinc-300">
+      <div className="mb-6 bg-muted border border-border rounded-lg px-4 py-3 text-sm text-muted-foreground">
         You are restocking multiple variants across different suppliers. Review the table below 
         and select the ones you want. A separate Purchase Order will be created for each distinct supplier.
       </div>

@@ -145,15 +145,15 @@ export function POSClient({ defaultStoreId, storeName, accountId: accountIdProp 
         onChangeStoreId={handleChangeStoreId}
       />
       {/* Desktop/Tablet Landscape: Split screen (60/40) */}
-      <div className="hidden h-[calc(100vh-44px)] overflow-hidden bg-[#f8f8f8] lg:flex">
-        <div className="flex w-[60%] flex-col border-r border-zinc-200 dark:border-zinc-200">
+      <div className="hidden h-[calc(100vh-44px)] overflow-hidden bg-background lg:flex">
+        <div className="flex w-[60%] flex-col border-r border-border">
           <div className="flex h-full flex-col">
             <div className="flex-1 overflow-hidden">
               <ProductSearch defaultStoreId={currentStoreId ?? defaultStoreId} />
             </div>
           </div>
         </div>
-        <div className="flex w-[40%] flex-col border-l border-zinc-200 bg-white dark:border-zinc-200 dark:bg-white">
+        <div className="flex w-[40%] flex-col border-l border-border bg-card">
           <Cart defaultStoreId={currentStoreId ?? defaultStoreId} accountId={accountIdProp} storeName={currentStoreName || storeName} />
         </div>
       </div>

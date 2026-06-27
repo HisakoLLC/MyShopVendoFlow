@@ -110,7 +110,7 @@ export function StyleInventoryByStoreTable({ stores, inventory, styleName }: Pro
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-sm border border-dashed border-zinc-800 bg-zinc-900/30 px-4 py-10 text-center text-sm text-zinc-500">
+      <div className="rounded-lg border border-dashed border-border bg-muted/30 px-4 py-10 text-center text-sm text-muted-foreground">
         No variants yet for this style. Create variants to start tracking inventory by store.
       </div>
     )
@@ -119,33 +119,33 @@ export function StyleInventoryByStoreTable({ stores, inventory, styleName }: Pro
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-editorial text-xl font-bold text-zinc-50 mb-1">Inventory by Store</h2>
-        <p className="text-sm text-zinc-500 mb-6">
-          Products are shared across all stores, but inventory is tracked separately per store. Set how many units of <span className="text-zinc-300 font-medium">{styleName}</span> you have at each location. Click any cell to edit.
+        <h2 className="font-sans text-xl font-bold text-foreground mb-1">Inventory by Store</h2>
+        <p className="text-sm text-muted-foreground mb-6">
+          Products are shared across all stores, but inventory is tracked separately per store. Set how many units of <span className="text-foreground font-medium">{styleName}</span> you have at each location. Click any cell to edit.
         </p>
       </div>
 
-      <div className="bg-zinc-900 border border-zinc-700/50 rounded-lg overflow-hidden overflow-x-auto">
+      <div className="bg-card border border-border rounded-lg overflow-hidden overflow-x-auto">
         <table className="w-full">
-          <thead className="border-b-2 border-zinc-700">
+          <thead className="border-b border-border bg-muted/50">
             <tr>
-              <th className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-4 py-3 text-left">Variant</th>
-              <th className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-4 py-3 text-left">SKU</th>
+              <th className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-4 py-3 text-left">Variant</th>
+              <th className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-4 py-3 text-left">SKU</th>
               {stores.map((store) => (
-                <th key={store.store_id} className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-4 py-3 text-right">
+                <th key={store.store_id} className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-4 py-3 text-right">
                   {store.name}
                 </th>
               ))}
-              <th className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-4 py-3 text-right">Total</th>
+              <th className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-4 py-3 text-right">Total</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.variant_id} className="border-b border-zinc-700/40 last:border-0 hover:bg-zinc-800/30 transition-colors">
-                <td className="px-4 py-3 text-sm text-zinc-300">
+              <tr key={row.variant_id} className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
+                <td className="px-4 py-3 text-sm text-foreground">
                   {row.size} / {row.color}
                 </td>
-                <td className="px-4 py-3 font-mono text-xs text-zinc-400">
+                <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
                   {row.sku}
                 </td>
                 {stores.map((store) => {
@@ -164,14 +164,14 @@ export function StyleInventoryByStoreTable({ stores, inventory, styleName }: Pro
                             inputMode="numeric"
                             min={0}
                             step={1}
-                            className="h-8 w-20 text-right bg-zinc-800 border-zinc-700 text-zinc-100 rounded-sm focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                            className="h-8 w-20 text-right bg-background border-border text-foreground rounded-md focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C]"
                             value={value}
                             onChange={(e) => setValue(e.target.value)}
                             autoFocus
                           />
                           <button
                             type="button"
-                            className="inline-flex h-8 items-center justify-center rounded-sm border border-zinc-700 bg-transparent px-3 text-xs font-semibold uppercase text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 transition-colors"
+                            className="inline-flex h-8 items-center justify-center rounded-md border border-border bg-transparent px-3 text-xs font-semibold uppercase text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
                             onClick={handleCancel}
                             disabled={saving}
                           >
@@ -179,7 +179,7 @@ export function StyleInventoryByStoreTable({ stores, inventory, styleName }: Pro
                           </button>
                           <button
                             type="button"
-                            className="inline-flex h-8 items-center justify-center rounded-sm bg-white px-3 text-xs font-semibold uppercase text-zinc-950 hover:bg-zinc-100 transition-colors"
+                            className="inline-flex h-8 items-center justify-center rounded-md bg-[#E8400C] px-3 text-xs font-semibold uppercase text-white hover:bg-[#c73508] transition-colors"
                             onClick={handleSave}
                             disabled={saving}
                           >
@@ -190,7 +190,7 @@ export function StyleInventoryByStoreTable({ stores, inventory, styleName }: Pro
                         <button
                           type="button"
                           onClick={() => handleCellClick(row.variant_id, store.store_id, qty)}
-                          className={`inline-flex min-w-[2.5rem] items-center justify-end text-sm tabular-nums hover:underline transition-colors ${qty === 0 ? "text-zinc-600" : "font-semibold text-zinc-100"}`}
+                          className={`inline-flex min-w-[2.5rem] items-center justify-end text-sm tabular-nums hover:underline transition-colors ${qty === 0 ? "text-muted-foreground/60" : "font-semibold text-foreground font-mono"}`}
                         >
                           {qty}
                         </button>
@@ -198,7 +198,7 @@ export function StyleInventoryByStoreTable({ stores, inventory, styleName }: Pro
                     </td>
                   )
                 })}
-                <td className={`px-4 py-3 text-right text-sm tabular-nums ${row.total_stock === 0 ? "text-zinc-600" : "font-semibold text-zinc-50"}`}>
+                <td className={`px-4 py-3 text-right text-sm tabular-nums ${row.total_stock === 0 ? "text-muted-foreground/60" : "font-semibold text-foreground font-mono"}`}>
                   {row.total_stock}
                 </td>
               </tr>

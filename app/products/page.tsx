@@ -157,19 +157,19 @@ async function ProductsPageContent() {
 
   if (data.styles.length === 0) {
     return (
-      <div className="min-h-screen bg-zinc-950 px-8 py-8">
-        <div className="flex items-start justify-between border-b border-zinc-800 pb-6 mb-6">
+      <div className="min-h-screen bg-background text-foreground px-8 py-8">
+        <div className="flex items-start justify-between border-b border-border pb-6 mb-6">
           <div>
-            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+            <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">
               MANAGE YOUR STYLES, PRICING, AND MARGINS
             </p>
-            <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+            <h1 className="font-sans text-3xl font-bold tracking-tight text-foreground">
               Products
             </h1>
           </div>
           <Link
             href="/products/new"
-            className="inline-flex items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+            className="inline-flex items-center justify-center bg-[#E8400C] text-white hover:bg-[#c73508] rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
           >
             Add New Style
           </Link>
@@ -189,20 +189,20 @@ async function ProductsPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 px-8 py-8">
-      <div className="flex items-start justify-between border-b border-zinc-800 pb-6 mb-6">
+    <div className="min-h-screen bg-background text-foreground px-8 py-8">
+      <div className="flex items-start justify-between border-b border-border pb-6 mb-6">
         <div>
-          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">
             MANAGE YOUR STYLES, PRICING, AND MARGINS
           </p>
-          <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+          <h1 className="font-sans text-3xl font-bold tracking-tight text-foreground">
             Products
           </h1>
           {data.styles.length === 1 && <ProductsInventoryHint />}
         </div>
         <Link
           href="/products/new"
-          className="inline-flex items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+          className="inline-flex items-center justify-center bg-[#E8400C] text-white hover:bg-[#c73508] rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
         >
           Add New Style
         </Link>

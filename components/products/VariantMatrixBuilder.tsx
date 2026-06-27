@@ -262,16 +262,16 @@ export function VariantMatrixBuilder({
   const colorArray = Array.from(selectedColors).sort()
 
   // DS v3.0 chip classes
-  const selectedChip = "bg-white text-zinc-950 rounded-sm px-3 py-1.5 text-xs font-semibold tracking-[0.05em] uppercase cursor-pointer transition-colors"
-  const unselectedChip = "border border-zinc-700 text-zinc-400 rounded-sm px-3 py-1.5 text-xs font-semibold tracking-[0.05em] uppercase hover:border-zinc-500 hover:text-zinc-200 transition-colors cursor-pointer bg-transparent"
+  const selectedChip = "bg-[#E8400C] text-white rounded-sm px-3 py-1.5 text-xs font-semibold tracking-[0.05em] uppercase cursor-pointer transition-colors"
+  const unselectedChip = "border border-border text-muted-foreground rounded-sm px-3 py-1.5 text-xs font-semibold tracking-[0.05em] uppercase hover:border-foreground/40 hover:text-foreground transition-colors cursor-pointer bg-transparent"
 
-  const selectedToggle = "bg-white text-zinc-950 rounded-sm h-8 px-4 text-xs font-semibold tracking-[0.12em] uppercase cursor-pointer transition-colors"
-  const unselectedToggle = "border border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 rounded-sm h-8 px-4 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors cursor-pointer"
+  const selectedToggle = "bg-[#E8400C] text-white rounded-sm h-8 px-4 text-xs font-semibold tracking-[0.12em] uppercase cursor-pointer transition-colors"
+  const unselectedToggle = "border border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground rounded-sm h-8 px-4 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent transition-colors cursor-pointer"
 
-  const sublabelClass = "text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-3 block"
+  const sublabelClass = "text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-3 block"
 
   // DS v3.0 input class
-  const inputClass = "bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 placeholder:text-zinc-600 w-full max-w-xs"
+  const inputClass = "bg-background border border-border rounded-md text-sm text-foreground h-9 px-3 focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C] placeholder:text-muted-foreground w-full max-w-xs"
 
   return (
     <>
@@ -279,8 +279,8 @@ export function VariantMatrixBuilder({
 
       <div className="space-y-4">
         {/* Size Selection */}
-        <div className="bg-zinc-900 border border-zinc-700/50 rounded-lg p-6">
-          <h2 className="font-editorial text-xl font-bold text-zinc-50 mb-4">Size Selection</h2>
+        <div className="bg-card border border-border rounded-lg p-6">
+          <h2 className="font-sans text-xl font-bold text-foreground mb-4">Size Selection</h2>
 
           <div className="space-y-4">
             <div>
@@ -325,7 +325,7 @@ export function VariantMatrixBuilder({
                   onChange={(e) => setCustomSizes(e.target.value)}
                   className={inputClass}
                 />
-                <p className="mt-1.5 text-xs text-zinc-500">Comma-separated sizes</p>
+                <p className="mt-1.5 text-xs text-muted-foreground">Comma-separated sizes</p>
               </div>
             )}
 
@@ -350,8 +350,8 @@ export function VariantMatrixBuilder({
         </div>
 
         {/* Color Selection */}
-        <div className="bg-zinc-900 border border-zinc-700/50 rounded-lg p-6">
-          <h2 className="font-editorial text-xl font-bold text-zinc-50 mb-4">Color Selection</h2>
+        <div className="bg-card border border-border rounded-lg p-6">
+          <h2 className="font-sans text-xl font-bold text-foreground mb-4">Color Selection</h2>
 
           <div className="space-y-4">
             <div>
@@ -388,7 +388,7 @@ export function VariantMatrixBuilder({
                 <button
                   type="button"
                   onClick={handleAddCustomColor}
-                  className="inline-flex h-9 items-center justify-center rounded-sm bg-white px-4 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-950 hover:bg-zinc-100 transition-colors"
+                  className="inline-flex h-9 items-center justify-center rounded-sm bg-[#E8400C] px-4 text-xs font-semibold tracking-[0.12em] uppercase text-white hover:bg-[#c73508] transition-colors"
                 >
                   Add
                 </button>
@@ -398,7 +398,7 @@ export function VariantMatrixBuilder({
                     setShowCustomColor(false)
                     setCustomColorInput("")
                   }}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-100 transition-colors"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -407,7 +407,7 @@ export function VariantMatrixBuilder({
               <button
                 type="button"
                 onClick={() => setShowCustomColor(true)}
-                className="inline-flex items-center gap-2 border border-zinc-700 text-zinc-400 rounded-sm px-3 py-1.5 text-xs font-semibold tracking-[0.05em] uppercase hover:border-zinc-500 hover:text-zinc-200 transition-colors"
+                className="inline-flex items-center gap-2 border border-border text-muted-foreground rounded-sm px-3 py-1.5 text-xs font-semibold tracking-[0.05em] uppercase hover:border-foreground/40 hover:text-foreground transition-colors"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Add Custom Color
@@ -436,12 +436,12 @@ export function VariantMatrixBuilder({
 
         {/* Variant Matrix Preview */}
         {sizeArray.length > 0 && colorArray.length > 0 && (
-          <div className="bg-zinc-900 border border-zinc-700/50 rounded-lg overflow-hidden">
-            <div className="px-6 py-4 border-b border-zinc-800">
-              <h2 className="font-editorial text-xl font-bold text-zinc-50">
+          <div className="bg-card border border-border rounded-lg overflow-hidden">
+            <div className="px-6 py-4 border-b border-border">
+              <h2 className="font-sans text-xl font-bold text-foreground">
                 Variant Preview
               </h2>
-              <p className="text-xs text-zinc-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 {sizeArray.length} × {colorArray.length} = {sizeArray.length * colorArray.length} variants — click any cell to edit SKU, price, or cost
               </p>
             </div>
@@ -450,13 +450,13 @@ export function VariantMatrixBuilder({
               <table className="min-w-full border-collapse">
                 <thead>
                   <tr>
-                    <th className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-4 py-3 text-left border-b border-r border-zinc-800">
+                    <th className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-4 py-3 text-left border-b border-r border-border">
                       Size
                     </th>
                     {colorArray.map((color) => (
                       <th
                         key={color}
-                        className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-3 py-3 text-center border-b border-r border-zinc-800 last:border-r-0"
+                        className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-3 py-3 text-center border-b border-r border-border last:border-r-0"
                       >
                         {color}
                       </th>
@@ -465,29 +465,29 @@ export function VariantMatrixBuilder({
                 </thead>
                 <tbody>
                   {sizeArray.map((size) => (
-                    <tr key={size} className="border-b border-zinc-800 last:border-b-0">
-                      <td className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 px-4 py-3 border-r border-zinc-800">
+                    <tr key={size} className="border-b border-border last:border-b-0">
+                      <td className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground px-4 py-3 border-r border-border">
                         {size}
                       </td>
                       {colorArray.map((color) => {
                         const key = `${size}-${color}`
                         const cell = variantCells.get(key)
-                        if (!cell) return <td key={color} className="border-r border-zinc-800 last:border-r-0 p-3" />
+                        if (!cell) return <td key={color} className="border-r border-border last:border-r-0 p-3" />
 
                         return (
                           <td
                             key={color}
-                            className="border-r border-zinc-800 last:border-r-0 p-3"
+                            className="border-r border-border last:border-r-0 p-3"
                           >
                             <button
                               type="button"
                               onClick={() => handleCellClick(cell)}
-                              className="w-full border border-zinc-800 p-3 text-left transition-colors hover:bg-zinc-800/60 hover:border-zinc-700 rounded-sm"
+                              className="w-full border border-border p-3 text-left transition-colors hover:bg-accent hover:border-foreground/30 rounded-sm"
                             >
-                              <div className="font-mono text-xs text-zinc-300 font-semibold">
+                              <div className="font-mono text-xs text-foreground font-semibold">
                                 {cell.sku}
                               </div>
-                              <div className="text-xs text-zinc-500 mt-1">
+                              <div className="text-xs text-muted-foreground mt-1 font-mono">
                                 KES {new Intl.NumberFormat("en-KE").format(cell.price)} · Cost {new Intl.NumberFormat("en-KE").format(cell.cost)}
                               </div>
                             </button>
@@ -508,7 +508,7 @@ export function VariantMatrixBuilder({
             type="button"
             onClick={handleGenerate}
             disabled={selectedSizes.size === 0 || selectedColors.size === 0 || isSubmitting}
-            className="inline-flex h-9 items-center justify-center rounded-sm bg-white px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-950 hover:bg-zinc-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex h-9 items-center justify-center rounded-sm bg-[#E8400C] px-5 text-xs font-semibold tracking-[0.12em] uppercase text-white hover:bg-[#c73508] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Generating..." : `Generate ${variantCells.size} Variants`}
           </button>
@@ -516,7 +516,7 @@ export function VariantMatrixBuilder({
             type="button"
             disabled={isSubmitting}
             onClick={() => router.push("/products")}
-            className="inline-flex h-9 items-center justify-center rounded-sm border border-zinc-700 bg-transparent px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 transition-colors disabled:opacity-50"
+            className="inline-flex h-9 items-center justify-center rounded-sm border border-border bg-transparent px-5 text-xs font-semibold tracking-[0.12em] uppercase text-foreground hover:bg-accent transition-colors disabled:opacity-50"
           >
             Cancel
           </button>

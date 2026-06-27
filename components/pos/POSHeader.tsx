@@ -48,17 +48,17 @@ export function POSHeader({
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full bg-white border-b border-zinc-200 px-4 py-3 flex items-center justify-between h-14",
+        "sticky top-0 z-50 w-full bg-card border-b border-border px-4 py-3 flex items-center justify-between h-14",
         className
       )}
     >
       <div className="flex items-center gap-3">
         <div className="w-2 h-2 rounded-full bg-emerald-500" />
         <div>
-          <p className="text-xs font-medium text-zinc-500 uppercase tracking-widest">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
             Current Store
           </p>
-          <p className="text-sm font-semibold text-zinc-900 truncate max-w-[220px] sm:max-w-xs">
+          <p className="text-sm font-semibold text-foreground truncate max-w-[220px] sm:max-w-xs">
             {currentStoreName || "—"}
           </p>
         </div>
@@ -67,16 +67,16 @@ export function POSHeader({
         {canSwitchStores && multipleStores ? (
           <>
             <button 
-              className="flex items-center gap-2 bg-white border border-zinc-300 rounded-md h-9 px-3 min-w-[180px] hover:border-zinc-500 transition-colors cursor-pointer"
+              className="flex items-center gap-2 bg-background border border-border rounded-md h-9 px-3 min-w-[180px] hover:border-foreground/40 transition-colors cursor-pointer"
               onClick={toggleDropdown}
             >
-              <span className="text-sm font-medium text-zinc-900 flex-1 text-left truncate">
+              <span className="text-sm font-medium text-foreground flex-1 text-left truncate">
                 {currentStoreName}
               </span>
-              <ChevronDown className="w-4 h-4 text-zinc-500 flex-shrink-0" />
+              <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
             </button>
             {isDropdownOpen && (
-              <div className="absolute top-full right-0 bg-white border border-zinc-200 rounded-lg shadow-lg py-1 min-w-[200px] z-50 mt-1">
+              <div className="absolute top-full right-0 bg-popover text-popover-foreground border border-border rounded-lg shadow-lg py-1 min-w-[200px] z-50 mt-1">
                 {stores.map((s) => {
                   const isSelected = s.store_id === currentStoreId
                   return (
@@ -88,14 +88,14 @@ export function POSHeader({
                       }}
                       className={
                         isSelected
-                          ? "w-full text-sm font-semibold text-zinc-900 px-3 py-2.5 rounded-md mx-1 bg-zinc-100 cursor-default flex items-center gap-2 text-left"
-                          : "w-full text-sm text-zinc-700 px-3 py-2.5 rounded-md mx-1 hover:bg-zinc-100 cursor-pointer transition-colors flex items-center gap-2 text-left"
+                          ? "w-full text-sm font-semibold text-foreground px-3 py-2.5 rounded-md mx-1 bg-accent cursor-default flex items-center gap-2 text-left"
+                          : "w-full text-sm text-foreground/80 px-3 py-2.5 rounded-md mx-1 hover:bg-accent cursor-pointer transition-colors flex items-center gap-2 text-left"
                       }
                       style={{ width: "calc(100% - 8px)" }}
                     >
                       {isSelected ? (
                         <>
-                          <Check className="w-3.5 h-3.5 text-zinc-700 mr-1 flex-shrink-0" />
+                          <Check className="w-3.5 h-3.5 text-foreground mr-1 flex-shrink-0" />
                           <span className="truncate">{s.name}</span>
                         </>
                       ) : (
@@ -108,7 +108,7 @@ export function POSHeader({
             )}
           </>
         ) : (
-          <span className="text-xs text-zinc-500">
+          <span className="text-xs text-muted-foreground">
             {role === "cashier" ? "Read-only" : stores.length <= 1 ? "Single store" : ""}
           </span>
         )}

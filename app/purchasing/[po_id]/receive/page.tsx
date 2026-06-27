@@ -136,8 +136,8 @@ async function fetchPOData(poId: string): Promise<{
 function LoadingState() {
   return (
     <div className="w-full px-8 py-8">
-      <div className="mb-4 h-8 w-64 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-      <div className="h-96 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+      <div className="mb-4 h-8 w-64 animate-pulse rounded bg-muted" />
+      <div className="h-96 w-full animate-pulse rounded-xl bg-muted" />
     </div>
   )
 }
@@ -151,7 +151,7 @@ function ErrorState({ message }: { message: string }) {
         <div className="mt-4">
           <Link
             href="/purchasing"
-            className="inline-flex items-center justify-center bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+            className="inline-flex items-center justify-center bg-[#E8400C] text-white hover:bg-[#c73508] rounded-md h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
           >
             Back to Purchasing
           </Link>
@@ -194,43 +194,43 @@ async function ReceiveInventoryContent({ poId }: { poId: string }) {
       <div className="mb-6">
         <a
           href={`/purchasing/${poId}`}
-          className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors mb-6 group"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group"
         >
           <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
           Back to PO
         </a>
-        <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+        <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">
           Record received inventory from supplier. You can receive the full order or partial
           quantities—enter only what you received today; you can receive the rest later.
         </p>
-        <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+        <h1 className="font-sans text-3xl font-bold tracking-tight leading-tight text-foreground">
           Receive Inventory: PO #{data.po.po_number}
         </h1>
       </div>
 
       {/* PO Details */}
-      <div className="mb-6 rounded-lg border border-zinc-200 bg-background-card-light p-6 dark:border-border-dark dark:bg-background-card-dark">
-        <h2 className="mb-4 font-editorial text-lg font-bold text-zinc-50">
+      <div className="mb-6 rounded-lg border border-border bg-card text-card-foreground p-6 shadow-sm">
+        <h2 className="mb-4 font-sans text-lg font-bold text-foreground">
           PO Details
         </h2>
         <div className="grid gap-4 md:grid-cols-3">
           <div>
-            <div className="text-sm text-zinc-600 dark:text-zinc-400">Supplier</div>
-            <div className="font-medium text-zinc-900 dark:text-zinc-100">
+            <div className="text-sm text-muted-foreground">Supplier</div>
+            <div className="font-medium text-foreground">
               {data.po.suppliers?.name || "—"}
             </div>
           </div>
           <div>
-            <div className="text-sm text-zinc-600 dark:text-zinc-400">Order Date</div>
-            <div className="font-medium text-zinc-900 dark:text-zinc-100">
+            <div className="text-sm text-muted-foreground">Order Date</div>
+            <div className="font-medium text-foreground">
               {data.po.order_date
                 ? new Date(data.po.order_date).toLocaleDateString()
                 : "—"}
             </div>
           </div>
           <div>
-            <div className="text-sm text-zinc-600 dark:text-zinc-400">Expected Delivery</div>
-            <div className="font-medium text-zinc-900 dark:text-zinc-100">
+            <div className="text-sm text-muted-foreground">Expected Delivery</div>
+            <div className="font-medium text-foreground">
               {data.po.expected_delivery_date
                 ? new Date(data.po.expected_delivery_date).toLocaleDateString()
                 : "—"}

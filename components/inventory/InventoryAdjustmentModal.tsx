@@ -168,22 +168,22 @@ export function InventoryAdjustmentModal({
 
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[550px] bg-zinc-950 border-zinc-800 text-zinc-100 rounded-none shadow-2xl p-0 gap-0 overflow-hidden max-h-[90vh] flex flex-col">
-        <DialogHeader className="px-8 py-8 border-b border-zinc-900 bg-zinc-900/50 shrink-0">
-          <DialogTitle className="font-editorial text-2xl font-bold text-zinc-50 leading-tight">
+      <DialogContent className="sm:max-w-[550px] bg-card border-border text-foreground rounded-lg shadow-2xl p-0 gap-0 overflow-hidden max-h-[90vh] flex flex-col">
+        <DialogHeader className="px-8 py-8 border-b border-border bg-muted/40 shrink-0">
+          <DialogTitle className="font-sans text-2xl font-bold text-foreground leading-tight">
             Adjust Stock
           </DialogTitle>
           <div className="mt-2 space-y-1">
-            <p className="font-editorial text-sm font-semibold text-zinc-200">
+            <p className="font-sans text-sm font-semibold text-foreground">
               {variant.style_name}
             </p>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
               {variant.size} / {variant.color} — {variant.sku}
             </p>
           </div>
-          <div className="mt-6 pt-4 border-t border-zinc-800">
-            <p className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-1">Current Stock @ {store.name}</p>
-            <p className="font-mono text-2xl font-bold text-zinc-100">{currentStock}</p>
+          <div className="mt-6 pt-4 border-t border-border">
+            <p className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-muted-foreground mb-1">Current Stock @ {store.name}</p>
+            <p className="font-mono text-2xl font-bold text-foreground">{currentStock}</p>
           </div>
         </DialogHeader>
 
@@ -194,7 +194,7 @@ export function InventoryAdjustmentModal({
               name="adjustmentType"
               render={({ field }) => (
                 <FormItem className="space-y-4">
-                  <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">Adjustment Type</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-muted-foreground">Adjustment Type</FormLabel>
                   <FormControl>
                     <RadioGroup
                       value={field.value}
@@ -204,31 +204,31 @@ export function InventoryAdjustmentModal({
                       }}
                       className="grid grid-cols-1 gap-3"
                     >
-                      <div className={`flex items-start space-x-3 rounded-none border p-4 transition-all cursor-pointer ${field.value === 'add' ? 'bg-zinc-900 border-zinc-600' : 'bg-transparent border-zinc-800 hover:border-zinc-700'}`}>
-                        <RadioGroupItem value="add" id="add" className="mt-1 border-zinc-700 text-white" />
+                      <div className={`flex items-start space-x-3 rounded-md border p-4 transition-all cursor-pointer ${field.value === 'add' ? 'bg-accent/50 border-[#E8400C]' : 'bg-transparent border-border hover:border-muted-foreground/40'}`}>
+                        <RadioGroupItem value="add" id="add" className="mt-1 border-border text-[#E8400C]" />
                         <Label htmlFor="add" className="flex-1 cursor-pointer">
-                          <div className="text-[0.65rem] font-bold uppercase tracking-widest text-zinc-100 mb-1">Add Stock</div>
-                          <div className="text-[10px] text-zinc-500 uppercase tracking-wider leading-relaxed">
+                          <div className="text-[0.65rem] font-bold uppercase tracking-widest text-foreground mb-1">Add Stock</div>
+                          <div className="text-[10px] text-muted-foreground uppercase tracking-wider leading-relaxed">
                             Received shipment or restock
                           </div>
                         </Label>
                       </div>
 
-                      <div className={`flex items-start space-x-3 rounded-none border p-4 transition-all cursor-pointer ${field.value === 'remove' ? 'bg-zinc-900 border-zinc-600' : 'bg-transparent border-zinc-800 hover:border-zinc-700'}`}>
-                        <RadioGroupItem value="remove" id="remove" className="mt-1 border-zinc-700 text-white" />
+                      <div className={`flex items-start space-x-3 rounded-md border p-4 transition-all cursor-pointer ${field.value === 'remove' ? 'bg-accent/50 border-[#E8400C]' : 'bg-transparent border-border hover:border-muted-foreground/40'}`}>
+                        <RadioGroupItem value="remove" id="remove" className="mt-1 border-border text-[#E8400C]" />
                         <Label htmlFor="remove" className="flex-1 cursor-pointer">
-                          <div className="text-[0.65rem] font-bold uppercase tracking-widest text-zinc-100 mb-1">Remove Stock</div>
-                          <div className="text-[10px] text-zinc-500 uppercase tracking-wider leading-relaxed">
+                          <div className="text-[0.65rem] font-bold uppercase tracking-widest text-foreground mb-1">Remove Stock</div>
+                          <div className="text-[10px] text-muted-foreground uppercase tracking-wider leading-relaxed">
                             Damaged, lost, or returned
                           </div>
                         </Label>
                       </div>
 
-                      <div className={`flex items-start space-x-3 rounded-none border p-4 transition-all cursor-pointer ${field.value === 'set' ? 'bg-zinc-900 border-zinc-600' : 'bg-transparent border-zinc-800 hover:border-zinc-700'}`}>
-                        <RadioGroupItem value="set" id="set" className="mt-1 border-zinc-700 text-white" />
+                      <div className={`flex items-start space-x-3 rounded-md border p-4 transition-all cursor-pointer ${field.value === 'set' ? 'bg-accent/50 border-[#E8400C]' : 'bg-transparent border-border hover:border-muted-foreground/40'}`}>
+                        <RadioGroupItem value="set" id="set" className="mt-1 border-border text-[#E8400C]" />
                         <Label htmlFor="set" className="flex-1 cursor-pointer">
-                          <div className="text-[0.65rem] font-bold uppercase tracking-widest text-zinc-100 mb-1">Set Stock</div>
-                          <div className="text-[10px] text-zinc-500 uppercase tracking-wider leading-relaxed">
+                          <div className="text-[0.65rem] font-bold uppercase tracking-widest text-foreground mb-1">Set Stock</div>
+                          <div className="text-[10px] text-muted-foreground uppercase tracking-wider leading-relaxed">
                             Physical count override
                           </div>
                         </Label>
@@ -246,14 +246,14 @@ export function InventoryAdjustmentModal({
                 name="quantity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">
+                    <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-muted-foreground">
                       {adjustmentType === "set" ? "Quantity" : "Change"}
                     </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         inputMode="numeric"
-                        className="bg-zinc-900 border-zinc-800 text-zinc-100 h-12 rounded-none font-mono text-lg focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 transition-all"
+                        className="bg-background border-border text-foreground h-12 rounded-md font-mono text-lg transition-all"
                         {...field}
                         ref={(e) => {
                           field.ref(e)
@@ -265,18 +265,18 @@ export function InventoryAdjustmentModal({
                         }}
                       />
                     </FormControl>
-                    <FormMessage className="text-[10px] uppercase font-bold tracking-widest text-red-400 mt-2" />
+                    <FormMessage className="text-[10px] uppercase font-bold tracking-widest text-red-500 mt-2" />
                   </FormItem>
                 )}
               />
 
-              <div className="rounded-none border border-zinc-800 bg-zinc-900/30 p-4 h-full flex flex-col justify-center">
-                <div className="text-[0.6rem] font-bold tracking-[0.2em] uppercase text-zinc-500 mb-1">
+              <div className="rounded-md border border-border bg-muted/30 p-4 h-full flex flex-col justify-center">
+                <div className="text-[0.6rem] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-1">
                   Preview
                 </div>
-                <div className="font-mono text-2xl font-bold text-zinc-100">
+                <div className="font-mono text-2xl font-bold text-foreground">
                   {calculatedNewStock}
-                  <span className="text-[10px] uppercase tracking-widest text-zinc-500 ml-2">units</span>
+                  <span className="text-[10px] uppercase tracking-widest text-muted-foreground ml-2">units</span>
                 </div>
               </div>
             </div>
@@ -286,12 +286,12 @@ export function InventoryAdjustmentModal({
               name="reason"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-zinc-500">Reason (Optional)</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-muted-foreground">Reason (Optional)</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="e.g., Physical count correction..."
                       rows={2}
-                      className="bg-zinc-900 border-zinc-800 text-zinc-100 rounded-none focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 transition-all resize-none text-xs"
+                      className="bg-background border-border text-foreground rounded-md transition-all resize-none text-xs"
                       {...field}
                     />
                   </FormControl>
@@ -300,20 +300,20 @@ export function InventoryAdjustmentModal({
               )}
             />
 
-            <DialogFooter className="pt-4 gap-4 sm:gap-0 border-t border-zinc-900 mt-4 -mx-8 px-8 py-6 bg-zinc-900/20">
+            <DialogFooter className="pt-4 gap-4 sm:gap-0 border-t border-border mt-4 -mx-8 px-8 py-6 bg-muted/20">
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={onClose} 
                 disabled={isSubmitting} 
-                className="rounded-none border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-all text-[10px] font-bold uppercase tracking-widest h-12 px-8"
+                className="rounded-md border-border text-muted-foreground hover:bg-accent hover:text-foreground transition-all text-[10px] font-bold uppercase tracking-widest h-12 px-8"
               >
                 Cancel
               </Button>
               <Button 
                 type="submit" 
                 disabled={isSubmitting} 
-                className="rounded-none bg-white text-zinc-950 hover:bg-zinc-100 transition-all text-[10px] font-bold uppercase tracking-widest h-12 px-8 flex-1 sm:flex-none"
+                className="rounded-md bg-[#E8400C] text-white hover:bg-[#c73508] transition-all text-[10px] font-bold uppercase tracking-widest h-12 px-8 flex-1 sm:flex-none shadow-sm"
               >
                 {isSubmitting ? "Processing..." : "Apply Adjustment"}
               </Button>

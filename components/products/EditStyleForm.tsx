@@ -235,7 +235,7 @@ export function EditStyleForm(props: {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Style Name</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">Style Name</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g. Linen Midi Dress" maxLength={100} {...field} />
                   </FormControl>
@@ -250,14 +250,14 @@ export function EditStyleForm(props: {
                 name="category_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Category</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">Category</FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="h-11 w-full bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-white/20">
+                      <SelectTrigger className="h-11 w-full bg-background border-border text-foreground focus:ring-1 focus:ring-[#E8400C]">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
-                      <SelectContent className="bg-zinc-900 border border-zinc-800 text-zinc-100">
+                      <SelectContent className="bg-popover border border-border text-popover-foreground">
                         {categories.map((c) => (
-                          <SelectItem key={c.category_id} value={c.category_id} className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-50">
+                          <SelectItem key={c.category_id} value={c.category_id} className="text-foreground focus:bg-accent focus:text-accent-foreground">
                             {c.name}
                           </SelectItem>
                         ))}
@@ -273,18 +273,18 @@ export function EditStyleForm(props: {
                 name="season_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Season (optional)</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">Season (optional)</FormLabel>
                     <Select
                       value={field.value ?? "none"}
                       onValueChange={(v) => field.onChange(v === "none" ? null : v)}
                     >
-                      <SelectTrigger className="h-11 w-full bg-zinc-900 border-zinc-800 text-zinc-100 focus:ring-1 focus:ring-white/20">
+                      <SelectTrigger className="h-11 w-full bg-background border-border text-foreground focus:ring-1 focus:ring-[#E8400C]">
                         <SelectValue placeholder="Select season" />
                       </SelectTrigger>
-                      <SelectContent className="bg-zinc-900 border border-zinc-800 text-zinc-100">
-                        <SelectItem value="none" className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-50">No season</SelectItem>
+                      <SelectContent className="bg-popover border border-border text-popover-foreground">
+                        <SelectItem value="none" className="text-foreground focus:bg-accent focus:text-accent-foreground">No season</SelectItem>
                         {seasons.map((s) => (
-                          <SelectItem key={s.season_id} value={s.season_id} className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-50">
+                          <SelectItem key={s.season_id} value={s.season_id} className="text-foreground focus:bg-accent focus:text-accent-foreground">
                             {s.name}
                           </SelectItem>
                         ))}
@@ -301,7 +301,7 @@ export function EditStyleForm(props: {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Description (optional)</FormLabel>
+                  <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">Description (optional)</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Notes, fabric, fit, etc."
@@ -321,7 +321,7 @@ export function EditStyleForm(props: {
                 name="base_price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Base Price (KES)</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">Base Price (KES)</FormLabel>
                     <FormControl>
                       <Input
                         inputMode="numeric"
@@ -332,7 +332,7 @@ export function EditStyleForm(props: {
                         onChange={(e) => field.onChange(e.target.value)}
                       />
                     </FormControl>
-                    <div className="text-xs text-zinc-500">
+                    <div className="text-xs text-muted-foreground font-mono">
                       Preview: KES {formatKesInput(String(field.value ?? ""))}
                     </div>
                     <FormMessage />
@@ -345,7 +345,7 @@ export function EditStyleForm(props: {
                 name="cost"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Cost (KES)</FormLabel>
+                    <FormLabel className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">Cost (KES)</FormLabel>
                     <FormControl>
                       <Input
                         inputMode="numeric"
@@ -356,7 +356,7 @@ export function EditStyleForm(props: {
                         onChange={(e) => field.onChange(e.target.value)}
                       />
                     </FormControl>
-                    <div className="text-xs text-zinc-500">
+                    <div className="text-xs text-muted-foreground font-mono">
                       Preview: KES {formatKesInput(String(field.value ?? ""))}
                     </div>
                     <FormMessage />
@@ -369,7 +369,7 @@ export function EditStyleForm(props: {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex h-9 items-center justify-center rounded-sm bg-white px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-950 hover:bg-zinc-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex h-9 items-center justify-center rounded-sm bg-[#E8400C] px-5 text-xs font-semibold tracking-[0.12em] uppercase text-white hover:bg-[#c73508] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? "Saving..." : "Save Changes"}
               </button>
@@ -377,7 +377,7 @@ export function EditStyleForm(props: {
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => router.push("/products")}
-                className="inline-flex h-9 items-center justify-center rounded-sm border border-zinc-700 bg-transparent px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 transition-colors disabled:opacity-50"
+                className="inline-flex h-9 items-center justify-center rounded-sm border border-border bg-transparent px-5 text-xs font-semibold tracking-[0.12em] uppercase text-foreground hover:bg-accent transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -385,9 +385,9 @@ export function EditStyleForm(props: {
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-sm border border-zinc-800 bg-zinc-900 p-4">
+            <div className="rounded-sm border border-border bg-card p-4">
               <div className="flex items-center justify-between gap-3">
-                <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Image</div>
+                <div className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground">Image</div>
                 <button
                   type="button"
                   disabled={isSubmitting || (!style.image_url && !previewUrl) || removeImage}
@@ -396,12 +396,12 @@ export function EditStyleForm(props: {
                     form.setValue("image", null, { shouldValidate: true })
                     setPreviewUrl(null)
                   }}
-                  className="inline-flex h-7 items-center justify-center rounded-sm border border-zinc-700 bg-transparent px-3 text-xs font-semibold uppercase text-zinc-400 hover:border-zinc-500 hover:text-zinc-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="inline-flex h-7 items-center justify-center rounded-sm border border-border bg-transparent px-3 text-xs font-semibold uppercase text-muted-foreground hover:border-foreground/40 hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Remove image
                 </button>
               </div>
-              <div className="mt-3 overflow-hidden rounded-md bg-zinc-800 flex items-center justify-center aspect-square w-full">
+              <div className="mt-3 overflow-hidden rounded-md bg-muted flex items-center justify-center aspect-square w-full">
                 {previewUrl ? (
                   <div className="relative h-full w-full">
                     <Image
@@ -417,7 +417,7 @@ export function EditStyleForm(props: {
                     />
                   </div>
                 ) : (
-                  <Package className="h-12 w-12 text-zinc-700" />
+                  <Package className="h-12 w-12 text-muted-foreground" />
                 )}
               </div>
 
@@ -432,7 +432,7 @@ export function EditStyleForm(props: {
                         <Input
                           type="file"
                           accept="image/png,image/jpeg,image/jpg"
-                          className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-500 h-9 px-3 w-full file:hidden cursor-pointer"
+                          className="bg-background border border-border rounded-md text-sm text-muted-foreground h-9 px-3 w-full file:hidden cursor-pointer"
                           onChange={(e) => {
                             const file = e.target.files?.[0] ?? null
                             if (file) {
@@ -456,7 +456,7 @@ export function EditStyleForm(props: {
                         />
                       </FormControl>
                       <FormMessage />
-                      <p className="mt-1 text-xs text-zinc-600">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         PNG/JPG only. Max 2MB. Leave empty to keep current image.
                       </p>
                     </FormItem>
