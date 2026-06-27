@@ -43,14 +43,14 @@ export function RecentSales({
 }: RecentSalesProps) {
   if (sales.length === 0) {
     return (
-      <div className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
+      <div className="py-8 text-center text-sm text-muted-foreground">
         No sales yet. Process your first sale to see insights.
       </div>
     )
   }
 
   return (
-    <div className="rounded-md border border-zinc-200 dark:border-zinc-800">
+    <div className="rounded-md border border-border">
       <Table>
         <TableHeader>
           <TableRow>
@@ -63,12 +63,12 @@ export function RecentSales({
         </TableHeader>
         <TableBody>
           {sales.map((sale) => (
-            <TableRow key={sale.sale_id} className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900">
+            <TableRow key={sale.sale_id} className="cursor-pointer hover:bg-muted/50">
               <TableCell className="font-medium">{formatTime(sale.sale_date)}</TableCell>
               <TableCell>
                 <Link
                   href={`/sales/${sale.sale_id}`}
-                  className="text-zinc-900 hover:underline dark:text-zinc-100"
+                  className="text-foreground hover:underline"
                 >
                   {sale.receipt_number ?? "—"}
                 </Link>
@@ -76,7 +76,7 @@ export function RecentSales({
               <TableCell>{itemsPerSale[sale.sale_id] || 0} items</TableCell>
               <TableCell className="font-medium">
                 {sale.status === "refunded" ? (
-                  <span className="text-zinc-500 dark:text-zinc-400 italic">Refunded</span>
+                  <span className="text-muted-foreground italic">Refunded</span>
                 ) : (
                   formatPrice(sale.grand_total ?? 0)
                 )}

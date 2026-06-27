@@ -35,7 +35,7 @@ const PLANS = [
 ] as const
 
 const PLAN_BORDER: Record<string, string> = {
-  starter: "border-zinc-500 bg-zinc-500/5",
+  starter: "border-border bg-muted/20",
   core:    "border-blue-500 bg-blue-500/5",
   scale:   "border-purple-500 bg-purple-500/5",
   trial:    "border-amber-500 bg-amber-500/5",

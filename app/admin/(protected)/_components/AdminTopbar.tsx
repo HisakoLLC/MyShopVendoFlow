@@ -36,16 +36,16 @@ export default function AdminTopbar({ onMenuClick }: { onMenuClick: () => void }
   const initial = full_name?.charAt(0).toUpperCase() || "A"
 
   return (
-    <header className="h-12 bg-[#0d0d0d] border-b border-[#1a1a1a] px-6 flex items-center justify-between shrink-0">
+    <header className="h-14 bg-card border-b border-border px-6 flex items-center justify-between shrink-0 font-sans">
       {/* Left: Dynamic Title */}
       <div className="flex items-center">
         <button 
           onClick={onMenuClick}
-          className="md:hidden mr-3 text-[#666] hover:text-white transition-colors"
+          className="md:hidden mr-3 text-muted-foreground hover:text-foreground transition-colors"
         >
           <Menu className="w-5 h-5" />
         </button>
-        <h1 className="text-white text-sm font-semibold tracking-tight">
+        <h1 className="text-foreground text-base font-bold tracking-tight">
           {getPageTitle(pathname)}
         </h1>
       </div>
@@ -54,19 +54,19 @@ export default function AdminTopbar({ onMenuClick }: { onMenuClick: () => void }
       <div className="flex items-center gap-3">
         {/* Role Badge */}
         <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full ${colors.bg}`}>
-          <div className={`w-1 h-1 rounded-full ${colors.dot}`} />
+          <div className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />
           <span className={`text-[9px] font-bold uppercase tracking-wider ${colors.text}`}>
             {role.replace("_", " ")}
           </span>
         </div>
 
-        <div className="h-4 w-[1px] bg-[#1a1a1a]" />
+        <div className="h-4 w-[1px] bg-border" />
 
         {/* User Info */}
         <div className="flex items-center gap-2.5">
-          <span className="text-white/80 text-xs font-medium">{full_name}</span>
-          <div className="w-7 h-7 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center">
-            <span className="text-white text-[11px] font-bold">{initial}</span>
+          <span className="text-foreground text-xs font-semibold">{full_name}</span>
+          <div className="w-7 h-7 rounded-full bg-accent border border-border flex items-center justify-center">
+            <span className="text-foreground text-xs font-bold">{initial}</span>
           </div>
         </div>
       </div>

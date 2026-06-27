@@ -47,7 +47,7 @@ const BILLING_CYCLES = [
 type CycleId = (typeof BILLING_CYCLES)[number]["id"]
 
 const PLAN_BORDER: Record<string, string> = {
-  starter: "border-zinc-500 bg-zinc-500/5",
+  starter: "border-border bg-muted/20",
   core:    "border-blue-500 bg-blue-500/5",
   scale:   "border-purple-500 bg-purple-500/5",
   trial:   "border-amber-500 bg-amber-500/5",
@@ -178,7 +178,7 @@ export function ChangePlanModal({
                     onClick={() => setSelectedPlan(plan.id as PlanId)}
                     className={`text-left p-4 rounded-lg border transition-all ${
                       selectedPlan === plan.id
-                        ? PLAN_BORDER[plan.id] ?? "border-zinc-500 bg-zinc-500/5"
+                        ? PLAN_BORDER[plan.id] ?? "border-border bg-muted/20"
                         : "border-[#2a2a2a] bg-[#0d0d0d] hover:border-[#333]"
                     }`}
                   >

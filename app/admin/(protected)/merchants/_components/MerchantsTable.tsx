@@ -43,40 +43,40 @@ interface MerchantsTableProps {
 // ─── Badge helpers ────────────────────────────────────────────────────────────
 
 const PLAN_BADGE: Record<string, string> = {
-  starter: "bg-zinc-500/10 text-zinc-300 border-zinc-500/20",
-  core:    "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  scale:   "bg-purple-500/10 text-purple-400 border-purple-500/20",
-  trial:   "bg-amber-500/10 text-amber-400 border-amber-500/20",
+  starter: "bg-muted text-muted-foreground border-border",
+  core:    "bg-blue-500/10 text-blue-500 border-blue-500/20",
+  scale:   "bg-purple-500/10 text-purple-500 border-purple-500/20",
+  trial:   "bg-amber-500/10 text-amber-500 border-amber-500/20",
 }
 
 const STATUS_BADGE: Record<string, string> = {
-  active:    "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  trial:     "bg-amber-500/10 text-amber-400 border-amber-500/20",
-  past_due:  "bg-red-500/10 text-red-400 border-red-500/20",
-  suspended: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-  cancelled: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+  active:    "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+  trial:     "bg-amber-500/10 text-amber-500 border-amber-500/20",
+  past_due:  "bg-destructive/10 text-destructive border-destructive/20",
+  suspended: "bg-muted text-muted-foreground border-border",
+  cancelled: "bg-muted text-muted-foreground border-border",
 }
 
 const ACTIVITY_COLORS: Record<string, string> = {
-  active:   "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
-  inactive: "text-amber-400 bg-amber-400/10 border-amber-400/20",
-  critical: "text-red-400 bg-red-400/10 border-red-400/20",
-  new:      "text-zinc-400 bg-zinc-400/10 border-zinc-400/20",
+  active:   "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
+  inactive: "text-amber-500 bg-amber-500/10 border-amber-500/20",
+  critical: "text-destructive bg-destructive/10 border-destructive/20",
+  new:      "text-muted-foreground bg-muted border-border",
 }
 
 function PlanBadge({ plan }: { plan: string | null }) {
-  if (!plan) return <span className="text-[#444] text-[10px]">—</span>
+  if (!plan) return <span className="text-muted-foreground text-[10px]">—</span>
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-sm text-[9px] font-black uppercase tracking-wider border ${PLAN_BADGE[plan] ?? PLAN_BADGE.starter}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${PLAN_BADGE[plan] ?? PLAN_BADGE.starter}`}>
       {plan}
     </span>
   )
 }
 
 function StatusBadge({ status }: { status: string | null }) {
-  if (!status) return <span className="text-[#444] text-[10px]">—</span>
+  if (!status) return <span className="text-muted-foreground text-[10px]">—</span>
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-sm text-[9px] font-black uppercase tracking-wider border ${STATUS_BADGE[status] ?? STATUS_BADGE.cancelled}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${STATUS_BADGE[status] ?? STATUS_BADGE.cancelled}`}>
       {status.replace("_", " ")}
     </span>
   )
@@ -85,13 +85,13 @@ function StatusBadge({ status }: { status: string | null }) {
 function OnboardingProgress({ score }: { score: number }) {
   return (
     <div className="w-24 space-y-1">
-      <div className="flex justify-between items-center text-[8px] font-black uppercase tracking-tighter text-[#444]">
+      <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
         <span>Step Progress</span>
-        <span className={score === 100 ? "text-emerald-400" : ""}>{score}%</span>
+        <span className={score === 100 ? "text-emerald-500 font-mono" : "font-mono"}>{score}%</span>
       </div>
-      <div className="h-1 bg-[#1a1a1a] rounded-full overflow-hidden">
+      <div className="h-1.5 bg-accent rounded-full overflow-hidden">
         <div 
-          className={`h-full transition-all duration-500 ${score === 100 ? "bg-emerald-500" : "bg-[#22c55e]"}`} 
+          className={`h-full transition-all duration-500 ${score === 100 ? "bg-emerald-500" : "bg-[#E8400C]"}`} 
           style={{ width: `${score}%` }} 
         />
       </div>
@@ -135,107 +135,107 @@ export default function MerchantsTable({
     new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-sans">
       {/* Search & Basic Filters */}
       <div className="flex flex-col md:flex-row gap-4 mb-2">
         <div className="relative flex-1 group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#333] group-focus-within:text-white transition-colors" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-foreground transition-colors" />
           <input
             type="text"
             placeholder="Search by business name, email or ID…"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full bg-[#0a0a0a] border border-[#1f1f1f] rounded-sm pl-10 pr-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#333] transition-colors"
+            className="w-full bg-card border border-border rounded-md pl-10 pr-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground/40 transition-colors shadow-sm"
           />
         </div>
       </div>
 
-      <div className="bg-[#111] border border-[#1f1f1f] rounded-lg overflow-hidden shadow-2xl">
+      <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-[#1f1f1f] bg-[#0c0c0c]">
-                <th className="px-5 py-4 text-[9px] font-bold uppercase tracking-widest text-[#444]">Merchant info</th>
-                <th className="px-5 py-4 text-[9px] font-bold uppercase tracking-widest text-[#444]">Activity</th>
-                <th className="px-5 py-4 text-[9px] font-bold uppercase tracking-widest text-[#444]">Churn Risk</th>
-                <th className="px-5 py-4 text-[9px] font-bold uppercase tracking-widest text-[#444]">Onboarding</th>
-                <th className="px-5 py-4 text-[9px] font-bold uppercase tracking-widest text-[#444]">Tier / Status</th>
-                <th className="px-5 py-4 text-[9px] font-bold uppercase tracking-widest text-[#444] text-right">Sales (Total)</th>
-                <th className="px-5 py-4 text-[9px] font-bold uppercase tracking-widest text-[#444] text-center">Actions</th>
+              <tr className="border-b border-border bg-muted/40">
+                <th className="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Merchant info</th>
+                <th className="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Activity</th>
+                <th className="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Churn Risk</th>
+                <th className="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Onboarding</th>
+                <th className="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tier / Status</th>
+                <th className="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-right">Sales (Total)</th>
+                <th className="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-center">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#181818]">
+            <tbody className="divide-y divide-border">
               {filtered.map(m => {
                 const health = healthSignals[m.account_id]
                 return (
                   <tr
                     key={m.account_id}
                     onClick={() => router.push(`/admin/merchants/${m.account_id}`)}
-                    className="hover:bg-[#161616] transition-colors cursor-pointer group"
+                    className="hover:bg-accent/50 transition-colors cursor-pointer group"
                   >
                     {/* Merchant Info */}
-                    <td className="px-5 py-5">
-                      <div className="text-sm text-white font-bold group-hover:text-[#22c55e] transition-colors">
+                    <td className="px-5 py-4">
+                      <div className="text-sm text-foreground font-bold group-hover:text-[#E8400C] transition-colors">
                         {m.business_name}
                       </div>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[10px] text-[#555] font-mono leading-none">{m.account_id.slice(0,8)}...</span>
-                        <span className="text-[10px] text-[#444] leading-none">•</span>
-                        <span className="text-[10px] text-[#555] leading-none">{m.owner_email}</span>
+                        <span className="text-[10px] text-muted-foreground font-mono leading-none">{m.account_id.slice(0,8)}...</span>
+                        <span className="text-[10px] text-muted-foreground/40 leading-none">•</span>
+                        <span className="text-[10px] text-muted-foreground leading-none">{m.owner_email}</span>
                       </div>
                     </td>
 
                     {/* Activity */}
-                    <td className="px-5 py-5">
-                      <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-sm border text-[9px] font-black uppercase tracking-widest ${ACTIVITY_COLORS[health?.activityStatus || "new"]}`}>
-                        <ActivityIcon className="w-2.5 h-2.5" />
+                    <td className="px-5 py-4">
+                      <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded border text-[9px] font-bold uppercase tracking-wider ${ACTIVITY_COLORS[health?.activityStatus || "new"]}`}>
+                        <ActivityIcon className="w-3 h-3" />
                         {health?.activityStatus || "new"}
                       </div>
                     </td>
 
                     {/* Churn Risk */}
-                    <td className="px-5 py-5">
+                    <td className="px-5 py-4">
                       {health?.churnRisk && health.churnRisk !== "low" ? (
-                        <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-sm border text-[9px] font-black uppercase tracking-widest ${
-                          health.churnRisk === "high" ? "bg-red-500/10 text-red-500 border-red-500/20" : "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                        <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded border text-[9px] font-bold uppercase tracking-wider ${
+                          health.churnRisk === "high" ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-amber-500/10 text-amber-500 border-amber-500/20"
                         }`}>
-                          <ShieldAlert className="w-2.5 h-2.5" />
+                          <ShieldAlert className="w-3 h-3" />
                           {health.churnRisk} RISK
                         </div>
                       ) : (
-                        <span className="text-[#333] text-[9px] font-bold uppercase tracking-widest">—</span>
+                        <span className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wider">—</span>
                       )}
                     </td>
 
                     {/* Onboarding */}
-                    <td className="px-5 py-5">
+                    <td className="px-5 py-4">
                       <OnboardingProgress score={health?.onboardingScore || 0} />
                     </td>
 
                     {/* Tier / Status */}
-                    <td className="px-5 py-5">
-                      <div className="flex flex-col gap-1.5">
+                    <td className="px-5 py-4">
+                      <div className="flex flex-col gap-1">
                         <PlanBadge plan={m.plan_tier} />
                         <StatusBadge status={m.subscription_status} />
                       </div>
                     </td>
 
                     {/* Sales */}
-                    <td className="px-5 py-5 text-right font-mono">
-                      <PermissionGate permission="merchants_financial" fallback={<span className="text-[#222]">---</span>}>
-                        <div className="text-sm text-white font-bold opacity-80">
-                          {m.total_sales.toLocaleString()} <span className="text-[10px] text-[#444] font-normal uppercase ml-0.5">Kes</span>
+                    <td className="px-5 py-4 text-right font-mono tabular-nums">
+                      <PermissionGate permission="merchants_financial" fallback={<span className="text-muted-foreground">---</span>}>
+                        <div className="text-xs text-foreground font-bold">
+                          {m.total_sales.toLocaleString()} <span className="text-[10px] text-muted-foreground font-normal uppercase ml-0.5">Kes</span>
                         </div>
-                        <div className="text-[9px] text-[#444] font-bold uppercase tracking-tighter mt-0.5">Lifetime Revenue</div>
+                        <div className="text-[9px] text-muted-foreground font-semibold uppercase tracking-wider mt-0.5 font-sans">Lifetime Revenue</div>
                       </PermissionGate>
                     </td>
 
                     {/* Actions */}
-                    <td className="px-5 py-5" onClick={e => e.stopPropagation()}>
+                    <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => router.push(`/admin/merchants/${m.account_id}`)}
-                          className="p-2 bg-[#111] border border-[#1f1f1f] text-white rounded-sm hover:border-white/20 transition-all"
+                          className="p-1.5 bg-accent border border-border text-foreground rounded hover:border-foreground/40 transition-all cursor-pointer"
                         >
                           <ChevronRight className="w-4 h-4" />
                         </button>
@@ -247,14 +247,14 @@ export default function MerchantsTable({
 
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-24 text-center">
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-[#111] border border-[#1f1f1f] flex items-center justify-center">
-                        <Search className="w-5 h-5 text-[#333]" />
+                  <td colSpan={7} className="px-6 py-20 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-accent border border-border flex items-center justify-center">
+                        <Search className="w-5 h-5 text-muted-foreground" />
                       </div>
                       <div className="space-y-1">
-                        <p className="text-white text-sm font-bold tracking-tight">No Results Found</p>
-                        <p className="text-[#444] text-xs">Try adjusting your search or risk filters.</p>
+                        <p className="text-foreground text-sm font-bold tracking-tight">No Results Found</p>
+                        <p className="text-muted-foreground text-xs font-medium">Try adjusting your search or risk filters.</p>
                       </div>
                     </div>
                   </td>

@@ -14,34 +14,34 @@ export default function AdminError({
   }, [error])
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
       <div className="text-center max-w-sm">
         {/* VendoFlow wordmark */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <span className="text-white font-bold text-lg">VendoFlow</span>
-          <span className="text-[10px] font-semibold tracking-widest uppercase px-1.5 py-0.5 rounded bg-[#22c55e]/10 text-[#22c55e]">Admin</span>
+        <div className="flex items-center justify-center gap-2 mb-8 font-sans">
+          <span className="font-bold text-lg tracking-tight">VendoFlow</span>
+          <span className="text-[10px] font-semibold tracking-widest uppercase px-1.5 py-0.5 rounded-md bg-[#E8400C]/10 text-[#E8400C]">Admin</span>
         </div>
         
-        <div className="w-12 h-12 rounded-sm bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
-          <span className="text-red-400 text-xl font-bold">!</span>
+        <div className="w-12 h-12 rounded-lg bg-destructive/10 border border-destructive/20 flex items-center justify-center mx-auto mb-4">
+          <span className="text-destructive text-xl font-bold">!</span>
         </div>
         
-        <p className="text-white text-sm font-semibold mb-2">Something went wrong</p>
-        <p className="text-[#666] text-xs mb-6 leading-relaxed">
+        <p className="text-foreground text-sm font-semibold mb-2 font-sans">Something went wrong</p>
+        <p className="text-muted-foreground text-xs mb-6 leading-relaxed font-sans">
           An unexpected error occurred. This has been logged.
-          {error.digest && <span className="block mt-1 font-mono text-[#444]">ID: {error.digest}</span>}
+          {error.digest && <span className="block mt-1 font-mono text-muted-foreground/70">ID: {error.digest}</span>}
         </p>
         
-        <div className="flex gap-3 justify-center">
+        <div className="flex gap-3 justify-center font-sans">
           <button
             onClick={reset}
-            className="text-xs font-semibold tracking-[0.12em] uppercase px-4 py-2 rounded-sm bg-white text-[#0a0a0a] hover:bg-zinc-100 transition-colors"
+            className="text-xs font-semibold tracking-wide uppercase px-4 py-2 rounded-md bg-[#E8400C] text-white hover:bg-[#c73508] transition-colors shadow-sm"
           >
             Try again
           </button>
           <Link
             href="/admin/dashboard"
-            className="text-xs font-semibold tracking-[0.12em] uppercase px-4 py-2 rounded-sm border border-[#2a2a2a] text-[#888] hover:text-white hover:border-[#444] transition-colors"
+            className="text-xs font-semibold tracking-wide uppercase px-4 py-2 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
           >
             Dashboard
           </Link>

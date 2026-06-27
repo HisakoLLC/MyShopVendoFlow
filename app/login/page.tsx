@@ -228,39 +228,39 @@ function LoginContent() {
   }
 
   return (
-    <div className="flex h-screen bg-zinc-950 overflow-hidden">
+    <div className="flex h-screen bg-background text-foreground overflow-hidden">
       <Toaster richColors position="top-right" />
       
       {/* Left form panel - scrollable */}
-      <div className="flex-1 lg:w-1/2 flex items-center justify-center px-8 py-12 overflow-y-auto h-full scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
+      <div className="flex-1 lg:w-1/2 flex items-center justify-center px-8 py-12 overflow-y-auto h-full scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
         <div className="w-full max-w-sm">
           <div className="mb-12 text-center">
-            <h1 className="font-editorial text-2xl font-bold text-zinc-50 mb-8 inline-block w-full">
+            <h1 className="font-sans text-2xl font-bold tracking-tight text-foreground mb-8 inline-block w-full">
               VendoFlow
             </h1>
-            <h2 className="font-editorial text-3xl font-bold text-zinc-50 mb-2">
+            <h2 className="font-sans text-3xl font-bold tracking-tight text-foreground mb-2">
               Welcome Back
             </h2>
-            <p className="text-sm text-zinc-500 mb-8">
+            <p className="text-sm text-muted-foreground mb-8">
               Enter your details to manage your boutique.
             </p>
           </div>
 
           {!showEmailPassword && savedStore ? (
             <div className="space-y-6">
-              <div className="p-4 rounded-md border border-zinc-800 bg-zinc-900 flex items-center gap-4">
-                <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center text-black font-bold text-lg">
+              <div className="p-4 rounded-lg border border-border bg-card flex items-center gap-4 shadow-sm">
+                <div className="h-10 w-10 rounded-full bg-[#E8400C] flex items-center justify-center text-white font-bold text-lg">
                   {savedStore.store_name[0].toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500">Active Store</p>
-                  <p className="text-white font-medium">{savedStore.store_name}</p>
+                  <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground">Active Store</p>
+                  <p className="text-foreground font-medium">{savedStore.store_name}</p>
                 </div>
               </div>
 
               <form onSubmit={handlePinLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="pin" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Quick Pin Access</Label>
+                  <Label htmlFor="pin" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">Quick Pin Access</Label>
                   <Input
                     id="pin"
                     type="password"
@@ -269,16 +269,16 @@ function LoginContent() {
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
                     required
-                    className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-11 px-4 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 text-center text-xl tracking-[1em]"
+                    className="bg-background border border-border rounded-md text-sm text-foreground h-11 px-4 w-full placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C] text-center text-xl tracking-[1em] font-mono"
                   />
                 </div>
-                <Button type="submit" className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-11 w-full text-xs font-semibold tracking-[0.15em] uppercase" disabled={pinLoading}>
+                <Button type="submit" className="bg-[#E8400C] text-white hover:bg-[#c73508] rounded-md h-11 w-full text-xs font-semibold tracking-[0.15em] uppercase border-none" disabled={pinLoading}>
                   {pinLoading ? "Authenticating..." : "Open POS"}
                 </Button>
                 <button
                   type="button"
                   onClick={() => setShowEmailPassword(true)}
-                  className="w-full text-xs text-zinc-500 hover:text-white transition-colors py-2 uppercase tracking-widest"
+                  className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-2 uppercase tracking-widest"
                 >
                   Switch User or Login via Email
                 </button>
@@ -287,7 +287,7 @@ function LoginContent() {
           ) : (
             <form onSubmit={showEmailPassword ? handleLogin : handleInitialEmailCheck} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Email Address</Label>
+                <Label htmlFor="email" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">Email Address</Label>
                 <Input
                   id="email"
                   type="email"
@@ -296,18 +296,18 @@ function LoginContent() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-11 px-4 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                  className="bg-background border border-border rounded-md text-sm text-foreground h-11 px-4 w-full placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C]"
                 />
               </div>
 
               {showEmailPassword && (
                 <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Password</Label>
+                    <Label htmlFor="password" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">Password</Label>
                     <button
                       type="button"
                       onClick={handleForgotPassword}
-                      className="text-[0.65rem] font-semibold tracking-[0.1em] uppercase text-zinc-500 hover:text-zinc-100"
+                      className="text-[0.65rem] font-semibold tracking-[0.1em] uppercase text-muted-foreground hover:text-foreground"
                     >
                       Forgot?
                     </button>
@@ -320,36 +320,36 @@ function LoginContent() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={isLoading}
-                    className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-11 px-4 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                    className="bg-background border border-border rounded-md text-sm text-foreground h-11 px-4 w-full placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C]"
                   />
                   <div className="flex items-center space-x-2 pt-2">
                     <Checkbox
                       id="rememberMe"
                       checked={rememberMe}
                       onCheckedChange={(checked) => setRememberMe(!!checked)}
-                      className="border-zinc-700 data-[state=checked]:bg-white data-[state=checked]:text-black rounded-none"
+                      className="border-border data-[state=checked]:bg-[#E8400C] data-[state=checked]:border-[#E8400C] data-[state=checked]:text-white rounded-sm"
                     />
-                    <label htmlFor="rememberMe" className="text-[0.7rem] leading-none text-zinc-500 font-medium">
+                    <label htmlFor="rememberMe" className="text-[0.7rem] leading-none text-muted-foreground font-medium">
                       Keep me signed in
                     </label>
                   </div>
                 </div>
               )}
 
-              <Button type="submit" className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-11 w-full text-xs font-semibold tracking-[0.15em] uppercase mt-4" disabled={isLoading}>
+              <Button type="submit" className="bg-[#E8400C] text-white hover:bg-[#c73508] rounded-md h-11 w-full text-xs font-semibold tracking-[0.15em] uppercase mt-4 border-none" disabled={isLoading}>
                 {isLoading ? "Authenticating..." : "Continue"}
               </Button>
             </form>
           )}
 
-          <div className="w-full h-px bg-zinc-800 my-6" />
+          <div className="w-full h-px bg-border my-6" />
 
           <div className="text-center lg:text-left">
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-muted-foreground">
               New to the platform?{" "}
               <Link
                 href="/signup"
-                className="text-sm font-semibold text-zinc-100 hover:text-white"
+                className="text-sm font-semibold text-foreground hover:text-[#E8400C] transition-colors"
               >
                 Create an account
               </Link>
@@ -368,7 +368,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center text-white font-editorial text-2xl animate-pulse">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center text-foreground font-sans text-2xl animate-pulse tracking-tight font-bold">Loading...</div>}>
       <LoginContent />
     </Suspense>
   )

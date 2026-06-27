@@ -14,7 +14,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
   return (
     <BadgeProvider>
-      <div className="flex h-screen bg-[#0a0a0a] text-white overflow-hidden relative">
+      <div className="flex h-screen bg-background text-foreground font-sans overflow-hidden relative">
         <Toaster position="bottom-right" />
         
         {/* Mobile overlay backdrop */}

@@ -95,23 +95,23 @@ export default function SendReportModal({ report, onClose, onSuccess }: SendRepo
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[400] flex items-center justify-center p-4">
-      <div className="bg-[#0d0d0d] border border-[#1f1f1f] rounded-2xl w-full max-w-lg shadow-2xl animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[400] flex items-center justify-center p-4 font-sans">
+      <div className="bg-card border border-border rounded-lg w-full max-w-lg shadow-2xl animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex justify-between items-center px-6 py-4 border-b border-[#1f1f1f]">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-border bg-muted/40">
           <div className="flex items-center gap-2">
-            <Send className="w-5 h-5 text-[#22c55e]" />
-            <h2 className="text-white font-bold tracking-tight">Send via WhatsApp</h2>
+            <Send className="w-5 h-5 text-[#E8400C]" />
+            <h2 className="text-foreground font-bold tracking-tight">Send via WhatsApp</h2>
           </div>
-          <button onClick={onClose} className="text-[#444] hover:text-white transition-colors">
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Wizard Progress */}
-        <div className="px-6 py-4 flex gap-1">
+        <div className="px-6 py-4 flex gap-1 bg-background">
           {[1, 2, 3].map(i => (
-            <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${step >= i ? "bg-[#22c55e]" : "bg-[#1f1f1f]"}`} />
+            <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${step >= i ? "bg-[#E8400C]" : "bg-muted"}`} />
           ))}
         </div>
 
@@ -120,25 +120,25 @@ export default function SendReportModal({ report, onClose, onSuccess }: SendRepo
           {step === 1 && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <div className="text-[10px] text-[#444] uppercase font-bold tracking-[0.2em]">Select Recipients</div>
+                <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Select Recipients</div>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#444]" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input 
                     type="text"
                     placeholder="Search contacts..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full bg-white/5 border border-[#1f1f1f] rounded-lg pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#22c55e]"
+                    className="w-full bg-background border border-border rounded-md pl-10 pr-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-foreground/40 font-medium"
                   />
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-[#666] uppercase font-bold tracking-widest">{filtered.length} Contacts found</span>
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{filtered.length} Contacts found</span>
                   <button 
                     onClick={toggleAll}
-                    className="text-[10px] text-[#22c55e] font-black uppercase tracking-widest hover:underline"
+                    className="text-[10px] text-[#E8400C] font-bold uppercase tracking-wider hover:underline cursor-pointer"
                   >
                     {selectedIds.length === filtered.length ? "Deselect All" : "Select All for Merchant"}
                   </button>
@@ -146,28 +146,28 @@ export default function SendReportModal({ report, onClose, onSuccess }: SendRepo
 
                 <div className="space-y-2 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
                   {isLoading ? (
-                    <div className="py-12 flex justify-center"><Loader2 className="w-6 h-6 text-[#22c55e] animate-spin" /></div>
+                    <div className="py-12 flex justify-center"><Loader2 className="w-6 h-6 text-[#E8400C] animate-spin" /></div>
                   ) : filtered.map(convo => (
                     <button
                       key={convo.id}
                       onClick={() => setSelectedIds(ids => ids.includes(convo.id) ? ids.filter(i => i !== convo.id) : [...ids, convo.id])}
-                      className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all ${
+                      className={`w-full flex items-center justify-between p-3 rounded-md border transition-all cursor-pointer ${
                         selectedIds.includes(convo.id) 
-                          ? "bg-[#22c55e]/5 border-[#22c55e] text-white" 
-                          : "bg-white/5 border-[#1f1f1f] text-[#444] hover:border-[#333]"
+                          ? "bg-accent border-[#E8400C] text-foreground shadow-sm" 
+                          : "bg-background border-border text-muted-foreground hover:border-foreground/40"
                       }`}
                     >
                       <div className="flex items-center gap-3 text-left">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${selectedIds.includes(convo.id) ? "bg-[#22c55e] text-black" : "bg-white/5 text-[#444]"}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${selectedIds.includes(convo.id) ? "bg-[#E8400C] text-white" : "bg-muted text-muted-foreground"}`}>
                           <User className="w-4 h-4" />
                         </div>
                         <div>
-                          <p className={`text-xs font-bold leading-none mb-1 ${selectedIds.includes(convo.id) ? "text-white" : "text-[#888]"}`}>{convo.contact_name}</p>
-                          <p className="text-[10px] text-[#444]">{convo.contact_phone}</p>
+                          <p className={`text-xs font-bold leading-none mb-1 ${selectedIds.includes(convo.id) ? "text-foreground" : "text-muted-foreground"}`}>{convo.contact_name}</p>
+                          <p className="text-[10px] text-muted-foreground/80">{convo.contact_phone}</p>
                         </div>
                       </div>
-                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedIds.includes(convo.id) ? "bg-[#22c55e] border-[#22c55e]" : "border-[#1f1f1f]"}`}>
-                        {selectedIds.includes(convo.id) && <Check className="w-2.5 h-2.5 text-black" />}
+                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedIds.includes(convo.id) ? "bg-[#E8400C] border-[#E8400C]" : "border-border"}`}>
+                        {selectedIds.includes(convo.id) && <Check className="w-2.5 h-2.5 text-white" />}
                       </div>
                     </button>
                   ))}
@@ -179,25 +179,25 @@ export default function SendReportModal({ report, onClose, onSuccess }: SendRepo
           {step === 2 && (
             <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
                <div className="space-y-2">
-                 <div className="text-[10px] text-[#444] uppercase font-bold tracking-[0.2em]">Template Preview</div>
-                 <div className="p-5 rounded-2xl bg-[#111] border border-[#1f1f1f] border-dashed space-y-4">
+                 <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Template Preview</div>
+                 <div className="p-5 rounded-md bg-muted/40 border border-border border-dashed space-y-4">
                     <div className="flex items-center gap-2">
-                       <span className="px-1.5 py-0.5 rounded bg-[#22c55e]/10 text-[#22c55e] text-[8px] font-black uppercase tracking-widest border border-[#22c55e]/20">
+                       <span className="px-1.5 py-0.5 rounded bg-[#E8400C]/10 text-[#E8400C] text-[9px] font-bold uppercase tracking-wider border border-[#E8400C]/20">
                          {report.report_type}_sales_report
                        </span>
-                       <span className="text-[9px] text-[#444] font-bold uppercase tracking-widest">WhatsApp Template</span>
+                       <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">WhatsApp Template</span>
                     </div>
-                    <p className="text-sm text-[#888] italic leading-relaxed">
+                    <p className="text-sm text-foreground italic leading-relaxed">
                        "{getTemplatePreview()}"
                     </p>
                  </div>
                </div>
 
                <div className="space-y-4">
-                  <div className="text-[10px] text-[#444] uppercase font-bold tracking-[0.2em]">Recipients Summary</div>
-                  <div className="flex items-center gap-2 p-4 rounded-xl bg-[#22c55e]/5 border border-[#22c55e]/10">
-                     <Users className="w-5 h-5 text-[#22c55e]" />
-                     <p className="text-xs text-white">This report will be sent to <span className="font-bold">{selectedIds.length}</span> individual contacts.</p>
+                  <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Recipients Summary</div>
+                  <div className="flex items-center gap-2 p-4 rounded-md bg-[#E8400C]/10 border border-[#E8400C]/20">
+                     <Users className="w-5 h-5 text-[#E8400C]" />
+                     <p className="text-xs text-foreground">This report will be sent to <span className="font-bold">{selectedIds.length}</span> individual contacts.</p>
                   </div>
                </div>
             </div>
@@ -205,21 +205,21 @@ export default function SendReportModal({ report, onClose, onSuccess }: SendRepo
 
           {step === 3 && results && (
             <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 py-10 text-center">
-               <div className="w-16 h-16 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Check className="w-8 h-8 text-[#22c55e]" />
+               <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Check className="w-8 h-8 text-emerald-500" />
                </div>
                <div className="space-y-2">
-                  <h3 className="text-white text-xl font-bold tracking-tight">Distribution Complete</h3>
-                  <p className="text-sm text-[#666]">{results.summary}</p>
+                  <h3 className="text-foreground text-xl font-bold tracking-tight">Distribution Complete</h3>
+                  <p className="text-sm text-muted-foreground">{results.summary}</p>
                </div>
                
                <div className="space-y-2 pt-4">
                   {results.results.map((r, i) => (
-                    <div key={i} className="flex items-center justify-between p-2 rounded bg-white/5 text-[10px]">
-                       <span className="text-[#888]">{r.conversationId}</span>
+                    <div key={i} className="flex items-center justify-between p-2 rounded bg-muted/40 text-[10px] font-mono">
+                       <span className="text-muted-foreground">{r.conversationId}</span>
                        {r.status === "success" 
-                         ? <span className="text-[#22c55e] font-black">SENT</span>
-                         : <span className="text-red-400 font-black">FAILED</span>
+                         ? <span className="text-emerald-500 font-bold">SENT</span>
+                         : <span className="text-destructive font-bold">FAILED</span>
                        }
                     </div>
                   ))}
@@ -229,11 +229,11 @@ export default function SendReportModal({ report, onClose, onSuccess }: SendRepo
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-[#1f1f1f] flex gap-3">
+        <div className="px-6 py-4 border-t border-border bg-muted/40 flex gap-3">
           {step < 3 && (
             <button
               onClick={step === 1 ? onClose : () => setStep(1)}
-              className="flex-1 py-3 rounded-xl border border-[#1f1f1f] text-[10px] font-black uppercase tracking-widest text-[#444] hover:text-white transition-all capitalize"
+              className="flex-1 py-2.5 rounded-md border border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground hover:bg-accent transition-all cursor-pointer"
             >
               {step === 1 ? "Cancel" : "Back"}
             </button>
@@ -243,7 +243,7 @@ export default function SendReportModal({ report, onClose, onSuccess }: SendRepo
             <button
               onClick={() => setStep(2)}
               disabled={selectedIds.length === 0}
-              className="flex-2 py-3 bg-[#22c55e] text-black rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+              className="flex-2 py-2.5 bg-[#E8400C] text-white rounded-md text-xs font-semibold uppercase tracking-wider disabled:opacity-50 transition-all flex items-center justify-center gap-2 hover:bg-[#c73508] cursor-pointer shadow-sm"
             >
               Continue to Preview
               <ChevronRight className="w-4 h-4" />
@@ -254,7 +254,7 @@ export default function SendReportModal({ report, onClose, onSuccess }: SendRepo
             <button
               onClick={handleSend}
               disabled={isSending}
-              className="flex-2 py-3 bg-[#22c55e] text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:shadow-xl hover:shadow-[#22c55e]/10 transition-all flex items-center justify-center gap-2"
+              className="flex-2 py-2.5 bg-[#E8400C] text-white rounded-md text-xs font-semibold uppercase tracking-wider hover:bg-[#c73508] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm disabled:opacity-50"
             >
               {isSending ? (
                 <>
@@ -273,7 +273,7 @@ export default function SendReportModal({ report, onClose, onSuccess }: SendRepo
           {step === 3 && (
             <button
               onClick={onClose}
-              className="w-full py-3 bg-white/5 border border-[#1f1f1f] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all"
+              className="w-full py-2.5 bg-background border border-border text-foreground rounded-md text-xs font-semibold uppercase tracking-wider hover:bg-accent transition-all cursor-pointer"
             >
               Close Distribution Tool
             </button>

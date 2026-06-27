@@ -94,10 +94,10 @@ export function Receipt({
   const displayTotal = total
 
   return (
-    <div className="mx-auto max-w-md bg-white p-6 print:p-4 print:bg-white" id="receipt">
+    <div className="mx-auto max-w-md bg-card text-card-foreground border border-border rounded-lg p-6 shadow-sm print:border-none print:bg-white print:text-black print:shadow-none print:p-4" id="receipt">
       {/* Logo - when enabled in settings; StorageImage handles signed URLs for Supabase storage */}
       {logoUrl && (
-        <div className="mb-4 flex justify-center border-b border-zinc-200 pb-4">
+        <div className="mb-4 flex justify-center border-b border-border print:border-black pb-4">
           <div className="relative h-20 w-40">
             <StorageImage
               src={logoUrl}
@@ -111,56 +111,56 @@ export function Receipt({
       )}
 
       {/* Receipt Header */}
-      <div className={`border-b border-zinc-100 pb-4 text-center ${logoUrl ? "" : "mb-4"}`}>
-        <h1 className="font-sans text-xl font-bold tracking-tight text-zinc-900">
+      <div className={`border-b border-border print:border-black pb-4 text-center ${logoUrl ? "" : "mb-4"}`}>
+        <h1 className="font-sans text-xl font-bold tracking-tight text-foreground print:text-black">
           {storeName?.trim() || businessName?.trim() || "Receipt"}
         </h1>
         {(businessName?.trim() || businessAddress?.trim() || businessPhone?.trim()) && (
-          <div className="mt-1 text-xs text-zinc-600 space-y-0.5">
+          <div className="mt-1 text-xs text-muted-foreground print:text-gray-600 space-y-0.5">
             {businessName?.trim() && <p>{businessName.trim()}</p>}
             {businessAddress?.trim() && <p>{businessAddress.trim()}</p>}
             {businessPhone?.trim() && <p>{businessPhone.trim()}</p>}
           </div>
         )}
-        <p className="mt-1 text-sm text-zinc-600">
+        <p className="mt-1 text-sm text-muted-foreground print:text-gray-600">
           {receiptHeader?.trim() || "Thank you for your purchase!"}
         </p>
       </div>
 
       {/* Receipt Info */}
       <div className="mb-4 space-y-0.5 text-sm">
-        <div className="flex justify-between py-2 border-b border-zinc-100">
-          <span className="text-zinc-500">Store:</span>
-          <span className="font-semibold text-zinc-900">{storeName}</span>
+        <div className="flex justify-between py-2 border-b border-border print:border-gray-300">
+          <span className="text-muted-foreground print:text-gray-600">Store:</span>
+          <span className="font-semibold text-foreground print:text-black">{storeName}</span>
         </div>
-        <div className="flex justify-between py-2 border-b border-zinc-100">
-          <span className="text-zinc-500">Receipt #:</span>
-          <span className="font-semibold text-zinc-900">{receiptNumber}</span>
+        <div className="flex justify-between py-2 border-b border-border print:border-gray-300">
+          <span className="text-muted-foreground print:text-gray-600">Receipt #:</span>
+          <span className="font-semibold text-foreground print:text-black">{receiptNumber}</span>
         </div>
-        <div className="flex justify-between py-2 border-b border-zinc-100">
-          <span className="text-zinc-500">Date:</span>
-          <span className="font-semibold text-zinc-900">{formatDate(new Date())}</span>
+        <div className="flex justify-between py-2 border-b border-border print:border-gray-300">
+          <span className="text-muted-foreground print:text-gray-600">Date:</span>
+          <span className="font-semibold text-foreground print:text-black">{formatDate(new Date())}</span>
         </div>
-        <div className="flex justify-between py-2 border-b border-zinc-100">
-          <span className="text-zinc-500">Payment:</span>
-          <span className="font-semibold capitalize text-zinc-900">{paymentMethod}</span>
+        <div className="flex justify-between py-2 border-b border-border print:border-gray-300">
+          <span className="text-muted-foreground print:text-gray-600">Payment:</span>
+          <span className="font-semibold capitalize text-foreground print:text-black">{paymentMethod}</span>
         </div>
       </div>
 
       {/* Items */}
-      <div className="mb-4 border-t border-zinc-300 pt-4">
+      <div className="mb-4 border-t border-border print:border-black pt-4">
         <div className="space-y-2">
           {cart.map((item) => (
             <div key={item.cartItemId} className="flex justify-between text-sm">
               <div className="flex-1">
-                <p className="font-medium text-zinc-900">{item.styleName}</p>
-                <p className="text-xs text-zinc-600">
+                <p className="font-medium text-foreground print:text-black">{item.styleName}</p>
+                <p className="text-xs text-muted-foreground print:text-gray-600">
                   {item.size} / {item.color} - SKU: {item.sku}
                 </p>
-                <p className="text-xs text-zinc-500">Qty: {item.quantity}</p>
+                <p className="text-xs text-muted-foreground print:text-gray-500">Qty: {item.quantity}</p>
               </div>
               <div className="ml-4 text-right">
-                <p className="font-medium text-zinc-900">
+                <p className="font-mono text-sm font-medium text-foreground print:text-black tabular-nums">
                   {formatPrice(item.price * item.quantity)}
                 </p>
               </div>
@@ -170,27 +170,27 @@ export function Receipt({
       </div>
 
       {/* Totals */}
-      <div className="mb-4 border-t-2 border-zinc-900 pt-4">
+      <div className="mb-4 border-t-2 border-foreground print:border-black pt-4">
         <div className="space-y-1 text-sm">
           <div className="flex justify-between">
-            <span className="text-zinc-600">
+            <span className="text-muted-foreground print:text-gray-600">
               {taxInclusive ? "Subtotal (ex tax):" : "Subtotal:"}
             </span>
-            <span className="text-zinc-900">{formatPrice(displaySubtotal)}</span>
+            <span className="font-mono text-foreground print:text-black tabular-nums">{formatPrice(displaySubtotal)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-zinc-600">Tax ({taxRatePercent}%):</span>
-            <span className="text-zinc-900">{formatPrice(displayTax)}</span>
+            <span className="text-muted-foreground print:text-gray-600">Tax ({taxRatePercent}%):</span>
+            <span className="font-mono text-foreground print:text-black tabular-nums">{formatPrice(displayTax)}</span>
           </div>
-          <div className="flex justify-between border-t border-zinc-300 pt-2 text-base font-bold">
-            <span className="text-zinc-900">Total:</span>
-            <span className="text-zinc-900">{formatPrice(displayTotal)}</span>
+          <div className="flex justify-between border-t border-border print:border-black pt-2 text-base font-bold">
+            <span className="text-foreground print:text-black">Total:</span>
+            <span className="font-mono text-foreground print:text-black tabular-nums">{formatPrice(displayTotal)}</span>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="border-t border-zinc-300 pt-4 text-center text-xs text-zinc-600">
+      <div className="border-t border-border print:border-black pt-4 text-center text-xs text-muted-foreground print:text-gray-600">
         {receiptFooter?.trim() ? (
           receiptFooter.split("\n").map((line, i) => (
             <p key={i} className={i > 0 ? "mt-1" : ""}>
@@ -204,13 +204,13 @@ export function Receipt({
           </>
         )}
         {returnPolicy?.trim() && (
-          <p className="mt-3 text-zinc-500">{returnPolicy.trim()}</p>
+          <p className="mt-3 text-muted-foreground print:text-gray-500">{returnPolicy.trim()}</p>
         )}
       </div>
 
       {/* Powered by */}
-      <p className="mt-4 text-center text-[10px] text-zinc-500">
-        Powered by <span style={{ color: "#6b0005" }}>VendoFlow</span>
+      <p className="mt-4 text-center text-[10px] text-muted-foreground print:text-gray-500">
+        Powered by <span className="text-[#E8400C] print:text-black font-semibold">VendoFlow</span>
       </p>
 
       {/* Print Styles */}

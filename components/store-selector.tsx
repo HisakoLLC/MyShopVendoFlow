@@ -188,23 +188,23 @@ export function StoreSelector({ className }: StoreSelectorProps) {
       )}
       aria-label="Store selector"
     >
-      <span className="inline-flex shrink-0 items-center text-sm font-medium text-zinc-800 dark:text-zinc-100">
+      <span className="inline-flex shrink-0 items-center text-sm font-medium text-foreground">
         <span className="mr-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
           <MapPin className="h-3 w-3" aria-hidden="true" />
         </span>
-        <span className="mr-1 text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+        <span className="mr-1 text-xs uppercase tracking-wide text-muted-foreground">
           Store
         </span>
       </span>
 
       {loading ? (
-        <div className="h-8 w-full min-w-0 animate-pulse rounded-md bg-zinc-100 dark:bg-zinc-800" />
+        <div className="h-8 w-full min-w-0 animate-pulse rounded-md bg-muted" />
       ) : error ? (
-        <span className="min-w-0 truncate text-xs text-red-600 dark:text-red-400" title={error}>
+        <span className="min-w-0 truncate text-xs text-destructive" title={error}>
           Store unavailable
         </span>
       ) : !currentStoreId || stores.length === 0 ? (
-        <span className="min-w-0 truncate text-xs text-zinc-500 dark:text-zinc-400">No store configured</span>
+        <span className="min-w-0 truncate text-xs text-muted-foreground">No store configured</span>
       ) : isStaffWithFixedStore ? (
         <span className="min-w-0 truncate rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
           {currentStoreName}

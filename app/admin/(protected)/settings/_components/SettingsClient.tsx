@@ -68,73 +68,73 @@ export default function SettingsClient({ initialSettings, whatsappPhoneId }: Set
     <PermissionGate 
       permission="settings_manage"
       fallback={
-        <div className="flex flex-col items-center justify-center py-32 border border-[#1f1f1f] border-dashed rounded-3xl bg-white/[0.01]">
-          <div className="w-16 h-16 rounded-full bg-[#111] border border-[#1f1f1f] flex items-center justify-center mb-6 shadow-2xl">
-            <Lock className="w-8 h-8 text-[#444]" />
+        <div className="flex flex-col items-center justify-center py-32 border border-border border-dashed rounded-lg bg-card/50 font-sans">
+          <div className="w-16 h-16 rounded-full bg-muted border border-border flex items-center justify-center mb-6 shadow-sm">
+            <Lock className="w-8 h-8 text-muted-foreground" />
           </div>
-          <h2 className="text-white text-xl font-bold tracking-tighter uppercase mb-3">System Access Restricted</h2>
-          <p className="text-[#444] text-[10px] font-black uppercase tracking-[0.2em] max-w-sm text-center border-t border-[#1f1f1f] pt-6 mt-2 leading-relaxed">
+          <h2 className="text-foreground text-xl font-bold tracking-tight uppercase mb-3">System Access Restricted</h2>
+          <p className="text-muted-foreground text-xs font-bold uppercase tracking-wider max-w-sm text-center border-t border-border pt-6 mt-2 leading-relaxed">
             Administrative configuration of the VendoFlow platform is reserved for senior system architects. Please contact your technical lead if you require access to these protocols.
           </p>
         </div>
       }
     >
-      <div className="max-w-4xl mx-auto space-y-12">
+      <div className="max-w-4xl mx-auto space-y-12 font-sans">
         <div>
-          <div className="text-[#444] text-[10px] font-black uppercase tracking-[0.2em] mb-1">System Configuration</div>
-          <h1 className="text-white text-3xl font-bold tracking-tighter">Settings</h1>
+          <div className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider mb-1">System Configuration</div>
+          <h1 className="text-foreground text-3xl font-bold tracking-tight">Settings</h1>
         </div>
 
         {/* WhatsApp Configuration */}
         <section className="space-y-6">
           <div className="flex items-center gap-3">
-             <MessageSquare className="w-5 h-5 text-[#22c55e]" />
-             <h2 className="text-white text-lg font-bold tracking-tight">WhatsApp Configuration</h2>
+             <MessageSquare className="w-5 h-5 text-[#E8400C]" />
+             <h2 className="text-foreground text-lg font-bold tracking-tight">WhatsApp Configuration</h2>
           </div>
           
-          <div className="bg-[#111] border border-[#1f1f1f] rounded-2xl overflow-hidden p-6 space-y-6">
+          <div className="bg-card border border-border rounded-lg overflow-hidden p-6 space-y-6 shadow-sm">
              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-1.5">
-                   <label className="text-[10px] text-[#444] uppercase font-bold tracking-widest">Phone Number ID</label>
+                   <label className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Phone Number ID</label>
                    <div className="flex items-center gap-2">
-                      <code className="text-xs text-white bg-white/5 px-2 py-1 rounded border border-[#1f1f1f] flex-1 truncate">{whatsappPhoneId || 'Not Configured'}</code>
-                      <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-[#22c55e]/10 border border-[#22c55e]/20 text-[#22c55e] text-[8px] font-black uppercase">
+                      <code className="text-xs text-foreground bg-muted/50 px-2 py-1 rounded border border-border flex-1 truncate font-mono">{whatsappPhoneId || 'Not Configured'}</code>
+                      <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-[#E8400C]/10 border border-[#E8400C]/20 text-[#E8400C] text-[9px] font-bold uppercase tracking-wider">
                          <CheckCircle className="w-3 h-3" /> Connected
                       </div>
                    </div>
                 </div>
-                <div className="space-y-1.5 opacity-50">
-                   <label className="text-[10px] text-[#444] uppercase font-bold tracking-widest">Meta API Status</label>
-                   <div className="text-xs text-[#666]">Meta Cloud API v18.0</div>
+                <div className="space-y-1.5 opacity-60">
+                   <label className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Meta API Status</label>
+                   <div className="text-xs text-muted-foreground font-medium">Meta Cloud API v18.0</div>
                 </div>
              </div>
 
-             <div className="pt-4 border-t border-[#1f1f1f]">
-                <div className="text-[10px] text-[#444] uppercase font-black tracking-widest mb-4">Approved Templates</div>
-                <div className="bg-black/40 border border-[#1f1f1f] rounded-xl overflow-hidden">
+             <div className="pt-4 border-t border-border">
+                <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-4">Approved Templates</div>
+                <div className="bg-background border border-border rounded-md overflow-hidden">
                    <table className="w-full text-left">
                       <thead>
-                         <tr className="bg-white/5 border-b border-[#1f1f1f] text-[9px] text-[#444] uppercase font-bold tracking-widest">
+                         <tr className="bg-muted/40 border-b border-border text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
                             <th className="px-4 py-3">Template Name</th>
                             <th className="px-4 py-3">Parameters</th>
                             <th className="px-4 py-3">Category</th>
                          </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#1f1f1f]">
+                      <tbody className="divide-y divide-border">
                          {templates.map(tmp => (
-                           <tr key={tmp.name} className="text-[10px] font-mono">
-                              <td className="px-4 py-3 text-white">{tmp.name}</td>
-                              <td className="px-4 py-3 text-[#555]">{tmp.params}</td>
+                           <tr key={tmp.name} className="text-xs font-mono">
+                              <td className="px-4 py-3 text-foreground font-semibold">{tmp.name}</td>
+                              <td className="px-4 py-3 text-muted-foreground">{tmp.params}</td>
                               <td className="px-4 py-3">
-                                 <span className="text-[8px] font-black uppercase text-[#444]">{tmp.type}</span>
+                                 <span className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider font-sans">{tmp.type}</span>
                               </td>
                            </tr>
                          ))}
                       </tbody>
                    </table>
                 </div>
-                <p className="mt-4 text-[10px] text-[#444] italic flex items-center gap-2">
-                  <Info className="w-3.5 h-3.5" />
+                <p className="mt-4 text-xs text-muted-foreground italic flex items-center gap-2">
+                  <Info className="w-3.5 h-3.5 text-[#E8400C]" />
                   Template changes require Meta approval. Contact your developer to add new templates.
                 </p>
              </div>
@@ -144,11 +144,11 @@ export default function SettingsClient({ initialSettings, whatsappPhoneId }: Set
         {/* Report Schedule */}
         <section className="space-y-6">
           <div className="flex items-center gap-3">
-             <Calendar className="w-5 h-5 text-blue-400" />
-             <h2 className="text-white text-lg font-bold tracking-tight">Automated Report Schedule</h2>
+             <Calendar className="w-5 h-5 text-blue-500" />
+             <h2 className="text-foreground text-lg font-bold tracking-tight">Automated Report Schedule</h2>
           </div>
           
-          <div className="bg-[#111] border border-[#1f1f1f] rounded-2xl p-6 space-y-8">
+          <div className="bg-card border border-border rounded-lg p-6 space-y-8 shadow-sm">
              <div className="space-y-6">
                 {[
                   { 
@@ -170,52 +170,52 @@ export default function SettingsClient({ initialSettings, whatsappPhoneId }: Set
                     current: initialSettings.report_schedule_monthly?.enabled ?? false 
                   }
                 ].map((sched) => (
-                  <div key={sched.key} className="flex items-center justify-between pb-6 border-b border-[#1f1f1f] last:border-0 last:pb-0">
+                  <div key={sched.key} className="flex items-center justify-between pb-6 border-b border-border last:border-0 last:pb-0">
                     <div className="space-y-1">
-                      <div className="text-sm font-bold text-white tracking-tight">{sched.title}</div>
-                      <div className="text-[10px] text-[#444] font-mono uppercase tracking-widest">{sched.sub}</div>
+                      <div className="text-sm font-bold text-foreground tracking-tight">{sched.title}</div>
+                      <div className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{sched.sub}</div>
                     </div>
                     <div className="flex items-center gap-4">
                       <button 
                         onClick={() => saveSetting(sched.key, { enabled: !sched.current })}
                         disabled={isSaving}
-                        className={`w-12 h-6 rounded-full transition-all relative ${sched.current ? 'bg-[#22c55e]' : 'bg-[#1f1f1f]'}`}
+                        className={`w-12 h-6 rounded-full transition-all relative cursor-pointer ${sched.current ? 'bg-[#E8400C]' : 'bg-muted'}`}
                       >
-                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${sched.current ? 'left-7 shadow-lg' : 'left-1'}`} />
+                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all shadow-sm ${sched.current ? 'left-7' : 'left-1'}`} />
                       </button>
                     </div>
                   </div>
                 ))}
              </div>
-             <p className="text-xs text-[#555] max-w-lg leading-relaxed pt-4 border-t border-[#1f1f1f]/50">
-               Reports are generated automatically at the scheduled intervals and appear as <span className="text-zinc-400 font-bold">DRAFTS</span> for administrative review. Ensure stakeholders are configured to receive these notifications.
+             <p className="text-xs text-muted-foreground max-w-lg leading-relaxed pt-4 border-t border-border">
+               Reports are generated automatically at the scheduled intervals and appear as <span className="text-foreground font-bold">DRAFTS</span> for administrative review. Ensure stakeholders are configured to receive these notifications.
              </p>
           </div>
         </section>
 
         {/* Notification Preferences */}
-        <section className="space-y-6 opacity-50 grayscale">
+        <section className="space-y-6 opacity-60">
           <div className="flex items-center gap-3">
-             <Bell className="w-5 h-5 text-purple-400" />
-             <h2 className="text-white text-lg font-bold tracking-tight">Notification Preferences</h2>
+             <Bell className="w-5 h-5 text-purple-500" />
+             <h2 className="text-foreground text-lg font-bold tracking-tight">Notification Preferences</h2>
           </div>
           
-          <div className="bg-[#111] border border-[#1f1f1f] rounded-2xl p-6 space-y-4">
+          <div className="bg-card border border-border rounded-lg p-6 space-y-4 shadow-sm">
              {[
                { label: "New WhatsApp Message", sub: "Email me when a customer initiates a conversation" },
                { label: "Report Approved", sub: "Email stakeholders when their report is approved" }
              ].map((pref, i) => (
-               <div key={i} className="flex items-center justify-between py-2 border-b border-[#1f1f1f] last:border-0 border-dashed">
+               <div key={i} className="flex items-center justify-between py-2 border-b border-border last:border-0 border-dashed">
                   <div className="space-y-0.5">
-                     <div className="text-xs font-bold text-[#888]">{pref.label}</div>
-                     <div className="text-[10px] text-[#444]">{pref.sub}</div>
+                     <div className="text-xs font-bold text-foreground">{pref.label}</div>
+                     <div className="text-[10px] text-muted-foreground">{pref.sub}</div>
                   </div>
-                  <div className="w-10 h-5 rounded-full bg-[#161616] border border-[#1f1f1f] flex items-center px-1">
-                     <div className="w-3 h-3 rounded-full bg-[#333]" />
+                  <div className="w-10 h-5 rounded-full bg-muted border border-border flex items-center px-1">
+                     <div className="w-3 h-3 rounded-full bg-muted-foreground/30" />
                   </div>
                </div>
              ))}
-             <div className="text-[10px] text-[#444] font-black uppercase tracking-widest pt-2">Coming Soon</div>
+             <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider pt-2">Coming Soon</div>
           </div>
         </section>
 
@@ -223,17 +223,17 @@ export default function SettingsClient({ initialSettings, whatsappPhoneId }: Set
         {isSuperAdmin && (
           <section className="space-y-6">
             <div className="flex items-center gap-3">
-               <ShieldAlert className="w-5 h-5 text-red-400" />
-               <h2 className="text-white text-lg font-bold tracking-tight">Danger Zone</h2>
+               <ShieldAlert className="w-5 h-5 text-destructive" />
+               <h2 className="text-foreground text-lg font-bold tracking-tight">Danger Zone</h2>
             </div>
             
-            <div className="bg-[#111] border border-red-900/40 rounded-2xl p-6">
+            <div className="bg-card border border-destructive/30 rounded-lg p-6 shadow-sm">
                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div className="space-y-1">
-                     <div className="text-sm font-bold text-white tracking-tight uppercase tracking-widest text-red-400">Export System Data</div>
-                     <p className="text-xs text-[#555] max-w-md">Generate a comprehensive export of all merchants, staff records, and financial transactions.</p>
+                     <div className="text-xs font-bold uppercase tracking-wider text-destructive">Export System Data</div>
+                     <p className="text-xs text-muted-foreground max-w-md">Generate a comprehensive export of all merchants, staff records, and financial transactions.</p>
                   </div>
-                  <button className="px-6 py-3 border border-red-900/40 text-[10px] font-black uppercase tracking-widest text-[#444] rounded-xl hover:bg-red-900/10 transition-all cursor-not-allowed grayscale">
+                  <button className="px-6 py-2.5 border border-destructive/30 text-xs font-semibold uppercase tracking-wider text-muted-foreground rounded-md hover:bg-destructive/10 transition-all cursor-not-allowed opacity-50">
                     Coming Soon
                   </button>
                </div>

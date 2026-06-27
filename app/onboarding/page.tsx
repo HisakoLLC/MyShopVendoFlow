@@ -304,7 +304,7 @@ function OnboardingContent() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 text-foreground">
       <Toaster richColors position="top-right" />
       <div className="w-full max-w-2xl space-y-8">
         {/* Progress Indicator */}
@@ -313,18 +313,18 @@ function OnboardingContent() {
             {[0, 1, 2, 3].map((s) => (
               <React.Fragment key={s}>
                 <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
+                  className={`flex h-10 w-10 items-center justify-center rounded-full border-2 font-semibold font-sans transition-all ${
                     step >= s
-                      ? "border-primary bg-primary text-white dark:border-primary dark:bg-primary dark:text-white"
-                      : "border-zinc-300 text-zinc-400 dark:border-zinc-700 dark:text-zinc-600"
+                      ? "border-[#E8400C] bg-[#E8400C] text-white shadow-sm"
+                      : "border-border text-muted-foreground bg-muted/40"
                   }`}
                 >
                   {s + 1}
                 </div>
                 {s < 3 && (
                   <div
-                    className={`h-1 w-16 ${
-                      step > s ? "bg-zinc-900 dark:bg-zinc-100" : "bg-zinc-300 dark:bg-zinc-700"
+                    className={`h-1 w-16 rounded-full transition-all ${
+                      step > s ? "bg-[#E8400C]" : "bg-border"
                     }`}
                   />
                 )}
@@ -346,7 +346,7 @@ function OnboardingContent() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button onClick={() => setStep(1)} className="w-full" size="lg">
+              <Button onClick={() => setStep(1)} className="w-full bg-[#E8400C] hover:bg-[#c73508] text-white border-none shadow-sm" size="lg">
                 Get started
               </Button>
             </CardContent>
@@ -396,7 +396,7 @@ function OnboardingContent() {
                   disabled={isLoading}
                   className="mt-1"
                 />
-                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                <p className="mt-1 text-xs text-muted-foreground">
                   Default: 16% VAT (Kenya standard)
                 </p>
               </div>
@@ -404,7 +404,7 @@ function OnboardingContent() {
                 <Button variant="outline" onClick={() => setStep(0)} disabled={isLoading}>
                   Back
                 </Button>
-                <Button onClick={handleStep1} className="flex-1" disabled={isLoading}>
+                <Button onClick={handleStep1} className="flex-1 bg-[#E8400C] hover:bg-[#c73508] text-white border-none shadow-sm" disabled={isLoading}>
                   {isLoading ? "Creating..." : "Next"}
                 </Button>
               </div>
@@ -427,14 +427,14 @@ function OnboardingContent() {
                     type="button"
                     onClick={() => toggleCategory(category)}
                     disabled={isLoading}
-                    className={`rounded-lg border p-3 text-left transition-colors ${
+                    className={`rounded-lg border p-3 text-left font-medium transition-all flex items-center gap-2 ${
                       selectedCategories.includes(category)
-                        ? "border-primary bg-primary text-white dark:border-primary dark:bg-primary dark:text-white"
-                        : "border-zinc-200 hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-600"
+                        ? "border-[#E8400C] bg-[#E8400C] text-white shadow-sm"
+                        : "border-border bg-card text-foreground hover:border-muted-foreground/50 hover:bg-accent"
                     }`}
                   >
                     {selectedCategories.includes(category) && (
-                      <Check className="mb-1 h-4 w-4" />
+                      <Check className="h-4 w-4 shrink-0" />
                     )}
                     {category}
                   </button>
@@ -482,7 +482,7 @@ function OnboardingContent() {
                 <Button variant="outline" onClick={() => setStep(1)} disabled={isLoading}>
                   Back
                 </Button>
-                <Button onClick={handleStep2} className="flex-1" disabled={isLoading}>
+                <Button onClick={handleStep2} className="flex-1 bg-[#E8400C] hover:bg-[#c73508] text-white border-none shadow-sm" disabled={isLoading}>
                   {isLoading ? "Creating..." : "Next"}
                 </Button>
               </div>
@@ -502,7 +502,7 @@ function OnboardingContent() {
             <CardContent className="space-y-3">
               <Button
                 onClick={handleGoToDashboard}
-                className="w-full"
+                className="w-full bg-[#E8400C] hover:bg-[#c73508] text-white border-none shadow-sm"
                 size="lg"
               >
                 Go to Dashboard
@@ -525,28 +525,28 @@ function OnboardingContent() {
                     key={plan.id}
                     className={`cursor-pointer transition-all ${
                       selectedPlan === plan.id
-                        ? "border-zinc-900 ring-2 ring-zinc-900 dark:border-zinc-100 dark:ring-zinc-100"
-                        : "hover:border-zinc-400 dark:hover:border-zinc-600"
-                    } ${plan.recommended ? "border-blue-500" : ""}`}
+                        ? "border-[#E8400C] ring-2 ring-[#E8400C] shadow-md bg-card"
+                        : "border-border hover:border-muted-foreground/50 bg-card"
+                    } ${plan.recommended && selectedPlan !== plan.id ? "border-[#E8400C]/40" : ""}`}
                     onClick={() => setSelectedPlan(plan.id)}
                   >
                     <CardHeader>
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg">{plan.name}</CardTitle>
+                        <CardTitle className="text-lg font-sans tracking-tight">{plan.name}</CardTitle>
                         {plan.recommended && (
-                          <Badge variant="default">Recommended</Badge>
+                          <Badge className="bg-[#E8400C] text-white hover:bg-[#c73508] border-none">Recommended</Badge>
                         )}
                       </div>
                       <div className="mt-2">
-                        <span className="text-2xl font-bold">KES {plan.price.toLocaleString()}</span>
-                        <span className="text-sm text-zinc-600 dark:text-zinc-400">/month</span>
+                        <span className="text-2xl font-bold font-mono text-foreground">KES {plan.price.toLocaleString()}</span>
+                        <span className="text-sm text-muted-foreground">/month</span>
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <ul className="space-y-2 text-sm">
+                      <ul className="space-y-2 text-sm text-foreground">
                         {plan.features.map((feature, idx) => (
                           <li key={idx} className="flex items-center gap-2">
-                            <Check className="h-4 w-4 text-green-600" />
+                            <Check className="h-4 w-4 text-[#E8400C] shrink-0" />
                             {feature}
                           </li>
                         ))}
@@ -562,7 +562,7 @@ function OnboardingContent() {
                 </Button>
                 <Button
                   onClick={handleStep3}
-                  className="flex-1"
+                  className="flex-1 bg-[#E8400C] hover:bg-[#c73508] text-white border-none shadow-sm"
                   disabled={isLoading || !selectedPlan}
                 >
                   {isLoading ? "Setting up..." : "Continue"}
@@ -579,9 +579,10 @@ function OnboardingContent() {
 export default function OnboardingPage() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 py-12">
+      <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 text-foreground">
         <div className="text-center">
-          <div className="text-lg font-semibold">Loading...</div>
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-[#E8400C] mx-auto mb-3" />
+          <div className="text-sm font-semibold text-muted-foreground">Loading...</div>
         </div>
       </div>
     }>

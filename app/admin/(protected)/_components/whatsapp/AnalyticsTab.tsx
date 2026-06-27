@@ -69,7 +69,7 @@ export default function AnalyticsTab() {
             <div className="grid grid-cols-4 gap-6">
               {[
                 { label: "Messages Sent", value: data?.stats?.sent, icon: ArrowUpRight, color: "text-[#22c55e]" },
-                { label: "Messages Received", value: data?.stats?.received, icon: ArrowDownLeft, color: "text-zinc-500" },
+                { label: "Messages Received", value: data?.stats?.received, icon: ArrowDownLeft, color: "text-muted-foreground" },
                 { label: "Active Channels", value: data?.stats?.activeConversations, icon: MessageSquare, color: "text-white" },
                 { label: "Response Rate", value: `${data?.stats?.responseRate}%`, icon: Zap, color: "text-amber-500" },
               ].map((stat, i) => (

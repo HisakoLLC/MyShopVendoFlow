@@ -11,7 +11,7 @@ function StatCard({
     emerald: { bg: "bg-emerald-500/5",  border: "border-emerald-500/20", text: "text-emerald-400",  dot: "bg-emerald-400" },
     amber:   { bg: "bg-amber-500/5",    border: "border-amber-500/20",   text: "text-amber-400",    dot: "bg-amber-400"   },
     red:     { bg: "bg-red-500/5",      border: "border-red-500/20",     text: "text-red-400",      dot: "bg-red-400"     },
-    zinc:    { bg: "bg-zinc-500/5",     border: "border-zinc-500/20",    text: "text-zinc-300",     dot: "bg-zinc-400"    },
+    zinc:    { bg: "bg-muted/10",     border: "border-border",    text: "text-foreground",     dot: "bg-muted-foreground"    },
   }
   const c = colorMap[color]
   return (

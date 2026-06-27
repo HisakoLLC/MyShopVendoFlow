@@ -25,12 +25,12 @@ export function EmptyState({
   const content = (
     <div className={cn("flex flex-col items-center justify-center py-12 text-center", className)}>
       {Icon && (
-        <div className="mb-4 rounded-full bg-zinc-100 p-4 dark:bg-zinc-800">
-          <Icon className="h-8 w-8 text-zinc-400 dark:text-zinc-500" />
+        <div className="mb-4 rounded-full bg-muted p-4">
+          <Icon className="h-8 w-8 text-muted-foreground" />
         </div>
       )}
-      <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{title}</h3>
-      <p className="mt-2 max-w-sm text-sm text-zinc-600 dark:text-zinc-400">{description}</p>
+      <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+      <p className="mt-2 max-w-sm text-sm text-muted-foreground">{description}</p>
       {action && (
         <div className="mt-6">
           {action.href ? (
@@ -46,7 +46,7 @@ export function EmptyState({
   )
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-background-card-light dark:border-border-dark dark:bg-background-card-dark">
+    <div className="rounded-xl border border-border bg-card text-card-foreground">
       {content}
     </div>
   )

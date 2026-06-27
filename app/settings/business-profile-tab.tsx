@@ -134,7 +134,7 @@ export function BusinessProfileTab({ account, businessSettings }: BusinessProfil
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Logo Upload */}
             <div className="space-y-4">
-              <label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">
+              <label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">
                 Business Logo
               </label>
               <div className="flex items-center gap-6">
@@ -145,7 +145,7 @@ export function BusinessProfileTab({ account, businessSettings }: BusinessProfil
                       alt="Business logo"
                       width={64}
                       height={64}
-                      className="w-16 h-16 rounded-md object-cover bg-zinc-800"
+                      className="w-16 h-16 rounded-md object-cover bg-muted"
                     />
                     <Button
                       type="button"

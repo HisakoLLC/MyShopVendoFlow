@@ -280,11 +280,11 @@ export default function ConversationView({
         <div className="flex items-center gap-4">
           <div className="relative group cursor-pointer" onClick={() => setShowStatusList(!showStatusList)}>
             <div className={`px-2 py-1 rounded border border-white/5 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all hover:bg-white/5 ${
-               conversation?.status === 'resolved' ? 'text-zinc-500' : 'text-[#22c55e]'
+               conversation?.status === 'resolved' ? 'text-muted-foreground' : 'text-[#22c55e]'
             }`}>
               <div className={`w-1.5 h-1.5 rounded-full ${
                 conversation?.status === 'open' ? 'bg-[#22c55e]' : 
-                conversation?.status === 'resolved' ? 'bg-zinc-600' : 'bg-amber-500'
+                conversation?.status === 'resolved' ? 'bg-muted' : 'bg-amber-500'
               }`} />
               {conversation?.status?.replace("_", " ")}
               <MoreVertical className="w-3 h-3 opacity-30" />
@@ -311,7 +311,7 @@ export default function ConversationView({
           {conversation?.status !== 'resolved' && (
             <button
               onClick={() => handleUpdateMeta({ status: 'resolved' })}
-              className="flex items-center gap-2 px-3 py-1 rounded bg-zinc-800 border border-white/5 text-[9px] font-black uppercase tracking-widest text-[#666] hover:text-white transition-all hover:bg-zinc-700"
+              className="flex items-center gap-2 px-3 py-1 rounded bg-secondary border border-border text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-all hover:bg-secondary/80"
               title="Resolve Chat"
             >
               <CheckCircle2 className="w-3 h-3" />
@@ -447,7 +447,7 @@ export default function ConversationView({
                             : "bg-white/5 border-white/10 hover:bg-white/10"
                         }`}
                       >
-                        <div className={`w-10 h-10 rounded flex items-center justify-center ${isInbound ? "bg-zinc-800" : "bg-[#22c55e]/20"}`}>
+                        <div className={`w-10 h-10 rounded flex items-center justify-center ${isInbound ? "bg-muted" : "bg-[#22c55e]/20"}`}>
                            <FileText className="w-5 h-5" />
                         </div>
                         <div className="flex-1 min-w-0">

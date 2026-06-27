@@ -36,7 +36,7 @@ export function AuthImageRotation() {
   const doesActiveImageExist = imageExists[activeImageUrl]
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-[2rem] bg-zinc-950 shadow-2xl">
+    <div className="relative h-full w-full overflow-hidden rounded-[2rem] bg-card shadow-2xl border border-border">
       <AnimatePresence mode="wait">
         <motion.div
           key={activeImageUrl}
@@ -53,8 +53,8 @@ export function AuthImageRotation() {
               className="absolute inset-0 w-full h-full object-cover object-center"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-900 to-black">
-              <span className="font-editorial text-zinc-800 text-6xl opacity-20 select-none">
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-background">
+              <span className="font-editorial text-muted-foreground text-6xl opacity-20 select-none">
                 Fashion Design
               </span>
             </div>

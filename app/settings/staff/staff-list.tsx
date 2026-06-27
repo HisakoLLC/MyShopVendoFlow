@@ -186,10 +186,11 @@ export function StaffList({ initialStaff, planTier, stores }: StaffListProps) {
       <Toaster 
         position="top-right"
         toastOptions={{
-          className: "bg-zinc-900 border border-emerald-400/20 rounded-lg px-4 py-3 flex items-center gap-3 shadow-none",
+          className: "bg-card border border-border text-foreground rounded-lg px-4 py-3 flex items-center gap-3 shadow-sm",
           style: {
-            background: "#18181b", // zinc-900
-            border: "1px solid rgba(52, 211, 153, 0.2)", // emerald-400/20
+            background: "var(--card)",
+            border: "1px solid var(--border)",
+            color: "var(--foreground)",
           },
         }}
       />

@@ -121,12 +121,12 @@ export function InventoryAdjustmentModal({
                     />
                   </FormControl>
                   <FormMessage />
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className="text-xs text-muted-foreground">
                     Use positive numbers to add stock, negative to remove.
                   </p>
                   {adjustment !== 0 && (
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                      New quantity: <span className={newQuantity < 0 ? "text-red-600 dark:text-red-400" : ""}>{newQuantity}</span>
+                    <p className="text-sm font-medium text-foreground">
+                      New quantity: <span className={newQuantity < 0 ? "text-destructive" : ""}>{newQuantity}</span>
                     </p>
                   )}
                 </FormItem>

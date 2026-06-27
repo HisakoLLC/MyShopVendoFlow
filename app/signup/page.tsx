@@ -122,20 +122,20 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex h-screen bg-zinc-950 overflow-hidden">
+    <div className="flex h-screen bg-background text-foreground overflow-hidden">
       <Toaster richColors position="top-right" />
       
       {/* Left form panel - scrollable */}
-      <div className="flex-1 lg:w-1/2 flex items-center justify-center px-8 py-12 overflow-y-auto h-full scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
+      <div className="flex-1 lg:w-1/2 flex items-center justify-center px-8 py-12 overflow-y-auto h-full scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
         <div className="w-full max-w-sm">
           <div className="mb-12 text-center">
-            <h1 className="font-editorial text-2xl font-bold text-zinc-50 mb-8 inline-block w-full">
+            <h1 className="font-sans text-2xl font-bold tracking-tight text-foreground mb-8 inline-block w-full">
               VendoFlow
             </h1>
-            <h2 className="font-editorial text-3xl font-bold text-zinc-50 mb-2">
+            <h2 className="font-sans text-3xl font-bold tracking-tight text-foreground mb-2">
               Join The Future Of Fashion.
             </h2>
-            <p className="text-sm text-zinc-500 mb-8">
+            <p className="text-sm text-muted-foreground mb-8">
               Create your account to start managing your boutique with precision.
             </p>
           </div>
@@ -143,7 +143,7 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="businessName" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Business Name</Label>
+                <Label htmlFor="businessName" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">Business Name</Label>
                 <Input
                   id="businessName"
                   placeholder="Boutique Name"
@@ -151,11 +151,11 @@ export default function SignupPage() {
                   onChange={(e) => setBusinessName(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-11 px-4 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                  className="bg-background border border-border rounded-md text-sm text-foreground h-11 px-4 w-full placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C]"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="yourName" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Your Name</Label>
+                <Label htmlFor="yourName" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">Your Name</Label>
                 <Input
                   id="yourName"
                   placeholder="John Doe"
@@ -163,13 +163,13 @@ export default function SignupPage() {
                   onChange={(e) => setYourName(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-11 px-4 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                  className="bg-background border border-border rounded-md text-sm text-foreground h-11 px-4 w-full placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C]"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Owner Email</Label>
+              <Label htmlFor="email" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">Owner Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -178,12 +178,12 @@ export default function SignupPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={isLoading}
-                className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-11 px-4 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                className="bg-background border border-border rounded-md text-sm text-foreground h-11 px-4 w-full placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C]"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Create Password</Label>
+              <Label htmlFor="password" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">Create Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -192,20 +192,20 @@ export default function SignupPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={isLoading}
-                className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-11 px-4 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                className="bg-background border border-border rounded-md text-sm text-foreground h-11 px-4 w-full placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C]"
               />
               {password && (
                 <div className="grid grid-cols-3 gap-2 mt-2">
                   {passwordStrength.checks.map((check, idx) => (
                     <div key={idx} className="flex flex-col gap-1">
-                      <div className={`h-1 rounded-full transition-colors ${check.met
-                          ? passwordStrength.score === 1 ? "bg-red-400"
-                            : passwordStrength.score === 2 ? "bg-amber-400"
-                              : "bg-emerald-400"
-                          : "bg-zinc-800"
+                      <div className={`h-1.5 rounded-full transition-colors ${check.met
+                          ? passwordStrength.score === 1 ? "bg-red-500"
+                            : passwordStrength.score === 2 ? "bg-amber-500"
+                              : "bg-[#E8400C]"
+                          : "bg-muted"
                         }`} />
-                      <span className="text-[0.6rem] font-semibold tracking-[0.1em] uppercase text-zinc-600 mt-1">
-                        {idx === 0 ? "8" : idx === 1 ? "Letter" : "Length"}
+                      <span className="text-[0.6rem] font-semibold tracking-[0.1em] uppercase text-muted-foreground mt-1">
+                        {idx === 0 ? "8+ Chars" : idx === 1 ? "Letter" : "Number"}
                       </span>
                     </div>
                   ))}
@@ -214,7 +214,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2 block">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2 block">Confirm Password</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -223,24 +223,24 @@ export default function SignupPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 disabled={isLoading}
-                className={`bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-11 px-4 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600 ${confirmPassword && password !== confirmPassword ? "border-red-900/50" : ""
+                className={`bg-background border rounded-md text-sm text-foreground h-11 px-4 w-full placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#E8400C] focus:border-[#E8400C] ${confirmPassword && password !== confirmPassword ? "border-red-500" : "border-border"
                   }`}
               />
             </div>
 
-            <Button type="submit" className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-11 w-full text-xs font-semibold tracking-[0.15em] uppercase mt-4" disabled={isLoading || passwordStrength.score < 3}>
+            <Button type="submit" className="bg-[#E8400C] text-white hover:bg-[#c73508] rounded-md h-11 w-full text-xs font-semibold tracking-[0.15em] uppercase mt-4 border-none shadow-sm" disabled={isLoading || passwordStrength.score < 3}>
               {isLoading ? "Provisioning Account..." : "Create Account"}
             </Button>
           </form>
 
-          <div className="w-full h-px bg-zinc-800 my-6" />
+          <div className="w-full h-px bg-border my-6" />
 
           <div className="text-center lg:text-left">
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-muted-foreground">
               Already have an account?{" "}
               <Link
                 href="/login"
-                className="text-sm font-semibold text-zinc-100 hover:text-white"
+                className="text-sm font-semibold text-foreground hover:text-[#E8400C] transition-colors"
               >
                 Sign in
               </Link>

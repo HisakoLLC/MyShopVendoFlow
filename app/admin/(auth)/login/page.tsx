@@ -31,70 +31,28 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#0a0a0a",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "1rem",
-        fontFamily:
-          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "384px",
-          backgroundColor: "#111111",
-          border: "1px solid #1f1f1f",
-          borderRadius: "12px",
-          padding: "2rem",
-        }}
-      >
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4 font-sans">
+      <div className="w-full max-w-sm bg-card border border-border rounded-lg p-8 shadow-sm">
         {/* Logo area */}
-        <div style={{ marginBottom: "1.5rem" }}>
-          <p
-            style={{
-              color: "#ffffff",
-              fontWeight: 700,
-              fontSize: "1.25rem",
-              margin: 0,
-              lineHeight: 1.2,
-            }}
-          >
+        <div className="mb-6">
+          <p className="text-foreground font-bold text-xl tracking-tight m-0 leading-tight">
             VendoFlow
           </p>
-          <p
-            style={{
-              color: "#666666",
-              fontSize: "0.65rem",
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
-              margin: "0.35rem 0 0 0",
-            }}
-          >
+          <p className="text-muted-foreground text-[0.65rem] font-semibold tracking-[0.15em] uppercase mt-1 m-0">
             Admin Console
           </p>
         </div>
 
         {/* Divider */}
-        <div
-          style={{
-            height: "1px",
-            backgroundColor: "#1f1f1f",
-            marginBottom: "1.75rem",
-          }}
-        />
+        <div className="h-px bg-border mb-7" />
 
         {/* Form */}
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Email */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+          <div className="flex flex-col gap-1.5">
             <label
               htmlFor="admin-email"
-              style={{ color: "#999999", fontSize: "0.75rem", fontWeight: 500 }}
+              className="text-muted-foreground text-xs font-semibold uppercase tracking-wider"
             >
               Email
             </label>
@@ -106,28 +64,15 @@ export default function AdminLoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@vendoflow.com"
-              style={{
-                backgroundColor: "#1a1a1a",
-                border: "1px solid #2a2a2a",
-                borderRadius: "6px",
-                color: "#ffffff",
-                fontSize: "0.875rem",
-                padding: "0.625rem 0.75rem",
-                outline: "none",
-                width: "100%",
-                boxSizing: "border-box",
-                transition: "border-color 0.15s",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#3a3a3a")}
-              onBlur={(e) => (e.target.style.borderColor = "#2a2a2a")}
+              className="bg-background border border-border rounded-md text-sm text-foreground px-3 py-2.5 outline-none w-full placeholder:text-muted-foreground/50 focus:border-[#E8400C] focus:ring-1 focus:ring-[#E8400C]/30 transition-all"
             />
           </div>
 
           {/* Password */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+          <div className="flex flex-col gap-1.5">
             <label
               htmlFor="admin-password"
-              style={{ color: "#999999", fontSize: "0.75rem", fontWeight: 500 }}
+              className="text-muted-foreground text-xs font-semibold uppercase tracking-wider"
             >
               Password
             </label>
@@ -139,20 +84,7 @@ export default function AdminLoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              style={{
-                backgroundColor: "#1a1a1a",
-                border: "1px solid #2a2a2a",
-                borderRadius: "6px",
-                color: "#ffffff",
-                fontSize: "0.875rem",
-                padding: "0.625rem 0.75rem",
-                outline: "none",
-                width: "100%",
-                boxSizing: "border-box",
-                transition: "border-color 0.15s",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#3a3a3a")}
-              onBlur={(e) => (e.target.style.borderColor = "#2a2a2a")}
+              className="bg-background border border-border rounded-md text-sm text-foreground px-3 py-2.5 outline-none w-full placeholder:text-muted-foreground/50 focus:border-[#E8400C] focus:ring-1 focus:ring-[#E8400C]/30 transition-all"
             />
           </div>
 
@@ -161,49 +93,20 @@ export default function AdminLoginPage() {
             id="admin-signin-btn"
             type="submit"
             disabled={loading}
-            style={{
-              marginTop: "0.25rem",
-              width: "100%",
-              backgroundColor: loading ? "#16a34a" : "#22c55e",
-              color: "#000000",
-              fontWeight: 600,
-              fontSize: "0.875rem",
-              padding: "0.65rem",
-              border: "none",
-              borderRadius: "6px",
-              cursor: loading ? "not-allowed" : "pointer",
-              opacity: loading ? 0.8 : 1,
-              transition: "background-color 0.15s, opacity 0.15s",
-            }}
+            className="mt-1 w-full bg-[#E8400C] hover:bg-[#c73508] disabled:opacity-50 text-white font-semibold text-sm py-2.5 px-4 rounded-md shadow-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
           >
             {loading ? "Signing in…" : "Sign in"}
           </button>
 
           {/* Inline error */}
           {error && (
-            <p
-              style={{
-                color: "#f87171",
-                fontSize: "0.8rem",
-                margin: 0,
-                textAlign: "center",
-                lineHeight: 1.4,
-              }}
-            >
+            <p className="text-destructive text-xs font-semibold m-0 text-center leading-relaxed">
               {error}
             </p>
           )}
 
           {/* Disclaimer */}
-          <p
-            style={{
-              color: "#444444",
-              fontSize: "0.7rem",
-              textAlign: "center",
-              margin: 0,
-              lineHeight: 1.5,
-            }}
-          >
+          <p className="text-muted-foreground/60 text-[0.7rem] text-center m-0 leading-relaxed pt-2">
             Admin access only. Unauthorized access is prohibited.
           </p>
         </form>

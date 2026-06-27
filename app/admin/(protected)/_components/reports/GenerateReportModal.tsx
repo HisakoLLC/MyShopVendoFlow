@@ -117,15 +117,15 @@ export default function GenerateReportModal({ onClose, onSuccess }: GenerateRepo
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
-      <div className="bg-[#0d0d0d] border border-[#1f1f1f] rounded-2xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4 font-sans">
+      <div className="bg-card border border-border rounded-lg w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200">
         {/* Header */}
-        <div className="flex justify-between items-center px-6 py-4 border-b border-[#1f1f1f]">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-border bg-muted/40">
           <div className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-[#22c55e]" />
-            <h2 className="text-white font-bold tracking-tight">Generate Report</h2>
+            <BarChart3 className="w-5 h-5 text-[#E8400C]" />
+            <h2 className="text-foreground font-bold tracking-tight">Generate Report</h2>
           </div>
-          <button onClick={onClose} className="text-[#444] hover:text-white transition-colors">
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -134,49 +134,49 @@ export default function GenerateReportModal({ onClose, onSuccess }: GenerateRepo
         <div className="p-6 space-y-6">
           {/* Searchable Merchant Selector */}
           <div className="space-y-2" ref={dropdownRef}>
-            <label className="text-[10px] text-[#444] uppercase font-bold tracking-[0.2em]">Select Merchant</label>
+            <label className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Select Merchant</label>
             
             <div className="relative">
               {isLoadingMerchants ? (
-                <div className="w-full bg-white/5 border border-[#1f1f1f] rounded-lg px-4 py-2.5 text-xs text-[#444] flex items-center gap-2">
-                  <Loader2 className="w-3 h-3 animate-spin" />
+                <div className="w-full bg-background border border-border rounded-md px-4 py-2.5 text-xs text-muted-foreground flex items-center gap-2">
+                  <Loader2 className="w-3 h-3 animate-spin text-[#E8400C]" />
                   Loading merchants...
                 </div>
               ) : merchantsError ? (
                 <button 
                   onClick={fetchMerchants}
-                  className="w-full bg-red-500/5 border border-red-500/20 rounded-lg px-4 py-2.5 text-xs text-red-500 flex items-center justify-between hover:bg-red-500/10 transition-colors"
+                  className="w-full bg-destructive/10 border border-destructive/20 rounded-md px-4 py-2.5 text-xs text-destructive flex items-center justify-between hover:bg-destructive/20 transition-colors cursor-pointer"
                 >
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-2 font-semibold">
                     <AlertCircle className="w-3 h-3" />
                     Failed to load merchants
                   </span>
-                  <span className="text-[9px] font-bold uppercase tracking-widest underline">Retry</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider underline">Retry</span>
                 </button>
               ) : (
                 <>
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     type="button"
-                    className={`w-full bg-white/5 border border-[#1f1f1f] rounded-lg px-4 py-2.5 text-sm text-left flex items-center justify-between hover:border-[#333] transition-colors ${selectedMerchant ? "text-white" : "text-[#444]"}`}
+                    className={`w-full bg-background border border-border rounded-md px-4 py-2.5 text-sm text-left flex items-center justify-between hover:border-foreground/40 transition-colors cursor-pointer ${selectedMerchant ? "text-foreground font-semibold" : "text-muted-foreground"}`}
                   >
                     <span className="truncate">
                       {selectedMerchant ? selectedMerchant.name : "Select a merchant..."}
                     </span>
-                    <ChevronDown className={`w-4 h-4 text-[#444] transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
                   </button>
 
                   {isDropdownOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-[#111] border border-[#1f1f1f] rounded-xl shadow-2xl z-[10] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div className="p-2 border-b border-[#1f1f1f] flex items-center gap-2 bg-white/[0.02]">
-                        <Search className="w-4 h-4 text-[#444]" />
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-md shadow-2xl z-[10] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="p-2 border-b border-border flex items-center gap-2 bg-muted/30">
+                        <Search className="w-4 h-4 text-muted-foreground" />
                         <input
                           autoFocus
                           type="text"
                           placeholder="Search merchants..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="bg-transparent border-none outline-none text-xs text-white placeholder-[#444] w-full py-1"
+                          className="bg-transparent border-none outline-none text-xs text-foreground placeholder-muted-foreground w-full py-1 font-medium"
                         />
                       </div>
                       <div className="max-h-[200px] overflow-y-auto p-1 custom-scrollbar">
@@ -189,8 +189,8 @@ export default function GenerateReportModal({ onClose, onSuccess }: GenerateRepo
                                 setIsDropdownOpen(false)
                                 setSearchQuery("")
                               }}
-                              className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors flex items-center justify-between group ${
-                                merchantId === m.id ? "bg-[#22c55e]/10 text-[#22c55e]" : "text-[#888] hover:bg-white/5 hover:text-white"
+                              className={`w-full text-left px-3 py-2 rounded-md text-xs transition-colors flex items-center justify-between group cursor-pointer ${
+                                merchantId === m.id ? "bg-[#E8400C]/10 text-[#E8400C] font-bold" : "text-foreground hover:bg-accent hover:text-foreground font-medium"
                               }`}
                             >
                               <span className="truncate">{m.name}</span>
@@ -199,8 +199,8 @@ export default function GenerateReportModal({ onClose, onSuccess }: GenerateRepo
                           ))
                         ) : (
                           <div className="py-8 text-center space-y-2">
-                             <Search className="w-6 h-6 text-[#1f1f1f] mx-auto" />
-                             <p className="text-[10px] text-[#444] uppercase font-bold tracking-widest">No merchants found</p>
+                             <Search className="w-6 h-6 text-muted-foreground/30 mx-auto" />
+                             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">No merchants found</p>
                           </div>
                         )}
                       </div>
@@ -213,16 +213,16 @@ export default function GenerateReportModal({ onClose, onSuccess }: GenerateRepo
 
           {/* Type Selector */}
           <div className="space-y-2">
-            <label className="text-[10px] text-[#444] uppercase font-bold tracking-[0.2em]">Report Type</label>
+            <label className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Report Type</label>
             <div className="grid grid-cols-3 gap-2">
               {(["daily", "weekly", "monthly"] as const).map(type => (
                 <button
                   key={type}
                   onClick={() => setReportType(type)}
-                  className={`py-2 rounded-lg border text-[10px] font-black uppercase tracking-widest transition-all ${
+                  className={`py-2 rounded-md border text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
                     reportType === type 
-                      ? "bg-[#22c55e]/10 border-[#22c55e] text-[#22c55e]" 
-                      : "bg-white/5 border-[#1f1f1f] text-[#444] hover:text-[#666]"
+                      ? "bg-[#E8400C]/10 border-[#E8400C] text-[#E8400C]" 
+                      : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-accent"
                   }`}
                 >
                   {type}
@@ -233,42 +233,42 @@ export default function GenerateReportModal({ onClose, onSuccess }: GenerateRepo
 
           {/* Period Selector */}
           <div className="space-y-2">
-            <label className="text-[10px] text-[#444] uppercase font-bold tracking-[0.2em]">
+            <label className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
               {reportType === "daily" ? "Select Date" : reportType === "weekly" ? "Select Week Starting" : "Select Month"}
             </label>
             <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#444]" />
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type={reportType === "monthly" ? "month" : "date"}
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full bg-white/5 border border-[#1f1f1f] rounded-lg pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#22c55e] transition-colors"
+                className="w-full bg-background border border-border rounded-md pl-10 pr-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-foreground/40 transition-colors font-medium"
               />
             </div>
-            <p className="text-[9px] text-[#444] italic">
+            <p className="text-[10px] text-muted-foreground italic">
               * Report will include all data for the selected {reportType} period.
             </p>
           </div>
 
           {/* Preview Placeholder */}
-          <div className="p-4 rounded-lg bg-[#111] border border-[#1f1f1f] border-dashed text-center space-y-2">
-             <div className="text-[9px] text-[#444] font-black uppercase tracking-[0.2em]">Extraction Scope</div>
-             <p className="text-[10px] text-[#666]">Revenue, store performance, top 5 products, and inventory snapshot will be analyzed.</p>
+          <div className="p-4 rounded-md bg-muted/30 border border-border border-dashed text-center space-y-2">
+             <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Extraction Scope</div>
+             <p className="text-xs text-muted-foreground">Revenue, store performance, top 5 products, and inventory snapshot will be analyzed.</p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-[#1f1f1f] flex gap-3">
+        <div className="px-6 py-4 border-t border-border bg-muted/40 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-lg border border-[#1f1f1f] text-[11px] font-black uppercase tracking-widest text-[#444] hover:text-white transition-all"
+            className="flex-1 py-2.5 rounded-md border border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground hover:bg-accent transition-all cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={handleGenerate}
             disabled={!merchantId || isGenerating}
-            className="flex-3 py-2.5 rounded-lg bg-[#22c55e] text-black font-black text-[11px] uppercase tracking-widest hover:shadow-xl hover:shadow-[#22c55e]/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-3 py-2.5 rounded-md bg-[#E8400C] text-white font-semibold text-xs uppercase tracking-wider hover:bg-[#c73508] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm cursor-pointer"
           >
             {isGenerating ? (
               <>

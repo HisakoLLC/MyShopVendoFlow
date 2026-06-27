@@ -104,18 +104,18 @@ function PinLoginContent() {
   const [error, setError] = React.useState<string | null>(null)
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background-light px-4 dark:bg-background-card-dark-dark">
-      <div className="w-full max-w-sm rounded-2xl border border-zinc-200 bg-background-card-light p-8 shadow-xl dark:border-border-dark dark:bg-background-card-dark-card-dark">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-foreground">
+      <div className="w-full max-w-sm rounded-xl border border-border bg-card p-8 shadow-sm text-card-foreground">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Staff PIN Login</h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+          <h1 className="text-2xl font-bold font-sans tracking-tight text-foreground">Staff PIN Login</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Enter your 6-digit PIN to sign in
           </p>
         </div>
 
         {timeoutMessage && (
-          <div className="mb-6 rounded-lg border-l-4 border-amber-500 bg-amber-50 p-4 dark:bg-amber-950/30">
-            <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+          <div className="mb-6 rounded-lg border-l-4 border-amber-500 bg-amber-500/10 p-4">
+            <p className="text-sm font-medium text-amber-200">
               {timeoutMessage}
             </p>
           </div>
@@ -124,16 +124,13 @@ function PinLoginContent() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex justify-center">
             <div
-              className="flex h-14 w-full max-w-[240px] items-center justify-center gap-1 rounded-xl border-2 border-zinc-200 bg-zinc-50 px-4 dark:border-zinc-700 dark:bg-background-card-dark"
+              className="flex h-14 w-full max-w-[240px] items-center justify-center gap-2 rounded-xl border border-border bg-muted/50 px-4"
               aria-label="PIN digits"
             >
               {[0, 1, 2, 3, 4, 5].map((i) => (
                 <span
                   key={i}
-                  className="h-2 w-2 rounded-full bg-zinc-400 dark:bg-zinc-500"
-                  style={{
-                    opacity: i < pin.length ? 1 : 0.3,
-                  }}
+                  className={`h-2.5 w-2.5 rounded-full transition-all ${i < pin.length ? "bg-[#E8400C] scale-110" : "bg-muted-foreground/30"}`}
                 />
               ))}
             </div>
@@ -149,7 +146,7 @@ function PinLoginContent() {
                 className={
                   d === ""
                     ? "pointer-events-none"
-                    : "flex h-14 items-center justify-center rounded-xl border border-zinc-200 bg-background text-xl font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:bg-background-card-dark dark:text-zinc-100 dark:hover:bg-zinc-700"
+                    : "flex h-14 items-center justify-center rounded-xl border border-border bg-background text-xl font-semibold font-mono text-foreground shadow-sm transition-all hover:bg-accent hover:border-muted-foreground/40 active:scale-95 disabled:opacity-50"
                 }
               >
                 {d}
@@ -162,22 +159,22 @@ function PinLoginContent() {
               type="button"
               onClick={handleClear}
               disabled={isLoading || pin.length === 0}
-              className="flex-1 rounded-xl border border-zinc-200 bg-zinc-100 py-3 text-sm font-medium text-zinc-700 hover:bg-zinc-200 disabled:opacity-50 dark:border-zinc-700 dark:bg-background-card-dark dark:text-zinc-300 dark:hover:bg-zinc-700"
+              className="flex-1 rounded-md border border-border bg-transparent py-3 text-xs font-semibold tracking-[0.12em] uppercase text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-50 transition-colors"
             >
               Clear
             </button>
             <button
               type="submit"
               disabled={isLoading || pin.length !== 6}
-              className="flex-1 items-center justify-center bg-zinc-900 text-white hover:bg-zinc-800 rounded-sm py-3 text-sm font-semibold tracking-[0.12em] uppercase transition-colors disabled:opacity-50"
+              className="flex-1 items-center justify-center bg-[#E8400C] text-white hover:bg-[#c73508] rounded-md py-3 text-xs font-semibold tracking-[0.12em] uppercase transition-colors disabled:opacity-50 border-none shadow-sm"
             >
               {isLoading ? "Signing in…" : "Login"}
             </button>
           </div>
         </form>
 
-        <p className="mt-6 text-center text-xs text-zinc-500 dark:text-zinc-400">
-          <Link href="/login" className="underline hover:text-zinc-700 dark:hover:text-zinc-300">
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          <Link href="/login" className="underline hover:text-foreground transition-colors">
             Owner login (email & password)
           </Link>
         </p>
@@ -188,10 +185,10 @@ function PinLoginContent() {
 
 function PinLoginFallback() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background-light px-4 dark:bg-background-card-dark-dark">
-      <div className="w-full max-w-sm rounded-2xl border border-zinc-200 bg-background-card-light p-8 shadow-xl dark:border-border-dark dark:bg-background-card-dark-card-dark">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-foreground">
+      <div className="w-full max-w-sm rounded-xl border border-border bg-card p-8 shadow-sm">
         <div className="flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-200 border-t-zinc-900 dark:border-zinc-700 dark:border-t-zinc-100" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-[#E8400C]" />
         </div>
       </div>
     </div>

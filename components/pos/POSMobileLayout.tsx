@@ -41,15 +41,15 @@ export function POSMobileLayout({ defaultStoreId, storeName, accountId }: POSMob
   }, [])
 
   return (
-    <div className="flex h-screen flex-col bg-background dark:bg-background">
+    <div className="flex h-screen flex-col bg-background">
       {/* Header */}
-      <div className="border-b border-zinc-200 bg-background p-4 dark:border-zinc-800 dark:bg-background">
+      <div className="border-b border-border bg-card p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 sm:text-2xl">
+            <h1 className="text-xl font-sans font-bold tracking-tight text-foreground sm:text-2xl">
               Point of Sale
             </h1>
-            <p className="text-xs text-zinc-600 dark:text-zinc-400 sm:text-sm">{storeName}</p>
+            <p className="text-xs text-muted-foreground sm:text-sm">{storeName}</p>
           </div>
           {/* Mobile: Cart button with badge */}
           {!isTablet && (

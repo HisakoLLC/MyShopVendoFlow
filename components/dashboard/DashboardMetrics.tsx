@@ -9,7 +9,7 @@ interface DashboardMetricsProps {
 export function DashboardMetrics({ topSellers }: DashboardMetricsProps) {
   if (topSellers.length === 0) {
     return (
-      <div className="flex h-[300px] items-center justify-center text-sm text-zinc-500 dark:text-zinc-400">
+      <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">
         No sales data available
       </div>
     )
@@ -25,7 +25,7 @@ export function DashboardMetrics({ topSellers }: DashboardMetricsProps) {
   return (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={chartData} layout="vertical">
-        <CartesianGrid strokeDasharray="3 3" className="stroke-zinc-200 dark:stroke-zinc-800" />
+        <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
         <XAxis
           type="number"
           className="text-xs"

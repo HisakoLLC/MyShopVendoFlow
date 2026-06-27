@@ -51,7 +51,7 @@ export default function BroadcastsTab() {
       case "sending": return "bg-amber-500/10 text-amber-500 border-amber-500/20"
       case "failed": return "bg-red-500/10 text-red-500 border-red-500/20"
       case "scheduled": return "bg-blue-500/10 text-blue-500 border-blue-500/20"
-      default: return "bg-zinc-500/10 text-zinc-500 border-zinc-500/20"
+      default: return "bg-muted text-muted-foreground border-border"
     }
   }
 

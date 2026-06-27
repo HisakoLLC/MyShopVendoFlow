@@ -81,46 +81,46 @@ function relativeTime(iso: string): string {
 // ─── Mini badge helpers ───────────────────────────────────────────────────────
 
 const PLAN_STYLES: Record<string, string> = {
-  starter: "bg-zinc-800 text-zinc-300 border border-zinc-700",
-  core:    "bg-blue-400/10 text-blue-400 border border-blue-400/20",
-  scale:   "bg-purple-400/10 text-purple-400 border border-purple-400/20",
-  trial:   "bg-amber-400/10 text-amber-400 border border-amber-400/20",
+  starter: "bg-muted text-muted-foreground border border-border",
+  core:    "bg-blue-500/10 text-blue-500 border border-blue-500/20",
+  scale:   "bg-purple-500/10 text-purple-500 border border-purple-500/20",
+  trial:   "bg-amber-500/10 text-amber-500 border border-amber-500/20",
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  active:    "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-  trial:     "bg-amber-500/10 text-amber-400 border border-amber-500/20",
-  past_due:  "bg-red-500/10 text-red-400 border border-red-500/20",
-  suspended: "bg-zinc-500/10 text-zinc-400 border border-zinc-500/20",
-  cancelled: "bg-zinc-500/10 text-zinc-400 border border-zinc-500/20",
+  active:    "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20",
+  trial:     "bg-amber-500/10 text-amber-500 border border-amber-500/20",
+  past_due:  "bg-destructive/10 text-destructive border border-destructive/20",
+  suspended: "bg-muted text-muted-foreground border border-border",
+  cancelled: "bg-muted text-muted-foreground border border-border",
 }
 
 const METHOD_STYLES: Record<string, string> = {
-  dodo_card: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
-  mpesa:     "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-  wire:      "bg-zinc-500/10 text-zinc-300 border border-zinc-500/20",
-  cash:      "bg-amber-500/10 text-amber-400 border border-amber-500/20",
-  waived:    "bg-purple-500/10 text-purple-400 border border-purple-500/20",
+  dodo_card: "bg-blue-500/10 text-blue-500 border border-blue-500/20",
+  mpesa:     "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20",
+  wire:      "bg-muted text-muted-foreground border border-border",
+  cash:      "bg-amber-500/10 text-amber-500 border border-amber-500/20",
+  waived:    "bg-purple-500/10 text-purple-500 border border-purple-500/20",
 }
 
 const INV_STATUS_STYLES: Record<string, string> = {
-  unpaid:  "bg-amber-500/10 text-amber-400 border border-amber-500/20",
-  paid:    "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-  overdue: "bg-red-500/10 text-red-400 border border-red-500/20",
-  waived:  "bg-zinc-500/10 text-zinc-400 border border-zinc-500/20",
-  void:    "bg-zinc-500/10 text-zinc-400 border border-zinc-500/20",
+  unpaid:  "bg-amber-500/10 text-amber-500 border border-amber-500/20",
+  paid:    "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20",
+  overdue: "bg-destructive/10 text-destructive border border-destructive/20",
+  waived:  "bg-muted text-muted-foreground border border-border",
+  void:    "bg-muted text-muted-foreground border border-border",
 }
 
 const PAY_STATUS_STYLES: Record<string, string> = {
-  confirmed: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-  pending:   "bg-amber-500/10 text-amber-400 border border-amber-500/20",
-  failed:    "bg-red-500/10 text-red-400 border border-red-500/20",
-  refunded:  "bg-zinc-500/10 text-zinc-400 border border-zinc-500/20",
+  confirmed: "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20",
+  pending:   "bg-amber-500/10 text-amber-500 border border-amber-500/20",
+  failed:    "bg-destructive/10 text-destructive border border-destructive/20",
+  refunded:  "bg-muted text-muted-foreground border border-border",
 }
 
 function Badge({ cls, label }: { cls: string; label: string }) {
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-wider ${cls}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${cls}`}>
       {label}
     </span>
   )
@@ -155,16 +155,16 @@ const FLAG_PRESETS = [
 ]
 
 const FLAG_COLOR_MAP: Record<string, string> = {
-  amber:  "bg-amber-500/10 text-amber-400 border-amber-500/20",
-  red:    "bg-red-500/10 text-red-400 border-red-500/20",
-  blue:   "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  orange: "bg-orange-500/10 text-orange-400 border-orange-500/20",
-  zinc:   "bg-zinc-500/10 text-zinc-300 border-zinc-500/20",
+  amber:  "bg-amber-500/10 text-amber-500 border-amber-500/20",
+  red:    "bg-destructive/10 text-destructive border-destructive/20",
+  blue:   "bg-blue-500/10 text-blue-500 border-blue-500/20",
+  orange: "bg-orange-500/10 text-orange-500 border-orange-500/20",
+  zinc:   "bg-muted text-muted-foreground border-border",
 }
 
-const inputCls   = "w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-sm px-3 py-2 text-sm text-white placeholder-[#444] focus:outline-none focus:border-[#444] transition-colors"
-const btnPrimary = "px-4 py-2 bg-[#22c55e] text-black text-xs font-bold rounded-sm hover:bg-[#1eb054] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-const btnGhost   = "px-4 py-2 bg-transparent border border-[#2a2a2a] text-[#888] text-xs font-bold rounded-sm hover:border-white/20 hover:text-white transition-all disabled:opacity-50"
+const inputCls   = "w-full bg-card border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground/40 transition-colors shadow-sm"
+const btnPrimary = "px-4 py-2 bg-[#E8400C] text-white text-xs font-semibold rounded-md hover:bg-[#c73508] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
+const btnGhost   = "px-4 py-2 bg-transparent border border-border text-muted-foreground text-xs font-semibold rounded-md hover:border-foreground/40 hover:text-foreground transition-all disabled:opacity-50 cursor-pointer"
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -367,20 +367,20 @@ export default function BillingTab({ accountId }: { accountId: string }) {
       )}
 
       {/* ── Status Bar ─────────────────────────────────────────────────────── */}
-      <div className="bg-[#111] border border-[#1f1f1f] rounded-lg p-5">
-        <div className="grid grid-cols-3 gap-6 items-start">
+      <div className="bg-card border border-border rounded-lg p-5 shadow-sm font-sans">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
 
           {/* LEFT: Plan Identity */}
           <div className="space-y-2">
-            <span className={`inline-flex items-center px-3 py-1.5 rounded-sm text-xs font-black uppercase tracking-widest ${PLAN_STYLES[account.plan_tier] ?? PLAN_STYLES.starter}`}>
+            <span className={`inline-flex items-center px-3 py-1 rounded text-xs font-bold uppercase tracking-wider ${PLAN_STYLES[account.plan_tier] ?? PLAN_STYLES.starter}`}>
               {account.plan_tier}
             </span>
-            <div className="text-white font-semibold text-base capitalize">{account.plan_tier} Plan</div>
+            <div className="text-foreground font-bold text-base capitalize">{account.plan_tier} Plan</div>
             <Badge
               cls={STATUS_STYLES[account.subscription_status] ?? STATUS_STYLES.cancelled}
               label={account.subscription_status.replace("_", " ")}
             />
-            <div className="text-[#555] text-[10px] pt-1">
+            <div className="text-muted-foreground text-[11px] pt-1 font-medium">
               {account.dodo_subscription_id ? "via Dodo" : "Manual billing"}
             </div>
           </div>
@@ -388,23 +388,23 @@ export default function BillingTab({ accountId }: { accountId: string }) {
           {/* CENTER: Days Remaining */}
           <div className="text-center space-y-1">
             {days === null ? (
-              <div className="text-[#555] text-sm">No period set</div>
+              <div className="text-muted-foreground text-sm font-medium">No period set</div>
             ) : days < 0 ? (
               <>
-                <div className="text-red-400 font-mono text-3xl font-black">{Math.abs(days)}</div>
-                <div className="text-red-400 text-xs">days expired</div>
+                <div className="text-destructive font-mono text-3xl font-bold tabular-nums">{Math.abs(days)}</div>
+                <div className="text-destructive text-xs font-medium">days expired</div>
               </>
             ) : (
               <>
-                <div className={`font-mono text-3xl font-black flex items-center justify-center gap-2 ${days < 7 ? "text-red-400" : days < 14 ? "text-amber-400" : "text-white"}`}>
-                  {days < 7 && <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />}
+                <div className={`font-mono text-3xl font-bold tabular-nums flex items-center justify-center gap-2 ${days < 7 ? "text-destructive" : days < 14 ? "text-amber-500" : "text-foreground"}`}>
+                  {days < 7 && <span className="w-2 h-2 rounded-full bg-destructive animate-pulse" />}
                   {days}
                 </div>
-                <div className="text-[#555] text-xs">days remaining</div>
+                <div className="text-muted-foreground text-xs font-medium">days remaining</div>
               </>
             )}
             {account.subscription_current_period_end && (
-              <div className="text-[#666] text-xs pt-1">
+              <div className="text-muted-foreground text-xs pt-1 font-mono">
                 {fmt(account.last_payment_date ? account.subscription_current_period_end.slice(0, 7) + "-01" : null)} – {fmt(account.subscription_current_period_end)}
               </div>
             )}
@@ -413,26 +413,26 @@ export default function BillingTab({ accountId }: { accountId: string }) {
           {/* RIGHT: Actions */}
           <div className="flex flex-col gap-2 items-end">
             {isFinance && (
-              <button onClick={() => setShowPayment(true)} className="w-full px-4 py-2 bg-[#22c55e] text-black text-[11px] font-black rounded-sm hover:bg-[#1eb054] transition-colors uppercase tracking-widest">
+              <button onClick={() => setShowPayment(true)} className="w-full px-4 py-2 bg-[#E8400C] text-white text-xs font-semibold rounded-md hover:bg-[#c73508] transition-colors uppercase tracking-wider shadow-sm cursor-pointer">
                 Record Payment
               </button>
             )}
             {isFinance && (
-              <button onClick={() => setShowPlan(true)} className={`w-full ${btnGhost} text-[11px]`}>Change Plan</button>
+              <button onClick={() => setShowPlan(true)} className={`w-full ${btnGhost}`}>Change Plan</button>
             )}
             {isSuperAdmin && (
-              <button onClick={() => setShowExpiry(true)} className={`w-full ${btnGhost} text-[11px]`}>Extend Expiry</button>
+              <button onClick={() => setShowExpiry(true)} className={`w-full ${btnGhost}`}>Extend Expiry</button>
             )}
             {isFinance && (
-              <button onClick={() => setShowInvoice(true)} className={`w-full ${btnGhost} text-[11px]`}>Create Invoice</button>
+              <button onClick={() => setShowInvoice(true)} className={`w-full ${btnGhost}`}>Create Invoice</button>
             )}
             {isSuperAdmin && (
               <button
                 onClick={() => setShowSuspend(true)}
-                className={`w-full px-4 py-2 text-[11px] font-bold uppercase tracking-widest rounded-sm border transition-all ${
+                className={`w-full px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-md border transition-all cursor-pointer ${
                   account.subscription_status === "suspended"
-                    ? "text-emerald-400 border-emerald-400/20 hover:bg-emerald-400/5"
-                    : "text-red-400/70 border-red-400/10 hover:bg-red-400/5"
+                    ? "text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/5"
+                    : "text-destructive border-destructive/20 hover:bg-destructive/5"
                 }`}
               >
                 {account.subscription_status === "suspended" ? "Reactivate" : "Suspend Account"}
@@ -446,14 +446,14 @@ export default function BillingTab({ accountId }: { accountId: string }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
         {/* Payment History */}
-        <div className="bg-[#111] border border-[#1f1f1f] rounded-lg overflow-hidden">
-          <div className="px-5 py-3.5 border-b border-[#1f1f1f] bg-[#161616] flex justify-between items-center">
-            <h3 className="text-white text-[10px] font-black uppercase tracking-widest">Payment History</h3>
-            <span className="text-[#444] text-[9px] font-mono italic">Last {payments.length}</span>
+        <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm font-sans">
+          <div className="px-5 py-3.5 border-b border-border bg-muted/40 flex justify-between items-center">
+            <h3 className="text-foreground text-[10px] font-bold uppercase tracking-wider">Payment History</h3>
+            <span className="text-muted-foreground text-[10px] font-mono italic">Last {payments.length}</span>
           </div>
 
           {payments.length === 0 ? (
-            <div className="py-12 border-t border-[#1f1f1f]">
+            <div className="py-12 border-t border-border">
               <EmptyState 
                 icon={CreditCard}
                 title="NO_TRANSACTIONS"
@@ -464,23 +464,23 @@ export default function BillingTab({ accountId }: { accountId: string }) {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-[#1f1f1f] bg-[#1a1a1a]">
+                  <tr className="border-b border-border bg-muted/20">
                     {["Date", "Method", "Reference", "Amount", "Status"].map(h => (
-                      <th key={h} className="px-4 py-2.5 text-[9px] font-bold uppercase tracking-wider text-[#444]">{h}</th>
+                      <th key={h} className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1f1f1f]">
+                <tbody className="divide-y divide-border">
                   {payments.map((p: any) => (
-                    <tr key={p.id} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="px-4 py-3 text-[11px] text-[#888]">{fmt(p.payment_date)}</td>
+                    <tr key={p.id} className="hover:bg-accent/50 transition-colors">
+                      <td className="px-4 py-3 text-xs text-muted-foreground">{fmt(p.payment_date)}</td>
                       <td className="px-4 py-3">
                         <Badge cls={METHOD_STYLES[p.payment_method] ?? METHOD_STYLES.cash} label={p.payment_method?.replace("_", " ")} />
                       </td>
-                      <td className="px-4 py-3 text-[10px] font-mono text-[#666]">
+                      <td className="px-4 py-3 text-xs font-mono text-muted-foreground">
                         {p.mpesa_code ?? p.wire_reference ?? p.dodo_payment_id ?? "—"}
                       </td>
-                      <td className="px-4 py-3 text-[11px] font-mono text-white">
+                      <td className="px-4 py-3 text-xs font-mono font-bold text-foreground tabular-nums">
                         {fmtAmount(p.amount_kes, p.amount_usd)}
                       </td>
                       <td className="px-4 py-3">
@@ -495,26 +495,26 @@ export default function BillingTab({ accountId }: { accountId: string }) {
 
           {/* Summary row */}
           {payments.length > 0 && (
-            <div className="px-5 py-3 border-t border-[#1f1f1f] bg-[#161616] flex gap-6 text-[10px]">
-              <span className="text-[#555]">Total paid: <span className="text-emerald-400 font-mono font-bold">KES {summary.total_paid_kes.toLocaleString()}</span></span>
-              {summary.total_paid_usd > 0 && <span className="text-[#555]">/ <span className="text-emerald-400 font-mono font-bold">USD {summary.total_paid_usd.toFixed(2)}</span></span>}
+            <div className="px-5 py-3 border-t border-border bg-muted/20 flex gap-6 text-xs font-medium">
+              <span className="text-muted-foreground">Total paid: <span className="text-emerald-500 font-mono font-bold tabular-nums">KES {summary.total_paid_kes.toLocaleString()}</span></span>
+              {summary.total_paid_usd > 0 && <span className="text-muted-foreground">/ <span className="text-emerald-500 font-mono font-bold tabular-nums">USD {summary.total_paid_usd.toFixed(2)}</span></span>}
             </div>
           )}
         </div>
 
         {/* Invoices */}
-        <div className="bg-[#111] border border-[#1f1f1f] rounded-lg overflow-hidden">
-          <div className="px-5 py-3.5 border-b border-[#1f1f1f] bg-[#161616] flex justify-between items-center">
-            <h3 className="text-white text-[10px] font-black uppercase tracking-widest">Invoices</h3>
+        <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm font-sans">
+          <div className="px-5 py-3.5 border-b border-border bg-muted/40 flex justify-between items-center">
+            <h3 className="text-foreground text-[10px] font-bold uppercase tracking-wider">Invoices</h3>
             {summary.overdue_count > 0 && (
-              <span className="flex items-center gap-1 text-red-400 text-[9px] font-bold">
-                <AlertCircle className="w-3 h-3" /> {summary.overdue_count} overdue
+              <span className="flex items-center gap-1 text-destructive text-[10px] font-bold">
+                <AlertCircle className="w-3.5 h-3.5" /> {summary.overdue_count} overdue
               </span>
             )}
           </div>
 
           {invoices.length === 0 ? (
-            <div className="py-12 border-t border-[#1f1f1f]">
+            <div className="py-12 border-t border-border">
               <EmptyState 
                 icon={FileText}
                 title="NO_INVOICES"
@@ -525,30 +525,30 @@ export default function BillingTab({ accountId }: { accountId: string }) {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-[#1f1f1f] bg-[#1a1a1a]">
+                  <tr className="border-b border-border bg-muted/20">
                     {["Invoice #", "Due", "Amount", "Status", "Actions"].map(h => (
-                      <th key={h} className="px-4 py-2.5 text-[9px] font-bold uppercase tracking-wider text-[#444]">{h}</th>
+                      <th key={h} className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1f1f1f]">
+                <tbody className="divide-y divide-border">
                   {invoices.map((inv: any) => {
                     const isOverdue = inv.status === "overdue"
                     return (
-                      <tr key={inv.id} className="hover:bg-white/[0.02] transition-colors">
+                      <tr key={inv.id} className="hover:bg-accent/50 transition-colors">
                         <td className="px-4 py-3">
                           {inv.pdf_url ? (
-                            <a href={inv.pdf_url} target="_blank" rel="noreferrer" className="font-mono text-[11px] text-[#22c55e] hover:underline flex items-center gap-1">
-                              {inv.invoice_number} <ExternalLink className="w-2.5 h-2.5" />
+                            <a href={inv.pdf_url} target="_blank" rel="noreferrer" className="font-mono text-xs text-[#E8400C] hover:underline flex items-center gap-1 font-bold">
+                              {inv.invoice_number} <ExternalLink className="w-3 h-3" />
                             </a>
                           ) : (
-                            <span className="font-mono text-[11px] text-[#22c55e]">{inv.invoice_number}</span>
+                            <span className="font-mono text-xs font-bold text-[#E8400C]">{inv.invoice_number}</span>
                           )}
                         </td>
-                        <td className={`px-4 py-3 text-[11px] ${isOverdue ? "text-red-400 font-semibold" : "text-[#888]"}`}>
+                        <td className={`px-4 py-3 text-xs ${isOverdue ? "text-destructive font-bold" : "text-muted-foreground"}`}>
                           {fmt(inv.due_date)}
                         </td>
-                        <td className="px-4 py-3 text-[11px] font-mono text-white">
+                        <td className="px-4 py-3 text-xs font-mono font-bold text-foreground tabular-nums">
                           {fmtAmount(inv.amount_kes, inv.amount_usd)}
                         </td>
                         <td className="px-4 py-3">
@@ -557,18 +557,18 @@ export default function BillingTab({ accountId }: { accountId: string }) {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1">
                             {!inv.pdf_url && (
-                              <button onClick={() => generatePdf(inv.id)} className="text-[10px] text-[#666] hover:text-white border border-[#1f1f1f] rounded-sm px-2 py-0.5 hover:border-white/20 transition-all">
+                              <button onClick={() => generatePdf(inv.id)} className="text-[10px] font-semibold text-muted-foreground hover:text-foreground border border-border rounded px-2 py-0.5 hover:border-foreground/40 transition-all cursor-pointer">
                                 PDF
                               </button>
                             )}
                             {inv.pdf_url && (
-                              <a href={inv.pdf_url} target="_blank" rel="noreferrer" className="text-[10px] text-[#666] hover:text-white border border-[#1f1f1f] rounded-sm px-2 py-0.5 hover:border-white/20 transition-all">
+                              <a href={inv.pdf_url} target="_blank" rel="noreferrer" className="text-[10px] font-semibold text-muted-foreground hover:text-foreground border border-border rounded px-2 py-0.5 hover:border-foreground/40 transition-all">
                                 View
                               </a>
                             )}
                             {["unpaid", "overdue"].includes(inv.status) && (
-                              <button className="text-[10px] text-[#666] hover:text-[#22c55e] flex items-center gap-0.5 border border-[#1f1f1f] rounded-sm px-2 py-0.5 hover:border-[#22c55e]/20 transition-all">
-                                <MessageSquare className="w-2.5 h-2.5" /> Send
+                              <button className="text-[10px] font-semibold text-muted-foreground hover:text-[#E8400C] flex items-center gap-0.5 border border-border rounded px-2 py-0.5 hover:border-[#E8400C]/30 transition-all cursor-pointer">
+                                <MessageSquare className="w-3 h-3" /> Send
                               </button>
                             )}
                           </div>
@@ -582,29 +582,29 @@ export default function BillingTab({ accountId }: { accountId: string }) {
           )}
 
           {summary.outstanding_kes > 0 && (
-            <div className="px-5 py-3 border-t border-[#1f1f1f] bg-[#161616] text-[10px]">
-              <span className="text-[#555]">Outstanding: <span className="text-amber-400 font-mono font-bold">KES {summary.outstanding_kes.toLocaleString()}</span></span>
+            <div className="px-5 py-3 border-t border-border bg-muted/20 text-xs font-medium">
+              <span className="text-muted-foreground">Outstanding: <span className="text-amber-500 font-mono font-bold tabular-nums">KES {summary.outstanding_kes.toLocaleString()}</span></span>
             </div>
           )}
         </div>
       </div>
 
       {/* ── SECTION 3: Notes & Flags ────────────────────────────────────────── */}
-      <div className="bg-[#111] border border-[#1f1f1f] rounded-lg overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-[#1f1f1f] bg-[#161616]">
-          <h3 className="text-white text-[10px] font-black uppercase tracking-widest">CRM · Notes & Flags</h3>
+      <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm font-sans">
+        <div className="px-5 py-3.5 border-b border-border bg-muted/40">
+          <h3 className="text-foreground text-[10px] font-bold uppercase tracking-wider">CRM · Notes & Flags</h3>
         </div>
 
         <div className="p-5 space-y-6">
           {/* Flags */}
           <div className="space-y-3">
-            <div className="text-[#555] text-[9px] font-bold uppercase tracking-widest">Flags</div>
+            <div className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider">Flags</div>
             <div className="flex flex-wrap items-center gap-2">
               {flags.map((flag: any) => (
-                <span key={flag.id} className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-[10px] font-bold border ${FLAG_COLOR_MAP[flag.color] ?? FLAG_COLOR_MAP.zinc}`}>
+                <span key={flag.id} className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-bold border ${FLAG_COLOR_MAP[flag.color] ?? FLAG_COLOR_MAP.zinc}`}>
                   {flag.label}
-                  <button onClick={() => removeFlag(flag.id)} className="opacity-50 hover:opacity-100 transition-opacity">
-                    <X className="w-3 h-3" />
+                  <button onClick={() => removeFlag(flag.id)} className="opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </span>
               ))}
@@ -613,34 +613,34 @@ export default function BillingTab({ accountId }: { accountId: string }) {
               <div className="relative">
                 <button
                   onClick={() => setFlagOpen(f => !f)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-sm text-[10px] font-bold text-[#555] border border-dashed border-[#333] hover:border-[#555] hover:text-[#888] transition-all"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold text-muted-foreground border border-dashed border-border hover:border-foreground/40 hover:text-foreground transition-all cursor-pointer"
                 >
-                  <Plus className="w-3 h-3" /> Add Flag <ChevronDown className="w-3 h-3" />
+                  <Plus className="w-3.5 h-3.5" /> Add Flag <ChevronDown className="w-3.5 h-3.5" />
                 </button>
 
                 {flagOpen && (
-                  <div className="absolute left-0 top-full mt-1 z-20 bg-[#111] border border-[#1f1f1f] rounded-lg shadow-xl w-52 py-1">
+                  <div className="absolute left-0 top-full mt-1 z-20 bg-card border border-border rounded-lg shadow-xl w-52 py-1">
                     {FLAG_PRESETS.map(p => (
                       <div key={p.value}>
                         <button
                           onClick={() => p.value !== "custom" ? addFlag(p) : setCustomLabel("__open__")}
                           disabled={addingFlag === p.value}
-                          className="w-full text-left px-4 py-2 text-xs text-[#888] hover:text-white hover:bg-white/5 transition-colors flex items-center gap-2"
+                          className="w-full text-left px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors flex items-center gap-2 cursor-pointer"
                         >
-                          <span className={`w-2 h-2 rounded-full inline-block ${p.value === "vip" ? "bg-amber-400" : p.value === "at_risk" ? "bg-red-400" : p.value === "trial_convert" ? "bg-blue-400" : p.value === "support_issue" ? "bg-orange-400" : "bg-zinc-400"}`} />
+                          <span className={`w-2 h-2 rounded-full inline-block ${p.value === "vip" ? "bg-amber-500" : p.value === "at_risk" ? "bg-destructive" : p.value === "trial_convert" ? "bg-blue-500" : p.value === "support_issue" ? "bg-orange-500" : "bg-muted-foreground"}`} />
                           {p.label}
                         </button>
                         {p.value === "custom" && customLabel === "__open__" && (
                           <div className="px-3 pb-2 flex gap-2">
                             <input
                               autoFocus
-                              className="flex-1 bg-[#0a0a0a] border border-[#1f1f1f] rounded-sm px-2 py-1 text-xs text-white focus:outline-none"
+                              className="flex-1 bg-card border border-border rounded px-2 py-1 text-xs text-foreground focus:outline-none focus:border-foreground/40"
                               placeholder="Label…"
                               value={customLabel === "__open__" ? "" : customLabel}
                               onChange={e => setCustomLabel(e.target.value)}
                               onKeyDown={e => e.key === "Enter" && customLabel && addFlag(p)}
                             />
-                            <button onClick={() => addFlag(p)} className="text-xs text-[#22c55e] font-bold">Add</button>
+                            <button onClick={() => addFlag(p)} className="text-xs text-[#E8400C] font-bold cursor-pointer">Add</button>
                           </div>
                         )}
                       </div>
@@ -651,17 +651,17 @@ export default function BillingTab({ accountId }: { accountId: string }) {
             </div>
           </div>
 
-          <div className="border-t border-[#1f1f1f]" />
+          <div className="border-t border-border" />
 
           {/* Notes */}
           <div className="space-y-3">
-            <div className="text-[#555] text-[9px] font-bold uppercase tracking-widest">Notes</div>
+            <div className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider">Notes</div>
 
             {/* Note list */}
             {notes && notes.length > 0 ? (
               <div className="space-y-2">
                 {notes.map((note: any) => (
-                    <div key={note.id} className={`group relative p-3.5 rounded-sm border text-xs ${note.is_pinned ? "border-[#22c55e]/20 bg-[#22c55e]/5" : "border-[#1f1f1f] bg-[#161616]"}`}>
+                    <div key={note.id} className={`group relative p-3.5 rounded-md border text-xs ${note.is_pinned ? "border-[#E8400C]/30 bg-[#E8400C]/5" : "border-border bg-muted/20"}`}>
                       {editingNote?.id === note.id ? (
                         <div className="space-y-2">
                           <textarea
@@ -671,27 +671,27 @@ export default function BillingTab({ accountId }: { accountId: string }) {
                             onChange={e => setEditingNote({ id: note.id, content: e.target.value })}
                           />
                           <div className="flex gap-2">
-                            <button onClick={() => updateNote(note.id, editingNote!.content)} className="text-[10px] text-[#22c55e] font-bold">Save</button>
-                            <button onClick={() => setEditingNote(null)} className="text-[10px] text-[#555]">Cancel</button>
+                            <button onClick={() => updateNote(note.id, editingNote!.content)} className="text-xs text-[#E8400C] font-bold cursor-pointer">Save</button>
+                            <button onClick={() => setEditingNote(null)} className="text-xs text-muted-foreground cursor-pointer">Cancel</button>
                           </div>
                         </div>
                       ) : (
                         <>
-                          <p className="text-[#aaa] leading-relaxed whitespace-pre-wrap">{note.content}</p>
-                          <div className="flex items-center gap-2 mt-2 text-[9px] text-[#555]">
-                            {note.is_pinned && <Pin className="w-2.5 h-2.5 text-[#22c55e]" />}
-                            <Clock className="w-2.5 h-2.5" />
+                          <p className="text-foreground font-medium leading-relaxed whitespace-pre-wrap">{note.content}</p>
+                          <div className="flex items-center gap-2 mt-2 text-[10px] text-muted-foreground font-medium">
+                            {note.is_pinned && <Pin className="w-3 h-3 text-[#E8400C]" />}
+                            <Clock className="w-3 h-3" />
                             <span>{relativeTime(note.created_at)}</span>
                           </div>
                           <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => togglePin(note.id, note.is_pinned)} title={note.is_pinned ? "Unpin" : "Pin"}>
-                              <Pin className={`w-3.5 h-3.5 ${note.is_pinned ? "text-[#22c55e]" : "text-[#444] hover:text-white"}`} />
+                            <button onClick={() => togglePin(note.id, note.is_pinned)} title={note.is_pinned ? "Unpin" : "Pin"} className="cursor-pointer">
+                              <Pin className={`w-3.5 h-3.5 ${note.is_pinned ? "text-[#E8400C]" : "text-muted-foreground hover:text-foreground"}`} />
                             </button>
-                            <button onClick={() => setEditingNote({ id: note.id, content: note.content })}>
-                              <Pencil className="w-3.5 h-3.5 text-[#444] hover:text-white" />
+                            <button onClick={() => setEditingNote({ id: note.id, content: note.content })} className="cursor-pointer">
+                              <Pencil className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
                             </button>
-                            <button onClick={() => deleteNote(note.id)}>
-                              <Trash2 className="w-3.5 h-3.5 text-[#444] hover:text-red-400" />
+                            <button onClick={() => deleteNote(note.id)} className="cursor-pointer">
+                              <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
                             </button>
                           </div>
                         </>
@@ -700,7 +700,7 @@ export default function BillingTab({ accountId }: { accountId: string }) {
                   ))}
               </div>
             ) : (
-              <p className="text-[#444] text-xs italic">No notes yet.</p>
+              <p className="text-muted-foreground text-xs italic">No notes yet.</p>
             )}
 
             {/* Add note */}

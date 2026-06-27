@@ -107,27 +107,27 @@ async function fetchProductsData(): Promise<FetchResult> {
 
 function LoadingState() {
   return (
-    <div className="min-h-screen bg-zinc-950 px-8 py-8">
-      <div className="mb-6 flex items-center justify-between border-b border-zinc-800 pb-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-zinc-800" />
-        <div className="h-9 w-36 animate-pulse rounded-sm bg-zinc-800" />
+    <div className="min-h-screen bg-background px-8 py-8">
+      <div className="mb-6 flex items-center justify-between border-b border-border pb-6">
+        <div className="h-8 w-48 animate-pulse rounded bg-muted" />
+        <div className="h-9 w-36 animate-pulse rounded-sm bg-muted" />
       </div>
-      <div className="h-12 w-full animate-pulse rounded-lg bg-zinc-800" />
-      <div className="mt-4 h-80 w-full animate-pulse rounded-lg bg-zinc-800" />
+      <div className="h-12 w-full animate-pulse rounded-lg bg-muted" />
+      <div className="mt-4 h-80 w-full animate-pulse rounded-lg bg-muted" />
     </div>
   )
 }
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div className="min-h-screen bg-zinc-950 px-8 py-8">
-      <div className="rounded-sm border border-red-900/40 bg-red-950/30 p-5 text-red-100">
+    <div className="min-h-screen bg-background px-8 py-8">
+      <div className="rounded-sm border border-destructive/40 bg-destructive/10 p-5 text-foreground">
         <div className="text-base font-semibold">Couldn&apos;t load products</div>
         <div className="mt-1 text-sm opacity-90">{message}</div>
         <div className="mt-4">
           <Link
             href="/dashboard"
-            className="inline-flex h-9 items-center justify-center rounded-sm bg-white px-5 text-xs font-semibold tracking-[0.12em] uppercase text-zinc-950 hover:bg-zinc-100 transition-colors"
+            className="inline-flex h-9 items-center justify-center rounded-sm bg-primary px-5 text-xs font-semibold tracking-[0.12em] uppercase text-primary-foreground hover:bg-primary/90 transition-colors"
           >
             Go to Dashboard
           </Link>

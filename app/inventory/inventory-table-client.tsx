@@ -78,16 +78,16 @@ type StockStatus = "all" | "in-stock" | "low-stock" | "out-of-stock"
 
 function getStoreStockClass(quantity: number | null): string {
   const qty = quantity ?? 0
-  if (qty < 0) return "text-sm text-red-400 tabular-nums font-semibold"
-  if (qty === 0) return "text-sm text-zinc-600 tabular-nums"
-  return "text-sm font-semibold text-zinc-100 tabular-nums"
+  if (qty < 0) return "text-sm text-destructive tabular-nums font-semibold"
+  if (qty === 0) return "text-sm text-muted-foreground tabular-nums"
+  return "text-sm font-semibold text-foreground tabular-nums"
 }
 
 function getTotalStockClass(quantity: number | null): string {
   const qty = quantity ?? 0
-  if (qty < 0) return "text-sm text-red-400 tabular-nums font-semibold"
-  if (qty === 0) return "text-sm text-zinc-600 tabular-nums"
-  return "text-sm font-semibold text-zinc-50 tabular-nums"
+  if (qty < 0) return "text-sm text-destructive tabular-nums font-semibold"
+  if (qty === 0) return "text-sm text-muted-foreground tabular-nums"
+  return "text-sm font-semibold text-foreground tabular-nums"
 }
 
 export function InventoryTableClient({ stores, inventory }: InventoryTableClientProps) {

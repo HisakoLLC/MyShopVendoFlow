@@ -26,8 +26,8 @@ function LoadingState() {
   return (
     <div className="flex h-screen items-center justify-center">
       <div className="text-center">
-        <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-zinc-300 border-t-zinc-900 dark:border-zinc-700 dark:border-t-zinc-100"></div>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">Loading dashboard...</p>
+        <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-muted border-t-foreground"></div>
+        <p className="text-sm text-muted-foreground">Loading dashboard...</p>
       </div>
     </div>
   )
@@ -56,23 +56,23 @@ function DashboardErrorCard({
           </CardTitle>
           <CardDescription>{description}</CardDescription>
           {detail && (
-            <p className="text-xs font-mono text-zinc-500 dark:text-zinc-400 mt-2 break-all">
+            <p className="text-xs font-mono text-muted-foreground mt-2 break-all">
               {detail}
             </p>
           )}
         </CardHeader>
         <CardContent className="space-y-4">
           {showSqlHint && (
-            <div className="rounded-lg bg-zinc-100 p-4 text-sm dark:bg-zinc-900">
+            <div className="rounded-lg bg-muted p-4 text-sm">
               <p className="font-medium mb-2">Fix it in Supabase (run in SQL Editor in this order):</p>
-              <ol className="list-decimal list-inside space-y-1 text-zinc-600 dark:text-zinc-400">
-                <li><code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">sql/AUTO_CREATE_ACCOUNT_ON_SIGNUP.sql</code></li>
-                <li><code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">sql/FIX_ALL_RLS_ISSUES.sql</code></li>
-                <li><code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">sql/FIX_DASHBOARD_ACCESS.sql</code></li>
-                <li><code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">sql/FIX_PRODUCTS_PAGE_ACCESS.sql</code></li>
-                <li><code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-1 rounded">sql/FIX_INVENTORY_AND_SETTINGS_ACCESS.sql</code></li>
+              <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                <li><code className="text-xs bg-secondary px-1 rounded">sql/AUTO_CREATE_ACCOUNT_ON_SIGNUP.sql</code></li>
+                <li><code className="text-xs bg-secondary px-1 rounded">sql/FIX_ALL_RLS_ISSUES.sql</code></li>
+                <li><code className="text-xs bg-secondary px-1 rounded">sql/FIX_DASHBOARD_ACCESS.sql</code></li>
+                <li><code className="text-xs bg-secondary px-1 rounded">sql/FIX_PRODUCTS_PAGE_ACCESS.sql</code></li>
+                <li><code className="text-xs bg-secondary px-1 rounded">sql/FIX_INVENTORY_AND_SETTINGS_ACCESS.sql</code></li>
               </ol>
-              <p className="mt-2 text-xs text-zinc-500">
+              <p className="mt-2 text-xs text-muted-foreground">
                 Confirm your app uses the <strong>same Supabase project</strong> where you ran the SQL (check Vercel env: NEXT_PUBLIC_SUPABASE_URL).
               </p>
             </div>
@@ -220,7 +220,7 @@ async function DashboardContent({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="text-sm text-muted-foreground">
               The dashboard requires stores to display sales metrics and inventory data.
             </p>
             <Button asChild className="w-full">
@@ -303,16 +303,16 @@ async function DashboardContent({
       yesterdayRevenue > 0 ? ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100 : 0
 
     return (
-      <div className="min-h-screen bg-zinc-950 p-4 md:p-8">
+      <div className="min-h-screen bg-background p-4 md:p-8">
         <div className="mx-auto max-w-7xl space-y-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-2">
+              <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-2">
                 {selectedStore
                   ? "Store performance and trends."
                   : "Performance across all stores with comparisons."}
               </p>
-              <h1 className="font-editorial text-3xl font-bold leading-tight text-zinc-50">
+              <h1 className="font-editorial text-3xl font-bold leading-tight text-foreground">
                 {selectedStore ? selectedStore.name : "Multi-Store Dashboard"}
               </h1>
             </div>

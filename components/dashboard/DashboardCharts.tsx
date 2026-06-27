@@ -9,7 +9,7 @@ interface DashboardChartsProps {
 export function DashboardCharts({ salesData }: DashboardChartsProps) {
   if (salesData.length === 0) {
     return (
-      <div className="flex h-[300px] items-center justify-center text-sm text-zinc-500 dark:text-zinc-400">
+      <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">
         No sales data available
       </div>
     )
@@ -18,7 +18,7 @@ export function DashboardCharts({ salesData }: DashboardChartsProps) {
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart data={salesData}>
-        <CartesianGrid strokeDasharray="3 3" className="stroke-zinc-200 dark:stroke-zinc-800" />
+        <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
         <XAxis
           dataKey="date"
           className="text-xs"

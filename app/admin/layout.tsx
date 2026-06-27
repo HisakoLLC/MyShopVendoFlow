@@ -12,7 +12,7 @@ export default function AdminRootLayout({
   children: React.ReactNode
 }) {
   return (
-    <div style={{ margin: 0, padding: 0, background: "#0a0a0a", color: "#fff", minHeight: "100vh" }}>
+    <div className="min-h-screen bg-background text-foreground m-0 p-0">
       {children}
     </div>
   )

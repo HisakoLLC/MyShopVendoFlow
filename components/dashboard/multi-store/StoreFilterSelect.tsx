@@ -42,7 +42,7 @@ export function StoreFilterSelect({
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">View:</span>
+      <span className="text-sm font-medium text-foreground">View:</span>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger className="h-9 w-[220px]">
           <SelectValue placeholder="All Stores" />

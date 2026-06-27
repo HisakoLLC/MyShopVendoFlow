@@ -76,7 +76,7 @@ export function StorageImage({
               : undefined
         }
       >
-        <div className="flex h-full w-full items-center justify-center bg-zinc-100 text-zinc-400 dark:bg-zinc-800">
+        <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
           <svg
             className="h-8 w-8"
             fill="none"

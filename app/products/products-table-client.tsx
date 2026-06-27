@@ -424,7 +424,7 @@ export function ProductsTableClient(props: {
                 <thead className="border-b-2 border-border bg-muted/40">
                   <tr>
                     {viewMode === "active" && (
-                      <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">
+                      <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">
                         <Checkbox
                           checked={filtered.length > 0 && filtered.every((s) => selectedIds.has(s.style_id))}
                           onCheckedChange={(checked) => (checked ? selectAllFiltered() : clearSelection())}
@@ -432,14 +432,14 @@ export function ProductsTableClient(props: {
                         />
                       </th>
                     )}
-                    <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Image</th>
-                    <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Style Name</th>
-                    <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Category</th>
-                    <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Season</th>
-                    <th className="px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Base Price</th>
-                    <th className="hidden px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 lg:table-cell">Cost</th>
-                    <th className="hidden px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500 lg:table-cell">Margin %</th>
-                    <th className="px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-zinc-500">Actions</th>
+                    <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Image</th>
+                    <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Style Name</th>
+                    <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Category</th>
+                    <th className="px-4 py-3 text-left align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Season</th>
+                    <th className="px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Base Price</th>
+                    <th className="hidden px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground lg:table-cell">Cost</th>
+                    <th className="hidden px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground lg:table-cell">Margin %</th>
+                    <th className="px-4 py-3 text-right align-middle text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm divide-y divide-border/40">

@@ -229,18 +229,18 @@ export function VariantSelector({
         <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="text-zinc-500">Loading variants...</div>
+            <div className="text-muted-foreground">Loading variants...</div>
           </div>
         ) : error ? (
           <div className="flex items-center justify-center py-12">
-            <div className="text-center text-red-600">
+            <div className="text-center text-destructive">
               <p className="font-medium">Error loading variants</p>
               <p className="mt-1 text-sm">{error}</p>
             </div>
           </div>
         ) : variants.length === 0 ? (
           <div className="flex items-center justify-center py-12">
-            <p className="text-zinc-500">
+            <p className="text-muted-foreground">
               No variants configured for this product
             </p>
           </div>

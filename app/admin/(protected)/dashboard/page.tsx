@@ -104,30 +104,30 @@ async function DashboardStats() {
   ]
 
   return (
-    <div className="px-8 py-12 md:px-12 max-w-7xl mx-auto space-y-12">
+    <div className="px-6 py-8 md:px-10 max-w-7xl mx-auto space-y-10 font-sans">
       {/* Page Header */}
       <div>
-        <div className="text-[#444] text-[10px] font-black uppercase tracking-[0.4em] mb-2 px-0.5">Corporate Intelligence</div>
-        <h1 className="text-white text-5xl font-black tracking-tighter leading-none">OVERVIEW</h1>
-        <p className="text-[#333] text-[10px] font-bold uppercase tracking-[0.2em] mt-4 flex items-center gap-2">
-          <Clock className="w-3 h-3" />
+        <div className="text-muted-foreground/80 text-[10px] font-bold uppercase tracking-[0.3em] mb-1">Corporate Intelligence</div>
+        <h1 className="text-foreground text-3xl md:text-4xl font-bold tracking-tight leading-none">OVERVIEW</h1>
+        <p className="text-muted-foreground text-xs font-semibold mt-2 flex items-center gap-2">
+          <Clock className="w-3.5 h-3.5" />
           {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
       </div>
 
       {/* Row 1: Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {stats.map((stat) => {
           const Icon = stat.icon
           return (
-            <div key={stat.label} className="bg-[#0d0d0d] border border-[#1a1a1a] rounded-sm p-8 group hover:border-[#22c55e]/30 transition-all">
-              <div className="flex justify-between items-start mb-6">
-                <span className="text-[#333] text-[9px] tracking-[0.2em] uppercase font-black">
+            <div key={stat.label} className="bg-card border border-border rounded-lg p-6 group hover:border-[#E8400C]/40 transition-all shadow-sm">
+              <div className="flex justify-between items-start mb-4">
+                <span className="text-muted-foreground text-[10px] tracking-wider uppercase font-semibold">
                   {stat.label}
                 </span>
-                <Icon className="w-3.5 h-3.5 text-[#222] group-hover:text-[#22c55e] transition-colors" />
+                <Icon className="w-4 h-4 text-muted-foreground group-hover:text-[#E8400C] transition-colors" />
               </div>
-              <div className={`text-3xl font-black tracking-tighter ${stat.trend || "text-white"}`}>
+              <div className={`text-2xl font-bold tracking-tight font-mono tabular-nums ${stat.trend || "text-foreground"}`}>
                 {stat.value}
               </div>
             </div>
@@ -136,49 +136,49 @@ async function DashboardStats() {
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column: Recent Transactions */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-white text-[10px] font-black uppercase tracking-[0.3em]">Recent Transactions — Live Feed</h2>
-            <button className="text-[#333] hover:text-white text-[9px] uppercase tracking-widest font-black transition-colors">
+            <h2 className="text-foreground text-xs font-bold uppercase tracking-wider">Recent Transactions — Live Feed</h2>
+            <button className="text-muted-foreground hover:text-[#E8400C] text-[10px] uppercase tracking-wider font-bold transition-colors cursor-pointer">
               FULL LOG →
             </button>
           </div>
 
-          <div className="bg-[#0d0d0d] border border-[#1a1a1a] rounded-sm overflow-hidden">
+          <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-[#1a1a1a] bg-[#111]">
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-[#333]">Receipt ID</th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-[#333]">Merchant Store</th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-[#333] text-right">Amount</th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-[#333] text-right">Protocol</th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-[#333] text-right">Time</th>
+                  <tr className="border-b border-border bg-muted/40">
+                    <th className="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Receipt ID</th>
+                    <th className="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Merchant Store</th>
+                    <th className="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-right">Amount</th>
+                    <th className="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-right">Protocol</th>
+                    <th className="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-right">Time</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1a1a1a]">
+                <tbody className="divide-y divide-border">
                   {recentSales?.map((sale) => (
-                    <tr key={sale.receipt_number} className="hover:bg-white/[0.02] transition-colors group">
-                      <td className="px-6 py-4 text-[10px] font-black text-[#444] font-mono tracking-tighter group-hover:text-[#666]">{sale.receipt_number}</td>
-                      <td className="px-6 py-4">
-                        <div className="text-[10px] text-white font-black uppercase">{(sale.stores as any)?.name}</div>
-                        <div className="text-[8px] text-[#22c55e] font-black uppercase tracking-tighter">{(sale.stores as any)?.accounts?.business_name}</div>
+                    <tr key={sale.receipt_number} className="hover:bg-accent/50 transition-colors group">
+                      <td className="px-5 py-3 text-xs font-semibold text-foreground font-mono group-hover:text-[#E8400C] transition-colors">{sale.receipt_number}</td>
+                      <td className="px-5 py-3">
+                        <div className="text-xs text-foreground font-semibold">{(sale.stores as any)?.name}</div>
+                        <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">{(sale.stores as any)?.accounts?.business_name}</div>
                       </td>
-                      <td className="px-6 py-4 text-[10px] font-black text-white text-right">
+                      <td className="px-5 py-3 text-xs font-bold text-foreground text-right font-mono tabular-nums">
                         {Number(sale.grand_total).toLocaleString()}
                       </td>
-                      <td className="px-6 py-4 text-right">
-                        <span className={`px-2 py-0.5 rounded-sm text-[8px] font-black uppercase tracking-widest border ${
-                          sale.payment_method === 'cash' ? 'bg-zinc-500/5 text-zinc-500 border-zinc-500/10' :
-                          sale.payment_method === 'card' ? 'bg-blue-500/5 text-blue-500 border-blue-500/10' :
-                          'bg-[#22c55e]/5 text-[#22c55e] border-[#22c55e]/10'
+                      <td className="px-5 py-3 text-right">
+                        <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border inline-block ${
+                          sale.payment_method === 'cash' ? 'bg-muted text-muted-foreground border-border' :
+                          sale.payment_method === 'card' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                          'bg-[#E8400C]/10 text-[#E8400C] border-[#E8400C]/20'
                         }`}>
                           {sale.payment_method}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-[10px] text-[#333] font-black text-right">
+                      <td className="px-5 py-3 text-xs text-muted-foreground font-mono text-right tabular-nums">
                         {new Date(sale.sale_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
                       </td>
                     </tr>
@@ -190,18 +190,18 @@ async function DashboardStats() {
         </div>
 
         {/* Right Column: System Overview */}
-        <div className="space-y-6">
-          <h2 className="text-white text-[10px] font-black uppercase tracking-[0.3em]">System Health — Metrics</h2>
-          <div className="bg-[#0d0d0d] border border-[#1a1a1a] rounded-sm p-4 space-y-1">
+        <div className="space-y-4">
+          <h2 className="text-foreground text-xs font-bold uppercase tracking-wider">System Health — Metrics</h2>
+          <div className="bg-card border border-border rounded-lg p-3 space-y-1 shadow-sm">
             {quickStatsItems.map((item) => {
               const Icon = item.icon
               return (
-                <div key={item.label} className="flex items-center justify-between py-3 px-4 hover:bg-white/[0.02] rounded-sm transition-colors group">
-                  <div className="flex items-center gap-3">
-                    <Icon className={`w-3.5 h-3.5 ${item.alert ? (item.alertColor || "text-amber-500") : "text-[#222] group-hover:text-[#444]"}`} />
-                    <span className="text-[#444] text-[9px] font-black uppercase tracking-widest group-hover:text-[#666] transition-colors">{item.label}</span>
+                <div key={item.label} className="flex items-center justify-between py-2.5 px-3 hover:bg-accent rounded-md transition-colors group">
+                  <div className="flex items-center gap-2.5">
+                    <Icon className={`w-4 h-4 ${item.alert ? (item.alertColor || "text-amber-500") : "text-muted-foreground group-hover:text-foreground"}`} />
+                    <span className="text-muted-foreground text-xs font-semibold group-hover:text-foreground transition-colors">{item.label}</span>
                   </div>
-                  <span className={`text-[10px] font-black ${item.alert ? (item.alertColor || "text-amber-500") : "text-white"}`}>
+                  <span className={`text-xs font-bold font-mono tabular-nums ${item.alert ? (item.alertColor || "text-amber-500") : "text-foreground"}`}>
                     {item.value}
                   </span>
                 </div>

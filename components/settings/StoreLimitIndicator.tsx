@@ -123,7 +123,7 @@ export function StoreLimitIndicator({ planTier, stores }: Props) {
     <div className="space-y-4">
       <div className="mb-1 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-zinc-400">
+          <span className="text-xs font-semibold text-muted-foreground">
             Stores: {currentStoreCount} / {maxStores}
           </span>
         </div>
@@ -133,12 +133,12 @@ export function StoreLimitIndicator({ planTier, stores }: Props) {
               window.location.href = "/settings?tab=billing"
             }
           }}
-          className="text-xs font-semibold tracking-[0.1em] uppercase text-zinc-400 hover:text-zinc-100 transition-colors"
+          className="text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground hover:text-foreground transition-colors"
         >
           {(tierKey || "starter").toUpperCase()} plan
         </button>
       </div>
-      <div className="bg-zinc-800 rounded-full h-1.5 w-full mt-2 mb-1">
+      <div className="bg-secondary rounded-full h-1.5 w-full mt-2 mb-1">
         <div
           className="bg-emerald-400 rounded-full h-1.5 transition-all"
           style={{ width: `${utilization}%` }}
@@ -167,19 +167,19 @@ export function StoreLimitIndicator({ planTier, stores }: Props) {
         </Alert>
       )}
 
-      <div className="mt-8 rounded-lg border border-zinc-700/50 bg-zinc-900 p-6">
+      <div className="mt-8 rounded-lg border border-border bg-card p-6">
         <div className="mb-6">
-          <h3 className="font-editorial text-xl font-bold text-zinc-50 mb-1">
+          <h3 className="font-editorial text-xl font-bold text-foreground mb-1">
             Manage Stores
           </h3>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-muted-foreground">
             View and manage your outlet locations and store details.
           </p>
         </div>
 
-        <div className="divide-y divide-zinc-700/40">
+        <div className="divide-y divide-border">
           {stores.length === 0 ? (
-            <p className="py-4 text-sm text-zinc-500">
+            <p className="py-4 text-sm text-muted-foreground">
               No stores yet. Create your first store below.
             </p>
           ) : (
@@ -189,10 +189,10 @@ export function StoreLimitIndicator({ planTier, stores }: Props) {
                 className="flex items-start justify-between py-4 first:pt-0"
               >
                 <div>
-                  <div className="text-sm font-semibold text-zinc-100">
+                  <div className="text-sm font-semibold text-foreground">
                     {store.name}
                   </div>
-                  <div className="text-xs text-zinc-500 mt-0.5">
+                  <div className="text-xs text-muted-foreground mt-0.5">
                     {[
                       store.address,
                       store.tax_rate != null ? `${store.tax_rate}% Tax` : null
@@ -202,7 +202,7 @@ export function StoreLimitIndicator({ planTier, stores }: Props) {
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => openEdit(store)}
-                    className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
+                    className="text-muted-foreground hover:text-foreground hover:bg-accent rounded-sm h-7 w-7 flex items-center justify-center transition-colors"
                     title="Edit store profile"
                   >
                     <Edit className="h-4 w-4" />
@@ -210,7 +210,7 @@ export function StoreLimitIndicator({ planTier, stores }: Props) {
                   <button
                     onClick={() => handleDelete(store.store_id)}
                     disabled={isDeletingId === store.store_id || stores.length <= 1}
-                    className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-sm h-7 w-7 flex items-center justify-center transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-zinc-500"
+                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-sm h-7 w-7 flex items-center justify-center transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-muted-foreground"
                     title={stores.length <= 1 ? "At least one store is required" : "Delete store"}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -221,8 +221,8 @@ export function StoreLimitIndicator({ planTier, stores }: Props) {
           )}
         </div>
 
-        <div className="mt-8 pt-8 border-t border-zinc-700/40">
-          <label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-4 block">
+        <div className="mt-8 pt-8 border-t border-border">
+          <label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-4 block">
             Add New Store
           </label>
           <div className="grid gap-4 md:grid-cols-2 mb-4">
@@ -230,33 +230,33 @@ export function StoreLimitIndicator({ planTier, stores }: Props) {
               placeholder="Store Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+              className="bg-background border border-input rounded-md text-sm text-foreground h-9 px-3 w-full placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-primary"
             />
             <input
               placeholder="Address (City, Country)"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              className="bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+              className="bg-background border border-input rounded-md text-sm text-foreground h-9 px-3 w-full placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-primary"
             />
           </div>
           <button
             onClick={handleCreate}
             disabled={isPending || currentStoreCount >= maxStores}
-            className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors disabled:opacity-50"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors disabled:opacity-50"
           >
             {isPending ? "ADDING..." : "ADD STORE"}
           </button>
         </div>
       </div>
       <Dialog open={!!editingStore} onOpenChange={(open) => !open && setEditingStore(null)}>
-        <DialogContent className="bg-zinc-900 border border-zinc-700/50 rounded-lg p-0 overflow-hidden max-w-md">
+        <DialogContent className="bg-background border border-border rounded-lg p-0 overflow-hidden max-w-md">
           <DialogHeader className="p-6 pb-2">
-            <DialogTitle className="font-editorial text-xl font-bold text-zinc-50">Edit Store Profile</DialogTitle>
+            <DialogTitle className="font-editorial text-xl font-bold text-foreground">Edit Store Profile</DialogTitle>
           </DialogHeader>
           <div className="px-6 space-y-6">
             <div className="space-y-4">
               <div className="space-y-4">
-                <label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 block">
+                <label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground block">
                   Store Details
                 </label>
                 <div className="space-y-3">
@@ -264,25 +264,25 @@ export function StoreLimitIndicator({ planTier, stores }: Props) {
                     placeholder="Store name"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="bg-zinc-950 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                    className="bg-background border border-input rounded-md text-sm text-foreground h-9 px-3 w-full placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-primary"
                   />
                   <input
                     placeholder="Address"
                     value={editAddress}
                     onChange={(e) => setEditAddress(e.target.value)}
-                    className="bg-zinc-950 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                    className="bg-background border border-input rounded-md text-sm text-foreground h-9 px-3 w-full placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-primary"
                   />
                   <input
                     placeholder="Phone"
                     value={editPhone}
                     onChange={(e) => setEditPhone(e.target.value)}
-                    className="bg-zinc-950 border border-zinc-800 rounded-md text-sm text-zinc-100 h-9 px-3 w-full placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-zinc-600"
+                    className="bg-background border border-input rounded-md text-sm text-foreground h-9 px-3 w-full placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-primary"
                   />
                 </div>
               </div>
 
               <div className="space-y-4 pt-2">
-                <label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-zinc-500 block">
+                <label className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-muted-foreground block">
                   Store Branding
                 </label>
                 <div className="flex items-center gap-4">
@@ -293,7 +293,7 @@ export function StoreLimitIndicator({ planTier, stores }: Props) {
                       input?.click()
                     }}
                     disabled={isUploadingLogo}
-                    className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent"
+                    className="border border-border text-foreground hover:bg-accent rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent"
                   >
                     {isUploadingLogo ? "UPLOADING..." : "UPLOAD LOGO"}
                   </button>
@@ -301,9 +301,9 @@ export function StoreLimitIndicator({ planTier, stores }: Props) {
                     <Checkbox
                       checked={editLogoOnReceipt}
                       onCheckedChange={(v) => setEditLogoOnReceipt(v === true)}
-                      className="border-zinc-700 data-[state=checked]:bg-white data-[state=checked]:text-zinc-950"
+                      className="border-border data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                     />
-                    <span className="text-xs text-zinc-500">
+                    <span className="text-xs text-muted-foreground">
                       Show on receipt
                     </span>
                   </div>
@@ -311,17 +311,17 @@ export function StoreLimitIndicator({ planTier, stores }: Props) {
               </div>
             </div>
           </div>
-          <DialogFooter className="p-6 bg-zinc-950/50 mt-6 gap-3">
+          <DialogFooter className="p-6 bg-muted/30 mt-6 gap-3">
             <button 
               onClick={() => setEditingStore(null)}
-              className="border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent"
+              className="border border-border text-foreground hover:bg-accent rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase bg-transparent"
             >
               CANCEL
             </button>
             <button 
               onClick={handleSaveEdit} 
               disabled={isPending}
-              className="bg-white text-zinc-950 hover:bg-zinc-100 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm h-9 px-5 text-xs font-semibold tracking-[0.12em] uppercase transition-colors"
             >
               {isPending ? "SAVING..." : "SAVE CHANGES"}
             </button>
