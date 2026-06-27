@@ -300,4 +300,4 @@ For issues and questions:
 
 ---
 
-**Built with ❤️ for fashion boutiques**
+**Built with ❤️ for fashion boutiques Across the world**
