@@ -110,7 +110,7 @@ export default function MerchantsShell({ merchants }: MerchantsShellProps) {
           <p className="text-[#E8400C] text-[10px] tracking-widest uppercase font-bold">
             CRM & Monitoring
           </p>
-          <h1 className="text-foreground text-2xl font-bold tracking-tight">Merchant List</h1>
+          <h1 className="font-editorial text-foreground text-4xl font-bold tracking-tight uppercase">Merchant List</h1>
         </div>
 
         <div className="flex items-center gap-3">

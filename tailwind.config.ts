@@ -89,7 +89,7 @@ const config = {
       fontFamily: {
         sans: ["var(--font-sans)", "sans-serif"],
         mono: ["var(--font-mono)", "monospace"],
-        editorial: ["var(--font-sans)", "sans-serif"],
+        editorial: ["var(--font-playfair)", "Georgia", "serif"],
       },
       borderRadius: {
         sm: "calc(var(--radius) * 0.6)",

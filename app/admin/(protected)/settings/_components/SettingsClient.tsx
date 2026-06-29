@@ -82,7 +82,7 @@ export default function SettingsClient({ initialSettings, whatsappPhoneId }: Set
       <div className="max-w-4xl mx-auto space-y-12 font-sans">
         <div>
           <div className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider mb-1">System Configuration</div>
-          <h1 className="text-foreground text-3xl font-bold tracking-tight">Settings</h1>
+          <h1 className="font-editorial text-foreground text-4xl font-bold tracking-tight uppercase">Settings</h1>
         </div>
 
         {/* WhatsApp Configuration */}

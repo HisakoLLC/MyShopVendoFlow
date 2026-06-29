@@ -34,7 +34,7 @@ export default function MerchantDetailHeader({ account, userRole }: MerchantDeta
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-4">
-            <h1 className="text-foreground text-3xl font-bold tracking-tight">{account.business_name}</h1>
+            <h1 className="font-editorial text-foreground text-4xl font-bold tracking-tight uppercase">{account.business_name}</h1>
             <button 
               onClick={() => setShowEditSheet(true)}
               className="p-1.5 rounded-md bg-accent border border-border text-muted-foreground hover:text-[#E8400C] hover:border-[#E8400C]/30 transition-all group/edit cursor-pointer"

@@ -23,7 +23,7 @@ async function StaffData() {
 export default function StaffPage() {
   return (
     <div className="px-8 py-8 md:px-12 md:py-12 max-w-7xl mx-auto">
-      <Suspense fallback={<div className="text-white animate-pulse text-[10px] uppercase font-black tracking-widest">Hydrating Staff Ledger...</div>}>
+      <Suspense fallback={<div className="text-foreground animate-pulse text-[10px] uppercase font-black tracking-widest">Hydrating Staff Ledger...</div>}>
         <StaffData />
       </Suspense>
     </div>

@@ -111,7 +111,7 @@ export default function StaffClient({ initialStaff }: StaffClientProps) {
       <div className="flex justify-between items-end">
         <div>
           <div className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em] mb-1">System Permissions</div>
-          <h1 className="text-foreground text-3xl font-bold tracking-tighter">Admin Staff</h1>
+          <h1 className="font-editorial text-foreground text-4xl font-bold tracking-tight uppercase">Admin Staff</h1>
         </div>
         <PermissionGate permission="staff_manage">
           <button 

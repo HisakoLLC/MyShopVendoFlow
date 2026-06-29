@@ -99,7 +99,7 @@ export default function ReportsClient({ initialReports, merchants }: ReportsClie
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <div className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider mb-1">Analytics Hub</div>
-          <h1 className="text-foreground text-3xl font-bold tracking-tight">Merchant Reports</h1>
+          <h1 className="font-editorial text-foreground text-4xl font-bold tracking-tight uppercase">Merchant Reports</h1>
         </div>
         <PermissionGate permission="reports_generate">
           <button 

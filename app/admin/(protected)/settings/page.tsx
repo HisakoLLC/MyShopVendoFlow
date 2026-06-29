@@ -28,7 +28,7 @@ async function SettingsData() {
 export default function SettingsPage() {
   return (
     <div className="px-8 py-12 md:px-12">
-      <Suspense fallback={<div className="text-white p-8 animate-pulse text-[10px] uppercase font-black tracking-widest">Fetching System Configs...</div>}>
+      <Suspense fallback={<div className="text-foreground p-8 animate-pulse text-[10px] uppercase font-black tracking-widest">Fetching System Configs...</div>}>
         <SettingsData />
       </Suspense>
     </div>

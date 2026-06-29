@@ -108,7 +108,7 @@ async function DashboardStats() {
       {/* Page Header */}
       <div>
         <div className="text-muted-foreground/80 text-[10px] font-bold uppercase tracking-[0.3em] mb-1">Corporate Intelligence</div>
-        <h1 className="text-foreground text-3xl md:text-4xl font-bold tracking-tight leading-none">OVERVIEW</h1>
+        <h1 className="font-editorial text-foreground text-4xl md:text-5xl font-bold tracking-tight leading-none uppercase">OVERVIEW</h1>
         <p className="text-muted-foreground text-xs font-semibold mt-2 flex items-center gap-2">
           <Clock className="w-3.5 h-3.5" />
           {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}

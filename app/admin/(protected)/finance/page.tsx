@@ -30,7 +30,7 @@ async function FinanceData() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
         <div>
           <div className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.4em] mb-2 px-0.5">Corporate Oversight</div>
-          <h1 className="text-foreground text-5xl font-black tracking-tighter leading-none">FINANCE</h1>
+          <h1 className="font-editorial text-foreground text-5xl font-bold tracking-tight leading-none uppercase">FINANCE</h1>
         </div>
       </div>
 
