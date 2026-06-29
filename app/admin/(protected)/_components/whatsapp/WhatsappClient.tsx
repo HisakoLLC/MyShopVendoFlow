@@ -677,10 +677,10 @@ export default function WhatsappClient({ initialConversations, merchantId, merch
                                         Record Payment
                                       </button>
                                    )}
-                                   <Link 
-                                     href={`/admin/merchants/${selectedConversation.merchant_id}?tab=billing`}
-                                     className="px-3 py-2 rounded bg-white/5 border border-white/10 text-[9px] font-bold uppercase tracking-widest text-[#666] hover:text-white transition-all"
-                                   >
+                                    <Link 
+                                      href={`/admin/merchants/${selectedConversation.merchant_id}?tab=billing`}
+                                      className="px-3 py-2 rounded bg-muted border border-border text-[9px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
+                                    >
                                       Full Billing
                                    </Link>
                                 </div>
