@@ -10,9 +10,9 @@ import {
 } from "@/components/ui/dialog"
 import { useAdminUser } from "@/lib/admin/AdminUserContext"
 
-const labelCls = "block text-[10px] font-bold uppercase tracking-widest text-[#555] mb-1"
+const labelCls = "block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1"
 const inputCls =
-  "w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-sm px-3 py-2 text-sm text-white placeholder-[#444] focus:outline-none focus:border-[#444] transition-colors"
+  "w-full bg-background border border-input rounded-sm px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary transition-colors"
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -102,7 +102,7 @@ export function SuspendAccountModal({
 
   return (
     <Dialog open onOpenChange={handleOpenChange}>
-      <DialogContent className="bg-[#111] border border-[#1f1f1f] text-white max-w-md">
+      <DialogContent className="bg-background border border-border text-foreground max-w-md">
         <DialogHeader>
           <DialogTitle className={`text-sm font-bold uppercase tracking-widest flex items-center gap-2 ${isSuspended ? "text-emerald-400" : "text-red-400"}`}>
             {isSuspended ? <ShieldCheck className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
@@ -122,12 +122,12 @@ export function SuspendAccountModal({
           <div className="space-y-5 mt-1">
             <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-4 space-y-2">
               <div className="flex items-start gap-3">
-                <ShieldCheck className="w-5 h-5 text-emerald-400 mt-0.5 shrink-0" />
+                <ShieldCheck className="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-sm font-semibold text-white">Reactivate {merchantName}?</p>
-                  <p className="text-xs text-[#888] mt-1">
+                  <p className="text-sm font-semibold text-foreground">Reactivate {merchantName}?</p>
+                  <p className="text-xs text-muted-foreground mt-1">
                     This will restore full access to VendoFlow for this merchant and set their subscription status back to{" "}
-                    <span className="text-emerald-400 font-semibold">active</span>.
+                    <span className="text-emerald-500 font-semibold">active</span>.
                   </p>
                 </div>
               </div>
@@ -230,8 +230,8 @@ export function SuspendAccountModal({
                 onChange={e => setConfirm3(e.target.checked)}
                 className="mt-0.5 w-4 h-4 accent-red-500"
               />
-              <span className="text-xs text-[#888]">
-                I understand this will immediately block all access for <span className="text-white font-semibold">{merchantName}</span> and I have verified the reason.
+              <span className="text-xs text-muted-foreground">
+                I understand this will immediately block all access for <span className="text-foreground font-semibold">{merchantName}</span> and I have verified the reason.
               </span>
             </label>
 
@@ -246,7 +246,7 @@ export function SuspendAccountModal({
               <button
                 type="button"
                 onClick={() => handleOpenChange(false)}
-                className="flex-1 px-4 py-2.5 border border-[#2a2a2a] rounded-sm text-xs font-bold text-[#888] hover:border-white/20 hover:text-white transition-all"
+                className="flex-1 px-4 py-2.5 border border-input bg-background rounded-sm text-xs font-bold text-foreground hover:bg-accent transition-all"
               >
                 Cancel
               </button>
@@ -254,7 +254,7 @@ export function SuspendAccountModal({
                 type="button"
                 onClick={submit}
                 disabled={saving || !confirm3 || !reason.trim()}
-                className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-sm text-xs font-black uppercase tracking-widest hover:bg-red-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2.5 bg-destructive text-destructive-foreground rounded-sm text-xs font-black uppercase tracking-widest hover:bg-destructive/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 {saving ? "Suspending…" : "Suspend Account"}

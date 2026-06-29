@@ -63,62 +63,62 @@ export default function EditMerchantSheet({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="bg-[#0a0a0a] border-l border-[#1a1a1a] sm:max-w-md p-0">
+      <SheetContent className="bg-background border-l border-border sm:max-w-md p-0">
         <div className="h-full flex flex-col">
-          <SheetHeader className="p-8 border-b border-[#1a1a1a] bg-[#0d0d0d]">
-            <SheetTitle className="text-white text-xl font-black uppercase tracking-widest">Protocol Override</SheetTitle>
-            <SheetDescription className="text-[#444] text-[10px] font-bold uppercase tracking-[0.2em]">Adjusting merchant parameters</SheetDescription>
+          <SheetHeader className="p-8 border-b border-border bg-muted/20">
+            <SheetTitle className="text-foreground text-xl font-black uppercase tracking-widest">Protocol Override</SheetTitle>
+            <SheetDescription className="text-muted-foreground text-[10px] font-bold uppercase tracking-[0.2em]">Adjusting merchant parameters</SheetDescription>
           </SheetHeader>
 
           <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
             <div className="space-y-4">
                <div>
-                 <Label className="text-[10px] font-black text-[#444] uppercase tracking-widest mb-1.5 block">Business Identity</Label>
-                 <Input 
-                   value={formData.business_name || ""} 
-                   onChange={(e) => setFormData({...formData, business_name: e.target.value})}
-                   className="bg-black border-[#1a1a1a] text-white text-sm rounded-sm h-12"
-                 />
-               </div>
-               <div>
-                 <Label className="text-[10px] font-black text-[#444] uppercase tracking-widest mb-1.5 block">Owner Vector</Label>
-                 <Input 
-                   value={formData.owner_email || ""} 
-                   onChange={(e) => setFormData({...formData, owner_email: e.target.value})}
-                   className="bg-black border-[#1a1a1a] text-white text-sm rounded-sm h-12"
-                 />
-               </div>
-               <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-[10px] font-black text-[#444] uppercase tracking-widest mb-1.5 block">Region</Label>
-                    <Input 
-                      value={formData.city || ""} 
-                      onChange={(e) => setFormData({...formData, city: e.target.value})}
-                      className="bg-black border-[#1a1a1a] text-white text-sm rounded-sm h-12"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-[10px] font-black text-[#444] uppercase tracking-widest mb-1.5 block">ISO Code</Label>
-                    <Input 
-                      value={formData.country || ""} 
-                      onChange={(e) => setFormData({...formData, country: e.target.value})}
-                      className="bg-black border-[#1a1a1a] text-white text-sm rounded-sm h-12"
-                    />
-                  </div>
+                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1.5 block">Business Identity</Label>
+                  <Input 
+                    value={formData.business_name || ""} 
+                    onChange={(e) => setFormData({...formData, business_name: e.target.value})}
+                    className="bg-background border-input text-foreground text-sm rounded-sm h-12"
+                  />
+                </div>
+                <div>
+                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1.5 block">Owner Vector</Label>
+                  <Input 
+                    value={formData.owner_email || ""} 
+                    onChange={(e) => setFormData({...formData, owner_email: e.target.value})}
+                    className="bg-background border-input text-foreground text-sm rounded-sm h-12"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                   <div>
+                     <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1.5 block">Region</Label>
+                     <Input 
+                       value={formData.city || ""} 
+                       onChange={(e) => setFormData({...formData, city: e.target.value})}
+                       className="bg-background border-input text-foreground text-sm rounded-sm h-12"
+                     />
+                   </div>
+                   <div>
+                     <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1.5 block">ISO Code</Label>
+                     <Input 
+                       value={formData.country || ""} 
+                       onChange={(e) => setFormData({...formData, country: e.target.value})}
+                       className="bg-background border-input text-foreground text-sm rounded-sm h-12"
+                     />
+                   </div>
                </div>
             </div>
           </form>
 
-          <div className="p-8 bg-[#0d0d0d] border-t border-[#1a1a1a] flex gap-4">
+          <div className="p-8 bg-muted/30 border-t border-border flex gap-4">
              <Button 
                variant="outline" 
-               className="flex-1 rounded-sm border-[#1a1a1a] text-[#444] hover:text-white"
+               className="flex-1 rounded-sm border-input text-foreground hover:bg-accent"
                onClick={onClose}
              >
                Abort
              </Button>
              <Button 
-               className="flex-1 rounded-sm bg-white text-black font-black uppercase tracking-widest hover:bg-[#ccc]"
+               className="flex-1 rounded-sm bg-primary text-primary-foreground font-black uppercase tracking-widest hover:bg-primary/90"
                onClick={handleSubmit}
                disabled={loading}
              >

@@ -9,9 +9,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 
-const labelCls = "block text-[10px] font-bold uppercase tracking-widest text-[#555] mb-1"
+const labelCls = "block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1"
 const inputCls =
-  "w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-sm px-3 py-2 text-sm text-white placeholder-[#444] focus:outline-none focus:border-[#444] transition-colors"
+  "w-full bg-background border border-input rounded-sm px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary transition-colors"
 
 function fmtDate(iso: string | null | undefined): string {
   if (!iso) return "Not set"
@@ -101,9 +101,9 @@ export function ExtendExpiryModal({
 
   return (
     <Dialog open onOpenChange={handleOpenChange}>
-      <DialogContent className="bg-[#111] border border-[#1f1f1f] text-white max-w-md">
+      <DialogContent className="bg-background border border-border text-foreground max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-white text-sm font-bold uppercase tracking-widest">
+          <DialogTitle className="text-foreground text-sm font-bold uppercase tracking-widest">
             Extend Subscription Expiry
           </DialogTitle>
         </DialogHeader>
@@ -117,19 +117,19 @@ export function ExtendExpiryModal({
           <div className="space-y-5 mt-1">
 
             {/* Current expiry display */}
-            <div className="bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg p-4 space-y-3">
+            <div className="bg-muted border border-border rounded-lg p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <div className="text-[9px] font-bold uppercase tracking-widest text-[#555]">Current Expiry</div>
-                  <div className="text-white font-semibold text-sm flex items-center gap-2">
-                    <CalendarDays className="w-4 h-4 text-[#444]" />
+                  <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Current Expiry</div>
+                  <div className="text-foreground font-semibold text-sm flex items-center gap-2">
+                    <CalendarDays className="w-4 h-4 text-muted-foreground" />
                     {fmtDate(currentExpiry)}
                   </div>
                 </div>
-                <ArrowRight className="w-4 h-4 text-[#444]" />
+                <ArrowRight className="w-4 h-4 text-muted-foreground" />
                 <div className="space-y-0.5 text-right">
-                  <div className="text-[9px] font-bold uppercase tracking-widest text-[#555]">New Expiry</div>
-                  <div className={`font-semibold text-sm ${isValidDate ? "text-emerald-400" : "text-[#666]"}`}>
+                  <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">New Expiry</div>
+                  <div className={`font-semibold text-sm ${isValidDate ? "text-emerald-500" : "text-muted-foreground"}`}>
                     {newExpiry ? fmtDate(newExpiry) : "—"}
                   </div>
                 </div>
@@ -182,7 +182,7 @@ export function ExtendExpiryModal({
               <button
                 type="button"
                 onClick={() => handleOpenChange(false)}
-                className="flex-1 px-4 py-2.5 border border-[#2a2a2a] rounded-sm text-xs font-bold text-[#888] hover:border-white/20 hover:text-white transition-all"
+                className="flex-1 px-4 py-2.5 border border-input bg-background rounded-sm text-xs font-bold text-foreground hover:bg-accent transition-all"
               >
                 Cancel
               </button>
@@ -190,7 +190,7 @@ export function ExtendExpiryModal({
                 type="button"
                 onClick={submit}
                 disabled={saving || !isValidDate}
-                className="flex-1 px-4 py-2.5 bg-[#22c55e] text-black rounded-sm text-xs font-black uppercase tracking-widest hover:bg-[#1eb054] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2.5 bg-primary text-primary-foreground rounded-sm text-xs font-black uppercase tracking-widest hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 {saving ? "Extending…" : "Extend Expiry"}

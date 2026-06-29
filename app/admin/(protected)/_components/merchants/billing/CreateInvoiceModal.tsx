@@ -9,9 +9,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 
-const labelCls = "block text-[10px] font-bold uppercase tracking-widest text-[#555] mb-1"
+const labelCls = "block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1"
 const inputCls =
-  "w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-sm px-3 py-2 text-sm text-white placeholder-[#444] focus:outline-none focus:border-[#444] transition-colors"
+  "w-full bg-background border border-input rounded-sm px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary transition-colors"
 
 // Plan prices for pre-filling
 const PLAN_PRICES: Record<string, number> = {
@@ -115,14 +115,14 @@ export function CreateInvoiceModal({
 
   return (
     <Dialog open onOpenChange={handleOpenChange}>
-      <DialogContent className="bg-[#111] border border-[#1f1f1f] text-white max-w-md">
+      <DialogContent className="bg-background border border-border text-foreground max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-white text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+          <DialogTitle className="text-foreground text-sm font-bold uppercase tracking-widest flex items-center gap-2">
             <FileText className="w-4 h-4" />
             Create Invoice
           </DialogTitle>
-          <p className="text-[#555] text-xs pt-1">
-            Plan: <span className="text-white font-semibold capitalize">{currentSubscription.plan_tier}</span>
+          <p className="text-muted-foreground text-xs pt-1">
+            Plan: <span className="text-foreground font-semibold capitalize">{currentSubscription.plan_tier}</span>
           </p>
         </DialogHeader>
 
@@ -217,7 +217,7 @@ export function CreateInvoiceModal({
               <button
                 type="button"
                 onClick={() => handleOpenChange(false)}
-                className="flex-1 px-4 py-2.5 border border-[#2a2a2a] rounded-sm text-xs font-bold text-[#888] hover:border-white/20 hover:text-white transition-all"
+                className="flex-1 px-4 py-2.5 border border-input bg-background rounded-sm text-xs font-bold text-foreground hover:bg-accent transition-all"
               >
                 Cancel
               </button>
@@ -225,7 +225,7 @@ export function CreateInvoiceModal({
                 type="button"
                 onClick={submit}
                 disabled={saving}
-                className="flex-1 px-4 py-2.5 bg-[#22c55e] text-black rounded-sm text-xs font-black uppercase tracking-widest hover:bg-[#1eb054] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2.5 bg-primary text-primary-foreground rounded-sm text-xs font-black uppercase tracking-widest hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 {saving ? "Creating…" : "Create Invoice"}

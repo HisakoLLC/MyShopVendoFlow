@@ -264,19 +264,19 @@ export default function ConversationView({
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-[#0a0a0a]">
+      <div className="flex-1 flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 text-[#22c55e] animate-spin" />
-          <div className="text-[10px] text-[#444] font-black uppercase tracking-[0.2em]">Loading Conversation...</div>
+          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          <div className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em]">Loading Conversation...</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0a0a]">
+    <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="h-16 border-b border-[#1a1a1a] px-6 flex items-center justify-between bg-[#0d0d0d]/40">
+      <div className="h-16 border-b border-border px-6 flex items-center justify-between bg-card">
         <div className="flex items-center gap-4">
           <div className="relative group cursor-pointer" onClick={() => setShowStatusList(!showStatusList)}>
             <div className={`px-2 py-1 rounded border border-white/5 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all hover:bg-white/5 ${
@@ -382,7 +382,7 @@ export default function ConversationView({
       {/* Messages Stream */}
       <div 
         ref={scrollRef}
-        className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-[#0a0a0a]"
+        className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-muted/10"
       >
         {messages.map((msg) => {
           if (msg.type === "internal_note" || msg.message_type === "system") {
@@ -421,8 +421,8 @@ export default function ConversationView({
               )}
               <div className={`max-w-[70%] p-3 px-4 rounded-2xl relative group ${
                 isInbound 
-                  ? "bg-[#161616] border border-[#1f1f1f] rounded-tl-none text-[#ddd]" 
-                  : "bg-[#22c55e]/15 border border-[#22c55e]/30 rounded-tr-none text-white shadow-lg shadow-black/20"
+                  ? "bg-card border border-border rounded-tl-none text-foreground" 
+                  : "bg-primary/10 border border-primary/20 rounded-tr-none text-foreground shadow-sm"
               }`}>
                 <p className="text-sm leading-relaxed whitespace-pre-wrap">
                   {msg.message_type === "template" 
@@ -443,8 +443,8 @@ export default function ConversationView({
                         target="_blank" 
                         className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
                           isInbound 
-                            ? "bg-[#111] border-[#1f1f1f] hover:bg-[#1a1a1a]" 
-                            : "bg-white/5 border-white/10 hover:bg-white/10"
+                            ? "bg-muted border-border hover:bg-muted/80" 
+                            : "bg-muted/50 border-border hover:bg-muted/80"
                         }`}
                       >
                         <div className={`w-10 h-10 rounded flex items-center justify-center ${isInbound ? "bg-muted" : "bg-[#22c55e]/20"}`}>
@@ -459,7 +459,7 @@ export default function ConversationView({
                   </div>
                 )}
                 
-                <div className={`mt-1.5 flex items-center gap-1.5 ${isInbound ? "text-[#444]" : "text-white/30"}`}>
+                <div className={`mt-1.5 flex items-center gap-1.5 ${isInbound ? "text-muted-foreground" : "text-muted-foreground/80"}`}>
                   <span className="text-[9px] font-mono">{formatTimestamp(msg.created_at)}</span>
                   {!isInbound && (
                     <span className="w-3 h-3">
@@ -475,15 +475,15 @@ export default function ConversationView({
         })}
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center space-y-3 opacity-20">
-            <Clock className="w-8 h-8 text-[#444]" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#444] text-center max-w-[200px]">
+            <Clock className="w-8 h-8 text-muted-foreground" />
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground text-center max-w-[200px]">
               No messages yet. Send the first message below.
             </p>
           </div>
         )}
       </div>
       
-      <div className="border-t border-[#1a1a1a] p-4 bg-[#0d0d0d] space-y-4 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+      <div className="border-t border-border p-4 bg-card space-y-4">
         {isSessionExpired() && activeTab === 'message' && !isInternalNote && (
            <div className="p-3 rounded border border-amber-500/20 bg-amber-500/5 mb-2">
               <div className="flex items-center gap-3">
@@ -505,8 +505,8 @@ export default function ConversationView({
         <PermissionGate 
           permission="whatsapp_send"
           fallback={
-            <div className="bg-[#0d0d0d] p-6 text-center border-t border-[#1f1f1f]">
-               <div className="flex flex-col items-center gap-2 text-[#444]">
+            <div className="bg-card p-6 text-center border-t border-border">
+               <div className="flex flex-col items-center gap-2 text-muted-foreground">
                   <Lock className="w-5 h-5 opacity-20" />
                   <p className="text-[10px] font-black uppercase tracking-widest italic opacity-40">Communication Restricted</p>
                </div>
@@ -521,17 +521,17 @@ export default function ConversationView({
           />
 
           {/* Composer Tabs */}
-          <div className="flex gap-4 border-b border-[#1f1f1f] mb-2 px-1">
+          <div className="flex gap-4 border-b border-border mb-2 px-1">
             {["message", "template"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab as any)}
                 className={`pb-3 text-[10px] font-black uppercase tracking-widest transition-all relative ${
-                  activeTab === tab ? "text-white" : "text-[#444] hover:text-[#666]"
+                  activeTab === tab ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {tab}
-                  {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#22c55e]" />}
+                  {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />}
               </button>
             ))}
           </div>
@@ -542,8 +542,8 @@ export default function ConversationView({
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 placeholder={isInternalNote ? "Write private administrative note..." : "Compose high-fidelity message..."}
-                className={`w-full bg-[#111] border rounded-lg p-3 text-sm text-white focus:outline-none transition-all resize-none h-24 ${
-                  isInternalNote ? "border-amber-400/40 focus:border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.05)]" : "border-[#1f1f1f] focus:border-[#22c55e]"
+                className={`w-full bg-background border rounded-lg p-3 text-sm text-foreground focus:outline-none transition-all resize-none h-24 ${
+                  isInternalNote ? "border-amber-400/40 focus:border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.05)]" : "border-input focus:border-primary"
                 }`}
               />
               <div className="flex items-center justify-between">
@@ -555,12 +555,12 @@ export default function ConversationView({
                     className="hidden"
                   />
                   <div className={`w-3.5 h-3.5 border rounded flex items-center justify-center transition-colors ${
-                    isInternalNote ? "border-amber-400 bg-amber-400" : "border-[#444] group-hover:border-white"
+                    isInternalNote ? "border-amber-400 bg-amber-400" : "border-border group-hover:border-foreground"
                   }`}>
-                    {isInternalNote && <Check className="w-2.5 h-2.5 text-black" />}
+                    {isInternalNote && <Check className="w-2.5 h-2.5 text-white" />}
                   </div>
                   <span className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${
-                    isInternalNote ? "text-amber-400" : "text-[#444]"
+                    isInternalNote ? "text-amber-500" : "text-muted-foreground"
                   }`}>Internal Note</span>
                 </label>
                 
@@ -568,17 +568,17 @@ export default function ConversationView({
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isSending || isUploading}
-                    className="p-2 rounded-md hover:bg-white/5 text-[#444] hover:text-white transition-colors border border-transparent hover:border-white/5"
+                    className="p-2 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors border border-transparent"
                     title="Attach File"
                   >
-                    {isUploading ? <Loader2 className="w-4 h-4 animate-spin text-[#22c55e]" /> : <Paperclip className="w-4 h-4" />}
+                    {isUploading ? <Loader2 className="w-4 h-4 animate-spin text-primary" /> : <Paperclip className="w-4 h-4" />}
                   </button>
 
                   <button
                     onClick={() => handleSend()}
                     disabled={isSending || isUploading || (!inputMessage && activeTab === "message")}
                     className={`flex items-center gap-2 px-5 py-2 rounded-md font-bold text-[10px] uppercase tracking-widest transition-all ${
-                      isSending || isUploading ? "bg-[#1a1a1a] text-[#444] opacity-50" : "bg-[#22c55e] text-white hover:bg-[#16a34a]"
+                      isSending || isUploading ? "bg-muted text-muted-foreground opacity-50" : "bg-primary text-primary-foreground hover:bg-primary/90"
                     }`}
                   >
                     {isSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}

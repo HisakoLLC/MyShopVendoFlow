@@ -86,7 +86,7 @@ export default function StaffClient({ initialStaff }: StaffClientProps) {
 
   const getRoleStyle = (role: string) => {
     switch(role) {
-      case 'super_admin': return 'bg-[#22c55e]/10 text-[#22c55e] border-[#22c55e]/20'
+      case 'super_admin': return 'bg-primary/10 text-primary border-primary/20'
       case 'finance': return 'bg-blue-400/10 text-blue-400 border-blue-400/20'
       case 'reporting': return 'bg-purple-400/10 text-purple-400 border-purple-400/20'
       default: return 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20'
@@ -102,7 +102,7 @@ export default function StaffClient({ initialStaff }: StaffClientProps) {
   return (
     <div className="space-y-6">
       {!isSuperAdmin && (
-        <div className="flex items-center gap-3 p-4 bg-white/[0.02] border border-[#1f1f1f] rounded-xl text-[10px] text-[#444] uppercase font-black tracking-widest">
+        <div className="flex items-center gap-3 p-4 bg-muted/50 border border-border rounded-xl text-[10px] text-muted-foreground uppercase font-black tracking-widest">
            <Lock className="w-4 h-4" />
            View only — contact a super admin to make changes
         </div>
@@ -110,13 +110,13 @@ export default function StaffClient({ initialStaff }: StaffClientProps) {
 
       <div className="flex justify-between items-end">
         <div>
-          <div className="text-[#444] text-[10px] font-black uppercase tracking-[0.2em] mb-1">System Permissions</div>
-          <h1 className="text-white text-3xl font-bold tracking-tighter">Admin Staff</h1>
+          <div className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em] mb-1">System Permissions</div>
+          <h1 className="text-foreground text-3xl font-bold tracking-tighter">Admin Staff</h1>
         </div>
         <PermissionGate permission="staff_manage">
           <button 
             onClick={() => setShowInvite(true)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#22c55e] text-black text-[10px] font-black uppercase tracking-widest rounded-xl hover:shadow-2xl hover:shadow-[#22c55e]/20 transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary/90 transition-all"
           >
             <UserPlus className="w-4 h-4" />
             Invite Admin User
@@ -124,10 +124,10 @@ export default function StaffClient({ initialStaff }: StaffClientProps) {
         </PermissionGate>
       </div>
 
-      <div className="bg-[#111] border border-[#1f1f1f] rounded-2xl overflow-hidden shadow-2xl">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-2xl">
         <table className="w-full text-left">
           <thead>
-            <tr className="bg-[#161616] text-[#444] border-b border-[#1f1f1f]">
+            <tr className="bg-muted/50 text-muted-foreground border-b border-border">
               <th className="px-6 py-5 text-[10px] font-bold uppercase tracking-wider">User</th>
               <th className="px-6 py-5 text-[10px] font-bold uppercase tracking-wider">Role</th>
               <th className="px-6 py-5 text-[10px] font-bold uppercase tracking-wider">Status</th>
@@ -135,17 +135,17 @@ export default function StaffClient({ initialStaff }: StaffClientProps) {
               <th className="px-6 py-5 text-[10px] font-bold uppercase tracking-wider text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#1f1f1f]">
+          <tbody className="divide-y divide-border">
             {initialStaff.map((user) => (
-              <tr key={user.id} className="hover:bg-white/[0.01] transition-colors group">
+              <tr key={user.id} className="hover:bg-muted/50 transition-colors group">
                 <td className="px-6 py-5">
                    <div className="flex items-center gap-3">
                       <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm ${getRoleStyle(user.role)} border shadow-inner`}>
-                        {user.full_name.charAt(0)}
+                         {user.full_name.charAt(0)}
                       </div>
                       <div>
-                        <div className="text-white text-xs font-semibold">{user.full_name}</div>
-                        <div className="text-[10px] text-[#444] font-mono lowercase">{user.email}</div>
+                        <div className="text-foreground text-xs font-semibold">{user.full_name}</div>
+                        <div className="text-[10px] text-muted-foreground font-mono lowercase">{user.email}</div>
                       </div>
                    </div>
                 </td>
@@ -156,37 +156,37 @@ export default function StaffClient({ initialStaff }: StaffClientProps) {
                 </td>
                 <td className="px-6 py-5">
                    <div className="flex items-center gap-2">
-                     <div className={`w-1.5 h-1.5 rounded-full ${user.is_active ? 'bg-[#22c55e]' : 'bg-[#333]'}`} />
-                     <span className={`text-[10px] font-bold uppercase tracking-widest ${user.is_active ? 'text-[#22c55e]' : 'text-[#333]'}`}>
+                     <div className={`w-1.5 h-1.5 rounded-full ${user.is_active ? 'bg-[#22c55e]' : 'bg-muted'}`} />
+                     <span className={`text-[10px] font-bold uppercase tracking-widest ${user.is_active ? 'text-[#22c55e]' : 'text-muted-foreground'}`}>
                        {user.is_active ? 'Active' : 'Inactive'}
                      </span>
                    </div>
                 </td>
                 <td className="px-6 py-5">
-                   <div className="flex items-center gap-2 text-[10px] text-[#444] font-medium">
+                   <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-medium">
                      <Clock className="w-3.5 h-3.5 opacity-30" />
                      {formatLastLogin(user.last_login_at)}
                    </div>
                 </td>
-                <td className="px-6 py-5 text-right">
+                 <td className="px-6 py-5 text-right">
                    <PermissionGate permission="staff_manage">
-                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button 
-                          onClick={() => setEditingUser(user)}
-                          className="p-2 text-[#444] hover:text-white bg-white/5 rounded-lg border border-[#1f1f1f] transition-all"
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                        </button>
-                        <button 
-                          disabled={user.id === currentUser.id || pendingId === user.id}
-                          onClick={() => toggleStatus(user)}
-                          className={`p-2 rounded-lg border border-[#1f1f1f] transition-all ${
-                            user.is_active ? 'text-[#444] hover:text-red-400 bg-white/5' : 'text-[#444] hover:text-[#22c55e] bg-white/5'
-                          } disabled:opacity-20`}
-                        >
-                          {pendingId === user.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                        </button>
-                     </div>
+                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <button 
+                           onClick={() => setEditingUser(user)}
+                           className="p-2 text-muted-foreground hover:text-foreground bg-background rounded-lg border border-input hover:bg-accent transition-all"
+                         >
+                           <Edit2 className="w-3.5 h-3.5" />
+                         </button>
+                         <button 
+                           disabled={user.id === currentUser.id || pendingId === user.id}
+                           onClick={() => toggleStatus(user)}
+                           className={`p-2 rounded-lg border border-input transition-all ${
+                             user.is_active ? 'text-muted-foreground hover:text-red-400 bg-background hover:bg-accent' : 'text-muted-foreground hover:text-primary bg-background hover:bg-accent'
+                           } disabled:opacity-20`}
+                         >
+                           {pendingId === user.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                         </button>
+                      </div>
                    </PermissionGate>
                 </td>
               </tr>
@@ -200,42 +200,40 @@ export default function StaffClient({ initialStaff }: StaffClientProps) {
           onClose={() => setShowInvite(false)}
           onSuccess={() => router.refresh()}
         />
-      )}
-
-      {editingUser && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-end">
-           <div className="w-full max-w-sm bg-[#0d0d0d] border-l border-[#1f1f1f] h-full p-8 animate-in slide-in-from-right duration-300">
+      )}      {editingUser && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1000] flex justify-end">
+           <div className="w-full max-w-sm bg-background border-l border-border h-full p-8 animate-in slide-in-from-right duration-300">
               <div className="flex justify-between items-center mb-8">
-                 <h2 className="text-white text-xl font-bold tracking-tight">Modify Role</h2>
-                 <button onClick={() => setEditingUser(null)} className="text-[#444] hover:text-white">
-                   <XCircle className="w-6 h-6" />
+                 <h2 className="text-foreground text-xl font-bold tracking-tight">Modify Role</h2>
+                 <button onClick={() => setEditingUser(null)} className="text-muted-foreground hover:text-foreground">
+                    <XCircle className="w-6 h-6" />
                  </button>
               </div>
               
               <div className="space-y-6">
                  <div>
-                    <label className="text-[10px] text-[#444] uppercase font-bold tracking-widest mb-2 block">Staff Member</label>
-                    <div className="text-white font-semibold">{editingUser.full_name}</div>
-                    <div className="text-xs text-[#444]">{editingUser.email}</div>
+                    <label className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-2 block">Staff Member</label>
+                    <div className="text-foreground font-semibold">{editingUser.full_name}</div>
+                    <div className="text-xs text-muted-foreground">{editingUser.email}</div>
                  </div>
-
+ 
                  <div className="space-y-3">
-                    <label className="text-[10px] text-[#444] uppercase font-bold tracking-widest">Select New Role</label>
+                    <label className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Select New Role</label>
                     {['support', 'finance', 'reporting', 'super_admin'].map((role) => (
                       <button
                         key={role}
                         onClick={() => updateRole(editingUser.id, role)}
                         className={`w-full p-4 rounded-xl border flex items-center justify-between group transition-all ${
                           editingUser.role === role 
-                          ? 'border-[#22c55e] bg-[#22c55e]/5' 
-                          : 'border-[#1f1f1f] hover:border-[#333]'
+                          ? 'border-primary bg-primary/10' 
+                          : 'border-border hover:bg-accent'
                         }`}
                       >
                          <div className="text-left">
-                            <div className="text-xs font-bold text-white uppercase tracking-wider">{role.replace('_', ' ')}</div>
-                            <div className="text-[10px] text-[#444]">System permissions for this role</div>
+                            <div className="text-xs font-bold text-foreground uppercase tracking-wider">{role.replace('_', ' ')}</div>
+                            <div className="text-[10px] text-muted-foreground">System permissions for this role</div>
                          </div>
-                         {editingUser.role === role && <ShieldCheck className="w-5 h-5 text-[#22c55e]" />}
+                         {editingUser.role === role && <ShieldCheck className="w-5 h-5 text-primary" />}
                       </button>
                     ))}
                  </div>

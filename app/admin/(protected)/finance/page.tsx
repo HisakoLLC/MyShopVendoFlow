@@ -29,8 +29,8 @@ async function FinanceData() {
     <div className="space-y-12 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
         <div>
-          <div className="text-[#444] text-[10px] font-black uppercase tracking-[0.4em] mb-2 px-0.5">Corporate Oversight</div>
-          <h1 className="text-white text-5xl font-black tracking-tighter leading-none">FINANCE</h1>
+          <div className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.4em] mb-2 px-0.5">Corporate Oversight</div>
+          <h1 className="text-foreground text-5xl font-black tracking-tighter leading-none">FINANCE</h1>
         </div>
       </div>
 
@@ -47,11 +47,11 @@ export default function FinancePage() {
     <div className="px-8 py-12">
       <Suspense fallback={
         <div className="max-w-7xl mx-auto space-y-12 animate-pulse">
-           <div className="h-16 w-64 bg-[#1a1a1a] rounded-sm" />
+           <div className="h-16 w-64 bg-muted rounded-sm" />
            <div className="grid grid-cols-4 gap-6">
-              {[1,2,3,4].map(i => <div key={i} className="h-32 bg-[#1a1a1a] rounded-sm" />)}
+              {[1,2,3,4].map(i => <div key={i} className="h-32 bg-muted rounded-sm" />)}
            </div>
-           <div className="h-96 bg-[#1a1a1a] rounded-sm" />
+           <div className="h-96 bg-muted rounded-sm" />
         </div>
       }>
          <FinanceData />

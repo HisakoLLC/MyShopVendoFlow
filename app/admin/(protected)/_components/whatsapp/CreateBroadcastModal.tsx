@@ -98,29 +98,28 @@ export function CreateBroadcastModal({ isOpen, onClose, onCreated }: CreateBroad
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl animate-in fade-in">
-      <div className="w-full max-w-2xl bg-[#0d0d0d] border border-[#1a1a1a] rounded-sm shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in">
+      <div className="w-full max-w-2xl bg-background border border-border rounded-sm shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="px-8 py-6 border-b border-[#1a1a1a] flex items-center justify-between bg-[#111]">
+        <div className="px-8 py-6 border-b border-border flex items-center justify-between bg-muted/20">
           <div className="space-y-1">
-            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#22c55e]">New Broadcast Protocol</h3>
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary">New Broadcast Protocol</h3>
             <div className="flex items-center gap-4">
                {[1, 2, 3].map(s => (
                  <div key={s} className="flex items-center gap-2">
                     <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black ${
-                      step === s ? "bg-[#22c55e] text-black" : step > s ? "bg-[#22c55e]/20 text-[#22c55e]" : "bg-[#1a1a1a] text-[#444]"
+                      step === s ? "bg-primary text-primary-foreground" : step > s ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
                     }`}>
-                       {step > s ? <Check className="w-2.5 h-2.5" /> : s}
+                        {step > s ? <Check className="w-2.5 h-2.5" /> : s}
                     </div>
-                    <span className={`text-[9px] font-bold uppercase tracking-widest ${step === s ? "text-white" : "text-[#444]"}`}>
-                      {s === 1 ? "Message" : s === 2 ? "Recipients" : "Schedule"}
+                    <span className={`text-[9px] font-bold uppercase tracking-widest ${step === s ? "text-foreground" : "text-muted-foreground"}`}>
+                       {s === 1 ? "Configure" : s === 2 ? "Segment" : "Transmission"}
                     </span>
-                    {s < 3 && <div className="w-8 h-px bg-[#1a1a1a]" />}
                  </div>
                ))}
             </div>
           </div>
-          <button onClick={onClose} className="text-[#444] hover:text-white transition-colors">
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -130,25 +129,25 @@ export function CreateBroadcastModal({ isOpen, onClose, onCreated }: CreateBroad
           {step === 1 && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-[#555] uppercase tracking-widest">Broadcast Name</label>
+                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Broadcast Name</label>
                 <input
                   type="text"
                   placeholder="e.g. Easter Promo - Active Merchants"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-[#111] border border-[#1a1a1a] rounded-sm p-4 text-sm text-white focus:outline-none focus:border-[#22c55e]/50 transition-all font-medium"
+                  className="w-full bg-background border border-input rounded-sm p-4 text-sm text-foreground focus:outline-none focus:border-primary transition-all font-medium"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-[#555] uppercase tracking-widest">Template Selection</label>
+                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Template Selection</label>
                 <select
                   value={template.id}
                   onChange={(e) => {
                     const t = TEMPLATES.find(t => t.id === e.target.value)
                     if (t) setTemplate(t)
                   }}
-                  className="w-full bg-[#111] border border-[#1a1a1a] rounded-sm p-4 text-sm text-white focus:outline-none focus:border-[#22c55e]/50 transition-all cursor-pointer font-medium uppercase tracking-tight"
+                  className="w-full bg-background border border-input rounded-sm p-4 text-sm text-foreground focus:outline-none focus:border-primary transition-all cursor-pointer font-medium uppercase tracking-tight"
                 >
                   {TEMPLATES.map(t => (
                     <option key={t.id} value={t.id}>{t.name}</option>
@@ -157,27 +156,27 @@ export function CreateBroadcastModal({ isOpen, onClose, onCreated }: CreateBroad
               </div>
 
               {template.params.length > 0 && (
-                <div className="space-y-4 pt-4 border-t border-[#1a1a1a]">
-                  <div className="flex items-center gap-2 text-[#22c55e]">
+                <div className="space-y-4 pt-4 border-t border-border">
+                  <div className="flex items-center gap-2 text-primary">
                      <MessageSquare className="w-3.5 h-3.5" />
                      <span className="text-[10px] font-black uppercase tracking-widest">Dynamic Parameters</span>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     {template.params.map(p => (
-                      <div key={p} className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-[#444] uppercase tracking-wider">{p.replace('_', ' ')}</label>
-                        <input
-                          type="text"
-                          placeholder={p === 'merchant_name' ? "Auto-filled" : "Enter value..."}
-                          value={params[p] || ""}
-                          onChange={(e) => setParams(prev => ({ ...prev, [p]: e.target.value }))}
-                          className="w-full bg-[#111] border border-[#1f1f1f] rounded-sm p-3 text-xs text-white focus:outline-none focus:border-[#22c55e]/30 transition-all"
-                        />
-                      </div>
+                       <div key={p} className="space-y-1.5">
+                         <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">{p.replace('_', ' ')}</label>
+                         <input
+                           type="text"
+                           placeholder={p === 'merchant_name' ? "Auto-filled" : "Enter value..."}
+                           value={params[p] || ""}
+                           onChange={(e) => setParams(prev => ({ ...prev, [p]: e.target.value }))}
+                           className="w-full bg-background border border-input rounded-sm p-3 text-xs text-foreground focus:outline-none focus:border-primary transition-all"
+                         />
+                       </div>
                     ))}
                   </div>
-                  <div className="flex items-center gap-2 p-3 bg-[#111] border border-[#1a1a1a] rounded-sm italic text-[9px] text-[#444]">
-                     <Info className="w-3 h-3 text-[#22c55e]" />
+                  <div className="flex items-center gap-2 p-3 bg-muted border border-border rounded-sm italic text-[9px] text-muted-foreground">
+                     <Info className="w-3 h-3 text-primary" />
                      Hint: Parameter "merchant_name" will be automatically populated for each recipient.
                   </div>
                 </div>
@@ -194,36 +193,36 @@ export function CreateBroadcastModal({ isOpen, onClose, onCreated }: CreateBroad
                     onClick={() => setSegment(s)}
                     className={`p-4 rounded-sm border text-left transition-all relative overflow-hidden group ${
                       segment === s 
-                        ? "bg-[#22c55e] border-[#22c55e] text-black" 
-                        : "bg-[#111] border-[#1a1a1a] text-[#444] hover:border-[#22c55e]/30"
+                        ? "bg-primary border-primary text-primary-foreground" 
+                        : "bg-background border-border text-muted-foreground hover:bg-accent"
                     }`}
                   >
                     <div className="text-[10px] font-black uppercase tracking-widest relative z-10">{s}</div>
-                    <Users className={`absolute -right-2 -bottom-2 w-12 h-12 opacity-5 ${segment === s ? "text-black" : "text-white"}`} />
+                    <Users className={`absolute -right-2 -bottom-2 w-12 h-12 opacity-5 ${segment === s ? "text-primary-foreground" : "text-foreground"}`} />
                   </button>
                 ))}
               </div>
 
-              <div className="p-8 rounded-sm bg-[#111] border border-[#1a1a1a] flex flex-col items-center justify-center space-y-4 relative overflow-hidden">
-                 <div className="absolute top-0 left-0 w-1 h-full bg-[#22c55e]" />
-                 <div className="text-[#444] text-[9px] font-black uppercase tracking-[0.3em]">Estimated Output</div>
+              <div className="p-8 rounded-sm bg-muted border border-border flex flex-col items-center justify-center space-y-4 relative overflow-hidden">
+                 <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
+                 <div className="text-muted-foreground text-[9px] font-black uppercase tracking-[0.3em]">Estimated Output</div>
                  {loadingPreview ? (
-                    <Loader2 className="w-10 h-10 animate-spin text-[#22c55e]" />
+                    <Loader2 className="w-10 h-10 animate-spin text-primary" />
                  ) : (
                     <div className="text-center space-y-2">
-                       <div className="text-4xl font-black text-white tracking-tighter">~{preview.eligibleCount}</div>
-                       <div className="text-[10px] font-bold text-[#666] uppercase tracking-widest">Verified Recipients</div>
+                       <div className="text-4xl font-black text-foreground tracking-tighter">~{preview.eligibleCount}</div>
+                       <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Verified Recipients</div>
                     </div>
                  )}
-                 <div className="flex items-center gap-6 pt-4 border-t border-[#1f1f1f] w-full justify-center">
+                 <div className="flex items-center gap-6 pt-4 border-t border-border w-full justify-center">
                     <div className="text-center">
-                       <div className="text-xs font-black text-[#555]">{preview.totalMerchantCount}</div>
-                       <div className="text-[8px] font-bold text-[#333] uppercase">Total Account Pool</div>
+                       <div className="text-xs font-black text-foreground">{preview.totalMerchantCount}</div>
+                       <div className="text-[8px] font-bold text-muted-foreground uppercase">Total Account Pool</div>
                     </div>
-                    <div className="w-px h-6 bg-[#1f1f1f]" />
+                    <div className="w-px h-6 bg-border" />
                     <div className="text-center">
                        <div className="text-xs font-black text-amber-500">{preview.skippedCount}</div>
-                       <div className="text-[8px] font-bold text-[#333] uppercase">Unlinked / Skipped</div>
+                       <div className="text-[8px] font-bold text-muted-foreground uppercase">Unlinked / Skipped</div>
                     </div>
                  </div>
               </div>
@@ -247,59 +246,59 @@ export function CreateBroadcastModal({ isOpen, onClose, onCreated }: CreateBroad
                     onClick={() => setSendNow(true)}
                     className={`p-6 rounded-sm border text-left transition-all ${
                       sendNow 
-                        ? "bg-[#22c55e]/10 border-[#22c55e] text-[#22c55e]" 
-                        : "bg-[#111] border-[#1a1a1a] text-[#444] hover:border-white/10"
+                        ? "bg-primary/10 border-primary text-primary" 
+                        : "bg-background border-border text-muted-foreground hover:bg-accent"
                     }`}
                   >
                      <Send className="w-6 h-6 mb-4" />
-                     <div className="text-sm font-black uppercase tracking-tight text-white mb-1">Send Immediately</div>
-                     <p className="text-[10px] text-[#555] leading-relaxed">Initiate the broadcast sequence as soon as configuration is verified.</p>
+                     <div className="text-sm font-black uppercase tracking-tight text-foreground mb-1">Send Immediately</div>
+                     <p className="text-[10px] text-muted-foreground leading-relaxed">Initiate the broadcast sequence as soon as configuration is verified.</p>
                   </button>
 
                   <button 
                     onClick={() => setSendNow(false)}
                     className={`p-6 rounded-sm border text-left transition-all ${
                       !sendNow 
-                        ? "bg-[#22c55e]/10 border-[#22c55e] text-[#22c55e]" 
-                        : "bg-[#111] border-[#1a1a1a] text-[#444] hover:border-white/10"
+                        ? "bg-primary/10 border-primary text-primary" 
+                        : "bg-background border-border text-muted-foreground hover:bg-accent"
                     }`}
                   >
                      <Calendar className="w-6 h-6 mb-4" />
-                     <div className="text-sm font-black uppercase tracking-tight text-white mb-1">Schedule Protocol</div>
-                     <p className="text-[10px] text-[#555] leading-relaxed">Designate a specific temporal window for automated transmission.</p>
+                     <div className="text-sm font-black uppercase tracking-tight text-foreground mb-1">Schedule Protocol</div>
+                     <p className="text-[10px] text-muted-foreground leading-relaxed">Designate a specific temporal window for automated transmission.</p>
                   </button>
                </div>
 
                {!sendNow && (
                  <div className="space-y-2 animate-in slide-in-from-top-2">
-                    <label className="text-[10px] font-black text-[#555] uppercase tracking-widest">Transmission Window</label>
+                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Transmission Window</label>
                     <input
                       type="datetime-local"
                       value={scheduledAt}
                       onChange={(e) => setScheduledAt(e.target.value)}
-                      className="w-full bg-[#111] border border-[#1a1a1a] rounded-sm p-4 text-sm text-white focus:outline-none focus:border-[#22c55e]/50 transition-all font-mono"
+                      className="w-full bg-background border border-input rounded-sm p-4 text-sm text-foreground focus:outline-none focus:border-primary transition-all font-mono"
                     />
                  </div>
                )}
 
-               <div className="p-6 bg-[#0a0a0a] border border-[#1a1a1a] rounded-sm space-y-4">
-                  <div className="text-[9px] font-black uppercase tracking-[0.2em] text-[#444] border-b border-[#1a1a1a] pb-2">Configuration Summary</div>
+               <div className="p-6 bg-background border border-border rounded-sm space-y-4">
+                  <div className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground border-b border-border pb-2">Configuration Summary</div>
                   <div className="grid grid-cols-2 gap-y-4 gap-x-8">
                      <div className="space-y-1">
-                        <div className="text-[8px] font-black text-[#333] uppercase">Identity</div>
-                        <div className="text-xs font-bold text-white uppercase">{name || "Unnamed Broadcast"}</div>
+                        <div className="text-[8px] font-black text-muted-foreground uppercase">Identity</div>
+                        <div className="text-xs font-bold text-foreground uppercase">{name || "Unnamed Broadcast"}</div>
                      </div>
                      <div className="space-y-1">
-                        <div className="text-[8px] font-black text-[#333] uppercase">Protocol Template</div>
-                        <div className="text-xs font-bold text-[#22c55e] uppercase">{template.name}</div>
+                        <div className="text-[8px] font-black text-muted-foreground uppercase">Protocol Template</div>
+                        <div className="text-xs font-bold text-primary uppercase">{template.name}</div>
                      </div>
                      <div className="space-y-1">
-                        <div className="text-[8px] font-black text-[#333] uppercase">Segment Channel</div>
-                        <div className="text-xs font-bold text-white uppercase">{segment}</div>
+                        <div className="text-[8px] font-black text-muted-foreground uppercase">Segment Channel</div>
+                        <div className="text-xs font-bold text-foreground uppercase">{segment}</div>
                      </div>
                      <div className="space-y-1">
-                        <div className="text-[8px] font-black text-[#333] uppercase">Recipients</div>
-                        <div className="text-xs font-bold text-white uppercase">{preview.eligibleCount} Merchants</div>
+                        <div className="text-[8px] font-black text-muted-foreground uppercase">Recipients</div>
+                        <div className="text-xs font-bold text-foreground uppercase">{preview.eligibleCount} Merchants</div>
                      </div>
                   </div>
                </div>
@@ -308,12 +307,12 @@ export function CreateBroadcastModal({ isOpen, onClose, onCreated }: CreateBroad
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-6 border-t border-[#1a1a1a] flex items-center justify-between bg-[#111]">
+        <div className="px-8 py-6 border-t border-border flex items-center justify-between bg-muted/20">
           <button 
             onClick={() => step > 1 && setStep(step - 1)}
             disabled={step === 1 || isCreating}
             className={`flex items-center gap-2 px-6 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${
-              step === 1 ? "opacity-0 pointer-events-none" : "text-[#444] hover:text-white"
+              step === 1 ? "opacity-0 pointer-events-none" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <ChevronLeft className="w-4 h-4" />
@@ -326,7 +325,7 @@ export function CreateBroadcastModal({ isOpen, onClose, onCreated }: CreateBroad
                 if (step === 1 && !name) return adminToast.error("Protocol identity required")
                 setStep(step + 1)
               }}
-              className="flex items-center gap-2 px-8 py-3 bg-white text-black rounded-sm text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white/90 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+              className="flex items-center gap-2 px-8 py-3 bg-primary text-primary-foreground rounded-sm text-[10px] font-black uppercase tracking-[0.2em] hover:bg-primary/90 transition-all"
             >
               Next Step
               <ChevronRight className="w-4 h-4" />
@@ -335,7 +334,7 @@ export function CreateBroadcastModal({ isOpen, onClose, onCreated }: CreateBroad
             <button 
               onClick={handleCreate}
               disabled={isCreating}
-              className="flex items-center gap-2 px-10 py-3 bg-[#22c55e] text-black rounded-sm text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#1eb054] transition-all shadow-[0_0_30px_rgba(34,197,94,0.3)]"
+              className="flex items-center gap-2 px-10 py-3 bg-primary text-primary-foreground rounded-sm text-[10px] font-black uppercase tracking-[0.2em] hover:bg-primary/90 transition-all"
             >
               {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               {sendNow ? "Initiate Transmission" : "Command Scheduled"}

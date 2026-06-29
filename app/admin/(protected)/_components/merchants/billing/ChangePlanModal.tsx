@@ -53,9 +53,9 @@ const PLAN_BORDER: Record<string, string> = {
   trial:   "border-amber-500 bg-amber-500/5",
 }
 
-const labelCls = "block text-[10px] font-bold uppercase tracking-widest text-[#555] mb-1"
+const labelCls = "block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1"
 const inputCls =
-  "w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-sm px-3 py-2 text-sm text-white placeholder-[#444] focus:outline-none focus:border-[#444] transition-colors"
+  "w-full bg-background border border-input rounded-sm px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary transition-colors"
 
 function addMonths(base: string, months: number): string {
   const d = new Date(base)
@@ -149,13 +149,13 @@ export function ChangePlanModal({
 
   return (
     <Dialog open onOpenChange={handleOpenChange}>
-      <DialogContent className="bg-[#111] border border-[#1f1f1f] text-white max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-background border border-border text-foreground max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-white text-sm font-bold uppercase tracking-widest">
+          <DialogTitle className="text-foreground text-sm font-bold uppercase tracking-widest">
             Change Plan
           </DialogTitle>
-          <p className="text-[#555] text-xs pt-1">
-            Current plan: <span className="text-white font-semibold capitalize">{currentPlanTier}</span>
+          <p className="text-muted-foreground text-xs pt-1">
+            Current plan: <span className="text-foreground font-semibold capitalize">{currentPlanTier}</span>
           </p>
         </DialogHeader>
 
@@ -179,11 +179,11 @@ export function ChangePlanModal({
                     className={`text-left p-4 rounded-lg border transition-all ${
                       selectedPlan === plan.id
                         ? PLAN_BORDER[plan.id] ?? "border-border bg-muted/20"
-                        : "border-[#2a2a2a] bg-[#0d0d0d] hover:border-[#333]"
+                        : "border-border bg-background hover:bg-accent"
                     }`}
                   >
                     <div className={`text-sm font-black uppercase tracking-wider mb-0.5 ${
-                      selectedPlan === plan.id ? "text-white" : "text-[#666]"
+                      selectedPlan === plan.id ? "text-foreground" : "text-muted-foreground"
                     }`}>
                       {plan.name}
                     </div>
@@ -208,11 +208,11 @@ export function ChangePlanModal({
                       onClick={() => setCycle(c.id)}
                       className={`p-2.5 rounded-sm border text-center transition-all ${
                         cycle === c.id
-                          ? "border-[#22c55e] bg-[#22c55e]/5"
-                          : "border-[#2a2a2a] bg-[#0d0d0d] hover:border-[#333]"
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-background hover:bg-accent"
                       }`}
                     >
-                      <div className={`text-xs font-bold ${cycle === c.id ? "text-white" : "text-[#666]"}`}>
+                      <div className={`text-xs font-bold ${cycle === c.id ? "text-primary" : "text-muted-foreground"}`}>
                         {c.label}
                       </div>
                       {c.discount > 0 && (
@@ -226,7 +226,7 @@ export function ChangePlanModal({
                 {planData && (
                   <div className="text-xs text-[#22c55e] font-bold pt-1 text-center">
                     Total: KES {finalTotal.toLocaleString()} for {cycleData?.months} month{(cycleData?.months ?? 1) > 1 ? "s" : ""}
-                    {discount > 0 && <span className="text-[#555] font-normal ml-2">(saves KES {(baseTotal - finalTotal).toLocaleString()})</span>}
+                    {discount > 0 && <span className="text-muted-foreground font-normal ml-2">(saves KES {(baseTotal - finalTotal).toLocaleString()})</span>}
                   </div>
                 )}
               </div>
@@ -266,7 +266,7 @@ export function ChangePlanModal({
               <button
                 type="button"
                 onClick={() => handleOpenChange(false)}
-                className="flex-1 px-4 py-2.5 border border-[#2a2a2a] rounded-sm text-xs font-bold text-[#888] hover:border-white/20 hover:text-white transition-all"
+                className="flex-1 px-4 py-2.5 border border-input bg-background rounded-sm text-xs font-bold text-foreground hover:bg-accent transition-all"
               >
                 Cancel
               </button>
@@ -274,7 +274,7 @@ export function ChangePlanModal({
                 type="button"
                 onClick={submit}
                 disabled={saving}
-                className="flex-1 px-4 py-2.5 bg-[#22c55e] text-black rounded-sm text-xs font-black uppercase tracking-widest hover:bg-[#1eb054] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2.5 bg-primary text-primary-foreground rounded-sm text-xs font-black uppercase tracking-widest hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 {saving ? "Applying…" : "Apply Change"}

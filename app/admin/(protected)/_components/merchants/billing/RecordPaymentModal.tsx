@@ -12,9 +12,9 @@ import {
 // ─── Shared primitives ────────────────────────────────────────────────────────
 
 const inputCls =
-  "w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-sm px-3 py-2 text-sm text-white placeholder-[#444] focus:outline-none focus:border-[#444] transition-colors"
+  "w-full bg-background border border-input rounded-sm px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary transition-colors"
 
-const labelCls = "block text-[10px] font-bold uppercase tracking-widest text-[#555] mb-1"
+const labelCls = "block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1"
 
 function Field({
   label,
@@ -209,9 +209,9 @@ export function RecordPaymentModal({
 
   return (
     <Dialog open onOpenChange={handleOpenChange}>
-      <DialogContent className="bg-[#111] border border-[#1f1f1f] text-white max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-background border border-border text-foreground max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-white text-sm font-bold uppercase tracking-widest">
+          <DialogTitle className="text-foreground text-sm font-bold uppercase tracking-widest">
             Record Payment
           </DialogTitle>
         </DialogHeader>
@@ -233,14 +233,14 @@ export function RecordPaymentModal({
                     key={m.id}
                     type="button"
                     onClick={() => setMethod(m.id)}
-                    className={`flex items-center gap-2.5 p-3 rounded-sm border text-left transition-all text-sm font-semibold ${
+                    className={`flex-1 p-3 rounded border text-center transition-all ${
                       method === m.id
                         ? methodColors[m.id]
-                        : "border-[#2a2a2a] bg-[#0d0d0d] text-[#666] hover:border-[#333] hover:text-[#888]"
+                        : "border-border bg-background text-muted-foreground hover:border-border hover:text-foreground"
                     }`}
                   >
                     <span className={`w-3.5 h-3.5 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${
-                      method === m.id ? "border-current" : "border-[#444]"
+                      method === m.id ? "border-current" : "border-border"
                     }`}>
                       {method === m.id && <span className="w-1.5 h-1.5 rounded-full bg-current" />}
                     </span>
@@ -373,7 +373,7 @@ export function RecordPaymentModal({
 
             {/* Generate & Send Invoice PDF */}
             {invoiceId && (
-              <label className="flex items-center gap-3 cursor-pointer p-3 rounded-sm border border-[#2a2a2a] bg-[#0d0d0d] hover:border-[#333] transition-colors">
+              <label className="flex items-center gap-3 cursor-pointer p-3 rounded-sm border border-border bg-background hover:bg-accent transition-colors">
                 <input
                   type="checkbox"
                   checked={genPdf}
@@ -381,8 +381,8 @@ export function RecordPaymentModal({
                   className="w-4 h-4 accent-[#22c55e]"
                 />
                 <div>
-                  <div className="text-xs text-white font-semibold">Generate & Send Invoice PDF</div>
-                  <div className="text-[10px] text-[#555]">After saving, auto-generate PDF and open WhatsApp send dialog</div>
+                  <div className="text-xs text-foreground font-semibold">Generate & Send Invoice PDF</div>
+                  <div className="text-[10px] text-muted-foreground">After saving, auto-generate PDF and open WhatsApp send dialog</div>
                 </div>
               </label>
             )}
@@ -394,7 +394,7 @@ export function RecordPaymentModal({
               <button
                 type="button"
                 onClick={() => handleOpenChange(false)}
-                className="flex-1 px-4 py-2.5 border border-[#2a2a2a] rounded-sm text-xs font-bold text-[#888] hover:border-white/20 hover:text-white transition-all"
+                className="flex-1 px-4 py-2.5 border border-input bg-background rounded-sm text-xs font-bold text-foreground hover:bg-accent transition-all"
               >
                 Cancel
               </button>
@@ -402,7 +402,7 @@ export function RecordPaymentModal({
                 type="button"
                 onClick={submit}
                 disabled={saving}
-                className="flex-1 px-4 py-2.5 bg-[#22c55e] text-black rounded-sm text-xs font-black uppercase tracking-widest hover:bg-[#1eb054] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2.5 bg-primary text-primary-foreground rounded-sm text-xs font-black uppercase tracking-widest hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 {saving ? "Recording…" : `Record ${method === "waived" ? "Waiver" : "Payment"}`}
