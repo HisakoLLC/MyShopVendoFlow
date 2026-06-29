@@ -328,11 +328,11 @@ export function RecordPaymentModal({
             <label className="flex items-center gap-3 cursor-pointer group">
               <div
                 onClick={() => setExtendSub(v => !v)}
-                className={`relative w-9 h-5 rounded-full transition-colors cursor-pointer ${extendSub ? "bg-[#22c55e]" : "bg-[#333]"}`}
+                className={`relative w-9 h-5 rounded-full transition-colors cursor-pointer ${extendSub ? "bg-emerald-500" : "bg-muted"}`}
               >
                 <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${extendSub ? "translate-x-4" : "translate-x-0.5"}`} />
               </div>
-              <span className="text-xs text-[#888] group-hover:text-white transition-colors">
+              <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
                 Extend subscription to period end
               </span>
             </label>

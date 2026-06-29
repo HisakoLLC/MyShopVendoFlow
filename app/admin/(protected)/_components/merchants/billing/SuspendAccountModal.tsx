@@ -49,10 +49,10 @@ export function SuspendAccountModal({
   if (!isSuperAdmin) {
     return (
       <Dialog open onOpenChange={open => !open && onClose()}>
-        <DialogContent className="bg-[#111] border border-[#1f1f1f] text-white max-w-sm">
+        <DialogContent className="bg-card border border-border text-foreground max-w-sm">
           <div className="py-6 text-center space-y-2">
-            <ShieldAlert className="w-8 h-8 text-red-400 mx-auto" />
-            <p className="text-xs text-[#666]">Only super_admin can suspend or reactivate accounts.</p>
+            <ShieldAlert className="w-8 h-8 text-red-500 mx-auto" />
+            <p className="text-xs text-muted-foreground">Only super_admin can suspend or reactivate accounts.</p>
           </div>
         </DialogContent>
       </Dialog>
@@ -154,7 +154,7 @@ export function SuspendAccountModal({
               <button
                 type="button"
                 onClick={() => handleOpenChange(false)}
-                className="flex-1 px-4 py-2.5 border border-[#2a2a2a] rounded-sm text-xs font-bold text-[#888] hover:border-white/20 hover:text-white transition-all"
+                className="flex-1 px-4 py-2.5 border border-input bg-background rounded-sm text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
               >
                 Cancel
               </button>
@@ -181,7 +181,7 @@ export function SuspendAccountModal({
                   <p className="text-sm font-semibold text-red-400">
                     Suspending {merchantName}
                   </p>
-                  <p className="text-xs text-[#888] mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     This action will immediately block merchant access to VendoFlow.
                   </p>
                 </div>
@@ -193,7 +193,7 @@ export function SuspendAccountModal({
                   "All staff access will be revoked",
                   "Existing data is preserved — nothing is deleted",
                 ].map(item => (
-                  <div key={item} className="flex items-center gap-2 text-xs text-[#666]">
+                  <div key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span className="w-1 h-1 rounded-full bg-red-500/50 shrink-0" />
                     {item}
                   </div>
@@ -202,9 +202,9 @@ export function SuspendAccountModal({
             </div>
 
             {/* Merchant name display */}
-            <div className="flex items-center gap-2 px-3 py-2 bg-[#0d0d0d] border border-[#2a2a2a] rounded-sm">
-              <Store className="w-4 h-4 text-[#444]" />
-              <span className="text-sm text-white font-semibold">{merchantName}</span>
+            <div className="flex items-center gap-2 px-3 py-2 bg-muted/30 border border-border rounded-sm">
+              <Store className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-foreground font-semibold">{merchantName}</span>
               <span className="ml-auto text-[9px] font-bold uppercase text-red-400 bg-red-400/10 border border-red-400/20 px-1.5 py-0.5 rounded-sm">
                 Will be suspended
               </span>

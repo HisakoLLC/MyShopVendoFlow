@@ -279,19 +279,19 @@ export default function ConversationView({
       <div className="h-16 border-b border-border px-6 flex items-center justify-between bg-card">
         <div className="flex items-center gap-4">
           <div className="relative group cursor-pointer" onClick={() => setShowStatusList(!showStatusList)}>
-            <div className={`px-2 py-1 rounded border border-white/5 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all hover:bg-white/5 ${
-               conversation?.status === 'resolved' ? 'text-muted-foreground' : 'text-[#22c55e]'
+            <div className={`px-2 py-1 rounded border border-border text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all hover:bg-accent ${
+               conversation?.status === 'resolved' ? 'text-muted-foreground' : 'text-emerald-600'
             }`}>
               <div className={`w-1.5 h-1.5 rounded-full ${
-                conversation?.status === 'open' ? 'bg-[#22c55e]' : 
-                conversation?.status === 'resolved' ? 'bg-muted' : 'bg-amber-500'
+                conversation?.status === 'open' ? 'bg-emerald-500' : 
+                conversation?.status === 'resolved' ? 'bg-muted-foreground' : 'bg-amber-500'
               }`} />
               {conversation?.status?.replace("_", " ")}
               <MoreVertical className="w-3 h-3 opacity-30" />
             </div>
 
             {showStatusList && (
-              <div className="absolute top-full left-0 mt-2 w-48 bg-[#111] border border-[#1f1f1f] rounded-lg shadow-2xl z-50 overflow-hidden py-1">
+              <div className="absolute top-full left-0 mt-2 w-48 bg-popover border border-border rounded-lg shadow-xl z-50 overflow-hidden py-1">
                 {(["open", "waiting_customer", "waiting_internal", "resolved", "escalated"] as const).map(s => (
                   <button
                     key={s}
@@ -299,7 +299,7 @@ export default function ConversationView({
                       handleUpdateMeta({ status: s })
                       setShowStatusList(false)
                     }}
-                    className={`w-full px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors ${conversation?.status === s ? 'text-[#22c55e]' : 'text-[#666]'}`}
+                    className={`w-full px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest hover:bg-accent transition-colors ${conversation?.status === s ? 'text-primary' : 'text-muted-foreground'}`}
                   >
                     {s.replace("_", " ")}
                   </button>
@@ -324,32 +324,32 @@ export default function ConversationView({
           <div className="relative">
             <button 
               onClick={() => setShowAgentList(!showAgentList)}
-              className="flex items-center gap-3 group px-3 py-1.5 rounded-md hover:bg-white/5 transition-all border border-transparent hover:border-white/5"
+              className="flex items-center gap-3 group px-3 py-1.5 rounded-md hover:bg-accent transition-all border border-transparent hover:border-border"
             >
               <div className="text-right">
-                <div className="text-[8px] text-[#444] uppercase font-black tracking-tighter">Assigned Agent</div>
-                <div className="text-[10px] text-white/50 italic flex items-center gap-1.5">
-                  <ShieldCheck className="w-2.5 h-2.5 text-[#22c55e]/50" />
+                <div className="text-[8px] text-foreground uppercase font-black tracking-tighter">Assigned Agent</div>
+                <div className="text-[10px] text-foreground italic flex items-center gap-1.5">
+                  <ShieldCheck className="w-2.5 h-2.5 text-primary" />
                   {conversation?.assigned_agent?.full_name || "Unassigned"}
                 </div>
               </div>
-              <div className="w-8 h-8 rounded-full bg-[#161616] border border-[#1f1f1f] flex items-center justify-center overflow-hidden">
+              <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center overflow-hidden">
                 {conversation?.assigned_agent?.avatar_url ? (
                   <img src={conversation.assigned_agent.avatar_url} className="w-full h-full object-cover" />
                 ) : (
-                  <User className="w-4 h-4 text-[#444]" />
+                  <User className="w-4 h-4 text-muted-foreground" />
                 )}
               </div>
             </button>
 
             {showAgentList && (
-              <div className="absolute top-full right-0 mt-2 w-56 bg-[#111] border border-[#1f1f1f] rounded-lg shadow-2xl z-50 overflow-hidden py-1">
+              <div className="absolute top-full right-0 mt-2 w-56 bg-popover border border-border rounded-lg shadow-xl z-50 overflow-hidden py-1">
                  <button
                     onClick={() => {
                       handleUpdateMeta({ assigned_agent_id: null })
                       setShowAgentList(false)
                     }}
-                    className="w-full px-4 py-3 text-left border-b border-[#1a1a1a] text-[10px] font-black uppercase text-red-500/50 hover:bg-red-500/5"
+                    className="w-full px-4 py-3 text-left border-b border-border text-[10px] font-black uppercase text-red-500/60 hover:bg-red-50"
                   >
                     Unassign Worker
                   </button>
@@ -361,14 +361,14 @@ export default function ConversationView({
                           handleUpdateMeta({ assigned_agent_id: u.id })
                           setShowAgentList(false)
                         }}
-                        className="w-full px-4 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors"
+                        className="w-full px-4 py-3 flex items-center gap-3 hover:bg-accent transition-colors"
                       >
-                         <div className="w-6 h-6 rounded-full bg-[#1a1a1a] border border-[#1f1f1f] flex items-center justify-center text-[10px] text-white font-bold">
+                         <div className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center text-[10px] text-foreground font-bold">
                             {u.avatar_url ? <img src={u.avatar_url} className="w-full h-full rounded-full" /> : u.full_name[0]}
                          </div>
                          <div className="text-left">
-                           <div className="text-[10px] text-white/80 font-bold">{u.full_name}</div>
-                           <div className="text-[8px] text-[#444] uppercase font-black tracking-widest">{u.role}</div>
+                           <div className="text-[10px] text-foreground font-bold">{u.full_name}</div>
+                           <div className="text-[8px] text-muted-foreground uppercase font-black tracking-widest">{u.role}</div>
                          </div>
                       </button>
                     ))}
@@ -591,14 +591,14 @@ export default function ConversationView({
             <div className="space-y-4 pb-2 animate-in fade-in slide-in-from-bottom-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[9px] text-[#444] uppercase font-black">Template Pipeline</label>
+                  <label className="text-[9px] text-muted-foreground uppercase font-black">Template Pipeline</label>
                   <select 
                     value={selectedTemplate}
                     onChange={(e) => {
                       setSelectedTemplate(e.target.value)
                       setTemplateParams({})
                     }}
-                    className="w-full bg-[#111] border border-[#1f1f1f] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-[#22c55e]"
+                    className="w-full bg-background border border-input rounded-lg p-2.5 text-xs text-foreground focus:outline-none focus:border-primary"
                   >
                     <option value="">Select an approved template...</option>
                     {TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -607,7 +607,7 @@ export default function ConversationView({
 
                  {selectedTemplate && (
                   <div className="space-y-3">
-                    <label className="text-[9px] text-[#444] uppercase font-black">Parameter Injection</label>
+                    <label className="text-[9px] text-muted-foreground uppercase font-black">Parameter Injection</label>
                     <div className="grid grid-cols-2 gap-2">
                       {TEMPLATES.find(t => t.id === selectedTemplate)?.params.map(p => (
                         <input
@@ -616,26 +616,26 @@ export default function ConversationView({
                           placeholder={`Param: ${p}`}
                           value={templateParams[p] || ""}
                           onChange={(e) => setTemplateParams(prev => ({ ...prev, [p]: e.target.value }))}
-                          className="bg-[#111] border border-[#1f1f1f] rounded p-2 text-[10px] text-white focus:border-[#22c55e] outline-none"
+                          className="bg-background border border-input rounded p-2 text-[10px] text-foreground placeholder:text-muted-foreground/60 focus:border-primary outline-none"
                         />
                       ))}
                     </div>
 
-                    <div className="pt-2 border-t border-[#1f1f1f]">
+                    <div className="pt-2 border-t border-border">
                        <div className="flex items-center gap-3">
                          <button
                            onClick={() => fileInputRef.current?.click()}
                            disabled={isUploading}
-                           className="flex items-center gap-2 px-3 py-1.5 rounded bg-white/5 hover:bg-white/10 text-xs font-bold text-[#666] hover:text-white transition-all border border-white/5"
+                           className="flex items-center gap-2 px-3 py-1.5 rounded bg-muted hover:bg-muted/80 text-xs font-bold text-muted-foreground hover:text-foreground transition-all border border-border"
                          >
                            {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Paperclip className="w-3.5 h-3.5" />}
                            Attach Document
                          </button>
                          {preparedMedia && (
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-[#22c55e] bg-[#22c55e]/10 px-2 py-1 rounded border border-[#22c55e]/20">
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
                                <FileText className="w-3 h-3" />
                                <span className="truncate max-w-[150px]">{preparedMedia.name}</span>
-                               <button onClick={() => setPreparedMedia(null)} className="ml-1 hover:text-white"><X className="w-3 h-3" /></button>
+                               <button onClick={() => setPreparedMedia(null)} className="ml-1 hover:text-foreground"><X className="w-3 h-3" /></button>
                             </div>
                          )}
                        </div>
@@ -645,17 +645,17 @@ export default function ConversationView({
                </div>
 
               {selectedTemplate && (
-                <div className="bg-[#161616] border border-[#1f1f1f] rounded-lg p-3 flex justify-between items-center group">
+                <div className="bg-muted/30 border border-border rounded-lg p-3 flex justify-between items-center group">
                   <div className="flex-1">
-                     <div className="text-[8px] text-[#444] font-black uppercase tracking-[0.2em] mb-1">Preview Protocol</div>
-                     <div className="text-[10px] text-[#666] italic">
+                     <div className="text-[8px] text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Preview Protocol</div>
+                     <div className="text-[10px] text-muted-foreground italic">
                        Template `{selectedTemplate}` will be populated with {Object.keys(templateParams).length} parameters.
                      </div>
                   </div>
                   <button
                     onClick={() => handleSend(preparedMedia || undefined)}
                     disabled={isSending}
-                    className="flex items-center gap-2 px-5 py-2 rounded-md bg-[#22c55e] text-white font-bold text-[10px] uppercase tracking-widest hover:bg-[#16a34a] transition-all"
+                    className="flex items-center gap-2 px-5 py-2 rounded-md bg-primary text-primary-foreground font-bold text-[10px] uppercase tracking-widest hover:bg-primary/90 transition-all"
                   >
                     Execute
                     {isSending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}

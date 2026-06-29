@@ -30,26 +30,26 @@ export default function FinanceTable({ initialTransactions, onAddTransaction }: 
   }
 
   return (
-    <div className="bg-[#111] border border-[#1f1f1f] rounded-xl overflow-hidden">
-      <div className="p-5 border-b border-[#1f1f1f] flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+      <div className="p-5 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4 flex-1">
            <div className="relative flex-1 max-w-sm group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#444] group-focus-within:text-[#22c55e] transition-colors" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <input
               type="text"
               placeholder="Search transactions..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-white/5 border border-[#1f1f1f] rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-[#22c55e] transition-all"
+              className="w-full bg-background border border-input rounded-lg pl-9 pr-3 py-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary transition-all"
             />
           </div>
-          <button className="p-2 border border-[#1f1f1f] rounded-lg text-[#444] hover:text-white transition-colors">
+          <button className="p-2 border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
             <Filter className="w-4 h-4" />
           </button>
         </div>
         <button 
           onClick={onAddTransaction}
-          className="flex items-center gap-2 px-4 py-2 bg-[#22c55e] text-black text-[10px] font-black uppercase tracking-widest rounded-lg hover:shadow-xl hover:shadow-[#22c55e]/10 transition-all"
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-primary/90 transition-all shadow-sm"
         >
           <Plus className="w-4 h-4" />
           Record Payment
@@ -59,7 +59,7 @@ export default function FinanceTable({ initialTransactions, onAddTransaction }: 
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="bg-[#161616] text-[#444] border-b border-[#1f1f1f]">
+            <tr className="bg-muted/50 text-muted-foreground border-b border-border">
               <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Date</th>
               <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Merchant</th>
               <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Type</th>
@@ -68,21 +68,21 @@ export default function FinanceTable({ initialTransactions, onAddTransaction }: 
               <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#1f1f1f]">
+          <tbody className="divide-y divide-border">
             {filtered.map((tx) => (
-              <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors group">
+              <tr key={tx.id} className="hover:bg-accent/50 transition-colors group">
                 <td className="px-6 py-4">
-                   <div className="flex items-center gap-2 text-xs text-[#888] font-mono">
-                     <Calendar className="w-3 h-3 text-[#333]" />
+                   <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
+                     <Calendar className="w-3 h-3 text-muted-foreground/50" />
                      {formatDate(tx.transaction_date)}
                    </div>
                 </td>
                 <td className="px-6 py-4">
                    <div className="flex items-center gap-2">
-                     <div className="w-6 h-6 rounded bg-[#22c55e]/10 flex items-center justify-center border border-[#22c55e]/20">
-                       <User className="w-3 h-3 text-[#22c55e]" />
+                     <div className="w-6 h-6 rounded bg-emerald-50 flex items-center justify-center border border-emerald-200">
+                       <User className="w-3 h-3 text-emerald-600" />
                      </div>
-                     <span className="text-white text-xs font-semibold">{tx.accounts?.business_name || "Misc / General"}</span>
+                     <span className="text-foreground text-xs font-semibold">{tx.accounts?.business_name || "Misc / General"}</span>
                    </div>
                 </td>
                 <td className="px-6 py-4">
@@ -95,15 +95,15 @@ export default function FinanceTable({ initialTransactions, onAddTransaction }: 
                    </span>
                 </td>
                 <td className="px-6 py-4">
-                   <div className={`text-xs font-black font-mono ${tx.type === 'expense' ? 'text-red-400' : 'text-[#22c55e]'}`}>
+                   <div className={`text-xs font-black font-mono ${tx.type === 'expense' ? 'text-red-500' : 'text-emerald-600'}`}>
                      {tx.type === 'expense' ? '-' : '+'} KES {tx.amount?.toLocaleString()}
                    </div>
                 </td>
                 <td className="px-6 py-4">
-                   <p className="text-[10px] text-[#555] truncate max-w-[200px]">{tx.notes || '—'}</p>
+                   <p className="text-[10px] text-muted-foreground truncate max-w-[200px]">{tx.notes || '—'}</p>
                 </td>
                 <td className="px-6 py-4 text-right">
-                   <button className="p-1 text-[#333] hover:text-[#888] transition-colors">
+                   <button className="p-1 text-muted-foreground/40 hover:text-muted-foreground transition-colors">
                      <MoreVertical className="w-4 h-4" />
                    </button>
                 </td>
@@ -111,8 +111,8 @@ export default function FinanceTable({ initialTransactions, onAddTransaction }: 
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center opacity-30">
-                  <p className="text-[#444] text-xs font-bold uppercase tracking-widest">No transactions found</p>
+                <td colSpan={6} className="px-6 py-12 text-center opacity-50">
+                  <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest">No transactions found</p>
                 </td>
               </tr>
             )}

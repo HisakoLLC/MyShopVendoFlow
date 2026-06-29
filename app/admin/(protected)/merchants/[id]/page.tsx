@@ -89,12 +89,12 @@ async function MerchantDetailData({ id, initialTab }: { id: string; initialTab: 
               </div>
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#161616] border border-[#1f1f1f] flex items-center justify-center text-white font-bold text-lg">
+                  <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground border border-border flex items-center justify-center font-bold text-lg">
                     {account.business_name?.[0]}
                   </div>
                   <div>
-                    <div className="text-white font-medium text-sm">{account.business_name}</div>
-                    <div className="text-[10px] text-[#444] font-mono">{account.account_id}</div>
+                    <div className="text-foreground font-medium text-sm">{account.business_name}</div>
+                    <div className="text-[10px] text-muted-foreground font-mono">{account.account_id}</div>
                   </div>
                 </div>
               </div>
@@ -104,14 +104,14 @@ async function MerchantDetailData({ id, initialTab }: { id: string; initialTab: 
             <div className="pt-8 space-y-4">
                <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <div className="text-[9px] text-[#444] uppercase font-bold tracking-tighter">Location</div>
-                  <div className="text-xs text-white truncate">
+                  <div className="text-[9px] text-muted-foreground uppercase font-bold tracking-tighter">Location</div>
+                  <div className="text-xs text-foreground truncate">
                     {account.city || "No City"}, {account.country || "KE"}
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-[9px] text-[#444] uppercase font-bold tracking-tighter">Verified Phone</div>
-                  <div className="text-xs text-white font-mono">{account.phone || "Not set"}</div>
+                  <div className="text-[9px] text-muted-foreground uppercase font-bold tracking-tighter">Verified Phone</div>
+                  <div className="text-xs text-foreground font-mono">{account.phone || "Not set"}</div>
                 </div>
               </div>
             </div>
@@ -129,19 +129,19 @@ async function MerchantDetailData({ id, initialTab }: { id: string; initialTab: 
           </div>
 
           {/* Stores List */}
-          <div className="bg-[#111] border border-[#1f1f1f] rounded-lg p-6 space-y-4">
-             <div className="flex items-center gap-2 text-[#444] text-[10px] font-bold uppercase tracking-widest">
+          <div className="bg-card border border-border rounded-lg p-6 space-y-4">
+             <div className="flex items-center gap-2 text-muted-foreground text-[10px] font-bold uppercase tracking-widest">
                 <StoreIcon className="w-3 h-3" />
                 Stores ({stores?.length || 0})
               </div>
               <div className="space-y-2">
                 {stores?.map((store) => (
-                  <div key={store.store_id} className="p-3 rounded bg-[#161616] border border-[#1f1f1f] flex justify-between items-center group hover:border-white/10 transition-colors">
+                  <div key={store.store_id} className="p-3 rounded bg-muted/30 border border-border flex justify-between items-center group hover:border-primary/20 transition-colors">
                     <div>
-                      <div className="text-xs text-white font-medium">{store.name}</div>
-                      <div className="text-[10px] text-[#444] truncate max-w-[150px]">{store.address || "No address"}</div>
+                      <div className="text-xs text-foreground font-medium">{store.name}</div>
+                      <div className="text-[10px] text-muted-foreground truncate max-w-[150px]">{store.address || "No address"}</div>
                     </div>
-                    {store.active && <div className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />}
+                    {store.active && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />}
                   </div>
                 ))}
             </div>
